@@ -32,6 +32,8 @@ spring:
         mentorshipRequest: mentorship_request_topic
         skillAcquiredChannel:
           name: skill_acquired_channel
+        projectChannel:
+          name: project_channel
 
 servlet:
   multipart:

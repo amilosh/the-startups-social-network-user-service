@@ -43,6 +43,11 @@ public class RedisConfiguration {
     }
 
     @Bean
+    public ChannelTopic projectFollowerTopic() {
+        return new ChannelTopic(redisProperties.getChannels().getProjectChannel().getName());
+    }
+
+    @Bean
     public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(jedisConnectionFactory());
