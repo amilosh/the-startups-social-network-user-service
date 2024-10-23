@@ -62,6 +62,7 @@ redis:
     recommendation-received: recommendation_received_channel
     profile-view: profile_view_channel
     skill-offered: skill_offered_channel
+    follower-event: user_follower_events
 
 scheduler:
   clear-events:

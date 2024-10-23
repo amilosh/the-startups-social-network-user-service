@@ -50,6 +50,10 @@ public class RedisConfig {
     @Value("${redis.channels.skill-offered}")
     private String skillOfferedEventChannel;
 
+    @Value("${redis.channels.follower-event}")
+    private String followerEventChannel;
+
+
     public interface MessagePublisher<T> {
         void publish(T redisEvent);
     }
@@ -127,6 +131,11 @@ public class RedisConfig {
     @Bean
     public MessageListenerAdapter userBanEventListenerAdapter(UserBanEventListener userBanEventListener) {
         return new MessageListenerAdapter(userBanEventListener, "onMessage");
+    }
+
+    @Bean
+    public ChannelTopic followerEventChannelTopic() {
+        return new ChannelTopic(followerEventChannel);
     }
 
     @Bean
