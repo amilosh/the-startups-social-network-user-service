@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.ProfileViewEvent;
 
 @Slf4j
-@Component
+@Component("profileViewEventPublisher")
 public class ProfileViewEventPublisher extends AbstractEventPublisher<ProfileViewEvent> {
 
     public ProfileViewEventPublisher(RedisTemplate<String, ProfileViewEvent> redisTemplate,

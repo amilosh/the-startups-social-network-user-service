@@ -67,7 +67,8 @@ public class UserServiceImplTest {
     private UserRepository repository;
 
     @Mock
-    private PremiumBoughtEventPublisher premiumBoughtEventPublisher;
+    private MessagePublisher<PremiumBoughtEvent> premiumBoughtEventPublisher;
+    //private PremiumBoughtEventPublisher premiumBoughtEventPublisher;
 
     @Mock
     private S3Service s3Service;
