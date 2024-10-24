@@ -27,6 +27,8 @@ spring:
           name: follower_channel
         goalCompletedEvent:
           name: goal_completed_event_channel
+        profilePicEventChannel:
+          name: profile_pic_channel
         mentorshipRequest:
           name: mentorship_request_topic
         recommendationRequestEvent:

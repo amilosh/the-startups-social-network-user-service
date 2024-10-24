@@ -45,6 +45,11 @@ public class RedisConfiguration {
     }
 
     @Bean
+    public ChannelTopic profilePicTopic() {
+        return new ChannelTopic(redisProperties.getChannels().getProfilePicEventChannel().getName());
+    }
+
+    @Bean
     public ChannelTopic skillAcquiredTopic() {
         return new ChannelTopic(redisProperties.getChannels().getSkillAcquiredChannel().getName());
     }
