@@ -1,28 +1,36 @@
 package school.faang.user_service.publisher;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
-import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.event.FollowerEvent;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.event.FollowerEventDto;
 
-@Service
-public class FollowerEventPublisher implements MessagePublisher<FollowerEvent> {
-    private final RedisTemplate<String, FollowerEvent> redisTemplate;
-    private final ChannelTopic followingTopic;
+@Slf4j
+@Component
+public class FollowerEventPublisher implements MessagePublisher<FollowerEventDto> {
+    private final RedisTemplate<String, FollowerEventDto> redisTemplate;
+    private final ChannelTopic followerEventTopic;
 
-    @Autowired
-    public FollowerEventPublisher(@Qualifier("followerEventPublisherRedisTemplate")
-                                      RedisTemplate<String, FollowerEvent> redisTemplate,
-                                  @Qualifier("follower-channel") ChannelTopic followingTopic
-    ) {
+    public FollowerEventPublisher(RedisTemplate<String, FollowerEventDto> redisTemplate,
+                                  @Qualifier("followerEventChannel") ChannelTopic followerEventTopic) {
         this.redisTemplate = redisTemplate;
-        this.followingTopic = followingTopic;
+        this.followerEventTopic = followerEventTopic;
     }
 
     @Override
-    public void publish(FollowerEvent message) {
-        redisTemplate.convertAndSend(followingTopic.getTopic(), message);
+    @Retryable(retryFor = RuntimeException.class,
+            backoff = @Backoff(delayExpression = "${spring.data.redis.publisher.delay}"))
+    public void publish(FollowerEventDto followerEventDto) {
+        try {
+            redisTemplate.convertAndSend(followerEventTopic.getTopic(), followerEventDto);
+            log.debug("Published follower event: {}", followerEventDto);
+        } catch (Exception e) {
+            log.error("Failed to publish follower event: {}", followerEventDto, e);
+            throw new RuntimeException(e);
+        }
     }
 }

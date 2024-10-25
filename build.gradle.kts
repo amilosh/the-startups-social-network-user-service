@@ -31,6 +31,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
+    implementation("org.springframework.retry:spring-retry")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
     /**
@@ -64,7 +65,7 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.5.3.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.3.Final")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
-    implementation ("org.imgscalr:imgscalr-lib:4.2")
+    implementation("org.imgscalr:imgscalr-lib:4.2")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0")
     implementation("net.coobird:thumbnailator:0.4.1")
 
@@ -106,10 +107,11 @@ tasks.bootJar {
  * JaCoCo settings
  */
 val jacocoInclude = listOf(
-    "**/controller/**",
-    "**/service/**",
-    "**/validator/**",
-    "**/mapper/**"
+        "**/controller/**",
+        "**/service/**",
+        "**/validator/**",
+        "**/mapper/**",
+        "**/publisher/**"
 )
 jacoco {
     toolVersion = "0.8.9"
@@ -128,9 +130,9 @@ tasks.jacocoTestReport {
     }
 
     classDirectories.setFrom(
-        sourceSets.main.get().output.asFileTree.matching {
-            include(jacocoInclude)
-        }
+            sourceSets.main.get().output.asFileTree.matching {
+                include(jacocoInclude)
+            }
     )
 }
 tasks.jacocoTestCoverageVerification {
@@ -138,9 +140,9 @@ tasks.jacocoTestCoverageVerification {
         rule {
             element = "CLASS"
             classDirectories.setFrom(
-                sourceSets.main.get().output.asFileTree.matching {
-                    include(jacocoInclude)
-                }
+                    sourceSets.main.get().output.asFileTree.matching {
+                        include(jacocoInclude)
+                    }
             )
             enabled = true
             limit {

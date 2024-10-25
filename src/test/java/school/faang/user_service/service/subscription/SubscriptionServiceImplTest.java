@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.event.FollowerEventDto;
 import school.faang.user_service.dto.subscription.SubscriptionUserDto;
 import school.faang.user_service.dto.subscription.UserFilterDto;
 import school.faang.user_service.entity.User;
@@ -19,8 +20,6 @@ import school.faang.user_service.exception.subscription.SubscriptionNotFoundExce
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
-import school.faang.user_service.service.subscription.SubscriptionServiceImpl;
-import school.faang.user_service.service.subscription.SubscriptionValidator;
 import school.faang.user_service.service.subscription.filters.UserFiltersApplier;
 
 import java.util.ArrayList;
@@ -30,6 +29,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -51,9 +51,6 @@ class SubscriptionServiceImplTest {
     private SubscriptionValidator validator;
 
     @Mock
-    private ObjectMapper objectMapper;
-
-    @Mock
     private FollowerEventPublisher followerEventPublisher;
 
     @InjectMocks
@@ -69,6 +66,7 @@ class SubscriptionServiceImplTest {
         subscriptionService.followUser(followerId, followeeId);
 
         verify(subscriptionRepository).followUser(followerId, followeeId);
+        verify(followerEventPublisher).publish(any(FollowerEventDto.class));
     }
 
     @Test

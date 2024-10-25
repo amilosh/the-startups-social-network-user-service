@@ -12,11 +12,5 @@ public record UserDto(
         @NotBlank(message = "email can not be empty")
         String email,
 
-        PreferredContact preferredContact
-) {
-
-
-    public UserDto(long id, String username, String email) {
-        this(id, username, email, null);
-    }
+        PreferredContact preference) {
 }

@@ -1,5 +1,6 @@
 package school.faang.user_service.service.user;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
@@ -9,11 +10,16 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
 import org.springframework.test.util.ReflectionTestUtils;
+import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.event.ProfileViewEvent;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.publisher.MessagePublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.image.AvatarSize;
 import school.faang.user_service.service.image.BufferedImagesHolder;
@@ -33,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -62,13 +69,20 @@ public class UserServiceImplTest {
     @Mock
     private ImageProcessor imageProcessor;
 
+
     @Spy
     private UserMapper mapper = Mappers.getMapper(UserMapper.class);
+
+    @Mock
+    private MessagePublisher<ProfileViewEvent> profileViewEventPublisher;
+
+    @Mock
+    private UserContext userContext;
 
     @Test
     public void getUser_Success() {
         User user = createUser();
-        UserDto userDto = new UserDto(1L, "user", "email");
+        UserDto userDto = new UserDto(1L, "user", "email", PreferredContact.EMAIL);
         when(repository.findById(user.getId())).thenReturn(Optional.of(user));
 
         UserDto result = service.getUser(user.getId());
@@ -90,8 +104,8 @@ public class UserServiceImplTest {
     public void getUsersByIds_Success() {
         List<Long> ids = List.of(1L, 2L, 3L, 4L);
         List<User> users = createUsers();
-        UserDto userDto1 = new UserDto(1L, "user1", "email1");
-        UserDto userDto2 = new UserDto(2L, "user2", "email2");
+        UserDto userDto1 = new UserDto(1L, "user1", "email1", PreferredContact.EMAIL);
+        UserDto userDto2 = new UserDto(2L, "user2", "email2", PreferredContact.EMAIL);
         List<UserDto> userDtos = List.of(userDto1, userDto2);
 
         when(repository.findAllById(ids)).thenReturn(users);
@@ -163,6 +177,7 @@ public class UserServiceImplTest {
 
         when(repository.findById(user.getId())).thenReturn(java.util.Optional.of(user));
         when(s3Service.downloadFile("smallFileId")).thenReturn(inputStream);
+        when(userContext.getUserId()).thenReturn(1L);
 
         Resource result = service.downloadUserAvatar(user.getId(), size);
 
@@ -173,6 +188,9 @@ public class UserServiceImplTest {
             throw new RuntimeException(e);
         }
         verify(s3Service).downloadFile("smallFileId");
+        verify(userContext).getUserId();
+        verify(profileViewEventPublisher).publish(any(ProfileViewEvent.class));
+
     }
 
     @Test
@@ -224,12 +242,33 @@ public class UserServiceImplTest {
         assertThrows(EntityNotFoundException.class, () -> service.deleteUserAvatar(user.getId()));
     }
 
+    @Test
+    @DisplayName("Try to ban not founded user")
+    public void testBanUserWithNotFoundedId() {
+        when(repository.findById(anyLong())).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> service.banUserById(1L));
+    }
+
+    @Test
+    @DisplayName("Successfully ban user by id")
+    public void testBanUserSuccess() {
+        User user = createUser();
+        when(repository.findById(anyLong())).thenReturn(Optional.of(user));
+
+        service.banUserById(1L);
+
+        verify(repository).save(user);
+        assertTrue(user.isBanned());
+    }
+
     private User createUser() {
         User user = new User();
         user.setId(1L);
         user.setUsername("user");
         user.setEmail("email");
         user.setUserProfilePic(new UserProfilePic("fileId", "smallFileId"));
+        user.setContactPreference(new ContactPreference(1, user, PreferredContact.EMAIL));
         return user;
     }
 
@@ -238,10 +277,12 @@ public class UserServiceImplTest {
         user1.setId(1L);
         user1.setUsername("user1");
         user1.setEmail("email1");
+        user1.setContactPreference(new ContactPreference(1, user1, PreferredContact.EMAIL));
         User user2 = new User();
         user2.setId(2L);
         user2.setUsername("user2");
         user2.setEmail("email2");
+        user2.setContactPreference(new ContactPreference(1, user2, PreferredContact.EMAIL));
         return List.of(user1, user2);
     }
 

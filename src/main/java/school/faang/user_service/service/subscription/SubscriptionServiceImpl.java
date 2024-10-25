@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.dto.event.FollowerEvent;
+import school.faang.user_service.dto.event.FollowerEventDto;
 import school.faang.user_service.dto.subscription.SubscriptionUserDto;
 import school.faang.user_service.dto.subscription.UserFilterDto;
 import school.faang.user_service.entity.User;
@@ -15,12 +15,12 @@ import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.subscription.filters.UserFiltersApplier;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final UserFiltersApplier userFilterApplier;
@@ -37,6 +37,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscriptionRepository.followUser(followerId, followeeId);
 
         publishFollowerEvent(followerId, followeeId);
+        FollowerEventDto followerEvent = FollowerEventDto.builder()
+                .followerId(followerId)
+                .followeeId(followeeId)
+                .timestamp(LocalDateTime.now())
+                .build();
+        eventPublisher.publish(followerEvent);
     }
 
     @Override
