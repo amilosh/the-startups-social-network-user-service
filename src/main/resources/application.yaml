@@ -29,7 +29,8 @@ spring:
           name: follower_channel
         goalCompletedEvent:
           name: goal_completed_event_channel
-        mentorshipRequest: mentorship_request_topic
+        mentorshipRequest:
+          name: mentorship_request_topic
         skillAcquiredChannel:
           name: skill_acquired_channel
         mentorshipStartEvent:
