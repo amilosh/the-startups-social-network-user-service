@@ -26,16 +26,16 @@ class MentorshipStartEventPublisherTest {
     @Mock
     private ChannelTopic mentorshipStartEventTopic;
 
-    private static final String MENTORSHIP_STAR_EVENT_TOPIC = "MentorshipStartEventTopic";
+    private static final String MENTORSHIP_START_EVENT_TOPIC = "MentorshipStartEventTopic";
 
     @Test
     @DisplayName("Успешная отправка message")
     public void whenPublishEventShouldSuccess() {
         MentorshipStartEvent event = MentorshipStartEvent.builder().build();
-        when(mentorshipStartEventTopic.getTopic()).thenReturn(MENTORSHIP_STAR_EVENT_TOPIC);
+        when(mentorshipStartEventTopic.getTopic()).thenReturn(MENTORSHIP_START_EVENT_TOPIC);
 
         mentorshipStartEventPublisher.publish(event);
 
-        verify(redisTemplate).convertAndSend(MENTORSHIP_STAR_EVENT_TOPIC, event);
+        verify(redisTemplate).convertAndSend(MENTORSHIP_START_EVENT_TOPIC, event);
     }
 }

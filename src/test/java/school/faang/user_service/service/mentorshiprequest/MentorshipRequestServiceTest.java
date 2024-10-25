@@ -101,7 +101,8 @@ class MentorshipRequestServiceTest {
                     .thenReturn(Optional.of(menReqEntity));
             when(menReqRepository.create(menReqDto.getRequesterId(),
                     menReqDto.getReceiverId(), menReqDto.getDescription()))
-                    .thenReturn(menReqEntity);
+                    .thenReturn(MENTORSHIP_REQUEST_ID);
+            when(menReqRepository.findById(MENTORSHIP_REQUEST_ID)).thenReturn(Optional.of(menReqEntity));
             when(menReqMapper.toDto(menReqEntity)).thenReturn(menReqDto);
 
             MentorshipRequestDto mentorshipRequestDto = menReqService.requestMentorship(menReqDto);
@@ -121,6 +122,7 @@ class MentorshipRequestServiceTest {
             verify(menReqValidator).validateDataCreateRequest(menReqEntity);
             verify(menReqRepository).create(menReqDto.getRequesterId(),
                     menReqDto.getReceiverId(), menReqDto.getDescription());
+            verify(menReqRepository).findById(MENTORSHIP_REQUEST_ID);
             verify(menReqRepository).findLatestRequest(menReqDto.getRequesterId(), menReqDto.getReceiverId());
             verify(mentorshipStartEventPublisher).publish(any(MentorshipStartEvent.class));
             verify(menReqMapper).toDto(menReqEntity);

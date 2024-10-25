@@ -1,6 +1,7 @@
 package school.faang.user_service.service.mentorshiprequest;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import school.faang.user_service.repository.mentorship.MentorshipRequestReposito
 import school.faang.user_service.validator.mentorshiprequst.MentorshipRequestValidator;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -39,9 +41,12 @@ public class MentorshipRequestService {
 
         menReqOptional.ifPresent(menReqValidator::validateDataCreateRequest);
 
-        MentorshipRequest menReq = menReqRepository.create(menReqDto.getRequesterId(),
+        Long menReqId = menReqRepository.create(menReqDto.getRequesterId(),
                 menReqDto.getReceiverId(),
                 menReqDto.getDescription());
+
+        MentorshipRequest menReq = menReqRepository.findById(menReqId)
+                .orElseThrow(() -> new NoSuchElementException("MentorshipRequest was not found"));
 
         publishMentorshipStartEvent(menReqDto.getRequesterId(), menReqDto.getReceiverId());
 
