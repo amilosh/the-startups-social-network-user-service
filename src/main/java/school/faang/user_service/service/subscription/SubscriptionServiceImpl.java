@@ -77,6 +77,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private void publishFollowerEvent(Long followerId, Long followeeId) {
         FollowerEvent followerEvent = new FollowerEvent(followerId, followeeId);
         followerEventPublisher.publish(followerEvent);
-        log.info("Event published: " + followerEvent);
+        log.info("Event published: " + followerEvent);git
     }
 }
