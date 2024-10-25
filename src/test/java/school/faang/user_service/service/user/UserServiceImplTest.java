@@ -22,6 +22,8 @@ import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.publisher.MessagePublisher;
+import school.faang.user_service.publisher.PremiumBoughtEventPublisher;
+import school.faang.user_service.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.image.AvatarSize;
 import school.faang.user_service.service.image.BufferedImagesHolder;
@@ -66,7 +68,7 @@ public class UserServiceImplTest {
     private UserRepository repository;
 
     @Mock
-    private MessagePublisher<PremiumBoughtEvent> premiumBoughtEventPublisher;
+    private PremiumBoughtEventPublisher premiumBoughtEventPublisher;
 
     @Mock
     private S3Service s3Service;
@@ -79,7 +81,7 @@ public class UserServiceImplTest {
     private UserMapper mapper = Mappers.getMapper(UserMapper.class);
 
     @Mock
-    private MessagePublisher<ProfileViewEvent> profileViewEventPublisher;
+    private ProfileViewEventPublisher profileViewEventPublisher;
 
     @Mock
     private UserContext userContext;
@@ -251,10 +253,6 @@ public class UserServiceImplTest {
     public void testBuyPremium() {
         // Act and Assert
         service.buyPremium(new PaymentDto(1, 1.0, 1));
-
-        // вызывается этот метод
-        // verify(profileViewEventPublisher, times(1)).publish(any());
-        // должен вызываться этот
         verify(premiumBoughtEventPublisher, times(1)).publish(any(PremiumBoughtEvent.class));
     }
 
