@@ -1,12 +1,12 @@
 package school.faang.user_service.model.event;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class FollowerEvent {
     private Long followerId;
     private Long followedUserId;
