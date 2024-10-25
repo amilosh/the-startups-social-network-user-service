@@ -6,10 +6,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.PremiumBoughtEvent;
 
-@Service
+@Component
 @Slf4j
 public class PremiumBoughtEventPublisher implements MessagePublisher<PremiumBoughtEvent>{
     private final RedisTemplate<String, PremiumBoughtEvent> redisTemplate;

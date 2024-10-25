@@ -21,7 +21,6 @@ import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.publisher.PremiumBoughtEventPublisher;
 import school.faang.user_service.publisher.MessagePublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.image.AvatarSize;
@@ -68,7 +67,6 @@ public class UserServiceImplTest {
 
     @Mock
     private MessagePublisher<PremiumBoughtEvent> premiumBoughtEventPublisher;
-    //private PremiumBoughtEventPublisher premiumBoughtEventPublisher;
 
     @Mock
     private S3Service s3Service;
@@ -253,6 +251,10 @@ public class UserServiceImplTest {
     public void testBuyPremium() {
         // Act and Assert
         service.buyPremium(new PaymentDto(1, 1.0, 1));
+
+        // вызывается этот метод
+        // verify(profileViewEventPublisher, times(1)).publish(any());
+        // должен вызываться этот
         verify(premiumBoughtEventPublisher, times(1)).publish(any(PremiumBoughtEvent.class));
     }
 

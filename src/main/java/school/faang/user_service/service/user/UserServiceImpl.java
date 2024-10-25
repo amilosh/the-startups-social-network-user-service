@@ -61,8 +61,6 @@ public class UserServiceImpl implements UserService {
     private final CsvLoader csvLoader;
     private final MessagePublisher<ProfileViewEvent> profileViewEventPublisher;
     private final UserContext userContext;
-
-    @Qualifier("premiumBoughtEventPublisher")
     private final MessagePublisher<PremiumBoughtEvent> premiumBoughtEventPublisher;
 
 
