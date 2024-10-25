@@ -1,9 +1,7 @@
 package school.faang.user_service.service.subscription;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.event.FollowerEventDto;
@@ -36,13 +34,12 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         validator.validateUserIds(followerId, followeeId);
         subscriptionRepository.followUser(followerId, followeeId);
 
-        publishFollowerEvent(followerId, followeeId);
         FollowerEventDto followerEvent = FollowerEventDto.builder()
                 .followerId(followerId)
                 .followeeId(followeeId)
                 .timestamp(LocalDateTime.now())
                 .build();
-        eventPublisher.publish(followerEvent);
+        followerEventPublisher.publish(followerEvent);
     }
 
     @Override
@@ -78,11 +75,5 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public int getFollowingCounts(Long followerId) {
         validator.validateUserIds(followerId);
         return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
-    }
-
-    private void publishFollowerEvent(Long followerId, Long followeeId) {
-        FollowerEvent followerEvent = new FollowerEvent(followerId, followeeId);
-        followerEventPublisher.publish(followerEvent);
-        log.info("Event published: " + followerEvent);git
     }
 }
