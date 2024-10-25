@@ -6,6 +6,6 @@ import lombok.RequiredArgsConstructor;
 @Data
 @RequiredArgsConstructor
 public class ProfileViewEvent {
-    private Long viewerId;
-    private Long authorId;
+    private final Long viewerId;
+    private final Long authorId;
 }
