@@ -19,5 +19,5 @@ public class ProfileViewEventPublisher implements EventPublisher<ProfileViewEven
         String channelName = redisProperties.getChannels().get("profile_view_event");
         redisTemplate.convertAndSend(channelName, event);
         log.info("Published event {}", event);
-    } // метод не используется, по-скольку нет сервиса реализующего просмотр профиля пользователя
+    }
 }
