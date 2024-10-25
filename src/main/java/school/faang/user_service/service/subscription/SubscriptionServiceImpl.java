@@ -3,6 +3,7 @@ package school.faang.user_service.service.subscription;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.event.FollowerEvent;
@@ -19,12 +20,12 @@ import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final UserFiltersApplier userFilterApplier;
     private final UserMapper userMapper;
     private final SubscriptionValidator validator;
-    private final ObjectMapper objectMapper;
     private final FollowerEventPublisher followerEventPublisher;
 
     @Override
@@ -74,12 +75,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     private void publishFollowerEvent(Long followerId, Long followeeId) {
-        try {
-            FollowerEvent followerEvent = new FollowerEvent(followerId, followeeId);
-            String message = objectMapper.writeValueAsString(followerEvent);
-            followerEventPublisher.publish(message);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        FollowerEvent followerEvent = new FollowerEvent(followerId, followeeId);
+        followerEventPublisher.publish(followerEvent);
+        log.info("Event published: " + followerEvent);
     }
 }

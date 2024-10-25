@@ -5,15 +5,16 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.event.FollowerEvent;
 
 @Service
-public class FollowerEventPublisher implements MessagePublisher {
-    private final RedisTemplate<String, String> redisTemplate;
+public class FollowerEventPublisher implements MessagePublisher<FollowerEvent> {
+    private final RedisTemplate<String, FollowerEvent> redisTemplate;
     private final ChannelTopic followingTopic;
 
     @Autowired
     public FollowerEventPublisher(@Qualifier("followerEventPublisherRedisTemplate")
-                                      RedisTemplate<String, String> redisTemplate,
+                                      RedisTemplate<String, FollowerEvent> redisTemplate,
                                   @Qualifier("follower-channel") ChannelTopic followingTopic
     ) {
         this.redisTemplate = redisTemplate;
@@ -21,7 +22,7 @@ public class FollowerEventPublisher implements MessagePublisher {
     }
 
     @Override
-    public void publish(String message) {
+    public void publish(FollowerEvent message) {
         redisTemplate.convertAndSend(followingTopic.getTopic(), message);
     }
 }
