@@ -33,13 +33,18 @@ public class RedisConfiguration {
     }
 
     @Bean
-    ChannelTopic mentorshipRequestTopic() {
+    public ChannelTopic mentorshipRequestTopic() {
         return new ChannelTopic(redisProperties.getChannels().getMentorshipRequest().getName());
     }
 
     @Bean
     public ChannelTopic skillAcquiredTopic() {
         return new ChannelTopic(redisProperties.getChannels().getSkillAcquiredChannel().getName());
+    }
+
+    @Bean
+    public ChannelTopic recommendationRequestEventTopic() {
+        return new ChannelTopic(redisProperties.getChannels().getRecommendationRequestEvent().getName());
     }
 
     @Bean
