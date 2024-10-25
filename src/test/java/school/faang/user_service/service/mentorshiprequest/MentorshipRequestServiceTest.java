@@ -13,15 +13,18 @@ import school.faang.user_service.dto.event.MentorshipStartEvent;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorshiprequest.RejectionDto;
 import school.faang.user_service.dto.mentorshiprequest.RequestFilterDto;
+import school.faang.user_service.dto.message.MentorshipRequestMessage;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.mentorshiprequest.MentorshipRequestFilter;
 import school.faang.user_service.mapper.mentorshiprequest.MentorshipRequestMapper;
+import school.faang.user_service.publisher.MentorshipRequestEventPublisher;
 import school.faang.user_service.publisher.mentorshipStart.MentorshipStartEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.mentorshiprequst.MentorshipRequestValidator;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +46,8 @@ class MentorshipRequestServiceTest {
     private MentorshipRequestValidator menReqValidator;
     @Mock
     private MentorshipRequestRepository menReqRepository;
+    @Mock
+    private MentorshipRequestEventPublisher mentorshipRequestEventPublisher;
     @Mock
     private MentorshipStartEventPublisher mentorshipStartEventPublisher;
 
@@ -68,7 +73,8 @@ class MentorshipRequestServiceTest {
             filterRequests = List.of(requestFilter);
 
             menReqService = new MentorshipRequestService(
-                    menReqRepository, menReqMapper, menReqValidator, filterRequests, mentorshipStartEventPublisher);
+                    menReqRepository, menReqMapper, menReqValidator,
+                    filterRequests, mentorshipRequestEventPublisher, mentorshipStartEventPublisher);
 
             menReqDto = MentorshipRequestDto.builder()
                     .id(MENTORSHIP_REQUEST_ID)
@@ -125,6 +131,7 @@ class MentorshipRequestServiceTest {
             verify(menReqRepository).findById(MENTORSHIP_REQUEST_ID);
             verify(menReqRepository).findLatestRequest(menReqDto.getRequesterId(), menReqDto.getReceiverId());
             verify(mentorshipStartEventPublisher).publish(any(MentorshipStartEvent.class));
+            verify(mentorshipRequestEventPublisher).publish(any(MentorshipRequestMessage.class));
             verify(menReqMapper).toDto(menReqEntity);
         }
 
