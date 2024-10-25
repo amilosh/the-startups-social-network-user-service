@@ -30,7 +30,7 @@ public class ProfileViewEventPublisherTest {
     @BeforeEach
     void setUp() {
         channelName = "channelName";
-        event = new ProfileViewEvent();
+        event = new ProfileViewEvent(2L,1L);
         channelsMap = new HashMap<>();
         channelsMap.put("profile_view_event",channelName);
         redisProperties.setChannels(channelsMap);
