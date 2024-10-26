@@ -53,8 +53,6 @@ public class UserService {
     private final CountryService countryService;
     private final List<UserFilter> userFilters;
     private final PromotionManagementService promotionManagementService;
-    private final ProfileViewEventPublisher profileViewEventPublisher;
-    private final UserContext userContext;
 
     @Transactional
     public User getUserById(Long userId) {
@@ -65,15 +63,6 @@ public class UserService {
     public UserDto getUser(long userId) {
         User existedUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ValidationException("User with id " + userId + " does not exist"));
-        if(userContext.getUserId() > 0){
-            User user = getUserById(userContext.getUserId());
-            NewProfileViewEventDto profileView = NewProfileViewEventDto.builder()
-                    .viewerId(userContext.getUserId())
-                    .viewerUserName(user.getUsername())
-                    .viewedProfileId(userId)
-                    .build();
-            profileViewEventPublisher.publish(profileView);
-        }
         return userMapper.toDto(existedUser);
     }
 
