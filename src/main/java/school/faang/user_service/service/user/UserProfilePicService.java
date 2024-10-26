@@ -5,14 +5,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.profile.NewProfileViewEventDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.publisher.profile.ProfileViewEventPublisher;
 import school.faang.user_service.service.s3.S3Service;
 import school.faang.user_service.validator.picture.PictureValidator;
 import school.faang.user_service.validator.picture.ScaleChanger;
 
 import java.io.InputStream;
 import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,8 @@ public class UserProfilePicService {
     private final PictureValidator pictureValidator;
     private final ScaleChanger scaleChanger;
     private final S3Service s3Service;
+    private final ProfileViewEventPublisher profileViewEventPublisher;
+    private final UserContext userContext;
 
     public void uploadUserAvatar(Long userId, MultipartFile file) {
         User user = userService.getUserById(userId);
@@ -47,6 +53,12 @@ public class UserProfilePicService {
     public InputStream downloadUserAvatar(Long userId) {
         User user = userService.getUserById(userId);
 
+        NewProfileViewEventDto profileView = NewProfileViewEventDto.builder()
+                .viewerId(userContext.getUserId())
+                .viewerUserName(user.getUsername())
+                .viewedProfileId(userId)
+                .build();
+        profileViewEventPublisher.publish(profileView);
         return s3Service.downloadFile(user.getUserProfilePic().getFileId());
     }
 

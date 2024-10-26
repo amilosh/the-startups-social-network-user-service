@@ -2,8 +2,8 @@ package school.faang.user_service.service.user;
 
 import feign.FeignException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.ValidationException;
 import jakarta.transaction.Transactional;
+import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
@@ -65,7 +65,6 @@ public class UserService {
     public UserDto getUser(long userId) {
         User existedUser = userRepository.findById(userId)
                 .orElseThrow(() -> new ValidationException("User with id " + userId + " does not exist"));
-
         return userMapper.toDto(existedUser);
     }
 
