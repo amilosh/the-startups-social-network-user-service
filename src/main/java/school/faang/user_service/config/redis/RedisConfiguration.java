@@ -1,7 +1,7 @@
 package school.faang.user_service.config.redis;
 
-import lombok.RequiredArgsConstructor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,6 +52,7 @@ public class RedisConfiguration {
     @Bean
     public ChannelTopic recommendationRequestEventTopic() {
         return new ChannelTopic(redisProperties.getChannels().getRecommendationRequestEvent().getName());
+    }
 
     @Bean
     public ChannelTopic projectFollowerTopic() {
@@ -68,3 +69,4 @@ public class RedisConfiguration {
         return template;
     }
 }
+
