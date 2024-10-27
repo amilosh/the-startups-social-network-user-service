@@ -5,13 +5,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.model.event.UserFollowerEvent;
+import school.faang.user_service.model.event.SkillOfferedEvent;
 
 @Component
-public class UserFollowerEventPublisher extends AbstractEventPublisher<UserFollowerEvent> {
-    public UserFollowerEventPublisher(RedisTemplate<String, Object> redisTemplate,
+public class SkillOfferedEventPublisher extends AbstractEventPublisher<SkillOfferedEvent> {
+    public SkillOfferedEventPublisher(RedisTemplate<String, Object> redisTemplate,
                                       ObjectMapper objectMapper,
-                                      @Qualifier("userFollowerChannelTopic") ChannelTopic topic) {
+                                      @Qualifier("skillOfferedTopic") ChannelTopic topic) {
         super(redisTemplate, objectMapper, topic);
     }
 }

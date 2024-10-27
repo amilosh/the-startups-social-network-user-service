@@ -47,6 +47,15 @@ public class RedisConfig {
     @Value("${redis.channels.recommendation-received}")
     private String recommendationReceivedEventChannel;
 
+    @Value("${redis.channels.profile-view}")
+    private String profileViewEventChannel;
+
+    @Value("${redis.channels.skill-offered}")
+    private String skillOfferedEventChannel;
+
+    @Value("${redis.channels.recommendation-requested}")
+    private String recommendationRequestedEventChannel;
+
     public interface MessagePublisher<T> {
         void publish(T redisEvent);
     }
@@ -114,6 +123,21 @@ public class RedisConfig {
     @Bean
     public ChannelTopic recommendationReceivedChannelTopic() {
         return new ChannelTopic(recommendationReceivedEventChannel);
+    }
+
+    @Bean(name = "profileViewTopic")
+    public ChannelTopic profileViewChannelTopic() {
+        return new ChannelTopic(profileViewEventChannel);
+    }
+
+    @Bean(name = "skillOfferedTopic")
+    public ChannelTopic skillOfferedChannelTopic() {
+        return new ChannelTopic(skillOfferedEventChannel);
+    }
+
+    @Bean(name = "recommendationRequestedTopic")
+    public ChannelTopic recommendationRequestedChannelTopic() {
+        return new ChannelTopic(recommendationRequestedEventChannel);
     }
 
     @Bean
