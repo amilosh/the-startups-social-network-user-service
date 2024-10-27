@@ -23,16 +23,22 @@ spring:
       port: 6379
       host: localhost
       channels:
+        mentorshipChannel:
+          name: mentorship_channel
         followerEventChannel:
           name: follower_channel
         goalCompletedEvent:
           name: goal_completed_event_channel
         mentorshipRequest:
           name: mentorship_request_topic
-        recommendationRequestEvent:
-          name: recommendation_request_event
+        profileViewChannel:
+          name: profile_view_channel
         skillAcquiredChannel:
           name: skill_acquired_channel
+        projectChannel:
+          name: project_channel
+        recommendationRequestEvent:
+          name: recommendation_request_event
 
 servlet:
   multipart:
