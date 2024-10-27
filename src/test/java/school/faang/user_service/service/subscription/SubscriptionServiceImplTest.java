@@ -1,5 +1,6 @@
 package school.faang.user_service.service.subscription;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,8 @@ import school.faang.user_service.exception.subscription.SubscriptionNotFoundExce
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.service.subscription.SubscriptionServiceImpl;
+import school.faang.user_service.service.subscription.SubscriptionValidator;
 import school.faang.user_service.service.subscription.filters.UserFiltersApplier;
 
 import java.util.ArrayList;

@@ -1,5 +1,6 @@
 package school.faang.user_service.service.subscription;
 
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +24,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final UserFiltersApplier userFilterApplier;
     private final UserMapper userMapper;
     private final SubscriptionValidator validator;
-    private final FollowerEventPublisher eventPublisher;
+    private final FollowerEventPublisher followerEventPublisher;
 
     @Override
     @Transactional
@@ -32,12 +33,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         validator.checkIfSubscriptionNotExists(followerId, followeeId);
         validator.validateUserIds(followerId, followeeId);
         subscriptionRepository.followUser(followerId, followeeId);
+
         FollowerEventDto followerEvent = FollowerEventDto.builder()
                 .followerId(followerId)
                 .followeeId(followeeId)
                 .timestamp(LocalDateTime.now())
                 .build();
-        eventPublisher.publish(followerEvent);
+        followerEventPublisher.publish(followerEvent);
     }
 
     @Override
