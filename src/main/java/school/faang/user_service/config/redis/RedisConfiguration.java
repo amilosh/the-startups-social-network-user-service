@@ -40,7 +40,7 @@ public class RedisConfiguration {
     }
 
     @Bean
-    ChannelTopic mentorshipRequestTopic() {
+    public ChannelTopic mentorshipRequestTopic() {
         return new ChannelTopic(redisProperties.getChannels().getMentorshipRequest().getName());
     }
 
@@ -50,13 +50,12 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public ChannelTopic projectFollowerTopic() {
-        return new ChannelTopic(redisProperties.getChannels().getProjectChannel().getName());
-    }
-
-    @Bean
     public ChannelTopic recommendationRequestEventTopic() {
         return new ChannelTopic(redisProperties.getChannels().getRecommendationRequestEvent().getName());
+
+    @Bean
+    public ChannelTopic projectFollowerTopic() {
+        return new ChannelTopic(redisProperties.getChannels().getProjectChannel().getName());
     }
 
     @Bean
