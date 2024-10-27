@@ -31,8 +31,12 @@ spring:
           name: mentorship_request_topic
         recommendationRequestEvent:
           name: recommendation_request_event
+        profileViewChannel:
+          name: profile_view_channel
         skillAcquiredChannel:
           name: skill_acquired_channel
+        projectChannel:
+          name: project_channel
 
 servlet:
   multipart:

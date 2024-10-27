@@ -1,6 +1,7 @@
 package school.faang.user_service.config.redis;
 
 import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisConfiguration {
 
     private final RedisProperties redisProperties;
+    private final ObjectMapper objectMapper;
 
     @Bean
     JedisConnectionFactory jedisConnectionFactory() {
@@ -25,6 +27,11 @@ public class RedisConfiguration {
     @Bean
     public ChannelTopic goalCompletedEventTopic() {
         return new ChannelTopic(redisProperties.getChannels().getGoalCompletedEvent().getName());
+    }
+
+    @Bean
+    public ChannelTopic profileViewChannel() {
+        return new ChannelTopic(redisProperties.getChannels().getProfileViewChannel().getName());
     }
 
     @Bean
@@ -45,6 +52,11 @@ public class RedisConfiguration {
     @Bean
     public ChannelTopic recommendationRequestEventTopic() {
         return new ChannelTopic(redisProperties.getChannels().getRecommendationRequestEvent().getName());
+
+    @Bean
+    public ChannelTopic projectFollowerTopic() {
+        return new ChannelTopic(redisProperties.getChannels().getProjectChannel().getName());
+
     }
 
     @Bean
@@ -52,7 +64,7 @@ public class RedisConfiguration {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(jedisConnectionFactory());
         template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        template.setValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper));
 
         return template;
     }
