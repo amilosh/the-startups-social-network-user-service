@@ -63,6 +63,7 @@ redis:
     profile-view: profile_view_channel
     skill-offered: skill_offered_channel
     recommendation-requested: recommendation_requested_channel
+    premium-bought: premium_bought_channel
 
 scheduler:
   clear-events:
