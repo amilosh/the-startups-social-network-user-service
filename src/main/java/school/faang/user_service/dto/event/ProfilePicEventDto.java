@@ -5,6 +5,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record ProfilePicEventDto(Long userId,
-                                 LocalDateTime timestamp) {
+public record ProfilePicEventDto(
+        Long userId,
+        LocalDateTime timestamp) {
 }
