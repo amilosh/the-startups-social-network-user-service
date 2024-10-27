@@ -34,6 +34,11 @@ public class SubscriptionController {
         subscriptionService.followUser(followerId, followeeId);
     }
 
+    @PostMapping("/follow/project")
+    public void projectFollowerEvent(@RequestBody ProjectFollowerEvent projectFollowerEvent){
+        eventPublisher.publishToTopic(RedisTopics.PROJECT_FOLLOWER_CHANNEL.getTopicName(), projectFollowerEvent);
+    }
+
     public void unfollowUser(long followerId, long followeeId) {
         if (followerId == followeeId) {
             throw new DataValidationException("Нельзя отписываться от самого себя.");
@@ -51,11 +56,6 @@ public class SubscriptionController {
 
     public List<UserDto> getFollowing(long followeeId, UserFilterDto filterDto) {
         return subscriptionService.getFollowing(followeeId, filterDto);
-    }
-
-    @PostMapping("follow/project")
-    public void projectFollowerEvent(@RequestBody ProjectFollowerEvent projectFollowerEvent){
-        eventPublisher.publishToTopic(RedisTopics.PROJECT_FOLLOWER_CHANNEL.getTopicName(), projectFollowerEvent);
     }
 
     public int getFollowingCount(long followerId) {
