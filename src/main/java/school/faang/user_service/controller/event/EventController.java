@@ -54,13 +54,13 @@ public class EventController {
         return eventMapper.toDtoList(events);
     }
 
-    @GetMapping("/owned-events/{userId}")
+    @GetMapping("/owned/{userId}")
     public List<EventDto> getOwnedEvents(@PathVariable("userId") Long userId) {
         List<Event> events = eventService.getOwnedEvents(userId);
         return eventMapper.toDtoList(events);
     }
 
-    @GetMapping("/participated-events/{userId}")
+    @GetMapping("/participated/{userId}")
     public List<EventDto> getParticipatedEvents(@PathVariable("userId") Long userId) {
         List<Event> events = eventService.getParticipatedEvents(userId);
         return eventMapper.toDtoList(events);
