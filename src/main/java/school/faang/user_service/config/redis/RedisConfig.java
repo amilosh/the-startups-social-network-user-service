@@ -116,7 +116,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, PremiumBoughtEvent> PremiumBoughtEventRedisTemplate() {
+    public RedisTemplate<String, PremiumBoughtEvent> premiumBoughtEventRedisTemplate() {
         RedisTemplate<String, PremiumBoughtEvent> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(jedisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());

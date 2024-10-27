@@ -12,7 +12,7 @@ import school.faang.user_service.dto.event.PremiumBoughtEvent;
 
 @Component
 @Slf4j
-public class PremiumBoughtEventPublisher implements MessagePublisher<PremiumBoughtEvent>{
+public class PremiumBoughtEventPublisher implements MessagePublisher<PremiumBoughtEvent> {
     private final RedisTemplate<String, PremiumBoughtEvent> redisTemplate;
     private final ChannelTopic premiumChannelTopic;
 
@@ -22,6 +22,7 @@ public class PremiumBoughtEventPublisher implements MessagePublisher<PremiumBoug
         this.redisTemplate = redisTemplate;
         this.premiumChannelTopic = premiumChannelTopic;
     }
+
     @Override
     @Retryable(
             retryFor = {RuntimeException.class},
