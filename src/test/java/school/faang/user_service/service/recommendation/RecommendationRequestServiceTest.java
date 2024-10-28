@@ -20,6 +20,7 @@ import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.recommendation.RequestFilter;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
+import school.faang.user_service.publisher.recommendation.RecommendationRequestedEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
@@ -29,9 +30,7 @@ import school.faang.user_service.validator.skill.SkillValidator;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -72,6 +71,9 @@ public class RecommendationRequestServiceTest {
     private RequestFilter requestFilter;
     @Mock
     private List<RequestFilter> requestFilters;
+
+    @Mock
+    private RecommendationRequestedEventPublisher recommendationRequestedEventPublisher;
     private RecommendationRequestDto rqd;
     private RecommendationRequest rq;
     private RecommendationRejectionDto rejection;
@@ -133,7 +135,7 @@ public class RecommendationRequestServiceTest {
         recommendationRequestMapper = Mappers.getMapper(RecommendationRequestMapper.class);
         recommendationRequestService = new RecommendationRequestService(recommendationRequestRepository,
                 recommendationRequestMapper, userService, skillService, recommendationRequestValidator,
-                skillValidator, requestFilters);
+                skillValidator, requestFilters, recommendationRequestedEventPublisher);
     }
 
     @Nested

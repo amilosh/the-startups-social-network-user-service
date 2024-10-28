@@ -55,9 +55,9 @@ public class RecommendationService {
         recommendationRepository.deleteById(id);
     }
 
-    public List<RecommendationDto> getAllUserRecommendations(long recieverId) {
+    public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
         return recommendationMapper.toDtos(recommendationRepository
-                .findAllByReceiverId(recieverId, Pageable.unpaged()).getContent());
+                .findAllByReceiverId(receiverId, Pageable.unpaged()).getContent());
     }
 
     public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
