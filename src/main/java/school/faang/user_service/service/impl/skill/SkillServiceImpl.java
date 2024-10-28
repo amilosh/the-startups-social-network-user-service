@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.event.SkillAcquiredEvent;
+import school.faang.user_service.model.event.SkillAcquiredEvent;
 import school.faang.user_service.mapper.skill.SkillCandidateMapper;
 import school.faang.user_service.mapper.skill.SkillMapper;
 import school.faang.user_service.model.dto.skill.SkillCandidateDto;

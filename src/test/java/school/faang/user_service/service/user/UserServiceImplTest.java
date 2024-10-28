@@ -10,6 +10,11 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.filter.user.UserFilter;
+import school.faang.user_service.mapper.user.UserMapperImpl;
+import school.faang.user_service.publisher.SearchAppearanceEventPublisher;
+import school.faang.user_service.model.dto.user.UserDto;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.model.dto.user.UserFilterDto;
 import school.faang.user_service.model.entity.User;
 import school.faang.user_service.filter.user.UserFilter;
@@ -74,10 +79,16 @@ class UserServiceImplTest {
 
     @Mock
     private CsvParser csvParser;
+
     @Mock
-    private ProfileViewEventPublisherImpl profileViewEventPublisher;
+    private SearchAppearanceEventPublisher searchAppearanceEventPublisher;
+
     @Mock
     private UserContext userContext;
+
+    @Mock
+    private ProfileViewEventPublisherImpl profileViewEventPublisher;
+
     private long id;
     private UserDto userDto;
     private UserFilterDto userFilterDto;
@@ -115,10 +126,20 @@ class UserServiceImplTest {
                 .build();
 
         filters = List.of(userFilter);
-        userService = new UserServiceImpl(userRepository, countryRepository, filters, userMapper, goalService,
-                eventService, mentorshipService, profileViewEventPublisher, csvParser, userContext);
 
-        userService = new UserServiceImpl(userRepository, countryRepository, filters, userMapper, goalService, eventService, mentorshipService,profileViewEventPublisher, csvParser,userContext);
+        userService = new UserServiceImpl(
+                userRepository,
+                countryRepository,
+                filters,
+                userMapper,
+                goalService,
+                eventService,
+                mentorshipService,
+                profileViewEventPublisher,
+                csvParser,
+                searchAppearanceEventPublisher,
+                userContext
+        );
     }
 
     @Test

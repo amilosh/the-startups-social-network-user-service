@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
-//import school.faang.user_service.model.entity.student.Person;
+import school.faang.user_service.model.dto.student.Person;
 import school.faang.user_service.model.dto.user.UserDto;
 import school.faang.user_service.model.dto.user.UserFilterDto;
 import school.faang.user_service.model.entity.User;
@@ -14,11 +14,11 @@ import school.faang.user_service.model.entity.event.Event;
 import school.faang.user_service.model.enums.event.EventStatus;
 import school.faang.user_service.model.entity.goal.Goal;
 import school.faang.user_service.event.ProfileViewEventDto;
-import school.faang.user_service.model.dto.student.Person;
-import school.faang.user_service.model.dto.user.UserFilterDto;
 import school.faang.user_service.model.entity.Country;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.model.event.SearchAppearanceEvent;
+import school.faang.user_service.publisher.SearchAppearanceEventPublisher;
 import school.faang.user_service.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -49,18 +49,34 @@ public class UserServiceImpl implements UserService {
     private final MentorshipService mentorshipService;
     private final ProfileViewEventPublisher profileViewEventPublisher;
     private final CsvParser csvParser;
+    private final SearchAppearanceEventPublisher searchAppearanceEventPublisher;
     private final UserContext userContext;
 
     @Override
-    public List<school.faang.user_service.model.dto.user.UserDto> getPremiumUsers(UserFilterDto filters) {
+    public List<UserDto> getPremiumUsers(UserFilterDto filters) {
         var premiumUsers = userRepository.findPremiumUsers();
-        return userFilters.stream()
+
+        List<UserDto> usersToReturn = userFilters.stream()
                 .filter(filter -> filter.isApplicable(filters))
                 .reduce(premiumUsers, (stream, filter) -> filter.apply(stream, filters),
                         (newStream, oldStream) -> newStream)
                 .map(userMapper::toDto)
                 .toList();
+
+        List<Long> userIds = usersToReturn.stream()
+                .map(UserDto::getId)
+                .toList();
+
+        searchAppearanceEventPublisher.publish(SearchAppearanceEvent.builder()
+                .requesterId(userContext.getUserId())
+                .foundUsersId(userIds)
+                .requestDateTime(LocalDateTime.now())
+                .build());
+
+        return usersToReturn;
     }
+
+
 
     @Override
     public void deactivateUserProfile(long id) {
@@ -86,8 +102,7 @@ public class UserServiceImpl implements UserService {
             setStudentsCountry(student, user, countryList);
             userRepository.save(user);
             return user;
-        }).forEach(v -> {
-        });
+        }).forEach(v -> {});
     }
 
     private void setStudentsCountry(Person person, User user, List<Country> countryList) {
@@ -108,8 +123,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findUserById(long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(
                 "User with ID: %d does not exist.".formatted(userId)));
+
+        SearchAppearanceEvent event = SearchAppearanceEvent.builder()
+                .requesterId(userContext.getUserId())
+                .foundUsersId(List.of(userId))
+                .requestDateTime(LocalDateTime.now())
+                .build();
+        searchAppearanceEventPublisher.publish(event);
+
+        return user;
     }
 
     private void stopMentorship(User userToDeactivate) { // Maybe move to mentorship service
@@ -138,7 +162,17 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUser(long userId) {
-        return userMapper.toDto(findUserById(userId));
+        UserDto foundUser = userMapper.toDto(findUserById(userId));
+
+        SearchAppearanceEvent event = SearchAppearanceEvent.builder()
+                .requesterId(userContext.getUserId())
+                .foundUsersId(List.of(foundUser.getId()))
+                .requestDateTime(LocalDateTime.now())
+                .build();
+
+        searchAppearanceEventPublisher.publish(event);
+
+        return foundUser;
     }
 
     @Override
@@ -156,9 +190,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getUsersByIds(List<Long> userIds) {
-        return userRepository.findAllById(userIds).stream()
+        List<UserDto> users = userRepository.findAllById(userIds).stream()
                 .map(userMapper::toDto)
                 .toList();
+
+        List<Long> foundUserIds = users.stream()
+                .map(UserDto::getId)
+                .toList();
+
+        SearchAppearanceEvent event = SearchAppearanceEvent.builder()
+                .requesterId(userContext.getUserId())
+                .foundUsersId(foundUserIds)
+                .requestDateTime(LocalDateTime.now())
+                .build();
+
+        searchAppearanceEventPublisher.publish(event);
+
+        return users;
     }
 
     @Override
