@@ -1,7 +1,6 @@
 package school.faang.user_service.service.event;
 
 import jakarta.persistence.EntityNotFoundException;
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +20,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
@@ -41,6 +41,9 @@ public class EventServiceTest {
     private User user;
     private User userWithoutSkills;
     private User notOwner;
+    private EventFilterDto filter;
+    private EventFilterDto filterFullResult;
+    private EventFilterDto filterEmptyResult;
 
     @BeforeEach
     public void setUp() {
@@ -85,6 +88,16 @@ public class EventServiceTest {
         updatedEvent.setTitle("Updated Title1");
         updatedEvent.setOwner(user);
         updatedEvent.setRelatedSkills(skills);
+
+        filter = new EventFilterDto();
+        filter.setTitle("Title1");
+        filter.setOwnerId(1L);
+        filter.setLocation("Location1");
+
+        filterFullResult = new EventFilterDto();
+
+        filterEmptyResult = new EventFilterDto();
+        filterEmptyResult.setTitle("AnotherTitle");
     }
 
     @Test
@@ -102,17 +115,18 @@ public class EventServiceTest {
     }
 
     @Test
-    public void createEventShouldThrowExceptionIfUserNotFoundTest() {
-        Assert.assertThrows(
+    public void createEventUserNotFoundTest() {
+        assertThrows(
                 EntityNotFoundException.class,
                 () -> eventService.create(event1)
         );
     }
 
     @Test
-    public void createEventShouldThrowExceptionIfUserHasNoSkillTest() {
+    public void createEventUserHasNoSkillTest() {
         when(userRepository.findByIdWithSkills(2L)).thenReturn(Optional.of(userWithoutSkills));
-        Assert.assertThrows(
+
+        assertThrows(
                 DataValidationException.class,
                 () -> eventService.create(event2)
         );
@@ -132,8 +146,8 @@ public class EventServiceTest {
     }
 
     @Test
-    public void getEventShouldThrowExceptionIfEventNotFoundTest() {
-        Assert.assertThrows(
+    public void getEventNotFoundTest() {
+        assertThrows(
                 EntityNotFoundException.class,
                 () -> eventService.getEvent(1L)
         );
@@ -144,11 +158,6 @@ public class EventServiceTest {
         List<Event> events = List.of(event1, event2);
         when(eventRepository.findAll()).thenReturn(events);
 
-        EventFilterDto filter = new EventFilterDto();
-        filter.setTitle("Title1");
-        filter.setOwnerId(1L);
-        filter.setLocation("Location1");
-
         List<Event> result = eventService.getEventsByFilter(filter);
 
         verify(eventRepository).findAll();
@@ -157,26 +166,22 @@ public class EventServiceTest {
     }
 
     @Test
-    public void getEventsByFilterNoFilterTest() {
+    public void getEventsNoFilterTest() {
         List<Event> events = List.of(event1, event2);
         when(eventRepository.findAll()).thenReturn(events);
 
-        EventFilterDto filter = new EventFilterDto();
-        List<Event> result = eventService.getEventsByFilter(filter);
+        List<Event> result = eventService.getEventsByFilter(filterFullResult);
 
         verify(eventRepository).findAll();
         assertEquals(2, result.size());
     }
 
     @Test
-    public void getEventsByFilterNoMatchFilterTest() {
+    public void getEventsNoMatchingFilterTest() {
         List<Event> events = List.of(event1, event2);
         when(eventRepository.findAll()).thenReturn(events);
 
-        EventFilterDto filter = new EventFilterDto();
-        filter.setTitle("AnotherTitle");
-
-        List<Event> result = eventService.getEventsByFilter(filter);
+        List<Event> result = eventService.getEventsByFilter(filterEmptyResult);
 
         verify(eventRepository).findAll();
         assertTrue(result.isEmpty());
@@ -215,10 +220,10 @@ public class EventServiceTest {
     }
 
     @Test
-    public void deleteEventShouldThrowExceptionIfUserNotFoundTest() {
+    public void deleteEventNotFoundTest() {
         when(eventRepository.existsById(1L)).thenReturn(false);
 
-        Assert.assertThrows(
+        assertThrows(
                 EntityNotFoundException.class,
                 () -> eventService.deleteEvent(1L)
         );
@@ -236,32 +241,32 @@ public class EventServiceTest {
     }
 
     @Test
-    public void updateEventShouldThrowExceptionIfEventNotFoundTest() {
+    public void updateEventNotFoundTest() {
         when(eventRepository.findById(1L)).thenReturn(Optional.empty());
 
-        Assert.assertThrows(
+        assertThrows(
                 EntityNotFoundException.class,
                 () -> eventService.updateEvent(updatedEvent)
         );
     }
 
     @Test
-    public void updateEventShouldThrowExceptionIfUserHasNoSkillsTest() {
+    public void updateEventUserHasNoSkillTest() {
         when(eventRepository.findById(1L)).thenReturn(Optional.of(event1));
         when(userRepository.findByIdWithSkills(1L)).thenReturn(Optional.of(userWithoutSkills));
 
-        Assert.assertThrows(
+        assertThrows(
                 DataValidationException.class,
                 () -> eventService.updateEvent(updatedEvent)
         );
     }
 
     @Test
-    public void updateEventShouldThrowExceptionIfUserNoOwnerTest() {
+    public void updateEventUserNoOwnerTest() {
         when(eventRepository.findById(1L)).thenReturn(Optional.of(event1));
         updatedEvent.setOwner(notOwner);
 
-        Assert.assertThrows(
+        assertThrows(
                 DataValidationException.class,
                 () -> eventService.updateEvent(updatedEvent)
         );
