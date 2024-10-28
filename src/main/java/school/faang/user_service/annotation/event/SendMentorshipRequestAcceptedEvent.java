@@ -1,4 +1,4 @@
-package school.faang.user_service.annotation;
+package school.faang.user_service.annotation.event;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface SendMentorshipRequestAccepted {
+public @interface SendMentorshipRequestAcceptedEvent {
 }
 

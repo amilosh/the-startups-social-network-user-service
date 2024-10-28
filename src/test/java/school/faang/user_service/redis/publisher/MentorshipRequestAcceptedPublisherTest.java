@@ -25,7 +25,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class MentorshipRequestAcceptedPublisherTest {
-
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
 
@@ -54,11 +53,11 @@ public class MentorshipRequestAcceptedPublisherTest {
         mentorshipRequest.setReceiver(user1);
         mentorshipRequest.setRequester(user2);
 
-        eventDto = new MentorshipRequestAcceptedDto(
-                mentorshipRequest.getId(),
-                mentorshipRequest.getReceiver().getId(),
-                mentorshipRequest.getRequester().getId()
-        );
+        eventDto = MentorshipRequestAcceptedDto.builder()
+                .requestId(mentorshipRequest.getId())
+                .actorId(mentorshipRequest.getRequester().getId())
+                .receiverName(mentorshipRequest.getReceiver().getUsername())
+                .build();
     }
 
     @Test
@@ -69,7 +68,6 @@ public class MentorshipRequestAcceptedPublisherTest {
 
         ArgumentCaptor<String> topicCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> messageCaptor = ArgumentCaptor.forClass(String.class);
-
 
         verify(redisTemplate).convertAndSend(topicCaptor.capture(), messageCaptor.capture());
 

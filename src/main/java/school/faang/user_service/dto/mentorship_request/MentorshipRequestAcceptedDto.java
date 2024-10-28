@@ -13,6 +13,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class MentorshipRequestAcceptedDto {
     private long requestId;
-    private long receiverId;
+    private String receiverName;
     private long actorId;
 }

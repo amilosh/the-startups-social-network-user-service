@@ -19,16 +19,16 @@ public class MentorshipRequestAcceptedPublisher extends AbstractEventPublisher<M
     }
 
     @AfterReturning(
-            pointcut = "@annotation(school.faang.user_service.annotation.SendMentorshipRequestAccepted)",
+            pointcut = "@annotation(school.faang.user_service.annotation.event.SendMentorshipRequestAcceptedEvent)",
             returning = "returnValue"
     )
     public void publishEvent(Object returnValue) {
         MentorshipRequest mentorshipRequest = (MentorshipRequest) returnValue;
-                MentorshipRequestAcceptedDto eventDto = MentorshipRequestAcceptedDto.builder()
-                        .requestId(mentorshipRequest.getId())
-                        .receiverId(mentorshipRequest.getReceiver().getId())
-                        .actorId(mentorshipRequest.getRequester().getId())
-                        .build();
+        MentorshipRequestAcceptedDto eventDto = MentorshipRequestAcceptedDto.builder()
+                .requestId(mentorshipRequest.getId())
+                .receiverName(mentorshipRequest.getReceiver().getUsername())
+                .actorId(mentorshipRequest.getRequester().getId())
+                .build();
         publish(eventDto);
     }
 }
