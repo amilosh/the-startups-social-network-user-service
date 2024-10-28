@@ -65,6 +65,11 @@ public class RedisConfiguration {
     }
 
     @Bean
+    public ChannelTopic mentorshipStartEventTopic() {
+        return new ChannelTopic(redisProperties.getChannels().getMentorshipStartEvent().getName());
+    }
+
+    @Bean
     public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(jedisConnectionFactory());
@@ -74,4 +79,3 @@ public class RedisConfiguration {
         return template;
     }
 }
-

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.event.MentorshipStartEvent;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorshiprequest.RejectionDto;
 import school.faang.user_service.dto.mentorshiprequest.RequestFilterDto;
@@ -19,6 +20,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.mentorshiprequest.MentorshipRequestFilter;
 import school.faang.user_service.mapper.mentorshiprequest.MentorshipRequestMapper;
 import school.faang.user_service.publisher.MentorshipRequestEventPublisher;
+import school.faang.user_service.publisher.mentorshipStart.MentorshipStartEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.mentorshiprequst.MentorshipRequestValidator;
 
@@ -44,7 +46,9 @@ class MentorshipRequestServiceTest {
     @Mock
     private MentorshipRequestRepository menReqRepository;
     @Mock
-    private MentorshipRequestEventPublisher publisher;
+    private MentorshipRequestEventPublisher mentorshipRequestEventPublisher;
+    @Mock
+    private MentorshipStartEventPublisher mentorshipStartEventPublisher;
 
     private MentorshipRequestDto menReqDto = new MentorshipRequestDto();
     private MentorshipRequest menReqEntity = new MentorshipRequest();
@@ -68,7 +72,8 @@ class MentorshipRequestServiceTest {
             filterRequests = List.of(requestFilter);
 
             menReqService = new MentorshipRequestService(
-                    menReqRepository, menReqMapper, menReqValidator, filterRequests, publisher);
+                    menReqRepository, menReqMapper, menReqValidator,
+                    filterRequests, mentorshipRequestEventPublisher, mentorshipStartEventPublisher);
 
             menReqDto = MentorshipRequestDto.builder()
                     .id(MENTORSHIP_REQUEST_ID)
@@ -97,12 +102,12 @@ class MentorshipRequestServiceTest {
         @Test
         @DisplayName("Успешное создание запроса если запрос не был создан ранее")
         void whenCreateThenSaveRequest() {
-
             when(menReqRepository.findLatestRequest(menReqDto.getRequesterId(), menReqDto.getReceiverId()))
                     .thenReturn(Optional.of(menReqEntity));
             when(menReqRepository.create(menReqDto.getRequesterId(),
                     menReqDto.getReceiverId(), menReqDto.getDescription()))
-                    .thenReturn(menReqEntity);
+                    .thenReturn(MENTORSHIP_REQUEST_ID);
+            when(menReqRepository.findById(MENTORSHIP_REQUEST_ID)).thenReturn(Optional.of(menReqEntity));
             when(menReqMapper.toDto(menReqEntity)).thenReturn(menReqDto);
 
             MentorshipRequestDto mentorshipRequestDto = menReqService.requestMentorship(menReqDto);
@@ -122,8 +127,10 @@ class MentorshipRequestServiceTest {
             verify(menReqValidator).validateDataCreateRequest(menReqEntity);
             verify(menReqRepository).create(menReqDto.getRequesterId(),
                     menReqDto.getReceiverId(), menReqDto.getDescription());
+            verify(menReqRepository).findById(MENTORSHIP_REQUEST_ID);
             verify(menReqRepository).findLatestRequest(menReqDto.getRequesterId(), menReqDto.getReceiverId());
-            verify(publisher).publish(any(MentorshipRequestMessage.class));
+            verify(mentorshipStartEventPublisher).publish(any(MentorshipStartEvent.class));
+            verify(mentorshipRequestEventPublisher).publish(any(MentorshipRequestMessage.class));
             verify(menReqMapper).toDto(menReqEntity);
         }
 

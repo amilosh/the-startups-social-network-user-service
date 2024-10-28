@@ -39,6 +39,8 @@ spring:
           name: skill_acquired_channel
         projectChannel:
           name: project_channel
+        mentorshipStartEvent:
+          name: mentorship_start_event_channel
 
 servlet:
   multipart:
