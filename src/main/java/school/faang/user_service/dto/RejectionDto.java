@@ -1,6 +1,5 @@
-package school.faang.user_service.client;
+package school.faang.user_service.dto;
 
-import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import lombok.Getter;

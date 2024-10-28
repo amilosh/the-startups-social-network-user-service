@@ -1,4 +1,4 @@
-package school.faang.user_service.client;
+package school.faang.user_service.dto;
 
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

@@ -1,10 +1,12 @@
-package school.faang.user_service.client;
+package school.faang.user_service.service;
 
 
 import jakarta.persistence.EntityNotFoundException;
-import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.RejectionDto;
+import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
