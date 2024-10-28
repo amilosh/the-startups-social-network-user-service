@@ -28,8 +28,11 @@ public class MentorshipService {
     }
 
     private User validateId(long userId) {
-        //тест3
         return userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("UserId is not found"));
+    }
+
+    public List<UserDto> getMentors(long userId) {
+       return validateId(userId).getMentors().stream().map(userMapper::toDto).toList();
     }
 
 
