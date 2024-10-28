@@ -27,7 +27,7 @@ public class EventService {
     @Transactional
     public Event create(Event event) {
         log.info("Создаем событие: {}", event.getTitle());
-        hasUserSkillsForEvent(event);
+        validateUserHasSkillsForEvent(event);
         Event savedEvent = eventRepository.save(event);
         log.info("Событие с ID: {}, успешно создано", savedEvent.getId());
         return savedEvent;
@@ -82,7 +82,7 @@ public class EventService {
 
         Event existingEvent = getExistingEvent(event.getId());
         validateEventOwnership(existingEvent, event.getOwner().getId());
-        hasUserSkillsForEvent(event);
+        validateUserHasSkillsForEvent(event);
 
         existingEvent.setTitle(event.getTitle());
         existingEvent.setDescription(event.getDescription());
@@ -108,7 +108,7 @@ public class EventService {
         }
     }
 
-    private void hasUserSkillsForEvent(Event event) {
+    private void validateUserHasSkillsForEvent(Event event) {
         log.info("Проверяем навыки пользователя с ID: {}", event.getOwner().getId());
         Long userId = event.getOwner().getId();
         User user = userRepository.findByIdWithSkills(userId)

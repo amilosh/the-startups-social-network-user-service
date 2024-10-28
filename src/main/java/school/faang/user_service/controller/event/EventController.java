@@ -32,8 +32,8 @@ public class EventController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public EventDto create(@Valid @RequestBody EventDto eventDto) {
-        Event eventForCreate = eventMapper.toEvent(eventDto);
-        return eventMapper.toDto(eventService.create(eventForCreate));
+        Event event = eventMapper.toEvent(eventDto);
+        return eventMapper.toDto(eventService.create(event));
     }
 
     @PatchMapping
