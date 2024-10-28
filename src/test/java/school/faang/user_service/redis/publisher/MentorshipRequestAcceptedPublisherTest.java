@@ -11,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.listener.Topic;
+import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestAcceptedDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.User;
@@ -29,9 +29,6 @@ public class MentorshipRequestAcceptedPublisherTest {
     private RedisTemplate<String, Object> redisTemplate;
 
     @Mock
-    private Topic mentorshipRequestReceivedTopicName;
-
-    @Mock
     private ObjectMapper objectMapper;
 
     @InjectMocks
@@ -42,6 +39,8 @@ public class MentorshipRequestAcceptedPublisherTest {
 
     @BeforeEach
     public void setUp() {
+        ReflectionTestUtils.setField(mentorshipRequestPublisher,
+                "mentorshipRequestAcceptedTopicName", "mentorship_requests");
         mentorshipRequest = new MentorshipRequest();
         User user1 = User.builder()
                 .id(2L)
@@ -61,7 +60,7 @@ public class MentorshipRequestAcceptedPublisherTest {
     }
 
     @Test
-    public void testPublishEvent() throws Exception {
+    public void testPublishEvent1() throws Exception {
         when(objectMapper.writeValueAsString(any(MentorshipRequestAcceptedDto.class))).thenReturn(eventDto.toString());
 
         mentorshipRequestPublisher.publishEvent(mentorshipRequest);
@@ -71,13 +70,14 @@ public class MentorshipRequestAcceptedPublisherTest {
 
         verify(redisTemplate).convertAndSend(topicCaptor.capture(), messageCaptor.capture());
 
-        assertEquals(mentorshipRequestReceivedTopicName.getTopic(), topicCaptor.getValue());
+        assertEquals("mentorship_requests", topicCaptor.getValue());
         assertEquals(eventDto.toString(), messageCaptor.getValue());
     }
 
     @Test
     public void testPublishEventJsonProcessingException() throws Exception {
-        when(objectMapper.writeValueAsString(any(MentorshipRequestAcceptedDto.class))).thenThrow(new JsonProcessingException("Error") {});
+        when(objectMapper.writeValueAsString(any(MentorshipRequestAcceptedDto.class)))
+                .thenThrow(new JsonProcessingException("Error") {});
 
         mentorshipRequestPublisher.publishEvent(mentorshipRequest);
 
