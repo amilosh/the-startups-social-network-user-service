@@ -7,17 +7,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.model.dto.student.Person;
+import school.faang.user_service.config.context.UserContext;
+//import school.faang.user_service.model.entity.student.Person;
 import school.faang.user_service.model.dto.user.UserDto;
 import school.faang.user_service.model.dto.user.UserFilterDto;
-import school.faang.user_service.model.entity.Country;
 import school.faang.user_service.model.entity.User;
 import school.faang.user_service.model.entity.event.Event;
 import school.faang.user_service.model.enums.event.EventStatus;
 import school.faang.user_service.model.entity.goal.Goal;
+import school.faang.user_service.event.ProfileViewEventDto;
+import school.faang.user_service.model.dto.student.Person;
+import school.faang.user_service.model.dto.user.UserFilterDto;
+import school.faang.user_service.model.entity.Country;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.model.event.SearchAppearanceEvent;
 import school.faang.user_service.publisher.SearchAppearanceEventPublisher;
+import school.faang.user_service.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.EventService;
@@ -45,8 +51,10 @@ public class UserServiceImpl implements UserService {
     private final GoalService goalService;
     private final EventService eventService;
     private final MentorshipService mentorshipService;
+    private final ProfileViewEventPublisher profileViewEventPublisher;
     private final CsvParser csvParser;
     private final SearchAppearanceEventPublisher searchAppearanceEventPublisher;
+    private final UserContext userContext;
     private final UserContext userContext;
 
     @Override
@@ -103,8 +111,8 @@ public class UserServiceImpl implements UserService {
     }
 
     private void setStudentsCountry(Person person, User user, List<Country> countryList) {
-        Optional<Country> country =  gerPersonsCountryFromDB(person, countryList);
-        country.ifPresentOrElse(user::setCountry,() -> {
+        Optional<Country> country = gerPersonsCountryFromDB(person, countryList);
+        country.ifPresentOrElse(user::setCountry, () -> {
             var saved = countryRepository.save(
                     Country.builder()
                             .title(person.getContactInfo().getAddress().getCountry())
@@ -170,6 +178,19 @@ public class UserServiceImpl implements UserService {
         searchAppearanceEventPublisher.publish(event);
 
         return foundUser;
+    }
+
+    @Override
+    public UserDto getUserProfile(long userId) {
+        Long senderId = userContext.getUserId();
+        ProfileViewEventDto profileViewEventDto = ProfileViewEventDto
+                .builder()
+                .senderId(senderId)
+                .receiverId(userId)
+                .dateTime(LocalDateTime.now())
+                .build();
+        profileViewEventPublisher.publish(profileViewEventDto);
+        return getUser(userId);
     }
 
     @Override

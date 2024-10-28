@@ -55,14 +55,29 @@ public class RedisConfig {
     @Value("${spring.data.redis.channels.premium-bought-channel.name}")
     private String premiumBoughtTopic;
 
+    @Value("${spring.data.redis.channels.event-starter}")
+    private String eventStarter;
+
     @Value("${spring.data.redis.channels.goal-completed-event-channel.name}")
     private String goalCompletedTopic;
 
     @Value("${spring.data.redis.channels.skill-acquired-channel.name}")
     private String skillAcquired;
 
+    @Value("${spring.data.redis.channels.profile}")
+    private String profileView;
+
+    @Value("${spring.data.redis.channels.skill-offered-channel.name}")
+    private String skillOffered;
+
+    @Value("${spring.data.redis.channels.mentorship-request-channel.name}")
+    private String mentorshipRequestTopic;
+
+    @Value("${spring.data.redis.channels.mentorship-start-channel.name}")
+    private String mentorshipStart;
+
     @Bean
-    public JedisConnectionFactory jedisConnectionFactory() {
+    public JedisConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
         return new JedisConnectionFactory(config);
     }
@@ -72,16 +87,17 @@ public class RedisConfig {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer =
                 new Jackson2JsonRedisSerializer<>(objectMapper, Object.class);
-        redisTemplate.setConnectionFactory(jedisConnectionFactory());
+        redisTemplate.setConnectionFactory(redisConnectionFactory());
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setValueSerializer(jackson2JsonRedisSerializer);
+
         return redisTemplate;
     }
 
     @Bean
     public RedisMessageListenerContainer redisContainer() {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(jedisConnectionFactory());
+        container.setConnectionFactory(redisConnectionFactory());
         container.addMessageListener(banUserMessageListenerAdapter(), banUserChannelTopic());
         return container;
     }
@@ -122,6 +138,11 @@ public class RedisConfig {
     }
 
     @Bean
+    public ChannelTopic profileViewTopic() {
+        return new ChannelTopic(profileView);
+    }
+
+    @Bean
     public ChannelTopic goalCompletedTopic() {
         return new ChannelTopic(goalCompletedTopic);
     }
@@ -144,5 +165,25 @@ public class RedisConfig {
     @Bean
     public ChannelTopic premiumBoughtTopic() {
         return new ChannelTopic(premiumBoughtTopic);
+    }
+
+    @Bean
+    public ChannelTopic eventStarter() {
+        return new ChannelTopic(eventStarter);
+    }
+
+    @Bean
+    public ChannelTopic skillOfferedTopic() {
+        return new ChannelTopic(skillOffered);
+    }
+
+    @Bean
+    public ChannelTopic mentorshipRequestTopic() {
+        return new ChannelTopic(mentorshipRequestTopic);
+    }
+
+    @Bean
+    public ChannelTopic mentorshipStartTopic() {
+        return new ChannelTopic(mentorshipStart);
     }
 }
