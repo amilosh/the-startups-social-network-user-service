@@ -11,15 +11,9 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class RequestFilterDto {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private Long requesterId;
     private Long mentorId;
     private String description;
     private String status;
-
-
 }

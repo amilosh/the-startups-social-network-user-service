@@ -4,6 +4,7 @@ package school.faang.user_service.service;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
@@ -18,8 +19,8 @@ import java.util.List;
 
 @Service
 public class MentorshipRequestService {
+    private static final int MONTH = 3;
     private final MentorshipRequestRepository mentorshipRequestRepository;
-
     @Autowired
     public MentorshipRequestService(MentorshipRequestRepository mentorshipRequestRepository) {
         this.mentorshipRequestRepository = mentorshipRequestRepository;
@@ -32,7 +33,7 @@ public class MentorshipRequestService {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime createdAt = mentorshipRequest.getCreatedAt();
 
-        if (ChronoUnit.DAYS.between(createdAt, now) < 3) {
+        if (ChronoUnit.DAYS.between(createdAt, now) < MONTH) {
             throw new IllegalArgumentException("You can't request mentorship for less than 3 days");
         }
         mentorshipRequest.getReceiver().getMentors().add(mentorshipRequest.getRequester());
@@ -58,6 +59,7 @@ public class MentorshipRequestService {
         return mentorshipRequest.getId();
     }
 
+    @Transactional
     public void rejectRequest(long id, RejectionDto rejection) {
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Mentorship request not found"));

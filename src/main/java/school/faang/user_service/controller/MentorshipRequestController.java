@@ -3,10 +3,7 @@ package school.faang.user_service.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.service.MentorshipRequestService;
@@ -15,28 +12,28 @@ import school.faang.user_service.service.MentorshipRequestService;
 @RequestMapping("/mentorship-requests")
 public class MentorshipRequestController {
 
-    private final MentorshipRequestService MENTORSHIP_REQUEST_SERVICE;
+    private final MentorshipRequestService mentorshipRequestService;
 
     @Autowired
     public MentorshipRequestController(MentorshipRequestService mentorshipRequestService) {
-        this.MENTORSHIP_REQUEST_SERVICE = mentorshipRequestService;
+        this.mentorshipRequestService = mentorshipRequestService;
     }
 
     @PostMapping("/requestMentorship")
     public ResponseEntity<Void> requestMentorship(@RequestBody MentorshipRequestDto mentorshipRequestDto) {
-        MENTORSHIP_REQUEST_SERVICE.requestMentorship(mentorshipRequestDto);
+        mentorshipRequestService.requestMentorship(mentorshipRequestDto);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/acceptMentorship")
-    public ResponseEntity<Void> acceptMentorship(@RequestBody Long id) {
-        MENTORSHIP_REQUEST_SERVICE.acceptMentorship(id);
+    public ResponseEntity<Void> acceptMentorship(@PathVariable Long id) {
+        mentorshipRequestService.acceptMentorship(id);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/rejectMentorship")
-    public ResponseEntity<Void> rejectRequest(long id, RejectionDto rejection) {
-        MENTORSHIP_REQUEST_SERVICE.rejectRequest(id, rejection);
+    public ResponseEntity<Void> rejectRequest(@PathVariable long id, @RequestBody RejectionDto rejection) {
+        mentorshipRequestService.rejectRequest(id, rejection);
         return ResponseEntity.ok().build();
     }
 

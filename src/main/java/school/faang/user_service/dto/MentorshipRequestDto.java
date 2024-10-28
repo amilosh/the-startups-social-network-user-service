@@ -7,10 +7,8 @@ import lombok.Setter;
 
 @Data
 @NoArgsConstructor
-@Getter
-@Setter
 public class MentorshipRequestDto {
-    private Long id;
+    private long id;
     private String username;
     private String email;
 
