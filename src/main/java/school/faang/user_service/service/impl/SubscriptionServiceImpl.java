@@ -14,6 +14,7 @@ import school.faang.user_service.service.PaginationService;
 import school.faang.user_service.service.SubscriptionService;
 import school.faang.user_service.validator.SubscriptionServiceValidator;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +35,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         subscriptionServiceValidator.validateFollowIds(followerId, followeeId);
         subscriptionServiceValidator.checkIfAlreadySubscribed(followerId, followeeId);
         subscriptionRepository.followUser(followerId, followeeId);
-        userFollowerEventPublisher.publish(new UserFollowerEvent(followerId, followeeId));
+        userFollowerEventPublisher.publish(new UserFollowerEvent(followerId, followeeId, LocalDateTime.now()));
     }
 
     @Transactional
