@@ -7,5 +7,6 @@ import jakarta.validation.constraints.NotNull;
 public record UserDto(@NotNull(message = "Id cannot be empty.") Long id,
                       @NotBlank(message = "Name cannot be empty") String username,
                       @NotBlank(message = "Email is required")
-                      @Email(message = "Email should be valid") String email) {
+                      @Email(message = "Email address has invalid format: ${validatedValue}",
+                              regexp = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$") String email) {
 }
