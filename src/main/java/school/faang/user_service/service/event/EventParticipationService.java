@@ -17,8 +17,7 @@ public class EventParticipationService {
 
     @Transactional
     public void register(long eventId, long userId){
-        boolean alreadyRegistered = findAllParticipantsByEventId(eventId).stream()
-                .anyMatch(user -> user.getId() == userId);
+        boolean alreadyRegistered = repository.existsByEventIdAndUserId(eventId, userId);
 
         if (alreadyRegistered) {
             log.error("User already registered with id: {}", userId);
@@ -30,8 +29,7 @@ public class EventParticipationService {
 
     @Transactional
     public void unregister(long eventId, long userId){
-        boolean alreadyRegistered = findAllParticipantsByEventId(eventId).stream()
-                .anyMatch(user -> user.getId() == userId);
+        boolean alreadyRegistered = repository.existsByEventIdAndUserId(eventId, userId);
 
         if (!alreadyRegistered) {
             log.error("User isn't registered: {}", userId);
@@ -51,6 +49,10 @@ public class EventParticipationService {
     }
 
     public int countParticipants(long eventId){
+        if (eventId == 0) {
+            throw new IllegalArgumentException("Event id can't be zero.");
+        }
+
         return repository.countParticipants(eventId);
     }
 }
