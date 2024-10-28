@@ -7,8 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.model.dto.student.Person;
-import school.faang.user_service.config.context.UserContext;
-//import school.faang.user_service.model.entity.student.Person;
 import school.faang.user_service.model.dto.user.UserDto;
 import school.faang.user_service.model.dto.user.UserFilterDto;
 import school.faang.user_service.model.entity.User;
@@ -16,8 +14,6 @@ import school.faang.user_service.model.entity.event.Event;
 import school.faang.user_service.model.enums.event.EventStatus;
 import school.faang.user_service.model.entity.goal.Goal;
 import school.faang.user_service.event.ProfileViewEventDto;
-import school.faang.user_service.model.dto.student.Person;
-import school.faang.user_service.model.dto.user.UserFilterDto;
 import school.faang.user_service.model.entity.Country;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
@@ -54,7 +50,6 @@ public class UserServiceImpl implements UserService {
     private final ProfileViewEventPublisher profileViewEventPublisher;
     private final CsvParser csvParser;
     private final SearchAppearanceEventPublisher searchAppearanceEventPublisher;
-    private final UserContext userContext;
     private final UserContext userContext;
 
     @Override

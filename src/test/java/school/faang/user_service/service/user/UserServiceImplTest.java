@@ -89,9 +89,6 @@ class UserServiceImplTest {
     @Mock
     private ProfileViewEventPublisherImpl profileViewEventPublisher;
 
-    @Mock
-    private UserContext userContext;
-
     private long id;
     private UserDto userDto;
     private UserFilterDto userFilterDto;
@@ -129,8 +126,6 @@ class UserServiceImplTest {
                 .build();
 
         filters = List.of(userFilter);
-        userService = new UserServiceImpl(userRepository, countryRepository, filters, userMapper, goalService,
-                eventService, mentorshipService, profileViewEventPublisher, csvParser, userContext);
 
         userService = new UserServiceImpl(
                 userRepository,
@@ -140,6 +135,7 @@ class UserServiceImplTest {
                 goalService,
                 eventService,
                 mentorshipService,
+                profileViewEventPublisher,
                 csvParser,
                 searchAppearanceEventPublisher,
                 userContext
