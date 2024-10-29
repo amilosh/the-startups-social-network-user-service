@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.RecommendationDto;
+import school.faang.user_service.dto.event.RecommendationReceivedEvent;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
 @Mapper(componentModel = "spring", unmappedSourcePolicy = ReportingPolicy.IGNORE)
@@ -19,4 +20,9 @@ public interface RecommendationMapper {
     Recommendation toRecommendation(RecommendationDto recommendationDto);
 
     void updateFromDto(RecommendationDto recommendationDto, @MappingTarget Recommendation recommendation);
+
+    @Mapping(source = "id", target = "recommendationId")
+    @Mapping(source = "author.id", target = "authorId")
+    @Mapping(source = "receiver.id", target = "receiverId")
+    RecommendationReceivedEvent toRecommendationReceivedEvent(Recommendation recommendation);
 }

@@ -136,8 +136,8 @@ public class RedisConfig {
     }
 
     @Bean(value = "recommendationReceivedTopic")
-    ChannelTopic recommendationReceivedTopic(
-            @Value("${spring.data.redis.channels.recommendation-channel.name}") String name) {
-        return new ChannelTopic(name);
+    public ChannelTopic recommendationReceivedTopic(
+            @Value("${spring.data.redis.channels.recommendation-channel.name}") String topic) {
+        return new ChannelTopic(topic);
     }
 }

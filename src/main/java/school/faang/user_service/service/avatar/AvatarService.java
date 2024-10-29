@@ -62,7 +62,6 @@ public class AvatarService {
         return new ArrayList<>(List.of(backgroundColor.toString()));
     }
 
-
     private void loadFileInStorage(byte[] file, User user, long contentLength, MediaType contentType) {
         long userId = user.getId();
         String key = prefixFileName + userId + "_" + System.currentTimeMillis();

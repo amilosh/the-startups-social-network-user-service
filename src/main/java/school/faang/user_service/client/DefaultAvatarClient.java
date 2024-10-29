@@ -13,6 +13,7 @@ import java.util.List;
 public interface DefaultAvatarClient {
 
     @GetMapping("/{styleName}/{format}")
-    ResponseEntity<byte[]> getAvatar(@PathVariable("styleName") String styleName, @PathVariable("format") String format,
-                     @RequestParam List<String> backgroundColor);
+    ResponseEntity<byte[]> getAvatar(@PathVariable("styleName") String styleName,
+                                     @PathVariable("format") String format,
+                                     @RequestParam("backgroundColor") List<String> backgroundColor);
 }

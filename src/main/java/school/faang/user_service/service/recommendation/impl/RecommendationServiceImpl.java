@@ -68,7 +68,9 @@ public class RecommendationServiceImpl implements RecommendationService {
 
         handleSkillOffers(recommendation, recommendationDto.skillOffers());
 
-        publishRecommendationReceivedEvent(recommendation);
+        RecommendationReceivedEvent event = recommendationMapper.toRecommendationReceivedEvent(recommendation);
+        eventPublisher.publish(event);
+        log.info("RecommendationReceivedEvent event published: {}", event);
 
         return recommendationMapper.toRecommendationDto(recommendation);
     }
@@ -169,13 +171,4 @@ public class RecommendationServiceImpl implements RecommendationService {
         log.info("Skill offers for recommendation with id {} successfully saved", recommendation.getId());
     }
 
-    private void publishRecommendationReceivedEvent(Recommendation recommendation) {
-        RecommendationReceivedEvent event = new RecommendationReceivedEvent(
-                recommendation.getId(),
-                recommendation.getAuthor().getId(),
-                recommendation.getReceiver().getId()
-        );
-        eventPublisher.publish(event);
-        log.info("RecommendationReceivedEvent event published: {}", event);
-    }
 }
