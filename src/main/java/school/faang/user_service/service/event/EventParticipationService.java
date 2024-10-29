@@ -4,7 +4,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.UserDTOMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.List;
 @Slf4j
 public class EventParticipationService {
     private final EventParticipationRepository repository;
+    private final UserDTOMapper mapper;
 
     @Transactional
     public void register(long eventId, long userId){
@@ -40,12 +43,14 @@ public class EventParticipationService {
     }
 
     @Transactional
-    public List<User> findAllParticipantsByEventId(long eventId){
+    public List<UserDTO> findAllParticipantsByEventId(long eventId){
         if (eventId == 0) {
             throw new IllegalArgumentException("Event id can't be zero.");
         }
 
-        return repository.findAllParticipantsByEventId(eventId);
+        List<User> users = repository.findAllParticipantsByEventId(eventId);
+
+        return mapper.toDTO(users);
     }
 
     public int countParticipants(long eventId){

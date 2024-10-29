@@ -5,8 +5,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.UserDTOMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.ArrayList;
@@ -25,6 +27,9 @@ class EventParticipationServiceTest {
     private EventParticipationService service;
     @Mock
     private EventParticipationRepository repository;
+    @Mock
+    private UserDTOMapper userDTOMapper;
+
 
     @Test
     void register_shouldRegisterUserForEvent_whenUserNotRegisteredYet() {
@@ -71,10 +76,13 @@ class EventParticipationServiceTest {
     @Test
     void findAllParticipantsByEventId_shouldReturnListOfParticipants() {
         List<User> expectedUsers = getUserList();
-        when(repository.findAllParticipantsByEventId(EVENT_ID)).thenReturn(expectedUsers);
+        List<UserDTO> expectedUserDTOs = getUserDTOList();
 
-        List<User> actualUsers = service.findAllParticipantsByEventId(EVENT_ID);
-        assertEquals(expectedUsers, actualUsers);
+        when(repository.findAllParticipantsByEventId(EVENT_ID)).thenReturn(expectedUsers);
+        when(userDTOMapper.toDTO(expectedUsers)).thenReturn(expectedUserDTOs);
+
+        List<UserDTO> actualUsers = service.findAllParticipantsByEventId(EVENT_ID);
+        assertEquals(expectedUserDTOs, actualUsers);
     }
 
     @Test
@@ -85,6 +93,19 @@ class EventParticipationServiceTest {
 
         int actualCount = service.countParticipants(EVENT_ID);
         assertEquals(expectedCount, actualCount);
+    }
+
+    private List<UserDTO> getUserDTOList(){
+        List<UserDTO> users = new ArrayList<>();
+        UserDTO user1 = new UserDTO(1L, "john_doe", "john@example.com");
+        UserDTO user2 = new UserDTO(2L, "jane_smith", "jane@example.com");
+        UserDTO user3 = new UserDTO(3L, "alice_brown", "alice@example.com");
+
+        users.add(user1);
+        users.add(user2);
+        users.add(user3);
+
+        return users;
     }
 
     private List<User> getUserList(){
