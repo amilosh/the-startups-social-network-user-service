@@ -38,7 +38,7 @@ public class MentorshipService {
         User mentee = validateId(menteeId);
         User mentor = validateId(mentorId);
 
-        boolean resultOfDeletion = removeFromListWithResult(mentee.getMentors(), mentor);
+        boolean resultOfDeletion = removeFromListWithResult(mentor.getMentees(), mentee);
         if (resultOfDeletion) {
             log.info("Mentee with menteeId={} was successfully removed from the mentor with mentorId={}", menteeId, mentorId);
         } else {
