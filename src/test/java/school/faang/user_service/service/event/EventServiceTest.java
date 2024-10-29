@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.skill.SkillDto;
@@ -20,7 +21,12 @@ import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.mapper.skill.SkillMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.service.event.filter.EventFilter;
+import school.faang.user_service.service.event.filter.EventLocationFilter;
+import school.faang.user_service.service.event.filter.EventOwnerFilter;
+import school.faang.user_service.service.event.filter.EventTitleFilter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,10 +44,11 @@ public class EventServiceTest {
     @Mock
     private UserRepository userRepository;
     @Spy
+    SkillMapper skillMapper = Mappers.getMapper(SkillMapper.class);
+    @Spy
     @InjectMocks
     private EventMapper eventMapper = Mappers.getMapper(EventMapper.class);
-    @Spy
-    SkillMapper skillMapper = Mappers.getMapper(SkillMapper.class);
+    private List<EventFilter> eventFilters;
     @InjectMocks
     private EventService eventService;
 
@@ -144,6 +151,14 @@ public class EventServiceTest {
 
         filterEmptyResult = new EventFilterDto();
         filterEmptyResult.setTitle("AnotherTitle");
+
+        eventFilters = List.of(
+                new EventLocationFilter(),
+                new EventOwnerFilter(),
+                new EventTitleFilter()
+        );
+
+        ReflectionTestUtils.setField(eventService, "eventFilters", eventFilters);
     }
 
     @Test

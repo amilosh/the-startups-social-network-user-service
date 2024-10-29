@@ -14,10 +14,12 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.service.event.filter.EventFilter;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -26,6 +28,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventMapper eventMapper;
+    private final List<EventFilter> eventFilters;
 
     @Transactional
     public EventDto create(EventDto eventDto) {
@@ -46,15 +49,19 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventDto> getEventsByFilter(EventFilterDto filter) {
-        List<Event> events = eventRepository.findAll();
-        List<Event> eventsWithFilter = events.stream()
-                .filter(event -> filter.getTitle() == null || event.getTitle().toLowerCase().contains(filter.getTitle().toLowerCase()))
-                .filter(event -> filter.getOwnerId() == null || event.getOwner().getId().equals(filter.getOwnerId()))
-                .filter(event -> filter.getLocation() == null || event.getLocation().equals(filter.getLocation()))
-                .toList();
-        log.info("По заданным фильтрам найдено: {} записей", eventsWithFilter.size());
-        return eventMapper.toDtoList(eventsWithFilter);
+    public List<EventDto> getEventsByFilter(EventFilterDto filters) {
+        Stream<Event> eventStream = eventRepository.findAll().stream();
+
+        eventStream = eventFilters.stream()
+                .filter(eventFilter -> eventFilter.isApplicable(filters))
+                .reduce(eventStream,
+                        (currentStream, eventFilter) -> eventFilter.apply(currentStream, filters),
+                        (s1, s2) -> s2);
+
+        List<Event> filteredEvents = eventStream.toList();
+
+        log.info("По заданным фильтрам найдено: {} записей", filteredEvents.size());
+        return eventMapper.toDtoList(filteredEvents);
     }
 
     @Transactional(readOnly = true)
