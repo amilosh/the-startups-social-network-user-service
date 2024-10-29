@@ -65,7 +65,7 @@ public class GoalMapperTest {
 
     @Test
     @DisplayName("Test entity update")
-    public void testUpdate() {
+    public void testUpdateEntity() {
         Goal goal = Goal.builder()
                 .id(1L)
                 .description("description")
@@ -75,7 +75,7 @@ public class GoalMapperTest {
                 .description("new description")
                 .build();
 
-        mapper.update(goal, goalDto);
+        mapper.updateEntity(goal, goalDto);
 
         assertEquals(goalDto.getDescription(), goal.getDescription());
         assertNotNull(goalDto.getId());

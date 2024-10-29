@@ -20,7 +20,7 @@ public interface GoalMapper {
     GoalDto entityToDto(Goal goal);
 
     @Mapping(target = "id", ignore = true)
-    void update(@MappingTarget Goal goal, GoalDto goalDto);
+    void updateEntity(@MappingTarget Goal goal, GoalDto goalDto);
 
     default List<Long> skillsToIds(List<Skill> skills) {
         return skills.stream()
