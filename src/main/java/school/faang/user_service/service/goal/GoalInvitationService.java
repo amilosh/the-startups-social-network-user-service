@@ -39,7 +39,7 @@ public class GoalInvitationService {
     private final List<GoalInvitationFilter> goalInvitationFilters;
 
     @Value("${application.constants.max-active-goals-count}")
-    private final int maxActiveGoalsCount;
+    private int maxActiveGoalsCount;
 
     public GoalInvitationDto createInvitation(GoalInvitationDto goalInvitationDto) {
         if (goalInvitationDto.getInviterId().equals(goalInvitationDto.getInvitedUserId())) {
