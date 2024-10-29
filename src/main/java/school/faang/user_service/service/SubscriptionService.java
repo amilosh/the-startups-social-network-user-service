@@ -58,4 +58,13 @@ public class SubscriptionService {
     public int getFollowersCount(long followeeId) {
         return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
     }
+
+    public List<UserDto> getFollowing(long followeeId, UserFilterDto filter) {
+        if (filter == null) {
+            return subscriptionRepository.findByFolloweeId(followeeId)
+                    .map(userMapper::userToDto)
+                    .toList();
+        }
+        return filterUsers(followeeId, filter);
+    }
 }
