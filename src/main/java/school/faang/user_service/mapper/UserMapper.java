@@ -7,6 +7,7 @@ import school.faang.user_service.entity.User;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    UserDto userToDto(User user);
+    UserDto userToUserDto(User user);
+
     User userDtoToUser(UserDto userDto);
 }
