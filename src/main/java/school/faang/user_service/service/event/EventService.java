@@ -5,11 +5,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
@@ -23,25 +25,28 @@ import java.util.stream.Collectors;
 public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
+    private final EventMapper eventMapper;
 
     @Transactional
-    public Event create(Event event) {
+    public EventDto create(EventDto eventDto) {
+        Event event = eventMapper.toEvent(eventDto);
         log.info("Создаем событие: {}", event.getTitle());
         validateUserHasSkillsForEvent(event);
         Event savedEvent = eventRepository.save(event);
         log.info("Событие с ID: {}, успешно создано", savedEvent.getId());
-        return savedEvent;
+        return eventMapper.toDto(savedEvent);
     }
 
     @Transactional(readOnly = true)
-    public Event getEvent(Long eventId) {
+    public EventDto getEvent(Long eventId) {
         log.info("Ищем событие с ID: {}", eventId);
-        return eventRepository.findById(eventId)
+        Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Событие с ID " + eventId + " не найдено"));
+        return eventMapper.toDto(event);
     }
 
     @Transactional(readOnly = true)
-    public List<Event> getEventsByFilter(EventFilterDto filter) {
+    public List<EventDto> getEventsByFilter(EventFilterDto filter) {
         List<Event> events = eventRepository.findAll();
         List<Event> eventsWithFilter = events.stream()
                 .filter(event -> filter.getTitle() == null || event.getTitle().toLowerCase().contains(filter.getTitle().toLowerCase()))
@@ -49,21 +54,21 @@ public class EventService {
                 .filter(event -> filter.getLocation() == null || event.getLocation().equals(filter.getLocation()))
                 .toList();
         log.info("По заданным фильтрам найдено: {} записей", eventsWithFilter.size());
-        return eventsWithFilter;
+        return eventMapper.toDtoList(eventsWithFilter);
     }
 
     @Transactional(readOnly = true)
-    public List<Event> getOwnedEvents(Long userId) {
+    public List<EventDto> getOwnedEvents(Long userId) {
         List<Event> events = eventRepository.findAllByUserId(userId);
         log.info("Для пользователя с ID: {}, найдено {} записей которые он создал", userId, events.size());
-        return events;
+        return eventMapper.toDtoList(events);
     }
 
     @Transactional(readOnly = true)
-    public List<Event> getParticipatedEvents(Long userId) {
+    public List<EventDto> getParticipatedEvents(Long userId) {
         List<Event> events = eventRepository.findParticipatedEventsByUserId(userId);
         log.info("Для пользователя с ID: {}, найдено {} записей в которых он принимает участие", userId, events.size());
-        return events;
+        return eventMapper.toDtoList(events);
     }
 
     @Transactional
@@ -77,7 +82,8 @@ public class EventService {
     }
 
     @Transactional
-    public Event updateEvent(Event event) {
+    public EventDto updateEvent(EventDto eventDto) {
+        Event event = eventMapper.toEvent(eventDto);
         log.info("Обновляем событие с ID: {}", event.getId());
 
         Event existingEvent = getExistingEvent(event.getId());
@@ -94,7 +100,7 @@ public class EventService {
 
         Event updatedEvent = eventRepository.save(existingEvent);
         log.info("Событие с ID: {} успешно обновлено", updatedEvent.getId());
-        return updatedEvent;
+        return eventMapper.toDto(updatedEvent);
     }
 
     private Event getExistingEvent(Long eventId) {

@@ -4,14 +4,20 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.event.EventMapper;
+import school.faang.user_service.mapper.skill.SkillMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
@@ -22,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,6 +37,11 @@ public class EventServiceTest {
     private EventRepository eventRepository;
     @Mock
     private UserRepository userRepository;
+    @Spy
+    @InjectMocks
+    private EventMapper eventMapper = Mappers.getMapper(EventMapper.class);
+    @Spy
+    SkillMapper skillMapper = Mappers.getMapper(SkillMapper.class);
     @InjectMocks
     private EventService eventService;
 
@@ -44,6 +54,9 @@ public class EventServiceTest {
     private EventFilterDto filter;
     private EventFilterDto filterFullResult;
     private EventFilterDto filterEmptyResult;
+    private EventDto eventDto1;
+    private EventDto eventDto2;
+    private EventDto updatedEventDto;
 
     @BeforeEach
     public void setUp() {
@@ -51,9 +64,11 @@ public class EventServiceTest {
         user.setId(1L);
 
         Skill skill1 = new Skill();
+        skill1.setId(1L);
         skill1.setTitle("SkillTitle1");
 
         Skill skill2 = new Skill();
+        skill2.setId(2L);
         skill2.setTitle("SkillTitle2");
 
         List<Skill> skills = List.of(skill1, skill2);
@@ -80,6 +95,7 @@ public class EventServiceTest {
         event2 = new Event();
         event2.setId(2L);
         event2.setTitle("Title2");
+        event2.setLocation("Location2");
         event2.setOwner(userWithoutSkills);
         event2.setRelatedSkills(skills);
 
@@ -88,6 +104,36 @@ public class EventServiceTest {
         updatedEvent.setTitle("Updated Title1");
         updatedEvent.setOwner(user);
         updatedEvent.setRelatedSkills(skills);
+
+        SkillDto skillDto1 = new SkillDto();
+        skillDto1.setId(1L);
+        skillDto1.setTitle("SkillTitle1");
+
+        SkillDto skillDto2 = new SkillDto();
+        skillDto2.setId(2L);
+        skillDto2.setTitle("SkillTitle2");
+
+        List<SkillDto> skillsDto = List.of(skillDto1, skillDto2);
+
+        eventDto1 = new EventDto();
+        eventDto1.setId(1L);
+        eventDto1.setTitle("Title1");
+        eventDto1.setLocation("Location1");
+        eventDto1.setOwnerId(user.getId());
+        eventDto1.setRelatedSkills(skillsDto);
+
+        eventDto2 = new EventDto();
+        eventDto2.setId(2L);
+        eventDto2.setTitle("Title2");
+        eventDto2.setLocation("Location2");
+        eventDto2.setOwnerId(userWithoutSkills.getId());
+        eventDto2.setRelatedSkills(skillsDto);
+
+        updatedEventDto = new EventDto();
+        updatedEventDto.setId(1L);
+        updatedEventDto.setTitle("Updated Title1");
+        updatedEventDto.setOwnerId(user.getId());
+        updatedEventDto.setRelatedSkills(skillsDto);
 
         filter = new EventFilterDto();
         filter.setTitle("Title1");
@@ -105,20 +151,18 @@ public class EventServiceTest {
         when(userRepository.findByIdWithSkills(1L)).thenReturn(Optional.of(user));
         when(eventRepository.save(any(Event.class))).thenReturn(event1);
 
-        Event result = eventService.create(event1);
+        EventDto result = eventService.create(eventDto1);
 
         verify(userRepository).findByIdWithSkills(1L);
-        verify(eventRepository).save(event1);
-        assertEquals(event1.getTitle(), result.getTitle());
-        assertEquals(event1.getOwner(), result.getOwner());
-        assertEquals(event1.getRelatedSkills(), result.getRelatedSkills());
+        assertEquals(eventDto1.getId(), result.getId());
+        assertEquals(eventDto1.getTitle(), result.getTitle());
     }
 
     @Test
     public void createEventUserNotFoundTest() {
         assertThrows(
                 EntityNotFoundException.class,
-                () -> eventService.create(event1)
+                () -> eventService.create(eventDto1)
         );
     }
 
@@ -128,25 +172,25 @@ public class EventServiceTest {
 
         assertThrows(
                 DataValidationException.class,
-                () -> eventService.create(event2)
+                () -> eventService.create(eventDto2)
         );
     }
 
     @Test
     public void getEventTest() {
-        when(eventRepository.findById(anyLong())).thenReturn(Optional.of(event1));
+        when(eventRepository.findById(1L)).thenReturn(Optional.of(event1));
 
-        Event result = eventService.getEvent(1L);
+        EventDto result = eventService.getEvent(1L);
 
         verify(eventRepository).findById(1L);
         assertEquals(event1.getId(), result.getId());
         assertEquals(event1.getTitle(), result.getTitle());
-        assertEquals(event1.getOwner(), result.getOwner());
-        assertEquals(event1.getRelatedSkills(), result.getRelatedSkills());
+        assertEquals(event1.getOwner().getId(), result.getOwnerId());
     }
 
     @Test
     public void getEventNotFoundTest() {
+        when(eventRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(
                 EntityNotFoundException.class,
                 () -> eventService.getEvent(1L)
@@ -158,11 +202,10 @@ public class EventServiceTest {
         List<Event> events = List.of(event1, event2);
         when(eventRepository.findAll()).thenReturn(events);
 
-        List<Event> result = eventService.getEventsByFilter(filter);
+        List<EventDto> result = eventService.getEventsByFilter(filter);
 
         verify(eventRepository).findAll();
         assertEquals(1, result.size());
-        assertTrue(result.contains(event1));
     }
 
     @Test
@@ -170,7 +213,7 @@ public class EventServiceTest {
         List<Event> events = List.of(event1, event2);
         when(eventRepository.findAll()).thenReturn(events);
 
-        List<Event> result = eventService.getEventsByFilter(filterFullResult);
+        List<EventDto> result = eventService.getEventsByFilter(filterFullResult);
 
         verify(eventRepository).findAll();
         assertEquals(2, result.size());
@@ -181,7 +224,7 @@ public class EventServiceTest {
         List<Event> events = List.of(event1, event2);
         when(eventRepository.findAll()).thenReturn(events);
 
-        List<Event> result = eventService.getEventsByFilter(filterEmptyResult);
+        List<EventDto> result = eventService.getEventsByFilter(filterEmptyResult);
 
         verify(eventRepository).findAll();
         assertTrue(result.isEmpty());
@@ -192,7 +235,7 @@ public class EventServiceTest {
         List<Event> events = List.of(event1, event2);
         when(eventRepository.findAllByUserId(1L)).thenReturn(events);
 
-        List<Event> result = eventService.getOwnedEvents(1L);
+        List<EventDto> result = eventService.getOwnedEvents(1L);
 
         verify(eventRepository).findAllByUserId(1L);
         assertEquals(2, result.size());
@@ -203,11 +246,10 @@ public class EventServiceTest {
         List<Event> events = List.of(event1);
         when(eventRepository.findParticipatedEventsByUserId(1L)).thenReturn(events);
 
-        List<Event> result = eventService.getParticipatedEvents(1L);
+        List<EventDto> result = eventService.getParticipatedEvents(1L);
 
         verify(eventRepository).findParticipatedEventsByUserId(1L);
         assertEquals(1, result.size());
-        assertTrue(result.contains(event1));
     }
 
     @Test
@@ -235,9 +277,9 @@ public class EventServiceTest {
         when(userRepository.findByIdWithSkills(1L)).thenReturn(Optional.of(user));
         when(eventRepository.save(any(Event.class))).thenReturn(event1);
 
-        Event result = eventService.updateEvent(updatedEvent);
+        EventDto result = eventService.updateEvent(updatedEventDto);
 
-        assertEquals("Updated Title1", result.getTitle());
+        assertEquals(updatedEventDto.getTitle(), result.getTitle());
     }
 
     @Test
@@ -246,7 +288,7 @@ public class EventServiceTest {
 
         assertThrows(
                 EntityNotFoundException.class,
-                () -> eventService.updateEvent(updatedEvent)
+                () -> eventService.updateEvent(updatedEventDto)
         );
     }
 
@@ -257,18 +299,18 @@ public class EventServiceTest {
 
         assertThrows(
                 DataValidationException.class,
-                () -> eventService.updateEvent(updatedEvent)
+                () -> eventService.updateEvent(updatedEventDto)
         );
     }
 
     @Test
     public void updateEventUserNoOwnerTest() {
         when(eventRepository.findById(1L)).thenReturn(Optional.of(event1));
-        updatedEvent.setOwner(notOwner);
+        updatedEventDto.setOwnerId(notOwner.getId());
 
         assertThrows(
                 DataValidationException.class,
-                () -> eventService.updateEvent(updatedEvent)
+                () -> eventService.updateEvent(updatedEventDto)
         );
     }
 }
