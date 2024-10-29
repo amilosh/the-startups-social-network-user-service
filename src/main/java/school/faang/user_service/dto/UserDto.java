@@ -11,6 +11,5 @@ public class UserDto {
     private String phone;
     private Integer experience;
     private String city;
-    //dmdkm
 
 }

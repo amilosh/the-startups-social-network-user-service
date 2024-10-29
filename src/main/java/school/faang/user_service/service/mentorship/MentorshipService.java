@@ -35,5 +35,11 @@ public class MentorshipService {
        return validateId(userId).getMentors().stream().map(userMapper::toDto).toList();
     }
 
+    public void deleteMentee(long menteeId, long mentorId) {
+//        getMentors(mentorId).removeIf(mentee -> mentee.getId() == menteeId);
+
+
+    }
+
 
 }
