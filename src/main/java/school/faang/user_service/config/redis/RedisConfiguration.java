@@ -98,16 +98,6 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public List<Pair<MessageListenerAdapter, ChannelTopic>> requesters(
-            MessageListenerAdapter userBanMessageListener,
-            ChannelTopic userBanTopic)
-    {
-        return List.of(
-                Pair.of(userBanMessageListener, userBanTopic)
-        );
-    }
-
-    @Bean
     public ChannelTopic userBanTopic() {
         return new ChannelTopic(redisProperties.getChannels().getUserBanChannel().getName());
     }
@@ -115,5 +105,11 @@ public class RedisConfiguration {
     @Bean
     public MessageListenerAdapter userBanMessageListener(UserBanEventListener userBanEventListener) {
         return new MessageListenerAdapter(userBanEventListener);
+    }
+
+    @Bean
+    public Pair<MessageListenerAdapter, ChannelTopic> userBanPair(MessageListenerAdapter userBanMessageListener,
+                                                                   ChannelTopic userBanTopic) {
+        return Pair.of(userBanMessageListener, userBanTopic);
     }
 }

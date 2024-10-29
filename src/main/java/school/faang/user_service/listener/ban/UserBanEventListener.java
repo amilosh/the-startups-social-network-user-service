@@ -23,7 +23,6 @@ public class UserBanEventListener extends AbstractEventListener<UserBanEvent> {
 
     @Override
     public void onMessage(@NotNull Message message, byte[] pattern) {
-        log.info("Got message, trying to handle it");
         handleEvent(message, UserBanEvent.class, event -> {
             userService.banUser(event.getUserId());
         });
