@@ -110,16 +110,17 @@ public class GoalInvitationService {
     }
 
     public List<GoalInvitationDto> getInvitations(InvitationFilterDto filters) {
-        Stream<GoalInvitation> goalInvitations = goalInvitationRepository.findAll().stream();
-        goalInvitationFilters.stream()
+        Stream<GoalInvitation> goalInvitationsStream = goalInvitationRepository.findAll().stream();
+        goalInvitationsStream = goalInvitationFilters.stream()
                 .filter(filter -> filter.isApplicable(filters))
-                .forEach(filter -> filter.apply(goalInvitations, filters));
+                .reduce(goalInvitationsStream, (stream, filter) -> filter.apply(stream, filters), (s1, s2) -> s1);
+        List<GoalInvitation> filteredGoalInvitations = goalInvitationsStream.toList();
         log.info("Received goal invitations filtered by: inviterNamePattern='{}', invitedNamePattern='{}', inviterId={}, invitedId={}, status={}",
                 filters.getInviterNamePattern(),
                 filters.getInvitedNamePattern(),
                 filters.getInviterId(),
                 filters.getInvitedId(),
                 filters.getStatus());
-        return goalInvitationMapper.toDto(goalInvitations.toList());
+        return goalInvitationMapper.toDto(filteredGoalInvitations);
     }
 }

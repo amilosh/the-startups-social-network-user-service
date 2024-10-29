@@ -14,7 +14,7 @@ public class InviterIdFilter implements GoalInvitationFilter {
     }
 
     @Override
-    public void apply(Stream<GoalInvitation> goalInvitations, InvitationFilterDto filters) {
-        goalInvitations.filter(goalInvitation -> goalInvitation.getInviter().getId().equals(filters.getInviterId()));
+    public Stream<GoalInvitation> apply(Stream<GoalInvitation> goalInvitations, InvitationFilterDto filters) {
+        return goalInvitations.filter(goalInvitation -> goalInvitation.getInviter().getId().equals(filters.getInviterId()));
     }
 }
