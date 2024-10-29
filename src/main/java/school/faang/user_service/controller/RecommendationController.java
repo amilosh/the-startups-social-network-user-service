@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessage;
-import school.faang.user_service.service.interfaces.RecommendationService;
+import school.faang.user_service.service.RecommendationService;
 
 @Validated
 @RestController
