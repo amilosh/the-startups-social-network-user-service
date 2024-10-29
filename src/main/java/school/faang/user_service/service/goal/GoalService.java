@@ -72,4 +72,13 @@ public class GoalService {
 
         return Optional.of(goalRepository.save(existingGoal));
     }
+
+    public void deleteGoal(Long goalId) {
+        if (!goalRepository.existsById(goalId)) {
+            throw new IllegalArgumentException("Goal not found.");
+        }
+        goalRepository.deleteById(goalId);
+    }
+
+
 }
