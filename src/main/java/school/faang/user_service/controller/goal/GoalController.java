@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.entity.goal.Goal;
 
@@ -54,5 +56,25 @@ public class GoalController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/{goalId}/subtasks")
+    public List<GoalDto> findSubtasksByGoalId(@PathVariable long goalId, @RequestParam(required = false) String statusFilter) {
+        // Вызываем метод из GoalService, передавая идентификатор цели и опциональный фильтр
+        return goalService.findSubtasksByGoalId(goalId, statusFilter);
+    }
+
+    @GetMapping("/user/{userId}")
+    public List<GoalDto> getGoalsByUser(
+            @PathVariable Long userId,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) GoalStatus status,
+            @RequestParam(required = false) Long skillId
+    ) {
+        // Создаем фильтр на основе переданных параметров
+        GoalFilterDto filter = new GoalFilterDto(title, status, skillId);
+
+        // Вызываем метод в сервисе и возвращаем результат
+        return goalService.findGoalsByUserId(userId, filter);
     }
 }
