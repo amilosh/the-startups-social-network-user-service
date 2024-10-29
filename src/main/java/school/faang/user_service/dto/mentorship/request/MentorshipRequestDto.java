@@ -1,6 +1,7 @@
 package school.faang.user_service.dto.mentorship.request;
 
 import lombok.Builder;
+import lombok.Getter;
 import school.faang.user_service.entity.RequestStatus;
 
 @Builder
