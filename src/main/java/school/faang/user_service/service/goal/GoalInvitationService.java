@@ -109,6 +109,7 @@ public class GoalInvitationService {
         return goalInvitationMapper.toDto(rejectedGoalInvitation);
     }
 
+    @Transactional(readOnly = true)
     public List<GoalInvitationDto> getInvitations(InvitationFilterDto filters) {
         Stream<GoalInvitation> goalInvitationsStream = goalInvitationRepository.findAll().stream();
         goalInvitationsStream = goalInvitationFilters.stream()
