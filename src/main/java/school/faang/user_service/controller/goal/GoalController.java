@@ -39,11 +39,9 @@ public class GoalController {
 
     @PutMapping("/{goalId}")
     public ResponseEntity<Goal> updateGoal(@PathVariable Long goalId, @RequestBody GoalDto goalDto) {
-        // Вызываем метод updateGoal из GoalService и получаем результат
         Optional<Goal> updatedGoal = goalService.updateGoal(goalId, goalDto);
 
-        // Проверяем, было ли обновление цели успешным
-        return updatedGoal.map(ResponseEntity::ok) // Если цель обновлена, возвращаем ее с кодом 200
-                .orElseGet(() -> ResponseEntity.badRequest().build()); // В противном случае возвращаем 400 Bad Request
+        return updatedGoal.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 }

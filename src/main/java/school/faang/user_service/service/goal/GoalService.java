@@ -40,47 +40,36 @@ public class GoalService {
     }
 
     public Optional<Goal> updateGoal(Long goalId, GoalDto goalDto) {
-        // Находим цель по ID
-        Optional<Goal> existingGoalOptional = goalRepository.findById(goalId);
+        Goal existingGoal = goalRepository.findById(goalId).orElseThrow(() ->
+                new IllegalArgumentException("Goal not found."));
 
-        if (existingGoalOptional.isPresent()) {
-            Goal existingGoal = existingGoalOptional.get();
-
-            // Проверка: цель должна иметь название
-            if (goalDto.getTitle() == null || goalDto.getTitle().isEmpty()) {
-                return Optional.empty(); // Название должно быть
-            }
-
-            // Проверка: нельзя обновлять завершенную цель
-            if (existingGoal.getStatus() == GoalStatus.COMPLETED) {
-                return Optional.empty(); // Завершенные цели нельзя обновлять
-            }
-
-            // Проверка существования скиллов
-            if (skillRepository.countExisting(goalDto.getSkillIds()) != goalDto.getSkillIds().size()) {
-                return Optional.empty(); // Скиллы должны существовать
-            }
-
-            // Обновляем цель
-            existingGoal.setTitle(goalDto.getTitle());
-            existingGoal.setDescription(goalDto.getDescription());
-            existingGoal.setParent(goalDto.getParentId());
-
-            // Проверяем статус цели
-            if (goalDto.getStatus() == GoalStatus.COMPLETED) {
-                // Присваиваем скиллы всем участникам
-                List<User> users = goalRepository.findUsersByGoalId(goalId);
-                for (User user : users) {
-                    for (Long skillId : goalDto.getSkillIds()) {
-                        skillRepository.assignSkillToUser(skillId, user.getId());
-                    }
-                }
-            }
-
-            // Сохраняем обновленную цель в базе
-            return Optional.of(goalRepository.save(existingGoal));
+        if (existingGoal.getStatus() == GoalStatus.COMPLETED) {
+            throw new IllegalStateException("Cannot update a completed goal.");
         }
 
-        return Optional.empty(); // Цель с таким ID не найдена
+        if (goalDto.getTitle() == null || goalDto.getTitle().isEmpty()) {
+            throw new IllegalArgumentException("Goal title is required.");
+        }
+
+        for (Long skillId : goalDto.getSkillIds()) {
+            if (!skillRepository.existsById(skillId)) {
+                throw new IllegalArgumentException("Skill with ID " + skillId + " does not exist.");
+            }
+        }
+
+        existingGoal.setTitle(goalDto.getTitle());
+        existingGoal.setDescription(goalDto.getDescription());
+        existingGoal.setStatus(GoalStatus.valueOf(goalDto.getStatus()));
+
+        if (GoalStatus.COMPLETED == GoalStatus.valueOf(goalDto.getStatus())) {
+            List<User> users = goalRepository.findUsersByGoalId(goalId);
+            for (User user : users) {
+                for (Long skillId : goalDto.getSkillIds()) {
+                    skillRepository.assignSkillToUser(skillId, user.getId());
+                }
+            }
+        }
+
+        return Optional.of(goalRepository.save(existingGoal));
     }
 }
