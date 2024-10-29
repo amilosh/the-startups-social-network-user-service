@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import school.faang.user_service.entity.RequestStatus;
 
 @Getter
 @Setter
@@ -15,5 +16,5 @@ public class RequestFilterDto {
     private Long requesterId;
     private Long mentorId;
     private String description;
-    private String status;
+    private RequestStatus status;
 }
