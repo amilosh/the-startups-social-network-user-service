@@ -9,21 +9,23 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.publisher.profile.ProfileViewEventPublisher;
+import school.faang.user_service.event.profile.ProfilePicEvent;
+import school.faang.user_service.publisher.profile.ProfilePicEventPublisher;
 import school.faang.user_service.service.s3.S3Service;
 import school.faang.user_service.validator.picture.PictureValidator;
 import school.faang.user_service.validator.picture.ScaleChanger;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,6 +45,12 @@ class UserProfilePicServiceTest {
     private S3Service s3Service;
     @Mock
     private MultipartFile multipartFile;
+    @Mock
+    private UserContext userContext;
+    @Mock
+    private ProfileViewEventPublisher profileViewEventPublisher;
+    @Mock
+    private ProfilePicEventPublisher profilePicEventPublisher;
 
     private static final long ID = 1L;
     private static final String KEY = "key";
@@ -84,6 +92,7 @@ class UserProfilePicServiceTest {
         when(scaleChanger.changeFileScale(multipartFile)).thenReturn(images);
         when(s3Service.uploadHttpData(any(), anyString())).thenReturn(KEY);
         when(userService.saveUser(any(User.class))).thenReturn(updatedUser);
+        when(s3Service.getFullAvatarLinkByFileName(anyString())).thenReturn(anyString());
 
         userProfilePicService.uploadUserAvatar(ID, multipartFile);
 
@@ -92,6 +101,8 @@ class UserProfilePicServiceTest {
         verify(scaleChanger).changeFileScale(multipartFile);
         verify(s3Service, times(2)).uploadHttpData(any(), anyString());
         verify(userService).saveUser(any(User.class));
+        verify(s3Service).getFullAvatarLinkByFileName(anyString());
+        verify(profilePicEventPublisher).publish(any(ProfilePicEvent.class));
     }
 
     @Test
@@ -117,5 +128,7 @@ class UserProfilePicServiceTest {
         assertEquals(inputStream, resultInputStream);
         verify(userService).getUserById(ID);
         verify(s3Service).downloadFile(updatedUser.getUserProfilePic().getFileId());
+        verify(userContext).getUserId();
+        verify(profileViewEventPublisher).publish(any());
     }
 }

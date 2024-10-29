@@ -19,6 +19,13 @@ public class RedisProperties {
         private Channel goalCompletedEvent;
         private Channel mentorshipChannel;
         private Channel followerEventChannel;
+        private Channel mentorshipRequest;
+        private Channel profileViewChannel;
+        private Channel profilePicEventChannel;
+        private Channel skillAcquiredChannel;
+        private Channel recommendationRequestEvent;
+        private Channel projectChannel;
+        private Channel mentorshipStartEvent;
         private Channel userBanChannel;
 
         @Getter

@@ -2,11 +2,9 @@ package school.faang.user_service.repository.mentorship;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.MentorshipRequest;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -15,8 +13,9 @@ public interface MentorshipRequestRepository extends JpaRepository<MentorshipReq
     @Query(nativeQuery = true, value = """
             INSERT INTO mentorship_request (requester_id, receiver_id, description, status, created_at, updated_at)
             VALUES (?1, ?2, ?3, 0, NOW(), NOW())
+            RETURNING id
             """)
-    MentorshipRequest create(long requesterId, long receiverId, String description);
+    Long create(long requesterId, long receiverId, String description);
 
     @Query(nativeQuery = true, value = """
             SELECT * FROM mentorship_request
@@ -32,5 +31,4 @@ public interface MentorshipRequestRepository extends JpaRepository<MentorshipReq
             AND receiver_id = :receiverId AND status = 1) 
             """)
     boolean existAcceptedRequest(long requesterId, long receiverId);
-
 }

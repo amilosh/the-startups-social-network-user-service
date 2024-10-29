@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorshiprequest.RejectionDto;
@@ -14,8 +15,10 @@ import school.faang.user_service.service.mentorshiprequest.MentorshipRequestServ
 import java.util.List;
 
 @RestController
+@RequestMapping("/v1/mentorshipRequests")
 @RequiredArgsConstructor
 public class MentorshipRequestController {
+
     private final MentorshipRequestService mentorshipRequestService;
 
     @PostMapping("/request")
