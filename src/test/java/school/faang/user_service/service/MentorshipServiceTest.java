@@ -1,12 +1,17 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
 
@@ -20,17 +25,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
+@ExtendWith(MockitoExtension.class)
 public class MentorshipServiceTest {
-
-    @InjectMocks
-    private MentorshipService service;
 
     @Mock
     private UserRepository repository;
 
-    @Mock
-    private UserMapper mapper;
+    @Spy
+    private UserMapperImpl mapper;
+
+    @InjectMocks
+    private MentorshipService service;
 
     private final long NON_EXIST_USER_ID = 123456L;
     private final long EXISTING_USER_ID = 2L;
@@ -42,32 +47,35 @@ public class MentorshipServiceTest {
 
     @BeforeEach
     void initData() {
-        correctUser = User.builder()
-                .id(EXISTING_USER_ID)
-                .username("Roma")
-                .email("roma@mail.ru")
-                .city("Екатеринбург")
-                .mentors(new ArrayList<>(Arrays.asList(testUser)))
-                .build();
         testUser = User.builder()
                 .id(3L)
                 .username("Roma")
-                .email("fdldsfld")
-                .city("Moskow")
-                .mentees(new ArrayList<>(Arrays.asList(correctUser, nonExistUser))).build();
+                .email("roma@mail.ru")
+                .city("Екатеринбург")
+                .build();
         nonExistUser = User.builder()
                 .id(NON_EXIST_USER_ID)
                 .username("Roma")
                 .email("roma@mail.ru")
                 .city("Екатеринбург")
                 .mentees(new ArrayList<>())
+                .mentors(new ArrayList<>())
                 .build();
+        correctUser = User.builder()
+                .id(EXISTING_USER_ID)
+                .username("Roma")
+                .email("fdldsfld")
+                .city("Moskow")
+                .mentees(new ArrayList<>(Arrays.asList(testUser, nonExistUser)))
+                .mentors(new ArrayList<>(Arrays.asList(testUser, nonExistUser)))
+                .build();
+
     }
 
     @Test
     public void testGetMenteesWithNoSuchElement() {
-        when(repository.findById(NON_EXIST_USER_ID)).thenThrow(NoSuchElementException.class);
-        assertThrows(NoSuchMethodException.class, () -> service.getMentees(NON_EXIST_USER_ID));
+        when(repository.findById(NON_EXIST_USER_ID)).thenThrow(EntityNotFoundException.class);
+        assertThrows(EntityNotFoundException.class, () -> service.getMentees(NON_EXIST_USER_ID));
     }
 
 
@@ -85,12 +93,12 @@ public class MentorshipServiceTest {
 
     @Test
     public void testGetMenteesWithMenteesForUser() {
-        when(repository.findById(3L)).thenReturn(Optional.ofNullable(testUser));
+        when(repository.findById(EXISTING_USER_ID)).thenReturn(Optional.ofNullable(correctUser));
 
-        List<UserDto> expectedList = service.getMentees(3L);
-        List<UserDto> realList = new ArrayList<>(Arrays.asList(mapper.toDto(correctUser)));
+        List<UserDto> expectedList = service.getMentees(EXISTING_USER_ID);
+        List<UserDto> realList = new ArrayList<>(Arrays.asList(mapper.toDto(testUser), mapper.toDto(nonExistUser)));
 
-        verify(repository).findById(NON_EXIST_USER_ID);
+        verify(repository).findById(EXISTING_USER_ID);
         assertEquals(realList, expectedList);
     }
 
@@ -110,9 +118,9 @@ public class MentorshipServiceTest {
         when(repository.findById(EXISTING_USER_ID)).thenReturn(Optional.ofNullable(correctUser));
 
         List<UserDto> expectedList = service.getMentors(EXISTING_USER_ID);
-        List<UserDto> realList = new ArrayList<>(Arrays.asList(mapper.toDto(testUser)));
+        List<UserDto> realList = new ArrayList<>(Arrays.asList(mapper.toDto(testUser), mapper.toDto(nonExistUser)));
 
-        verify(repository).findById(NON_EXIST_USER_ID);
+        verify(repository).findById(EXISTING_USER_ID);
         assertEquals(realList, expectedList);
     }
 
@@ -121,9 +129,9 @@ public class MentorshipServiceTest {
         when(repository.findById(EXISTING_USER_ID)).thenReturn(Optional.ofNullable(correctUser));
         when(repository.findById(3L)).thenReturn(Optional.ofNullable(testUser));
 
-        service.deleteMentee(EXISTING_USER_ID, 3L);
+        service.deleteMentee(3L, EXISTING_USER_ID);
 
-        List<User> expectedList = testUser.getMentees();
+        List<User> expectedList = correctUser.getMentees();
         List<User> realList = new ArrayList<>(Arrays.asList(nonExistUser));
 
         verify(repository).findById(EXISTING_USER_ID);

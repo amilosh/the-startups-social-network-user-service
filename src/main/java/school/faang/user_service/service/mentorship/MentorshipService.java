@@ -1,5 +1,6 @@
 package school.faang.user_service.service.mentorship;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,11 @@ public class MentorshipService {
     public List<UserDto> getMentees(long userId) {
         List<UserDto> result = validateId(userId).getMentees().stream()
                 .map(userMapper::toDto).toList();
-        log.info("Mentees for userId={} have taken successfully from DB", userId);
+        if (result.isEmpty()) {
+            log.info("Mentees for userId={} not found in DB", userId);
+        } else {
+            log.info("Mentees for userId={} have taken successfully from DB", userId);
+        }
         return result;
     }
 
@@ -59,7 +64,7 @@ public class MentorshipService {
     }
 
     private User validateId(long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("UserId is not found"));
+        return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("UserId is not found"));
     }
 
     private boolean removeFromListWithResult(List<User> users, User userForDelete) {
