@@ -67,4 +67,8 @@ public class SubscriptionService {
         }
         return filterUsers(followeeId, filter);
     }
+
+    public int getFollowingCount(long followeeId) {
+        return subscriptionRepository.findFolloweesAmountByFollowerId(followeeId);
+    }
 }
