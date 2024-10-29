@@ -42,7 +42,7 @@ public class EventController {
         return eventService.getEvent(eventId);
     }
 
-    @GetMapping
+    @PostMapping("/filter")
     public List<EventDto> getEventsByFilter(@RequestBody EventFilterDto filter) {
         return eventService.getEventsByFilter(filter);
     }

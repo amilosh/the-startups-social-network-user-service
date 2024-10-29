@@ -17,12 +17,10 @@ import java.util.List;
 public interface EventMapper {
 
     @Mapping(source = "owner.id", target = "ownerId")
-    @Mapping(source = "relatedSkills", target = "relatedSkills")
     EventDto toDto(Event event);
 
     @Mapping(source = "ownerId", target = "owner.id")
-    @Mapping(source = "relatedSkills", target = "relatedSkills")
-    Event toEvent(EventDto eventDto);
+    Event toEntity(EventDto eventDto);
 
     List<EventDto> toDtoList(List<Event> events);
 }

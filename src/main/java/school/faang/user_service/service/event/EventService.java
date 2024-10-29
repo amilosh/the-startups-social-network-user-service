@@ -29,7 +29,7 @@ public class EventService {
 
     @Transactional
     public EventDto create(EventDto eventDto) {
-        Event event = eventMapper.toEvent(eventDto);
+        Event event = eventMapper.toEntity(eventDto);
         log.info("Создаем событие: {}", event.getTitle());
         validateUserHasSkillsForEvent(event);
         Event savedEvent = eventRepository.save(event);
@@ -83,7 +83,7 @@ public class EventService {
 
     @Transactional
     public EventDto updateEvent(EventDto eventDto) {
-        Event event = eventMapper.toEvent(eventDto);
+        Event event = eventMapper.toEntity(eventDto);
         log.info("Обновляем событие с ID: {}", event.getId());
 
         Event existingEvent = getExistingEvent(event.getId());
