@@ -24,6 +24,9 @@ public class SubscriptionService {
     private final List<UserFilter> userFilters;
 
     public void followUser(long followerId, long followeeId) {
+        if (followerId == followeeId) {
+            throw new DataValidationException("Follower can't follow itself");
+        }
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             throw new DataValidationException("You already follow this user");
         }
@@ -32,6 +35,9 @@ public class SubscriptionService {
     }
 
     public void unfollowUser(long followerId, long followeeId) {
+        if (followerId == followeeId) {
+            throw new DataValidationException("Follower can't unfollow itself");
+        }
         if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             throw new DataValidationException("You don't follow this user");
         }
@@ -43,7 +49,7 @@ public class SubscriptionService {
         if (filter == null) {
             log.info("Getting followers for user with id: {}", followeeId);
             return subscriptionRepository.findByFolloweeId(followeeId)
-                    .map(userMapper::userToUserDto)
+                    .map(userMapper::ToDto)
                     .toList();
         }
         return filterUsers(followeeId, filter);
@@ -58,7 +64,7 @@ public class SubscriptionService {
             }
         }
         log.info("Getting filtered followers for user with id {}", followeeId);
-        return followers.map(userMapper::userToUserDto).toList();
+        return followers.map(userMapper::ToDto).toList();
     }
 
     public int getFollowersCount(long followeeId) {
@@ -70,7 +76,7 @@ public class SubscriptionService {
         if (filter == null) {
             log.info("Getting user's followings with userId: {}", followeeId);
             return subscriptionRepository.findByFolloweeId(followeeId)
-                    .map(userMapper::userToUserDto)
+                    .map(userMapper::ToDto)
                     .toList();
         }
         return filterUsers(followeeId, filter);
