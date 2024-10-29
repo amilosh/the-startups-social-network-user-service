@@ -4,11 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.UserDTOMapper;
+import school.faang.user_service.mapper.UserDTOMapperImpl;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.ArrayList;
@@ -27,8 +28,8 @@ class EventParticipationServiceTest {
     private EventParticipationService service;
     @Mock
     private EventParticipationRepository repository;
-    @Mock
-    private UserDTOMapper userDTOMapper;
+    @Spy
+    private UserDTOMapperImpl userDTOMapper;
 
 
     @Test
@@ -79,7 +80,6 @@ class EventParticipationServiceTest {
         List<UserDTO> expectedUserDTOs = getUserDTOList();
 
         when(repository.findAllParticipantsByEventId(EVENT_ID)).thenReturn(expectedUsers);
-        when(userDTOMapper.toDTO(expectedUsers)).thenReturn(expectedUserDTOs);
 
         List<UserDTO> actualUsers = service.findAllParticipantsByEventId(EVENT_ID);
         assertEquals(expectedUserDTOs, actualUsers);
