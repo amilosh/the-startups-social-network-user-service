@@ -16,7 +16,9 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.mapper.MentorshipRequestedEventMapper;
 import school.faang.user_service.publisher.MentorshipAcceptedEventPublisher;
+import school.faang.user_service.publisher.MentorshipRequestedEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.service.mentorship.filter.RequestFilter;
@@ -35,7 +37,9 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private final UserRepository userRepository;
     private final UserContext userContext;
     private final MentorshipRequestMapper requestMapper;
+    private final MentorshipRequestedEventMapper requestedMapper;
     private final MentorshipAcceptedEventPublisher acceptedEventPublisher;
+    private final MentorshipRequestedEventPublisher requestedEventPublisher;
     private final List<RequestFilter> filters;
 
     @Setter
@@ -50,6 +54,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         MentorshipRequest request = requestMapper.toMentorshipRequest(creationRequest);
         request.setStatus(RequestStatus.PENDING);
         mentorshipRequestRepository.save(request);
+        requestedEventPublisher.publish(requestedMapper.toMentorshipRequestedEventDto(request));
         log.info("Created mentorship request requester id: %d, receiver id: %d"
                 .formatted(creationRequest.requesterId(), creationRequest.receiverId()));
         return requestMapper.toMentorshipRequestDto(request);
