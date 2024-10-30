@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.goal;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,7 +22,8 @@ public class GoalController {
     private final GoalService goalService;
 
     @PostMapping("/{userId}")
-    public ResponseEntity<Void> createGoal(@PathVariable Long userId, @RequestBody GoalDto goalDto) {
+    public ResponseEntity<Void> createGoal(@PathVariable Long userId,
+                                           @Valid @RequestBody GoalDto goalDto) {
         return ResponseEntity.created(
                 ServletUriComponentsBuilder.fromCurrentRequest()
                         .path("/{goalId}")
@@ -31,7 +33,8 @@ public class GoalController {
     }
 
     @PutMapping("/{goalId}")
-    public ResponseEntity<Void> updateGoal(@PathVariable("goalId") Long goalId, @RequestBody GoalDto goalDto) {
+    public ResponseEntity<Void> updateGoal(@PathVariable("goalId") Long goalId,
+                                           @Valid @RequestBody GoalDto goalDto) {
         goalService.updateGoal(goalId, goalDto);
 
         return ResponseEntity.noContent().build();
