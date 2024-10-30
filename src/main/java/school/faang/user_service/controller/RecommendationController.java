@@ -46,6 +46,11 @@ public class RecommendationController {
         return recommendationService.getAllUserRecommendations(receiverId);
     }
 
+    @GetMapping("/user/{authorId}")
+    public List<RecommendationDto> getAllGivenRecommendations(@PathVariable long authorId) {
+        return recommendationService.getAllGivenRecommendations(authorId);
+    }
+
     private void validateRecommendation(RecommendationDto recommendationDto) {
         if (recommendationDto.getContent() == null || recommendationDto.getContent().isBlank()) {
             throw new DataValidationException(ErrorMessage.RECOMMENDATION_CONTENT);
