@@ -14,4 +14,6 @@ public interface RecommendationMapper {
     @Mapping(source = "receiver.id", target = "receiverId")
     @Mapping(source = "skillOffers", target = "skillOffers")
     RecommendationDto toDto(Recommendation recommendation);
+
+    List<RecommendationDto> toDtoList(List<Recommendation> recommendations);
 }
