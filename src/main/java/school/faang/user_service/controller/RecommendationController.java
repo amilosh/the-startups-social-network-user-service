@@ -3,6 +3,7 @@ package school.faang.user_service.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -13,6 +14,8 @@ import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.service.RecommendationService;
+
+import java.util.List;
 
 @Validated
 @RestController
@@ -36,6 +39,11 @@ public class RecommendationController {
     @DeleteMapping("/delete/{id}")
     public void deleteRecommendation(@PathVariable Long id) {
         recommendationService.delete(id);
+    }
+
+    @GetMapping("/user/{receiverId}")
+    public List<RecommendationDto> getAllUserRecommendations(@PathVariable long receiverId) {
+        return recommendationService.getAllUserRecommendations(receiverId);
     }
 
     private void validateRecommendation(RecommendationDto recommendationDto) {
