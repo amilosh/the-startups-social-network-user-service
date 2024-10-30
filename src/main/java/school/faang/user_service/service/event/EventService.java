@@ -66,7 +66,7 @@ public class EventService {
     }
 
     public List<EventDto> getParticipatedEvents(long userId) {
-        List<Event> events = eventRepository.findAllByUserId(userId);
+        List<Event> events = eventRepository.findParticipatedEventsByUserId(userId);
         return eventMapper.toDto(events);
     }
 
