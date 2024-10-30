@@ -21,17 +21,15 @@ public class MentorshipService {
     private final UserMapper userMapper;
 
     public List<UserDto> getMentees(long userId) {
-        List<UserDto> result = validateId(userId).getMentees().stream()
-                .map(userMapper::toDto).toList();
+        List<User> mentees = validateId(userId).getMentees();
         log.info("Mentees for userId={} have taken successfully from DB", userId);
-        return result;
+        return userMapper.toListDto(mentees);
     }
 
     public List<UserDto> getMentors(long userId) {
-        List<UserDto> result = validateId(userId).getMentors().stream()
-                .map(userMapper::toDto).toList();
+        List<User> mentors = validateId(userId).getMentors();
         log.info("Mentors for userId={} have taken successfully from DB", userId);
-        return result;
+        return userMapper.toListDto(mentors);
     }
 
     public void deleteMentee(long menteeId, long mentorId) {
