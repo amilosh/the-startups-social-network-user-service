@@ -1,5 +1,6 @@
 package school.faang.user_service.service.event;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.EventDto;
@@ -27,28 +28,15 @@ public class EventService {
     private final List<EventFilter> eventFilters;
 
     public EventDto create(EventDto eventDto) {
-        User eventOwner = userRepository.findById(eventDto.getOwnerId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User eventOwner = validateUserId(eventDto.getOwnerId());
         validateOwnerSkills(eventOwner, eventDto);
         Event event = eventMapper.toEntity(eventDto);
         event = eventRepository.save(event);
         return eventMapper.toDto(event);
     }
 
-    private void validateOwnerSkills(User eventOwner, EventDto eventDto) {
-        Set<Long> ownerSkillIds = eventOwner.getSkills().stream()
-                .map(Skill::getId)
-                .collect(Collectors.toSet());
-        boolean hasAllRequiredSkills = eventDto.getRelatedSkills().stream()
-                .allMatch(skill -> ownerSkillIds.contains(skill.getId()));
-        if (!hasAllRequiredSkills) {
-            throw new DataValidationException("Event owner does not have all the required skills for this event.");
-        }
-    }
-
     public EventDto getEvent(long eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+        Event event = validateEventId(eventId);
         return eventMapper.toDto(event);
     }
 
@@ -65,8 +53,7 @@ public class EventService {
     }
 
     public EventDto updateEvent(EventDto eventDto) {
-        User eventOwner = userRepository.findById(eventDto.getOwnerId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        User eventOwner = validateUserId(eventDto.getOwnerId());
         validateOwnerSkills(eventOwner, eventDto);
         Event event = eventMapper.toEntity(eventDto);
         event = eventRepository.save(event);
@@ -81,5 +68,24 @@ public class EventService {
     public List<EventDto> getParticipatedEvents(long userId) {
         List<Event> events = eventRepository.findAllByUserId(userId);
         return eventMapper.toDto(events);
+    }
+
+    private Event validateEventId(long eventId) {
+        return eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException("Event not found"));
+    }
+
+    private User validateUserId(long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("UserId is not found"));
+    }
+
+    private void validateOwnerSkills(User eventOwner, EventDto eventDto) {
+        Set<Long> ownerSkillIds = eventOwner.getSkills().stream()
+                .map(Skill::getId)
+                .collect(Collectors.toSet());
+        boolean hasAllRequiredSkills = eventDto.getRelatedSkills().stream()
+                .allMatch(skill -> ownerSkillIds.contains(skill.getId()));
+        if (!hasAllRequiredSkills) {
+            throw new DataValidationException("Event owner does not have all the required skills for this event.");
+        }
     }
 }
