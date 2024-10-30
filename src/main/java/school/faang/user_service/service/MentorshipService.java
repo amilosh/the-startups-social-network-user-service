@@ -1,13 +1,11 @@
-package school.faang.user_service.servis;
+package school.faang.user_service.service;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.repository.mentorship.MentorshipRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,44 +18,50 @@ public class MentorshipService {
     private UserMapper userMapper;
 
     public List<UserDto> getMentees(long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isPresent()) {
-            return userMapper.toDto(user.get().getMentees());
-        }
-        return new ArrayList<>();
+        return userRepository.findById(userId)
+                .map(user -> userMapper.toDto(user.getMentees()))
+                .orElseGet(ArrayList::new);
     }
 
     public List<UserDto> getMentors(long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isPresent()) {
-            return userMapper.toDto(user.get().getMentors());
-        }
-        return new ArrayList<>();
+        return userRepository.findById(userId)
+                .map(user -> userMapper.toDto(user.getMentors()))
+                .orElseGet(ArrayList::new);
     }
 
     public void deleteMentee(long menteeId, long mentorId) {
-        Optional<User> mentor = userRepository.findById(mentorId);
-        if (mentor.isPresent()) {
-            mentor.get().getMentees().stream()
+        User mentor = userIsPresent(mentorId);
+        if (mentor!=null) {
+            mentor.getMentees().stream()
                     .filter(m -> m.getId() == menteeId)
                     .findFirst()
                     .ifPresentOrElse(userRepository::delete, () -> {
-                        System.out.println("Mentor " + mentor.get().getUsername() +
+                        System.out.println("Mentor " + mentor.getUsername() +
                                 " does not have a mentee with " + menteeId + " id");
                     });
+        } else {
+            System.out.println("Mentor with ID " + mentorId + " not found");
         }
     }
 
     public void deleteMentor(long menteeId, long mentorId) {
-        Optional<User> mentee = userRepository.findById(menteeId);
-        if (mentee.isPresent()) {
-            mentee.get().getMentors().stream()
+        User mentee = userIsPresent(menteeId);
+        if (mentee != null) {
+            mentee.getMentors().stream()
                     .filter(m -> m.getId() == mentorId)
                     .findFirst()
                     .ifPresentOrElse(userRepository::delete, () -> {
-                        System.out.println("User " + mentee.get().getUsername()
+                        System.out.println("User " + mentee.getUsername()
                                 + " does not have a mentor with " + mentorId + " id");
                     });
+        } else {
+            System.out.println("Mentee with ID " + menteeId + " not found");
         }
     }
+
+    private User userIsPresent(long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        return user.orElse(null);
+    }
 }
+
