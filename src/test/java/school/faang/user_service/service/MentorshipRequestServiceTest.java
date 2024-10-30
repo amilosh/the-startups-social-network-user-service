@@ -6,10 +6,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.filter.MentorshipRequestFilter;
+import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.MentorshipRequestValidator;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,6 +34,12 @@ public class MentorshipRequestServiceTest {
     @Mock
     private MentorshipRequestValidator mentorshipRequestValidator;
 
+    @Mock
+    private MentorshipRequestMapper mentorshipRequestMapper;
+
+    @Mock
+    private List<MentorshipRequestFilter> mentorshipRequestFilters;
+
     @Test
     public void testCreateMentorshipRequestValidationFailed() {
         MentorshipRequestDto dto = new MentorshipRequestDto();
@@ -39,6 +49,13 @@ public class MentorshipRequestServiceTest {
         assertThrows(IllegalArgumentException.class, () -> mentorshipRequestService.createRequestMentorship(dto));
 
     }
+
+    @Test
+    public void testGetMentorshipRequest() {
+        mentorshipRequestService.getRequests(new RequestFilterDto());
+        verify(mentorshipRequestRepository).findAll();
+    }
+
 
     @Test
     public void testCreateMentorshipRequestValidationSuccessful() {
@@ -81,5 +98,4 @@ public class MentorshipRequestServiceTest {
 
         return dto;
     }
-
 }
