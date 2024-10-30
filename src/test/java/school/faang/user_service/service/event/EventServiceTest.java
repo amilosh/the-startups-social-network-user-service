@@ -26,7 +26,9 @@ import school.faang.user_service.service.event.filter.EventLocationFilter;
 import school.faang.user_service.service.event.filter.EventOwnerFilter;
 import school.faang.user_service.service.event.filter.EventTitleFilter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,16 +41,22 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class EventServiceTest {
+
     @Mock
     private EventRepository eventRepository;
+
     @Mock
     private UserRepository userRepository;
+
     @Spy
     SkillMapper skillMapper = Mappers.getMapper(SkillMapper.class);
+
     @Spy
     @InjectMocks
     private EventMapper eventMapper = Mappers.getMapper(EventMapper.class);
+
     private List<EventFilter> eventFilters;
+
     @InjectMocks
     private EventService eventService;
 
@@ -78,7 +86,7 @@ public class EventServiceTest {
         skill2.setId(2L);
         skill2.setTitle("SkillTitle2");
 
-        List<Skill> skills = List.of(skill1, skill2);
+        List<Skill> skills = new ArrayList<>(Arrays.asList(skill1, skill2));
         user.setSkills(skills);
 
         Skill skill3 = new Skill();
@@ -86,7 +94,7 @@ public class EventServiceTest {
 
         userWithoutSkills = new User();
         userWithoutSkills.setId(2L);
-        userWithoutSkills.setSkills(List.of(skill3));
+        userWithoutSkills.setSkills(new ArrayList<>(Arrays.asList(skill3)));
 
         notOwner = new User();
         notOwner.setId(3L);
@@ -120,12 +128,14 @@ public class EventServiceTest {
         skillDto2.setId(2L);
         skillDto2.setTitle("SkillTitle2");
 
-        List<SkillDto> skillsDto = List.of(skillDto1, skillDto2);
+        List<SkillDto> skillsDto = new ArrayList<>(Arrays.asList(skillDto1, skillDto2));
 
         eventDto1 = new EventDto();
         eventDto1.setId(1L);
         eventDto1.setTitle("Title1");
         eventDto1.setLocation("Location1");
+        eventDto1.setStartDate(LocalDateTime.now());
+        eventDto1.setEndDate(LocalDateTime.now().plusDays(1));
         eventDto1.setOwnerId(user.getId());
         eventDto1.setRelatedSkills(skillsDto);
 
@@ -133,12 +143,16 @@ public class EventServiceTest {
         eventDto2.setId(2L);
         eventDto2.setTitle("Title2");
         eventDto2.setLocation("Location2");
+        eventDto2.setStartDate(LocalDateTime.now());
+        eventDto2.setEndDate(LocalDateTime.now().plusDays(1));
         eventDto2.setOwnerId(userWithoutSkills.getId());
         eventDto2.setRelatedSkills(skillsDto);
 
         updatedEventDto = new EventDto();
         updatedEventDto.setId(1L);
         updatedEventDto.setTitle("Updated Title1");
+        updatedEventDto.setStartDate(LocalDateTime.now());
+        updatedEventDto.setEndDate(LocalDateTime.now().plusDays(1));
         updatedEventDto.setOwnerId(user.getId());
         updatedEventDto.setRelatedSkills(skillsDto);
 
@@ -188,6 +202,15 @@ public class EventServiceTest {
         assertThrows(
                 DataValidationException.class,
                 () -> eventService.create(eventDto2)
+        );
+    }
+
+    @Test
+    public void createEventInvalidDatesTest() {
+        eventDto1.setEndDate(LocalDateTime.now().minusDays(2));
+        assertThrows(
+                DataValidationException.class,
+                () -> eventService.create(eventDto1)
         );
     }
 

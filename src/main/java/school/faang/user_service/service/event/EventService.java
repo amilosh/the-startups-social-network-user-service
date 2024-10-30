@@ -32,6 +32,7 @@ public class EventService {
 
     @Transactional
     public EventDto create(EventDto eventDto) {
+        validateEventDates(eventDto);
         Event event = eventMapper.toEntity(eventDto);
         log.info("Создаем событие: {}", event.getTitle());
         validateUserHasSkillsForEvent(event);
@@ -90,21 +91,14 @@ public class EventService {
 
     @Transactional
     public EventDto updateEvent(EventDto eventDto) {
-        Event event = eventMapper.toEntity(eventDto);
-        log.info("Обновляем событие с ID: {}", event.getId());
+        Event existingEvent = getExistingEvent(eventDto.getId());
+        log.info("Обновляем событие с ID: {}", existingEvent.getId());
 
-        Event existingEvent = getExistingEvent(event.getId());
-        validateEventOwnership(existingEvent, event.getOwner().getId());
-        validateUserHasSkillsForEvent(event);
+        validateEventOwnership(existingEvent, eventDto.getOwnerId());
+        validateEventDates(eventDto);
+        validateUserHasSkillsForEvent(existingEvent);
 
-        existingEvent.setTitle(event.getTitle());
-        existingEvent.setDescription(event.getDescription());
-        existingEvent.setStartDate(event.getStartDate());
-        existingEvent.setEndDate(event.getEndDate());
-        existingEvent.setLocation(event.getLocation());
-        existingEvent.setMaxAttendees(event.getMaxAttendees());
-        existingEvent.setRelatedSkills(event.getRelatedSkills());
-
+        eventMapper.updateEntityFromDto(eventDto, existingEvent);
         Event updatedEvent = eventRepository.save(existingEvent);
         log.info("Событие с ID: {} успешно обновлено", updatedEvent.getId());
         return eventMapper.toDto(updatedEvent);
@@ -134,6 +128,12 @@ public class EventService {
                 .allMatch(userSkills::contains);
         if (!hasAllSkills) {
             throw new DataValidationException("Пользователь с ID: " + userId + " не имеет необходимых навыков");
+        }
+    }
+
+    private void validateEventDates(EventDto eventDto) {
+        if (eventDto.getEndDate().isBefore(eventDto.getStartDate())) {
+            throw new DataValidationException("Дата окончания события не может быть раньше даты начала.");
         }
     }
 }

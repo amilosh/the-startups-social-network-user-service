@@ -2,6 +2,7 @@ package school.faang.user_service.mapper.event;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.event.Event;
@@ -23,4 +24,8 @@ public interface EventMapper {
     Event toEntity(EventDto eventDto);
 
     List<EventDto> toDtoList(List<Event> events);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "owner", ignore = true)
+    void updateEntityFromDto(EventDto eventDto, @MappingTarget Event event);
 }
