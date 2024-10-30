@@ -31,9 +31,9 @@ public class RecommendationController {
     }
 
     @PutMapping("/update/{id}")
-    public RecommendationDto updateRecommendation(@RequestBody RecommendationDto updatedRecommendationDto) {
+    public RecommendationDto updateRecommendation(@PathVariable long id, @RequestBody RecommendationDto updatedRecommendationDto) {
         validateRecommendation(updatedRecommendationDto);
-        return recommendationService.update(updatedRecommendationDto);
+        return recommendationService.update(id, updatedRecommendationDto);
     }
 
     @DeleteMapping("/delete/{id}")

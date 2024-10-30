@@ -57,7 +57,8 @@ public class RecommendationService {
     }
 
     @Transactional
-    public RecommendationDto update(RecommendationDto recommendationDto) {
+    public RecommendationDto update(Long id, RecommendationDto recommendationDto) {
+        recommendationDto.setId(id);
         checkIfOfferedSkillsExist(recommendationDto);
         checkIfAcceptableTimeForRecommendation(recommendationDto);
 
