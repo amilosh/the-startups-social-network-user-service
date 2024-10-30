@@ -55,6 +55,26 @@ public class RecommendationService {
         return recommendationMapper.toDto(recommendation);
     }
 
+    @Transactional
+    public RecommendationDto update(RecommendationDto recommendationDto) {
+        checkIfOfferedSkillsExist(recommendationDto);
+        checkIfAcceptableTimeForRecommendation(recommendationDto);
+
+        recommendationRepository.update(
+                recommendationDto.getAuthorId(),
+                recommendationDto.getReceiverId(),
+                recommendationDto.getContent());
+
+        skillOfferRepository.deleteAllByRecommendationId(recommendationDto.getId());
+        addSkillOffersAndGuarantee(recommendationDto);
+
+        Recommendation updatedRecommendation = recommendationRepository.findById(recommendationDto.getId())
+                .orElseThrow(() -> new NoSuchElementException(
+                        String.format("There is no recommendation with id = %d", recommendationDto.getId())));
+
+        return recommendationMapper.toDto(updatedRecommendation);
+    }
+
     private void addSkillOffersAndGuarantee(RecommendationDto recommendationDto) {
         List<SkillOfferDto> skillOfferDtoList = recommendationDto.getSkillOffers();
         if (skillOfferDtoList == null || skillOfferDtoList.isEmpty()) {
