@@ -86,6 +86,11 @@ public class RecommendationService {
         return recommendationMapper.toDtoList(recommendations.getContent());
     }
 
+    public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
+        Page<Recommendation> recommendations = recommendationRepository.findAllByAuthorId(authorId, Pageable.unpaged());
+        return recommendationMapper.toDtoList(recommendations.getContent());
+    }
+
     private void addSkillOffersAndGuarantee(RecommendationDto recommendationDto) {
         List<SkillOfferDto> skillOfferDtoList = recommendationDto.getSkillOffers();
         if (skillOfferDtoList == null || skillOfferDtoList.isEmpty()) {
