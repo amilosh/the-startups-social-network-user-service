@@ -10,7 +10,6 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 
 @Service
@@ -24,11 +23,7 @@ public class MentorshipService {
     public List<UserDto> getMentees(long userId) {
         List<UserDto> result = validateId(userId).getMentees().stream()
                 .map(userMapper::toDto).toList();
-        if (result.isEmpty()) {
-            log.info("Mentees for userId={} not found in DB", userId);
-        } else {
-            log.info("Mentees for userId={} have taken successfully from DB", userId);
-        }
+        log.info("Mentees for userId={} have taken successfully from DB", userId);
         return result;
     }
 
@@ -70,5 +65,4 @@ public class MentorshipService {
     private boolean removeFromListWithResult(List<User> users, User userForDelete) {
         return users.removeIf(user -> Objects.equals(user.getId(), userForDelete.getId()));
     }
-
 }
