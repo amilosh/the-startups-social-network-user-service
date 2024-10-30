@@ -28,7 +28,7 @@ public class EventParticipationService {
             log.error("User with id: {} already registered for the event: {}", userId, eventId);
             throw new IllegalArgumentException(String.format("User with id: %s already registered for the event: %s", userId, eventId));
         }
-        eventParticipationRepository.register(eventId,userId);
+        eventParticipationRepository.register(eventId, userId);
     }
 
     @Transactional
@@ -38,7 +38,7 @@ public class EventParticipationService {
             log.error("User with id: {} is not registered for the event: {}", userId, eventId);
             throw new IllegalArgumentException(String.format("User with id: %s is not registered for the event: %s", userId, eventId));
         }
-        eventParticipationRepository.unregister(eventId,userId);
+        eventParticipationRepository.unregister(eventId, userId);
     }
 
     @Transactional(readOnly = true)

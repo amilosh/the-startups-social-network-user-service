@@ -14,5 +14,5 @@ public interface UserMapper {
     UserDto userToUserDto(User user);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    List<UserDto> userListToUserDtoList(List<User> userList);
+    List<UserDto> userListToUserDtoList(List<User> users);
 }
