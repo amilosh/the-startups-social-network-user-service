@@ -13,7 +13,7 @@ public interface GoalService {
 
     void deleteGoal(Long goalId);
 
-    List<GoalDto> getGoalsByUserId(Long userId, GoalFilterDto filter);
+    List<GoalDto> getGoalsByUserId(Long userId, GoalFilterDto filters);
 
-    List<GoalDto> findSubtasksByGoalId(Long goalId);
+    List<GoalDto> findSubtasksByGoalId(Long goalId, GoalFilterDto filters);
 }

@@ -22,6 +22,8 @@ public interface GoalMapper {
     @Mapping(target = "id", ignore = true)
     void updateEntity(@MappingTarget Goal goal, GoalDto goalDto);
 
+    List<GoalDto> entityListToDtoList(List<Goal> goalList);
+
     default List<Long> skillsToIds(List<Skill> skills) {
         return skills.stream()
                 .map(Skill::getId)

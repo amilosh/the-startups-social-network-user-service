@@ -10,6 +10,7 @@ import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.mapper.goal.GoalMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -17,6 +18,7 @@ import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -27,6 +29,7 @@ public class GoalServiceImpl implements GoalService {
     private final GoalMapper goalMapper;
     private final UserRepository userRepository;
     private final SkillRepository skillRepository;
+    private final List<GoalFilter> goalFilters;
 
     @Value("${app.user-service.goal-service.max-goals-amount}")
     private int maxGoalsAmount;
@@ -69,12 +72,18 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     public List<GoalDto> getGoalsByUserId(Long userId, GoalFilterDto filter) {
-        return List.of();
+        Stream<Goal> goals = goalRepository.findGoalsByUserId(userId);
+        filterGoals(goals, filter);
+
+        return goalMapper.entityListToDtoList(goals.toList());
     }
 
     @Override
-    public List<GoalDto> findSubtasksByGoalId(Long goalId) {
-        return List.of();
+    public List<GoalDto> findSubtasksByGoalId(Long goalId, GoalFilterDto filters) {
+        Stream<Goal> subtasks = goalRepository.findByParent(goalId);
+        filterGoals(subtasks, filters);
+
+        return goalMapper.entityListToDtoList(subtasks.toList());
     }
 
     private void validateUserExistence(Long userId) {
@@ -119,5 +128,11 @@ public class GoalServiceImpl implements GoalService {
                         skillRepository.assignSkillToUser(user.getId(), skillId)
                 )
         );
+    }
+
+    private void filterGoals(Stream<Goal> goals, GoalFilterDto filters) {
+        goalFilters.stream()
+                .filter(goalFilter -> goalFilter.isApplicable(filters))
+                .forEach(filter -> filter.apply(goals, filters));
     }
 }
