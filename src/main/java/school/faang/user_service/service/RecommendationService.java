@@ -75,6 +75,12 @@ public class RecommendationService {
         return recommendationMapper.toDto(updatedRecommendation);
     }
 
+    @Transactional
+    public void delete(long id) {
+        recommendationRepository.deleteById(id);
+    }
+
+
     private void addSkillOffersAndGuarantee(RecommendationDto recommendationDto) {
         List<SkillOfferDto> skillOfferDtoList = recommendationDto.getSkillOffers();
         if (skillOfferDtoList == null || skillOfferDtoList.isEmpty()) {
