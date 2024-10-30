@@ -53,11 +53,12 @@ public class EventService {
     }
 
     public EventDto updateEvent(EventDto eventDto) {
+        Event eventToUpdate = validateEventId(eventDto.getId());
         User eventOwner = validateUserId(eventDto.getOwnerId());
         validateOwnerSkills(eventOwner, eventDto);
-        Event event = eventMapper.toEntity(eventDto);
-        event = eventRepository.save(event);
-        return eventMapper.toDto(event);
+        eventMapper.update(eventToUpdate, eventDto);
+        eventToUpdate = eventRepository.save(eventToUpdate);
+        return eventMapper.toDto(eventToUpdate);
     }
 
     public List<EventDto> getOwnedEvents(long userId) {

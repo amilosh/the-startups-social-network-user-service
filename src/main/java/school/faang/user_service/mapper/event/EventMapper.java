@@ -1,6 +1,7 @@
 package school.faang.user_service.mapper.event;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.event.Event;
 
@@ -15,4 +16,6 @@ public interface EventMapper {
     EventDto toDto(Event event);
 
     List<EventDto> toDto(List<Event> events);
+
+    void update(@MappingTarget Event event, EventDto eventDto);
 }
