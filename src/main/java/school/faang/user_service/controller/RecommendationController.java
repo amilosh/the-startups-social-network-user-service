@@ -2,6 +2,8 @@ package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +31,11 @@ public class RecommendationController {
     public RecommendationDto updateRecommendation(@RequestBody RecommendationDto updatedRecommendationDto) {
         validateRecommendation(updatedRecommendationDto);
         return recommendationService.update(updatedRecommendationDto);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public void deleteRecommendation(@PathVariable Long id) {
+        recommendationService.delete(id);
     }
 
     private void validateRecommendation(RecommendationDto recommendationDto) {
