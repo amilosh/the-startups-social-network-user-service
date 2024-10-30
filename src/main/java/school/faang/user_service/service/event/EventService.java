@@ -38,13 +38,13 @@ public class EventService {
         return eventMapper.toDto(event);
     }
 
-    public EventDto getEvent(long eventId) {
+    public EventDto get(long eventId) {
         Event event = validateEventId(eventId);
         log.info("Event with " + eventId + " has been retrieved from the database");
         return eventMapper.toDto(event);
     }
 
-    public List<EventDto> getEventsByFilter(EventFilterDto filters) {
+    public List<EventDto> getByFilter(EventFilterDto filters) {
         Stream<Event> events = eventRepository.findAll().stream();
         eventFilters.stream()
                 .filter(filter -> filter.isApplicable(filters))
@@ -53,12 +53,12 @@ public class EventService {
         return eventMapper.toDto(events.toList());
     }
 
-    public void deleteEvent(long eventId) {
+    public void delete(long eventId) {
         eventRepository.deleteById(eventId);
         log.info("An event with id " + eventId + " has been deleted from the database.");
     }
 
-    public EventDto updateEvent(EventDto eventDto) {
+    public EventDto update(EventDto eventDto) {
         Event eventToUpdate = validateEventId(eventDto.getId());
         User eventOwner = validateUserId(eventDto.getOwnerId());
         validateOwnerSkills(eventOwner, eventDto);

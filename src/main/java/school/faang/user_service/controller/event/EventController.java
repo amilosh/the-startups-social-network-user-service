@@ -15,28 +15,28 @@ public class EventController {
     private final EventService eventService;
 
     public EventDto create(EventDto event) {
-        validateEvent(event);
+        validateByTitleOwnerIdStartDate(event);
         return eventService.create(event);
     }
 
-    public EventDto getEvent(long eventId) {
-        return eventService.getEvent(eventId);
+    public EventDto get(long eventId) {
+        return eventService.get(eventId);
     }
 
-    public List<EventDto> getEventsByFilter(EventFilterDto filter) {
-        return eventService.getEventsByFilter(filter);
+    public List<EventDto> getByFilter(EventFilterDto filter) {
+        return eventService.getByFilter(filter);
     }
 
-    public void deleteEvent(long eventId) {
-        eventService.deleteEvent(eventId);
+    public void delete(long eventId) {
+        eventService.delete(eventId);
     }
 
-    public EventDto updateEvent(EventDto event) {
-        validateEvent(event);
-        return eventService.updateEvent(event);
+    public EventDto update(EventDto event) {
+        validateByTitleOwnerIdStartDate(event);
+        return eventService.update(event);
     }
 
-    private void validateEvent(EventDto event) {
+    private void validateByTitleOwnerIdStartDate(EventDto event) {
         if (event.getTitle() == null || event.getTitle().trim().isEmpty()) {
             throw new DataValidationException("Event name is required!");
         }
