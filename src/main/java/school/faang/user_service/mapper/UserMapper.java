@@ -11,8 +11,8 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    UserDto userToUserDto(User User);
+    UserDto userToUserDto(User user);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    List<UserDto> userListToUserDtoList(List<User> User);
+    List<UserDto> userListToUserDtoList(List<User> userList);
 }
