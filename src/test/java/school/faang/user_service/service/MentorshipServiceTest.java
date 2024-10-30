@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.mentorship.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
@@ -36,35 +36,37 @@ public class MentorshipServiceTest {
     @InjectMocks
     private MentorshipService service;
 
+    private final long CORRECT_ID_1 = 1L;
+    private final long CORRECT_ID_2 = 2L;
+    private final long SIMPLE_ID = 15L;
     private final long NON_EXIST_USER_ID = 123456L;
-    private final long EXISTING_USER_ID = 2L;
     private User simpleUser;
-    private User correctUser;
-    private User nonExistUser;
+    private User userWithEmptyListOfMenteesAndMentors;
+    private User userWithMenteesAndMentors;
 
     @BeforeEach
     void initData() {
         simpleUser = User.builder()
-                .id(3L)
+                .id(SIMPLE_ID)
                 .username("Roma")
                 .email("roma@mail.ru")
                 .city("London")
                 .build();
-        nonExistUser = User.builder()
-                .id(NON_EXIST_USER_ID)
+        userWithEmptyListOfMenteesAndMentors = User.builder()
+                .id(CORRECT_ID_1)
                 .username("Max")
                 .email("max@mail.ru")
                 .city("Amsterdam")
                 .mentees(new ArrayList<>())
                 .mentors(new ArrayList<>())
                 .build();
-        correctUser = User.builder()
-                .id(EXISTING_USER_ID)
+        userWithMenteesAndMentors = User.builder()
+                .id(CORRECT_ID_2)
                 .username("Denis")
                 .email("denis@mail.ru")
                 .city("New York")
-                .mentees(new ArrayList<>(Arrays.asList(simpleUser, nonExistUser)))
-                .mentors(new ArrayList<>(Arrays.asList(simpleUser, nonExistUser)))
+                .mentees(new ArrayList<>(Arrays.asList(simpleUser, userWithEmptyListOfMenteesAndMentors)))
+                .mentors(new ArrayList<>(Arrays.asList(simpleUser, userWithEmptyListOfMenteesAndMentors)))
                 .build();
     }
 
@@ -76,97 +78,97 @@ public class MentorshipServiceTest {
 
     @Test
     public void testGetMenteesWithNoMenteesForUser() {
-        when(repository.findById(NON_EXIST_USER_ID)).thenReturn(Optional.ofNullable(nonExistUser));
+        when(repository.findById(CORRECT_ID_1)).thenReturn(Optional.ofNullable(userWithEmptyListOfMenteesAndMentors));
 
-        List<UserDto> realList = service.getMentees(NON_EXIST_USER_ID);
+        List<UserDto> realList = service.getMentees(CORRECT_ID_1);
         List<UserDto> expectedList = new ArrayList<>();
 
-        verify(repository).findById(NON_EXIST_USER_ID);
+        verify(repository).findById(CORRECT_ID_1);
         assertEquals(expectedList, realList);
     }
 
     @Test
     public void testGetMenteesWithMenteesForUser() {
-        when(repository.findById(EXISTING_USER_ID)).thenReturn(Optional.ofNullable(correctUser));
+        when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
 
-        List<UserDto> realList = service.getMentees(EXISTING_USER_ID);
-        List<UserDto> expectedList = getUserDtoList(correctUser.getMentees());
+        List<UserDto> realList = service.getMentees(CORRECT_ID_2);
+        List<UserDto> expectedList = getUserDtoList(userWithMenteesAndMentors.getMentees());
 
-        verify(repository).findById(EXISTING_USER_ID);
+        verify(repository).findById(CORRECT_ID_2);
         assertEquals(expectedList, realList);
     }
 
     @Test
     public void testGetMentorWithNoMentorForUser() {
-        when(repository.findById(NON_EXIST_USER_ID)).thenReturn(Optional.ofNullable(nonExistUser));
+        when(repository.findById(CORRECT_ID_1)).thenReturn(Optional.ofNullable(userWithEmptyListOfMenteesAndMentors));
 
-        List<UserDto> realList = service.getMentors(NON_EXIST_USER_ID);
+        List<UserDto> realList = service.getMentors(CORRECT_ID_1);
         List<UserDto> expectedList = new ArrayList<>();
 
-        verify(repository).findById(NON_EXIST_USER_ID);
+        verify(repository).findById(CORRECT_ID_1);
         assertEquals(expectedList, realList);
     }
 
     @Test
     public void testGetMentorWithMentorForUser() {
-        when(repository.findById(EXISTING_USER_ID)).thenReturn(Optional.ofNullable(correctUser));
+        when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
 
-        List<UserDto> realList = service.getMentors(EXISTING_USER_ID);
-        List<UserDto> expectedList = getUserDtoList(correctUser.getMentors());
+        List<UserDto> realList = service.getMentors(CORRECT_ID_2);
+        List<UserDto> expectedList = getUserDtoList(userWithMenteesAndMentors.getMentors());
 
-        verify(repository).findById(EXISTING_USER_ID);
+        verify(repository).findById(CORRECT_ID_2);
         assertEquals(expectedList, realList);
     }
 
     @Test
     public void testDeleteMenteeWithExistingMenteeForMentor() {
-        when(repository.findById(EXISTING_USER_ID)).thenReturn(Optional.ofNullable(correctUser));
-        when(repository.findById(3L)).thenReturn(Optional.ofNullable(simpleUser));
+        when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
+        when(repository.findById(SIMPLE_ID)).thenReturn(Optional.ofNullable(simpleUser));
 
-        service.deleteMentee(3L, EXISTING_USER_ID);
-        List<User> realList = correctUser.getMentees();
-        List<User> expectedList = new ArrayList<>(Collections.singletonList(nonExistUser));
+        service.deleteMentee(SIMPLE_ID, CORRECT_ID_2);
+        List<User> realList = userWithMenteesAndMentors.getMentees();
+        List<User> expectedList = new ArrayList<>(Collections.singletonList(userWithEmptyListOfMenteesAndMentors));
 
-        verify(repository).findById(EXISTING_USER_ID);
-        verify(repository).findById(3L);
+        verify(repository).findById(CORRECT_ID_2);
+        verify(repository).findById(SIMPLE_ID);
         assertEquals(expectedList, realList);
     }
 
     @Test
     public void testDeleteMentorWithNonExistingMenteeForMentor() {
-        when(repository.findById(EXISTING_USER_ID)).thenReturn(Optional.ofNullable(correctUser));
+        when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
 
-        List<User> realList = correctUser.getMentees();
-        service.deleteMentee(EXISTING_USER_ID, EXISTING_USER_ID);
-        List<User> expectedList = correctUser.getMentees();
+        List<User> realList = userWithMenteesAndMentors.getMentees();
+        service.deleteMentee(CORRECT_ID_2, CORRECT_ID_2);
+        List<User> expectedList = userWithMenteesAndMentors.getMentees();
 
-        verify(repository, times(2)).findById(EXISTING_USER_ID);
+        verify(repository, times(2)).findById(CORRECT_ID_2);
         assertEquals(expectedList, realList);
     }
 
     @Test
     public void testDeleteMentorWithExistingMentorForMentee() {
-        when(repository.findById(EXISTING_USER_ID)).thenReturn(Optional.ofNullable(correctUser));
-        when(repository.findById(3L)).thenReturn(Optional.ofNullable(simpleUser));
+        when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
+        when(repository.findById(SIMPLE_ID)).thenReturn(Optional.ofNullable(simpleUser));
 
-        service.deleteMentor(EXISTING_USER_ID, 3L);
-        List<User> realList = correctUser.getMentors();
-        List<User> expectedList = new ArrayList<>(Collections.singletonList(nonExistUser));
+        service.deleteMentor(CORRECT_ID_2, SIMPLE_ID);
+        List<User> realList = userWithMenteesAndMentors.getMentors();
+        List<User> expectedList = new ArrayList<>(Collections.singletonList(userWithEmptyListOfMenteesAndMentors));
 
-        verify(repository).findById(EXISTING_USER_ID);
-        verify(repository).findById(3L);
+        verify(repository).findById(CORRECT_ID_2);
+        verify(repository).findById(SIMPLE_ID);
         assertEquals(expectedList, realList);
     }
 
     @Test
     public void testDeleteMentorWithNonExistingMentorForMentee() {
-        when(repository.findById(EXISTING_USER_ID)).thenReturn(Optional.ofNullable(correctUser));
+        when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
 
-        List<User> realList = correctUser.getMentors();
-        service.deleteMentee(EXISTING_USER_ID, EXISTING_USER_ID);
-        List<User> expectedList = correctUser.getMentors();
+        List<User> realList = userWithMenteesAndMentors.getMentors();
+        service.deleteMentee(CORRECT_ID_2, CORRECT_ID_2);
+        List<User> expectedList = userWithMenteesAndMentors.getMentors();
 
-        verify(repository, times(2)).findById(EXISTING_USER_ID);
+        verify(repository, times(2)).findById(CORRECT_ID_2);
         assertEquals(expectedList, realList);
     }
 
