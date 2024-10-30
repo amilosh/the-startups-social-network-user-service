@@ -7,9 +7,7 @@ import java.util.stream.Stream;
 
 public interface UserFilter {
 
-   default boolean isApplicable(UserFilterDto filter){
-       return filter != null;
-   }
+    boolean isApplicable(UserFilterDto filter);
 
     Stream<User> apply(Stream<User> users, UserFilterDto filter);
 }

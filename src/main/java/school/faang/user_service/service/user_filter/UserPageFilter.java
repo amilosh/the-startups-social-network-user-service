@@ -10,10 +10,17 @@ import java.util.stream.Stream;
 public class UserPageFilter implements UserFilter {
 
     @Override
+    public boolean isApplicable(UserFilterDto filter) {
+        return filter != null &&
+                filter.getPage() > 0 &&
+                filter.getPageSize() > 0;
+    }
+
+    @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filter) {
-        int pageNumb = filter.getPage();
+        int pageNumber = filter.getPage();
         int pageSize = filter.getPageSize();
-        long usersToSkip = ((long) alignPageNumber(pageNumb) * pageSize);
+        long usersToSkip = ((long) alignPageNumber(pageNumber) * pageSize);
 
         return users
                 .skip(usersToSkip)
