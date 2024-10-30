@@ -1,5 +1,6 @@
 package school.faang.user_service.service.user;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,7 +22,6 @@ import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.publisher.MessagePublisher;
 import school.faang.user_service.publisher.PremiumBoughtEventPublisher;
 import school.faang.user_service.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
@@ -29,6 +29,7 @@ import school.faang.user_service.service.image.AvatarSize;
 import school.faang.user_service.service.image.BufferedImagesHolder;
 import school.faang.user_service.service.image.ImageProcessor;
 import school.faang.user_service.service.s3.S3Service;
+
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -61,7 +62,6 @@ public class UserServiceImplTest {
     private BufferedImagesHolder bufferedImagesHolder;
     private BufferedImage bufferedImage;
 
-    @InjectMocks
     private UserServiceImpl service;
 
     @Mock
@@ -85,6 +85,22 @@ public class UserServiceImplTest {
 
     @Mock
     private UserContext userContext;
+
+    @BeforeEach
+    public void setup() {
+        service = new UserServiceImpl(
+            repository,
+            null,
+            mapper,
+            imageProcessor,
+            s3Service,
+            null,
+            null,
+            profileViewEventPublisher,
+            userContext,
+            premiumBoughtEventPublisher
+        );
+    }
 
     @Test
     public void getUser_Success() {
