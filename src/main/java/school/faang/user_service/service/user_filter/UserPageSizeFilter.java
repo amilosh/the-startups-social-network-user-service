@@ -10,11 +10,6 @@ import java.util.stream.Stream;
 public class UserPageSizeFilter implements UserFilter {
 
     @Override
-    public boolean isApplicable(UserFilterDto filter) {
-        return filter != null && filter.getPageSize() > 0;
-    }
-
-    @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filter) {
         return users.limit(filter.getPageSize());
     }
