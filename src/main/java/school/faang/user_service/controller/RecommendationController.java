@@ -1,8 +1,6 @@
 package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,20 +19,19 @@ public class RecommendationController {
     private final RecommendationService recommendationService;
 
     @PostMapping("/give")
-    public ResponseEntity<Long> giveRecommendation(@RequestBody RecommendationDto recommendation) {
-        validateRecommendation(recommendation);
-        Long recommendationId = recommendationService.create(recommendation);
-        return ResponseEntity.status(HttpStatus.CREATED).body(recommendationId);
+    public RecommendationDto giveRecommendation(@RequestBody RecommendationDto recommendationDto) {
+        validateRecommendation(recommendationDto);
+        return recommendationService.create(recommendationDto);
     }
 
-    private void validateRecommendation(RecommendationDto recommendation) {
-        if (recommendation.getContent() == null || recommendation.getContent().isBlank()) {
+    private void validateRecommendation(RecommendationDto recommendationDto) {
+        if (recommendationDto.getContent() == null || recommendationDto.getContent().isBlank()) {
             throw new DataValidationException(ErrorMessage.RECOMMENDATION_CONTENT);
         }
-        if (recommendation.getAuthorId() == null) {
+        if (recommendationDto.getAuthorId() == null) {
             throw new DataValidationException(ErrorMessage.RECOMMENDATION_AUTHOR);
         }
-        if (recommendation.getReceiverId() == null) {
+        if (recommendationDto.getReceiverId() == null) {
             throw new DataValidationException(ErrorMessage.RECOMMENDATION_RECEIVER);
         }
     }
