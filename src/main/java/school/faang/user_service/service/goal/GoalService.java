@@ -113,7 +113,7 @@ public class GoalService {
                 goal.getId(),
                 goal.getTitle(),
                 goal.getDescription(),
-                parentId, // Добавляем ID родительской цели
+                parentId, // Добавляем ID родительской цели, нужно ли делать фильтр по этим полям?
                 goal.getStatus() != null ? goal.getStatus().toString() : null, // Преобразуем статус в строку
                 skillIds // Добавляем список идентификаторов навыков
         );
@@ -138,10 +138,10 @@ public class GoalService {
                 .map(goal -> new GoalDto(
                         goal.getId(),
                         goal.getDescription(),
-                        goal.getParentId(),
+                        goal.getParentId(),//нужно ли делать фильтр по этим полям?
                         goal.getTitle(),
                         goal.getStatus(),
-                        goal.getSkillIds()
+                        goal.getSkillIds() //нужно ли делать фильтр по этим полям?
                 ))
                 .collect(Collectors.toList());
     }
