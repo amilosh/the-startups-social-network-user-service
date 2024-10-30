@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SubscriptionService;
 
 import java.util.List;
@@ -15,10 +16,14 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     public void followUser(long followerId, long followeeId) {
+        isFollowerFolloweeIdsEqual(followerId, followeeId, "Follower can't follow itself");
+
         subscriptionService.followUser(followerId, followeeId);
     }
 
     public void unfollowUser(long followerId, long followeeId) {
+        isFollowerFolloweeIdsEqual(followerId, followeeId, "Follower can't unfollow itself");
+
         subscriptionService.unfollowUser(followerId, followeeId);
     }
 
@@ -36,5 +41,11 @@ public class SubscriptionController {
 
     public int getFollowingCount(long followeeId) {
         return subscriptionService.getFollowingCount(followeeId);
+    }
+
+    private void isFollowerFolloweeIdsEqual(long followerId, long followeeId, String message) {
+        if (followerId == followeeId) {
+            throw new DataValidationException(message);
+        }
     }
 }
