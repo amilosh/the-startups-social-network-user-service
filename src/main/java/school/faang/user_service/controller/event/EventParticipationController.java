@@ -1,6 +1,5 @@
 package school.faang.user_service.controller.event;
 
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +24,13 @@ public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
 
     @PutMapping(UrlUtils.ID + UrlUtils.REGISTER)
-    public ResponseEntity<Void> registerParticipant(@PathVariable("id") @Min(1) Long eventId, @RequestParam("userId") @Min(0) Long userId) {
+    public ResponseEntity<Void> registerParticipant(@PathVariable("id") @Min(1) Long eventId, @RequestParam("userId") @Min(1) Long userId) {
         eventParticipationService.registerParticipant(eventId, userId);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping(UrlUtils.ID + UrlUtils.UNREGISTER)
-    public ResponseEntity<Void> unregisterParticipant(@PathVariable("id") @Min(1) Long eventId, @RequestParam("userId") @Min(0) Long userId) {
+    public ResponseEntity<Void> unregisterParticipant(@PathVariable("id") @Min(1) Long eventId, @RequestParam("userId") @Min(1) Long userId) {
         eventParticipationService.unregisterParticipant(eventId, userId);
         return ResponseEntity.ok().build();
     }
