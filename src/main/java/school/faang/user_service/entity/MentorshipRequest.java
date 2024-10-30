@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.mapstruct.Mapper;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "mentorship_request")
+@Mapper
 public class MentorshipRequest {
 
     @Id
@@ -47,4 +49,6 @@ public class MentorshipRequest {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+
 }
