@@ -17,7 +17,7 @@ public class GoalMapperTest {
 
     @Test
     @DisplayName("Test dto to entity mapping")
-    public void testDtoToEntity() {
+    public void dtoToEntityTest() {
         GoalDto dto = GoalDto.builder()
                 .id(1L)
                 .description("description")
@@ -40,7 +40,7 @@ public class GoalMapperTest {
 
     @Test
     @DisplayName("Test entity to dto mapping")
-    public void testEntityToDto() {
+    public void entityToDtoTest() {
         Goal goal = Goal.builder()
                 .id(1L)
                 .description("description")
@@ -65,7 +65,7 @@ public class GoalMapperTest {
 
     @Test
     @DisplayName("Test entity update")
-    public void testUpdateEntity() {
+    public void updateEntityTest() {
         Goal goal = Goal.builder()
                 .id(1L)
                 .description("description")
@@ -79,5 +79,31 @@ public class GoalMapperTest {
 
         assertEquals(goalDto.getDescription(), goal.getDescription());
         assertNotNull(goalDto.getId());
+    }
+
+    @Test
+    @DisplayName("Test entity list to dto list mapping")
+    public void entityListToDtoListTest() {
+        Goal goal = Goal.builder()
+                .id(1L)
+                .description("description")
+                .title("title")
+                .status(GoalStatus.ACTIVE)
+                .parent(Goal.builder().id(2L).build())
+                .skillsToAchieve(List.of(Skill.builder().id(1L).build()))
+                .build();
+        GoalDto dto = GoalDto.builder()
+                .id(1L)
+                .description("description")
+                .title("title")
+                .status(GoalStatus.ACTIVE)
+                .parentId(2L)
+                .skillIds(List.of(1L))
+                .build();
+        List<GoalDto> expectedResult = List.of(dto);
+
+        List<GoalDto> actualResult = mapper.entityListToDtoList(List.of(goal));
+
+        assertEquals(expectedResult.size(), actualResult.size());
     }
 }
