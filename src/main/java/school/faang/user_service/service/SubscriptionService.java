@@ -1,80 +1,64 @@
 package school.faang.user_service.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.UserFilterDto;
+import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.UserDTO;
+import school.faang.user_service.dto.UserFilterDTO;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 public class SubscriptionService {
+
     private final SubscriptionRepository subscriptionRepository;
 
-    @Autowired
     public SubscriptionService(SubscriptionRepository subscriptionRepository) {
         this.subscriptionRepository = subscriptionRepository;
     }
 
-    public void followUser(long followerId, long followeeId) {
-        log.info("Attempting to follow: followerId={}, followeeId={}", followerId, followeeId);
+    @Transactional
+    public void followUser(Long followerId, Long followeeId) {
+        if (followerId.equals(followeeId)) {
+            throw new IllegalArgumentException("Пользователь не может подписаться на себя.");
+        }
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            log.warn("Subscription already exists: followerId={}, followeeId={}", followerId, followeeId);
-            throw new IllegalArgumentException("Subscription already exists");
+            throw new IllegalArgumentException("Подписка уже существует.");
         }
         subscriptionRepository.followUser(followerId, followeeId);
-        log.info("Successfully added: followerId={}, followeeId={}", followerId, followeeId);
     }
 
-    public void unfollowUser(long followerId, long followeeId) {
-        log.info("Attempting to unfollow: followerId={}, followeeId={}", followerId, followeeId);
+    @Transactional
+    public void unfollowUser(Long followerId, Long followeeId) {
         if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            log.warn("Subscription does not exist. FollowerId: {}, FolloweeId: {}", followerId, followeeId);
-            throw new IllegalArgumentException("Subscription does not exist");
+            throw new IllegalArgumentException("Подписка не существует.");
         }
         subscriptionRepository.unfollowUser(followerId, followeeId);
-        log.info("Unsubcription succesful: followerId={}, followeeId={}", followerId, followeeId);
     }
 
-    public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
-        log.info("Getting followers for followeeId={}, filter={}", followeeId, filter);
-        List<UserDto> followers = (List<UserDto>) subscriptionRepository.findByFolloweeId(followeeId);
-        log.info("Found {} followers", followers.size());
-        return filterUsers(followers, filter);
+    public List<UserDTO> getFollowers(Long userId, UserFilterDTO filter) {
+        if (filter == null) {
+            filter = new UserFilterDTO();
+        }
+        return filterUsers(subscriptionRepository.findByFolloweeId(userId).collect(Collectors.toList()), filter);
     }
 
-    public List<UserDto> getFollowing(long followeeId, UserFilterDto filter) {
-        log.info("Fetching following list for followeeId={}, filter={}", followeeId, filter);
-        List<UserDto> following = (List<UserDto>) subscriptionRepository.findByFolloweeId(followeeId);
-        log.info("Retrieved {} users followed by followeeId={}", following.size(), followeeId);
-        return filterUsers(following, filter);
+    public boolean subscriptionExists(Long followerId, Long followeeId) {
+        return subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
     }
 
-
-    public long getFolloweeCount(long followerId) {
-        log.info("Counting followees for followerId={}", followerId);
-        long count = subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
-        log.info("FollowerId={} follows count={}", followerId, count);
-        return count;
-    }
-
-    public long getFollowingCount(long followeeId) {
-        log.info("Counting followers for followeeId={}", followeeId);
-        long count = subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
-        log.info("FollowerId={} has followers", followeeId, count);
-        return count;
-    }
-
-    private List<UserDto> filterUsers(List<UserDto> users, UserFilterDto filter) {
-        log.info("Applying filters: {}", filter);
-        List<UserDto> filteredUsers = users.stream()
+    private List<UserDTO> filterUsers(List<User> users, UserFilterDTO filter) {
+        return users.stream()
             .filter(user -> filter.getNamePattern() == null || user.getUsername().contains(filter.getNamePattern()))
+            .filter(user -> filter.getAboutPattern() == null || user.getAboutMe().contains(filter.getAboutPattern()))
+            .filter(user -> filter.getEmailPattern() == null || user.getEmail().contains(filter.getEmailPattern()))
+            .filter(user -> filter.getExperienceMin() == null || user.getExperience() >= filter.getExperienceMin())
+            .filter(user -> filter.getExperienceMax() == null || user.getExperience() <= filter.getExperienceMax())
+            .skip(filter.getPage() != null && filter.getPageSize() != null ? filter.getPage() * filter.getPageSize() : 0)
+            .limit(filter.getPageSize() != null ? filter.getPageSize() : Long.MAX_VALUE)
+            .map(user -> new UserDTO(user.getId(), user.getUsername(), user.getEmail()))
             .collect(Collectors.toList());
-        log.info("Filtered users count after applying filters: {}", filteredUsers.size());
-        return filteredUsers;
     }
 }
