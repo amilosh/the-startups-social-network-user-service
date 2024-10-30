@@ -4,11 +4,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.ParticipantRegistrationException;
 import school.faang.user_service.mapper.UserDTOMapperImpl;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
@@ -45,7 +47,7 @@ class EventParticipationServiceTest {
     void register_shouldThrowException_whenUserAlreadyRegistered() {
         when(repository.existsByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(true);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+        ParticipantRegistrationException exception = assertThrows(ParticipantRegistrationException.class, () -> {
             service.register(EVENT_ID, USER_ID);
         });
 
@@ -67,11 +69,11 @@ class EventParticipationServiceTest {
     void unregister_shouldThrowException_whenUserIsNotRegistered() {
         when(repository.existsByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(false);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+        ParticipantRegistrationException exception = assertThrows(ParticipantRegistrationException.class,
                 () -> service.unregister(EVENT_ID, USER_ID));
 
-        assertEquals("User isn't registered", exception.getMessage());
         verify(repository, never()).unregister(EVENT_ID, USER_ID);
+        assertEquals("User isn't registered", exception.getMessage());
     }
 
     @Test
@@ -82,6 +84,9 @@ class EventParticipationServiceTest {
         when(repository.findAllParticipantsByEventId(EVENT_ID)).thenReturn(expectedUsers);
 
         List<UserDTO> actualUsers = service.findAllParticipantsByEventId(EVENT_ID);
+
+        verify(repository).findAllParticipantsByEventId(Mockito.anyLong());
+        verify(userDTOMapper).toDTO(expectedUsers);
         assertEquals(expectedUserDTOs, actualUsers);
     }
 
@@ -92,6 +97,8 @@ class EventParticipationServiceTest {
         when(repository.countParticipants(EVENT_ID)).thenReturn(expectedCount);
 
         int actualCount = service.countParticipants(EVENT_ID);
+
+        verify(repository).countParticipants(Mockito.anyLong());
         assertEquals(expectedCount, actualCount);
     }
 
