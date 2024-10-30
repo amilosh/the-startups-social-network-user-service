@@ -1,4 +1,5 @@
 package school.faang.user_service.service;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
@@ -42,15 +43,15 @@ public class SkillService {
 
 
         skillRepository.assignSkillToUser(skillId, userId);
-//
-//        skillOffers.forEach(skillOffer -> {
-//            UserSkillGuarantee guarantee = UserSkillGuarantee.builder()
-//                    .user(new User())
-//                    .skill(new Skill())
-//                    .guarantor(new User())
-//                    .build();
-//            userSkillGuaranteeRepository.save(guarantee);
-//        });
+
+        skillOffers.forEach(skillOffer -> {
+            UserSkillGuarantee guarantee = UserSkillGuarantee.builder()
+                    .user(skillOffer.getRecommendation().getReceiver())
+                    .skill(skillOffer.getSkill())
+                    .guarantor(skillOffer.getRecommendation().getAuthor())
+                    .build();
+            userSkillGuaranteeRepository.save(guarantee);
+        });
 
 
         Skill skill = skillRepository.findById(skillId)
