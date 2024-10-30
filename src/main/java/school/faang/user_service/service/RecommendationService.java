@@ -2,6 +2,8 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
@@ -33,7 +35,6 @@ public class RecommendationService {
     private final SkillRepository skillRepository;
     private final UserRepository userRepository;
     private final RecommendationMapper recommendationMapper;
-
 
     @Transactional
     public RecommendationDto create(RecommendationDto recommendationDto) {
@@ -80,6 +81,10 @@ public class RecommendationService {
         recommendationRepository.deleteById(id);
     }
 
+    public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
+        Page<Recommendation> recommendations = recommendationRepository.findAllByReceiverId(receiverId, Pageable.unpaged());
+        return recommendationMapper.toDtoList(recommendations.getContent());
+    }
 
     private void addSkillOffersAndGuarantee(RecommendationDto recommendationDto) {
         List<SkillOfferDto> skillOfferDtoList = recommendationDto.getSkillOffers();
