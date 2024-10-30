@@ -2,6 +2,7 @@ package school.faang.user_service.service.event;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
@@ -21,6 +22,7 @@ import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
@@ -32,11 +34,13 @@ public class EventService {
         validateOwnerSkills(eventOwner, eventDto);
         Event event = eventMapper.toEntity(eventDto);
         event = eventRepository.save(event);
+        log.info("New event saved to the database;");
         return eventMapper.toDto(event);
     }
 
     public EventDto getEvent(long eventId) {
         Event event = validateEventId(eventId);
+        log.info("Event with " + eventId + " has been retrieved from the database");
         return eventMapper.toDto(event);
     }
 
@@ -45,11 +49,13 @@ public class EventService {
         eventFilters.stream()
                 .filter(filter -> filter.isApplicable(filters))
                 .forEach(filter -> filter.apply(events, filters));
+        log.info("A filtered list of events has been retrieved. Filters are: " + filters);
         return eventMapper.toDto(events.toList());
     }
 
     public void deleteEvent(long eventId) {
         eventRepository.deleteById(eventId);
+        log.info("An event with id " + eventId + " has been deleted from the database.");
     }
 
     public EventDto updateEvent(EventDto eventDto) {
@@ -57,25 +63,31 @@ public class EventService {
         User eventOwner = validateUserId(eventDto.getOwnerId());
         validateOwnerSkills(eventOwner, eventDto);
         eventMapper.update(eventToUpdate, eventDto);
+        log.info("An event with id " + eventToUpdate.getId() + " has been updated.");
         eventToUpdate = eventRepository.save(eventToUpdate);
+        log.info("An updated event with id " + eventToUpdate.getId() + " has been saved to the database");
         return eventMapper.toDto(eventToUpdate);
     }
 
     public List<EventDto> getOwnedEvents(long userId) {
         List<Event> events = eventRepository.findAllByUserId(userId);
+        log.info("A list of events owned by user with id " + userId + " had been retrieved");
         return eventMapper.toDto(events);
     }
 
     public List<EventDto> getParticipatedEvents(long userId) {
         List<Event> events = eventRepository.findParticipatedEventsByUserId(userId);
+        log.info("A list of events where user with id " + userId + " participates has been retrieved");
         return eventMapper.toDto(events);
     }
 
     private Event validateEventId(long eventId) {
+        log.warn("Event with id: " + eventId + " has not been found");
         return eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException("Event not found"));
     }
 
     private User validateUserId(long userId) {
+        log.warn("User with id: " + userId + " has not been found");
         return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("UserId is not found"));
     }
 
@@ -86,6 +98,7 @@ public class EventService {
         boolean hasAllRequiredSkills = eventDto.getRelatedSkills().stream()
                 .allMatch(skill -> ownerSkillIds.contains(skill.getId()));
         if (!hasAllRequiredSkills) {
+            log.warn("Exception occurred in validateOwnerSkills method. Event owner doesn't have required skills");
             throw new DataValidationException("Event owner does not have all the required skills for this event.");
         }
     }
