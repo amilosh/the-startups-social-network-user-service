@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -12,7 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.service.goal.GoalService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/goals")
@@ -45,5 +49,17 @@ public class GoalController {
         goalService.deleteGoal(goalId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/user-goals/{userId}")
+    public ResponseEntity<List<GoalDto>> getGoalsByUserId(@PathVariable("userId") Long userId,
+                                                          @RequestBody GoalFilterDto filters) {
+        return ResponseEntity.ok(goalService.getGoalsByUserId(userId, filters));
+    }
+
+    @GetMapping("/subtasks/{goalId}")
+    public ResponseEntity<List<GoalDto>> findSubtasksByGoalId(@PathVariable("goalId") Long goalId,
+                                                              @RequestBody GoalFilterDto filters) {
+        return ResponseEntity.ok(goalService.findSubtasksByGoalId(goalId, filters));
     }
 }
