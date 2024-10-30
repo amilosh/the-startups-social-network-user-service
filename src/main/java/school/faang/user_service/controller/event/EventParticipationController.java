@@ -25,13 +25,13 @@ public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
 
     @PutMapping(UrlUtils.ID + UrlUtils.REGISTER)
-    public ResponseEntity<Void> registerParticipant(@PathVariable("id") @Min(1) Long eventId, @RequestParam("userId") @Min(0) @Max(Long.MAX_VALUE) Long userId) {
+    public ResponseEntity<Void> registerParticipant(@PathVariable("id") @Min(1) Long eventId, @RequestParam("userId") @Min(0) Long userId) {
         eventParticipationService.registerParticipant(eventId, userId);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping(UrlUtils.ID + UrlUtils.UNREGISTER)
-    public ResponseEntity<Void> unregisterParticipant(@PathVariable("id") @Min(1) Long eventId, @RequestParam("userId") @Min(0) @Max(Long.MAX_VALUE) Long userId) {
+    public ResponseEntity<Void> unregisterParticipant(@PathVariable("id") @Min(1) Long eventId, @RequestParam("userId") @Min(0) Long userId) {
         eventParticipationService.unregisterParticipant(eventId, userId);
         return ResponseEntity.ok().build();
     }
