@@ -92,7 +92,7 @@ public class MentorshipServiceTest {
         when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
 
         List<UserDto> realList = service.getMentees(CORRECT_ID_2);
-        List<UserDto> expectedList = getUserDtoList(userWithMenteesAndMentors.getMentees());
+        List<UserDto> expectedList = mapper.toListDto(userWithMenteesAndMentors.getMentees());
 
         verify(repository).findById(CORRECT_ID_2);
         assertEquals(expectedList, realList);
@@ -114,7 +114,7 @@ public class MentorshipServiceTest {
         when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
 
         List<UserDto> realList = service.getMentors(CORRECT_ID_2);
-        List<UserDto> expectedList = getUserDtoList(userWithMenteesAndMentors.getMentors());
+        List<UserDto> expectedList = mapper.toListDto(userWithMenteesAndMentors.getMentors());
 
         verify(repository).findById(CORRECT_ID_2);
         assertEquals(expectedList, realList);
@@ -170,9 +170,5 @@ public class MentorshipServiceTest {
 
         verify(repository, times(2)).findById(CORRECT_ID_2);
         assertEquals(expectedList, realList);
-    }
-
-    public List<UserDto> getUserDtoList(List<User> users) {
-        return users.stream().map(mentee -> mapper.toDto(mentee)).toList();
     }
 }

@@ -20,15 +20,15 @@ public class MentorshipService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    public List<UserDto> getMentees(long userId) {
-        List<User> mentees = validateId(userId).getMentees();
-        log.info("Mentees for userId={} have taken successfully from DB", userId);
+    public List<UserDto> getMentees(long mentorId) {
+        List<User> mentees = validateId(mentorId).getMentees();
+        log.info("Mentees for userId={} have taken successfully from DB", mentorId);
         return userMapper.toListDto(mentees);
     }
 
-    public List<UserDto> getMentors(long userId) {
-        List<User> mentors = validateId(userId).getMentors();
-        log.info("Mentors for userId={} have taken successfully from DB", userId);
+    public List<UserDto> getMentors(long menteeId) {
+        List<User> mentors = validateId(menteeId).getMentors();
+        log.info("Mentors for userId={} have taken successfully from DB", menteeId);
         return userMapper.toListDto(mentors);
     }
 
