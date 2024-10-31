@@ -1,11 +1,14 @@
 package school.faang.user_service.service.mentorship;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
@@ -24,6 +27,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private final MentorshipRequestMapper requestMapper;
     private final List<RequestFilter> requestFilters;
 
+    @Transactional
     @Override
     public MentorshipRequestDto requestMentorship(MentorshipRequestDto creationRequestDto) {
         Long requesterId = creationRequestDto.getRequesterId();
@@ -46,6 +50,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         return requestMapper.toDto(savedRequest);
     }
 
+    @Transactional
     @Override
     public List<MentorshipRequestDto> getRequests(RequestFilterDto filterDto) {
         log.info("A request has been received to retrieve mentorship requests with the provided filter."); // Изменено на "provided filter" для большей ясности.
@@ -65,4 +70,23 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         log.info("Requests matching the given filters have been successfully found! Total requests: {}", filteredRequestsDtos.size()); // Изменено на "matching" и "found" для большей ясности.
         return filteredRequestsDtos;
     }
+
+    @Transactional
+    @Override
+    public MentorshipRequestDto acceptRequest(Long requestId) {
+        MentorshipRequest request = requestValidator.validateAcceptRequest(requestId);
+
+        User requester = request.getRequester();
+        User receiver = request.getReceiver();
+        requester.getMentors().add(receiver);
+        receiver.getMentees().add(requester);
+
+        userRepository.save(requester);
+        userRepository.save(receiver);
+
+        request.setStatus(RequestStatus.ACCEPTED);
+        return requestMapper.toDto(mentorshipRequestRepository.save(request));
+    }
+
+
 }
