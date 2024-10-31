@@ -5,8 +5,12 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.dto.UserFilterDTO;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.filter.ExperienceFilter;
+import school.faang.user_service.filter.NameFilter;
 import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.repository.filter.UserFilter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,15 +53,17 @@ public class SubscriptionService {
         return subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
     }
 
-    private List<UserDTO> filterUsers(List<User> users, UserFilterDTO filter) {
+    public List<UserDTO> filterUsers(List<User> users, UserFilterDTO filter) {
+        List<UserFilter> filters = new ArrayList<>();
+        if (filter.getNamePattern() != null) {
+            filters.add(new NameFilter(filter.getNamePattern()));
+        }
+        if (filter.getExperienceMin() != null || filter.getExperienceMax() != null) {
+            filters.add(new ExperienceFilter(filter.getExperienceMin(), filter.getExperienceMax()));
+        }
+
         return users.stream()
-            .filter(user -> filter.getNamePattern() == null || user.getUsername().contains(filter.getNamePattern()))
-            .filter(user -> filter.getAboutPattern() == null || user.getAboutMe().contains(filter.getAboutPattern()))
-            .filter(user -> filter.getEmailPattern() == null || user.getEmail().contains(filter.getEmailPattern()))
-            .filter(user -> filter.getExperienceMin() == null || user.getExperience() >= filter.getExperienceMin())
-            .filter(user -> filter.getExperienceMax() == null || user.getExperience() <= filter.getExperienceMax())
-            .skip(filter.getPage() != null && filter.getPageSize() != null ? filter.getPage() * filter.getPageSize() : 0)
-            .limit(filter.getPageSize() != null ? filter.getPageSize() : Long.MAX_VALUE)
+            .filter(user -> filters.stream().allMatch(f -> f.filter(user)))
             .map(user -> new UserDTO(user.getId(), user.getUsername(), user.getEmail()))
             .collect(Collectors.toList());
     }
