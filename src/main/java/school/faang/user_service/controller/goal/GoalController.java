@@ -42,24 +42,14 @@ public class GoalController {
     @GetMapping("/{goalId}/subtasks")
     @ResponseStatus(HttpStatus.OK)
     public List<GoalDto> findSubtasksByGoalId(@PathVariable("goalId") @Positive Long goalId,
-                                              @RequestParam(value = "filterTitle", required = false) String filterTitle,
-                                              @RequestParam(value = "filterDescription", required = false) String filterDescription,
-                                              @RequestParam(value = "filterStatus", required = false) GoalStatus filterStatus,
-                                              @RequestParam(value = "filterSkills", required = false) List<Long> filterSkills) {
-        GoalFilterDto filterDto = new GoalFilterDto(filterTitle, filterDescription, filterStatus, filterSkills);
-
+                                              GoalFilterDto filterDto) {
         return goalService.findSubtasksByGoalId(goalId, filterDto);
     }
 
     @GetMapping("/users/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<GoalDto> getGoalsByUser(@PathVariable("userId") @Positive Long userId,
-                                        @RequestParam(value = "filterTitle", required = false) String filterTitle,
-                                        @RequestParam(value = "filterDescription", required = false) String filterDescription,
-                                        @RequestParam(value = "filterStatus", required = false) GoalStatus filterStatus,
-                                        @RequestParam(value = "filterSkills", required = false) List<Long> filterSkills) {
-        GoalFilterDto filterDto = new GoalFilterDto(filterTitle, filterDescription, filterStatus, filterSkills);
-
-        return goalService.getGoalsByUser(userId, filterDto);
+    public List<GoalDto> findGoalsByUserId(@PathVariable("userId") @Positive Long userId,
+                                        GoalFilterDto filterDto) {
+        return goalService.findGoalsByUserId(userId, filterDto);
     }
 }
