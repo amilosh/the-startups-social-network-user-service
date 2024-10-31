@@ -90,7 +90,6 @@ public class GoalService {
         setSkillsToGoal(goalDto.getSkillIds(), goal);
 
         goalRepository.save(goal);
-        notifyAboutGoalSet(goal.getId(), user.getId());
         return goal;
     }
 
@@ -115,9 +114,6 @@ public class GoalService {
 
         goalRepository.save(existingGoal);
 
-        if (goalDto.getStatus().equals(GoalStatus.COMPLETED)) {
-            notifyUsersAboutCompletedGoal(existingGoal);
-        }
         return existingGoal;
     }
 
