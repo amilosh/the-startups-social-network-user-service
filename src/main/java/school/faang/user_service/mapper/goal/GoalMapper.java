@@ -17,29 +17,10 @@ public interface GoalMapper {
     @Mapping(source = "skillsToAchieve", target = "skillIds", qualifiedByName = "mapSkillToSkillsId")
     GoalDto toGoalDto(Goal goal);
 
-    @Mapping(source = "parentId", target = "parent", qualifiedByName = "mapIdToParent")
-    @Mapping(source = "skillIds", target = "skillsToAchieve", qualifiedByName = "mapSkillIdToListSkill")
     Goal toGoal(GoalDto goalDto);
 
     @Named("mapSkillToSkillsId")
     default List<Long> mapSkillToSkillsId(List<Skill> skills) {
         return skills.stream().map(Skill::getId).toList();
-    }
-
-    @Named("mapIdToParent")
-    default Goal mapIdToParent(Long id) {
-        Goal goal = new Goal();
-        goal.setId(id);
-
-        return goal;
-    }
-
-    @Named("mapSkillIdToListSkill")
-    default List<Skill> mapSkillIdToListSkill(List<Long> skillId) {
-        return skillId.stream().map(id -> {
-            Skill skill = new Skill();
-            skill.setId(id);
-            return skill;
-        }).toList();
     }
 }

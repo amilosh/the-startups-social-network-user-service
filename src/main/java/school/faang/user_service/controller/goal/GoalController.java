@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
@@ -12,6 +13,7 @@ import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
 
+@Validated
 @Slf4j
 @RestController
 @RequestMapping("/v1/goals")
@@ -23,7 +25,7 @@ public class GoalController {
     @PostMapping("/users/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
     public GoalDto createGoal(@PathVariable("userId") @Positive Long userId,
-                              @RequestBody @Valid GoalDto goalDto) {
+                              @RequestBody @Validated(GoalDto.Before.class) GoalDto goalDto) {
         log.info("Creating goal for user with ID: {}", userId);
         return goalService.createGoal(userId, goalDto);
     }
@@ -31,7 +33,7 @@ public class GoalController {
     @PatchMapping("/{goalId}")
     @ResponseStatus(HttpStatus.OK)
     public GoalDto updateGoal(@PathVariable("goalId") @Positive Long goalId,
-                              @RequestBody @Valid GoalDto goal) {
+                              @RequestBody @Validated(GoalDto.After.class) GoalDto goal) {
         log.info("Updating goal with ID: {}", goalId);
         return goalService.updateGoal(goalId, goal);
     }
