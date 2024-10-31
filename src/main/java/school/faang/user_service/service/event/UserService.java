@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
 public class UserService {
     private final UserRepository userRepository;
 
-    public User getUserById(Long id){
+    public User getUserById(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User not found" + id));
     }
 }
