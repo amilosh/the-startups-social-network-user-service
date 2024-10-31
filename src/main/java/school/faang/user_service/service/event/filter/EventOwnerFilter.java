@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 @Component
 public class EventOwnerFilter implements EventFilter {
+
     @Override
     public boolean isApplicable(EventFilterDto filter) {
         return filter.getOwnerId() != null;

@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 @Component
 public class EventTitleFilter implements EventFilter {
+
     @Override
     public boolean isApplicable(EventFilterDto filter) {
         return filter.getTitle() != null;

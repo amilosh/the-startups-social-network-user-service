@@ -26,30 +26,41 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventDto {
+
     private Long id;
+
     @NotEmpty
     @Size(min = 1, max = 64)
     private String title;
+
     @NotNull
     private EventType type;
+
     @NotNull
     private EventStatus status;
+
     @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime startDate;
+
     @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime endDate;
+
     @NotNull
     private Long ownerId;
+
     @NotEmpty
     @Size(min = 1, max = 4096)
     private String description;
+
     @JsonSetter(nulls = Nulls.AS_EMPTY)
     private List<SkillDto> relatedSkills = new ArrayList<>();
+
     @NotNull
     @Size(min = 1, max = 128)
     private String location;
+
     @Min(1)
     private Integer maxAttendees = Integer.MAX_VALUE;
 }
