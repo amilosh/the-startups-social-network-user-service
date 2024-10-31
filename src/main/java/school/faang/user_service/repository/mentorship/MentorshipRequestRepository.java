@@ -31,4 +31,11 @@ public interface MentorshipRequestRepository extends JpaRepository<MentorshipReq
            AND receiver_id = :receiverId AND status = 1) 
            """)
     boolean existAcceptedRequest(long requesterId, long receiverId);
+
+    @Query(nativeQuery = true, value = """
+           SELECT EXISTS(SELECT 1 FROM mentorship_request 
+           WHERE id = :requestId 
+           AND status = 1) 
+           """)
+    boolean existAcceptedRequest(long requestId);
 }
