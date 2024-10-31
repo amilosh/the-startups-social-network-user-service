@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
@@ -51,6 +52,15 @@ public class MentorshipRequestDtoValidator {
                         "The last mentorship request from user %d to user %d was sent less than %d months ago!"
                                 .formatted(requesterId, receiverId, MIN_REQUEST_INTERVAL));
             }
+        }
+    }
+
+    public void validateAcceptRequest(Long requestId) {
+        if (!requestRepository.existsById(requestId)) {
+            throw new DataValidationException("The mentorship request with ID %d does not exist in the database!".formatted(requestId));
+        }
+        if (requestRepository.existAcceptedRequest(requestId)) {
+            throw new DataValidationException("The mentorship request with ID %d has been already accepted!".formatted(requestId));
         }
     }
 }
