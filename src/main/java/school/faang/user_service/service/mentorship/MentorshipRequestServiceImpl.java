@@ -4,7 +4,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorship.RejectionDto;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
@@ -88,5 +91,14 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         return requestMapper.toDto(mentorshipRequestRepository.save(request));
     }
 
+    @Transactional
+    @Override
+    public MentorshipRequestDto rejectRequest(Long requestId, RejectionDto rejection) {
+        MentorshipRequest request = requestValidator.validateRejectRequest(requestId);
 
+        request.setStatus(RequestStatus.REJECTED);
+        request.setRejectionReason(rejection.getReason());
+
+        return requestMapper.toDto(mentorshipRequestRepository.save(request));
+    }
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorship.RejectionDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -57,10 +58,7 @@ public class MentorshipRequestDtoValidator {
     }
 
     public MentorshipRequest validateAcceptRequest(Long requestId) {
-        MentorshipRequest request = requestRepository.findById(requestId)
-                .orElseThrow(() -> new DataValidationException(
-                        "The mentorship request with ID %d does not exist in the database!".formatted(requestId))
-                );
+        MentorshipRequest request = validateRequestExistence(requestId);
 
         if (requestRepository.existAcceptedRequest(request.getRequester().getId(), request.getReceiver().getId())) {
             throw new DataValidationException(
@@ -70,5 +68,20 @@ public class MentorshipRequestDtoValidator {
         }
 
         return request;
+    }
+
+    public MentorshipRequest validateRejectRequest(Long requestId) {
+        MentorshipRequest request = validateRequestExistence(requestId);
+        if (request.getStatus() == RequestStatus.REJECTED) {
+            throw new DataValidationException("The mentorship request with ID %d has been already rejected".formatted(requestId));
+        }
+        return request;
+    }
+
+    public MentorshipRequest validateRequestExistence(Long requestId) {
+        return requestRepository.findById(requestId)
+                .orElseThrow(() -> new DataValidationException(
+                        "The mentorship request with ID %d does not exist in the database!".formatted(requestId))
+                );
     }
 }

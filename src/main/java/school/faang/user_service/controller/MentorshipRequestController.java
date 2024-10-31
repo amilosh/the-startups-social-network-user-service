@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorship.RejectionDto;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
 import school.faang.user_service.service.mentorship.MentorshipRequestService;
 
@@ -32,8 +33,13 @@ public class MentorshipRequestController {
         return mentorshipRequestService.getRequests(filterDto);
     }
 
-    @PatchMapping("/{requestId}")
-    MentorshipRequestDto acceptRequest(@PathVariable Long requestId) {
+    @PatchMapping("/{requestId}/accept")
+    public MentorshipRequestDto acceptRequest(@PathVariable Long requestId) {
         return mentorshipRequestService.acceptRequest(requestId);
+    }
+
+    @PatchMapping("/{requestId}/reject")
+    public MentorshipRequestDto rejectRequest(@PathVariable Long requestId, @RequestBody RejectionDto rejection) {
+        return mentorshipRequestService.rejectRequest(requestId, rejection);
     }
 }
