@@ -67,8 +67,8 @@ public class GoalService {
     }
 
     @Transactional
-    public List<GoalDto> getGoalsByUser(long userId, GoalFilterDto filterDto) {
-        Stream<Goal> goals = goalRepository.findGoalsByUserId(userId);
+    public List<GoalDto> findGoalsByUserId(long userId, GoalFilterDto filterDto) {
+        Stream<Goal> goals = goalRepository.getGoalsByUserIdId(userId);
 
         return filterGoals(goals, filterDto);
     }

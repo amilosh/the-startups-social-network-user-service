@@ -37,7 +37,7 @@ public class GoalValidator {
     }
 
     public void validateUserNotWorkingWithGoal(Long userId, Long goalId) {
-        goalRepository.findGoalsByUserId(userId)
+        goalRepository.getGoalsByUserIdId(userId)
                 .mapToLong(Goal::getId)
                 .filter(goal -> goal == goalId)
                 .findAny()
