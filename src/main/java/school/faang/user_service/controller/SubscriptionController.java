@@ -29,6 +29,7 @@ public class SubscriptionController {
         log.info("Попытка подписки пользователя. followerId={}, followeeId={}", followerId, followeeId);
 
         if (validateUserIds(followerId, followeeId)) {
+            log.warn("Некорректные ID: followerId и followeeId не должны быть null.");
             return ResponseEntity.badRequest().body("ID подписчика и ID пользователя, на которого подписываются, не должны быть null.");
         }
 
@@ -54,7 +55,10 @@ public class SubscriptionController {
 
     @DeleteMapping("/unfollow")
     public ResponseEntity<String> unfollowUser(@RequestParam Long followerId, @RequestParam Long followeeId) {
+        log.info("Попытка отписки пользователя. followerId={}, followeeId={}", followerId, followeeId);
+
         if (validateUserIds(followerId, followeeId)) {
+            log.warn("Некорректные ID: followerId и followeeId не должны быть null.");
             return ResponseEntity.badRequest().body("ID подписчика и ID пользователя, от которого отписываются, не должны быть null.");
         }
 
@@ -76,7 +80,10 @@ public class SubscriptionController {
         @RequestParam(required = false) Long userId,
         @RequestBody(required = false) UserFilterDTO filter) {
 
+        log.info("Запрос на получение подписчиков для пользователя с ID {}", userId);
+
         if (userId == null) {
+            log.warn("Не указан ID пользователя.");
             return ResponseEntity.badRequest().body(Collections.emptyList());
         }
         if (filter != null && !isValidFilter(filter)) {
