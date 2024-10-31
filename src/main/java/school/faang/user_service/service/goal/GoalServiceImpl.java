@@ -73,17 +73,17 @@ public class GoalServiceImpl implements GoalService {
     @Override
     public List<GoalDto> getGoalsByUserId(Long userId, GoalFilterDto filter) {
         Stream<Goal> goals = goalRepository.findGoalsByUserId(userId);
-        filterGoals(goals, filter);
+        List<Goal> filteredGoals = filterGoals(goals, filter).toList();
 
-        return goalMapper.entityListToDtoList(goals.toList());
+        return goalMapper.entityListToDtoList(filteredGoals);
     }
 
     @Override
     public List<GoalDto> findSubtasksByGoalId(Long goalId, GoalFilterDto filters) {
         Stream<Goal> subtasks = goalRepository.findByParent(goalId);
-        filterGoals(subtasks, filters);
+        List<Goal> filteredGoals = filterGoals(subtasks, filters).toList();
 
-        return goalMapper.entityListToDtoList(subtasks.toList());
+        return goalMapper.entityListToDtoList(filteredGoals);
     }
 
     private void validateUserExistence(Long userId) {
@@ -101,7 +101,7 @@ public class GoalServiceImpl implements GoalService {
     }
 
     private void validateSkillsExistence(List<Long> skillIds) {
-        if (skillRepository.countExisting(skillIds) != skillIds.size()) {
+        if (skillIds != null && skillRepository.countExisting(skillIds) != skillIds.size()) {
             log.info("Couldn't find some skills by ids '{}'", skillIds);
             throw new EntityNotFoundException("Skills with some ids not found");
         }
@@ -130,9 +130,13 @@ public class GoalServiceImpl implements GoalService {
         );
     }
 
-    private void filterGoals(Stream<Goal> goals, GoalFilterDto filters) {
-        goalFilters.stream()
+    private Stream<Goal> filterGoals(Stream<Goal> goals, GoalFilterDto filters) {
+         return goalFilters.stream()
                 .filter(goalFilter -> goalFilter.isApplicable(filters))
-                .forEach(filter -> filter.apply(goals, filters));
+                .reduce(
+                        goals,
+                        (currentStream, goalFilter) -> goalFilter.apply(currentStream, filters),
+                        (stream1, stream2) -> stream2
+                );
     }
 }
