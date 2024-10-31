@@ -62,5 +62,5 @@ public class EventDto {
     private String location;
 
     @Min(1)
-    private Integer maxAttendees = Integer.MAX_VALUE;
+    private Integer maxAttendees;
 }
