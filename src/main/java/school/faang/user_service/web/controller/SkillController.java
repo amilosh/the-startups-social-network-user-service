@@ -1,13 +1,20 @@
 package school.faang.user_service.web.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.web.dto.skill.SkillDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SkillServiceImpl;
+import school.faang.user_service.web.dto.skill.SkillCandidateDto;
+import school.faang.user_service.web.dto.skill.SkillDto;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/skills")
@@ -17,9 +24,47 @@ public class SkillController {
     private final SkillServiceImpl skillService;
 
     @PostMapping("/create")
-    public SkillDto create(@RequestBody SkillDto skill) {
+    public ResponseEntity<SkillDto> create(
+            @RequestBody SkillDto skill
+    ) {
         validateSkill(skill);
-        return skillService.create(skill);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(
+                        skillService.create(skill)
+                );
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<SkillDto>> getUserSkills(
+            @PathVariable Long userId
+    ) {
+        return ResponseEntity.ok(
+                skillService
+                        .getUserSkills(userId)
+                        .orElseGet(List::of)
+        );
+    }
+
+    @GetMapping("/user/{userId}/offered-skills")
+    public ResponseEntity<List<SkillCandidateDto>> getOfferedSkills(
+            @PathVariable Long userId
+    ) {
+        return ResponseEntity.ok(
+                skillService
+                        .getOfferedSkills(userId)
+                        .orElseGet(List::of)
+        );
+    }
+
+    @PostMapping("/user/{userId}/acquire-skill/{skillId}")
+    public ResponseEntity<SkillDto> acquireSkillFromOffers(
+            @PathVariable Long skillId,
+            @PathVariable Long userId
+    ) {
+        return ResponseEntity.ok(
+                skillService
+                        .acquireSkillFromOffers(skillId, userId));
     }
 
     private void validateSkill(SkillDto skill) {
