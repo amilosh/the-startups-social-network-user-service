@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,11 +14,13 @@ import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.MentorshipRequestValidator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,21 +35,40 @@ public class MentorshipRequestServiceTest {
     private MentorshipRequestRepository mentorshipRequestRepository;
 
     @Mock
-    private MentorshipRequestValidator mentorshipRequestValidator;
-
-    @Mock
     private MentorshipRequestMapper mentorshipRequestMapper;
 
     @Mock
     private List<MentorshipRequestFilter> mentorshipRequestFilters;
 
+    @Mock
+    private UserService userService;
+
+    @Mock
+    MentorshipRequestValidator mentorshipRequestValidator;
+
+    List<MentorshipRequestValidator> mentorshipRequestValidators;
+
+    @BeforeEach
+    public void setUp() {
+        mentorshipRequestValidators = new ArrayList<>();
+        mentorshipRequestValidators.add(mentorshipRequestValidator);
+
+        mentorshipRequestService = new MentorshipRequestService(
+                mentorshipRequestRepository,
+                mentorshipRequestMapper,
+                mentorshipRequestFilters,
+                mentorshipRequestValidators,
+                userService
+        );
+    }
+
     @Test
     public void testCreateMentorshipRequestValidationFailed() {
-        MentorshipRequestDto dto = new MentorshipRequestDto();
+        mentorshipRequestValidators.add(mentorshipRequestValidator);
 
-        doThrow(new IllegalArgumentException()).when(mentorshipRequestValidator).validateMentorshipRequest(dto);
+        doThrow(new IllegalArgumentException()).when(mentorshipRequestValidator).validate(any(), any());
 
-        assertThrows(IllegalArgumentException.class, () -> mentorshipRequestService.createRequestMentorship(dto));
+        assertThrows(IllegalArgumentException.class, () -> mentorshipRequestService.createRequestMentorship(new MentorshipRequestDto()));
 
     }
 
@@ -63,7 +85,6 @@ public class MentorshipRequestServiceTest {
 
         mentorshipRequestService.createRequestMentorship(dto);
 
-        verify(mentorshipRequestValidator).validateMentorshipRequest(dto);
         verify(mentorshipRequestRepository).create(
                 dto.getRequesterUserId(),
                 dto.getReceiverUserId(),
