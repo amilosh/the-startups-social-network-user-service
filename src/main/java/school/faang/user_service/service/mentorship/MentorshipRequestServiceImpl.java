@@ -9,6 +9,7 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
+import school.faang.user_service.service.mentorship.filter.RequestFilter;
 import school.faang.user_service.validation.mentorship.MentorshipRequestDtoValidator;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     private final UserRepository userRepository;
     private final MentorshipRequestDtoValidator requestValidator;
     private final MentorshipRequestMapper requestMapper;
+    private final List<RequestFilter> requestFilters;
 
     @Override
     public MentorshipRequestDto requestMentorship(MentorshipRequestDto creationRequestDto) {
@@ -45,7 +47,22 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     }
 
     @Override
-    public List<MentorshipRequestDto> getRequests(RequestFilterDto filter) {
+    public List<MentorshipRequestDto> getRequests(RequestFilterDto filterDto) {
+        log.info("A request has been received to retrieve mentorship requests with the provided filter."); // Изменено на "provided filter" для большей ясности.
 
+        List<MentorshipRequestDto> filteredRequestsDtos =
+                requestMapper.toDtoList(
+                        requestFilters.stream()
+                                .filter(requestFilter -> requestFilter.isApplicable(filterDto))
+                                .reduce(
+                                        mentorshipRequestRepository.findAll().stream(),
+                                        (requestsStream, requestFilter) -> requestFilter.apply(requestsStream, filterDto),
+                                        (s1, s2) -> s1
+                                )
+                                .toList()
+                );
+
+        log.info("Requests matching the given filters have been successfully found! Total requests: {}", filteredRequestsDtos.size()); // Изменено на "matching" и "found" для большей ясности.
+        return filteredRequestsDtos;
     }
 }
