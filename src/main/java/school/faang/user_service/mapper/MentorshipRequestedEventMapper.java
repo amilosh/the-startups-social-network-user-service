@@ -8,8 +8,6 @@ import school.faang.user_service.entity.MentorshipRequest;
 @Mapper(componentModel = "spring")
 public interface MentorshipRequestedEventMapper {
 
-    @Mapping(source = "requesterId", target = "requesterId")
-    @Mapping(source = "receiverId", target = "receiverId")
     @Mapping(target = "requestedAt", expression = "java(java.time.LocalDateTime.now())")
     MentorshipRequestedEventDto toMentorshipRequestedEventDto(MentorshipRequest requestDto);
 }
