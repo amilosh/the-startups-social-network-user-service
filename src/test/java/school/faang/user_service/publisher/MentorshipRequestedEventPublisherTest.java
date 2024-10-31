@@ -59,7 +59,8 @@ public class MentorshipRequestedEventPublisherTest {
                 .when(mentorshipRequestedEventRedisTemplate)
                 .convertAndSend("mentorship_requested_channel", event);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> mentorshipRequestedEventPublisher.publish(event));
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> mentorshipRequestedEventPublisher.publish(event));
         assertEquals("Redis error", exception.getCause().getMessage());
     }
 
