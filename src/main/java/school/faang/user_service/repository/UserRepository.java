@@ -25,4 +25,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
             WHERE up.end_date > NOW()
             """)
     Stream<User> findPremiumUsers();
+
+    @Query(nativeQuery = true, value = """
+            SELECT u.* FROM users u
+            WHERE u.id = ?1
+            """)
+    User getUserById(long userId);
 }
