@@ -9,7 +9,8 @@ import school.faang.user_service.entity.goal.GoalStatus;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class GoalMapperTest {
 
@@ -78,7 +79,7 @@ public class GoalMapperTest {
         mapper.updateEntity(goal, goalDto);
 
         assertEquals(goalDto.getDescription(), goal.getDescription());
-        assertNotNull(goalDto.getId());
+        assertNotNull(goal.getId());
     }
 
     @Test

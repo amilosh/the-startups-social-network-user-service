@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -13,7 +12,7 @@ public class GoalTitleFilter implements GoalFilter {
 
     @Override
     public boolean isApplicable(GoalFilterDto filter) {
-        return filter != null && filter.getTitlePattern() != null;
+        return filter != null && filter.getTitlePattern() != null && !filter.getTitlePattern().isBlank();
     }
 
     @Override
