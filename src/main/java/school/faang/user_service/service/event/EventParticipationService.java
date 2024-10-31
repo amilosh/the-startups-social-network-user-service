@@ -3,7 +3,6 @@ package school.faang.user_service.service.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.ParticipantRegistrationException;
@@ -19,7 +18,6 @@ public class EventParticipationService {
     private final EventParticipationRepository repository;
     private final UserDTOMapper mapper;
 
-    @Transactional
     public void register(Long eventId, Long userId){
         validateIdsNotNull(eventId, userId);
 
@@ -33,7 +31,6 @@ public class EventParticipationService {
         repository.register(eventId, userId);
     }
 
-    @Transactional
     public void unregister(Long eventId, Long userId){
         validateIdsNotNull(eventId, userId);
 
@@ -47,7 +44,6 @@ public class EventParticipationService {
         repository.unregister(eventId, userId);
     }
 
-    @Transactional(readOnly = true)
     public List<UserDTO> findAllParticipantsByEventId(Long eventId){
         if (eventId == null || eventId == 0) {
             throw new IllegalArgumentException("Event id can't be zero.");
@@ -57,7 +53,7 @@ public class EventParticipationService {
 
         return mapper.toDTO(users);
     }
-    @Transactional(readOnly = true)
+
     public int countParticipants(Long eventId){
         if (eventId == null || eventId == 0) {
             throw new IllegalArgumentException("Event id can't be zero.");
