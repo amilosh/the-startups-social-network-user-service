@@ -46,11 +46,16 @@ public class MentorshipServiceTest {
 
     @BeforeEach
     void initData() {
+        User userForSimpleUser = User.builder()
+                .id(CORRECT_ID_2)
+                .build();
         simpleUser = User.builder()
                 .id(SIMPLE_ID)
                 .username("Roma")
                 .email("roma@mail.ru")
                 .city("London")
+                .mentees(new ArrayList<>(Collections.singletonList(userForSimpleUser)))
+                .mentors(new ArrayList<>(Collections.singletonList(userForSimpleUser)))
                 .build();
         userWithEmptyListOfMenteesAndMentors = User.builder()
                 .id(CORRECT_ID_1)
@@ -151,9 +156,9 @@ public class MentorshipServiceTest {
         when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
         when(repository.findById(SIMPLE_ID)).thenReturn(Optional.ofNullable(simpleUser));
 
-        service.deleteMentor(CORRECT_ID_2, SIMPLE_ID);
-        List<User> realList = userWithMenteesAndMentors.getMentors();
-        List<User> expectedList = new ArrayList<>(Collections.singletonList(userWithEmptyListOfMenteesAndMentors));
+        service.deleteMentor(SIMPLE_ID, CORRECT_ID_2);
+        List<User> realList = simpleUser.getMentors();
+        List<User> expectedList = new ArrayList<>();
 
         verify(repository).findById(CORRECT_ID_2);
         verify(repository).findById(SIMPLE_ID);
@@ -170,5 +175,13 @@ public class MentorshipServiceTest {
 
         verify(repository, times(2)).findById(CORRECT_ID_2);
         assertEquals(expectedList, realList);
+    }
+
+    @Test
+    public void testDeleteMenteeWithNotExistingByMenteeMentor() {
+        when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
+        when(repository.findById(CORRECT_ID_1)).thenReturn(Optional.ofNullable(userWithEmptyListOfMenteesAndMentors));
+
+        assertThrows(EntityNotFoundException.class, () -> service.deleteMentee(CORRECT_ID_1, CORRECT_ID_2));
     }
 }
