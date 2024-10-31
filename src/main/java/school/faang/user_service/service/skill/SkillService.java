@@ -23,11 +23,10 @@ public class SkillService {
     }
 
     /**
-     * Gets a skill by id.
+     * Retrieve a skill by its ID.
      *
-     * @param skillId the id of the skill
-     * @return the skill with the given id
-     * @throws javax.persistence.EntityNotFoundException if no skill with the given id exists
+     * @param skillId the id of the skill to retrieve
+     * @return the skill associated with the given id
      */
     public Skill getSkillById(Long skillId) {
         return skillRepository.getReferenceById(skillId);
