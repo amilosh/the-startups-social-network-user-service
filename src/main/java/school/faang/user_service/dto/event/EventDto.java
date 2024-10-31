@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Component
-//@Builder
+@Builder
 public record EventDto(
         Long id,
         @NotBlank String title,
