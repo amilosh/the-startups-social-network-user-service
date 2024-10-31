@@ -6,8 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.dto.recommendation.SkillOfferDto;
+import school.faang.user_service.dto.recommendation.RequestRecommendationDto;
+import school.faang.user_service.dto.recommendation.RequestSkillOfferDto;
+import school.faang.user_service.dto.recommendation.ResponseRecommendationDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
@@ -34,41 +35,41 @@ public class RecommendationService {
     private final RecommendationDtoValidator recommendationDtoValidator;
 
     @Transactional
-    public RecommendationDto create(RecommendationDto recommendationDto) {
+    public ResponseRecommendationDto create(RequestRecommendationDto requestRecommendationDto) {
         log.info("Creating a recommendation from user with id {} for user with id {}",
-                recommendationDto.getAuthorId(), recommendationDto.getReceiverId());
+                requestRecommendationDto.getAuthorId(), requestRecommendationDto.getReceiverId());
 
-        recommendationDtoValidator.validateRecommendation(recommendationDto);
+        recommendationDtoValidator.validateRecommendation(requestRecommendationDto);
 
         Long recommendationId = recommendationRepository.create(
-                recommendationDto.getAuthorId(),
-                recommendationDto.getReceiverId(),
-                recommendationDto.getContent());
+                requestRecommendationDto.getAuthorId(),
+                requestRecommendationDto.getReceiverId(),
+                requestRecommendationDto.getContent());
 
-        recommendationDto.setId(recommendationId);
-        addSkillOffersAndGuarantee(recommendationDto);
+        requestRecommendationDto.setId(recommendationId);
+        addSkillOffersAndGuarantee(requestRecommendationDto);
         log.info("Recommendation with id {} successfully saved", recommendationId);
 
-        return recommendationMapper.toDto(getRecommendation(recommendationDto.getId()));
+        return recommendationMapper.toDto(getRecommendation(requestRecommendationDto.getId()));
     }
 
     @Transactional
-    public RecommendationDto update(Long id, RecommendationDto recommendationDto) {
+    public ResponseRecommendationDto update(Long id, RequestRecommendationDto requestRecommendationDto) {
         log.info("Updating recommendation with id {}", id);
 
-        recommendationDto.setId(id);
-        recommendationDtoValidator.validateRecommendation(recommendationDto);
+        requestRecommendationDto.setId(id);
+        recommendationDtoValidator.validateRecommendation(requestRecommendationDto);
 
         recommendationRepository.update(
-                recommendationDto.getAuthorId(),
-                recommendationDto.getReceiverId(),
-                recommendationDto.getContent());
+                requestRecommendationDto.getAuthorId(),
+                requestRecommendationDto.getReceiverId(),
+                requestRecommendationDto.getContent());
 
-        skillOfferRepository.deleteAllByRecommendationId(recommendationDto.getId());
-        addSkillOffersAndGuarantee(recommendationDto);
+        skillOfferRepository.deleteAllByRecommendationId(requestRecommendationDto.getId());
+        addSkillOffersAndGuarantee(requestRecommendationDto);
         log.info("Recommendation with id {} successfully updated", id);
 
-        return recommendationMapper.toDto(getRecommendation(recommendationDto.getId()));
+        return recommendationMapper.toDto(getRecommendation(requestRecommendationDto.getId()));
     }
 
     @Transactional
@@ -78,14 +79,14 @@ public class RecommendationService {
         log.info("Recommendation with id {} successfully deleted", id);
     }
 
-    public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
+    public List<ResponseRecommendationDto> getAllUserRecommendations(long receiverId) {
         log.info("Getting all recommendations for user with id {}", receiverId);
         Page<Recommendation> recommendations = recommendationRepository.findAllByReceiverId(receiverId, Pageable.unpaged());
         log.debug("Found {} recommendations for user with id {}", recommendations.getTotalElements(), receiverId);
         return recommendationMapper.toDtoList(recommendations.getContent());
     }
 
-    public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
+    public List<ResponseRecommendationDto> getAllGivenRecommendations(long authorId) {
         log.info("Getting all recommendations created by user with id {}", authorId);
         Page<Recommendation> recommendations = recommendationRepository.findAllByAuthorId(authorId, Pageable.unpaged());
         log.debug("User with id {} created {} recommendations", authorId, recommendations.getTotalElements());
@@ -101,43 +102,45 @@ public class RecommendationService {
                 });
     }
 
-    private void addSkillOffersAndGuarantee(RecommendationDto recommendationDto) {
-        List<SkillOfferDto> skillOfferDtoList = recommendationDto.getSkillOffers();
-        if (skillOfferDtoList == null || skillOfferDtoList.isEmpty()) {
+    private void addSkillOffersAndGuarantee(RequestRecommendationDto requestRecommendationDto) {
+        List<RequestSkillOfferDto> requestSkillOfferDtoList = requestRecommendationDto.getSkillOffers();
+        if (requestSkillOfferDtoList == null || requestSkillOfferDtoList.isEmpty()) {
+            log.debug("No skill offers to process for recommendation with id {}", requestRecommendationDto.getId());
             return;
         }
 
-        for (SkillOfferDto skillOfferDto : skillOfferDtoList) {
-            skillOfferRepository.create(skillOfferDto.getSkillId(), recommendationDto.getId());
-            skillRepository.findUserSkill(skillOfferDto.getSkillId(), recommendationDto.getReceiverId())
+        for (RequestSkillOfferDto requestSkillOfferDto : requestSkillOfferDtoList) {
+            skillOfferRepository.create(requestSkillOfferDto.getSkillId(), requestRecommendationDto.getId());
+            skillRepository.findUserSkill(requestSkillOfferDto.getSkillId(), requestRecommendationDto.getReceiverId())
                     .ifPresent(skill -> {
-                        if (!isAuthorAlreadyGuarantor(recommendationDto, skill)) {
-                            addGuaranteeToSkill(recommendationDto, skill);
+                        if (!isAuthorAlreadyGuarantor(requestRecommendationDto, skill)) {
+                            addGuaranteeToSkill(requestRecommendationDto, skill);
+                            log.debug("Added guarantee for skill '{}' to user '{}'", skill.getTitle(), requestRecommendationDto.getReceiverId());
                         }
                     });
         }
     }
 
-    private boolean isAuthorAlreadyGuarantor(RecommendationDto recommendationDto, Skill skill) {
+    private boolean isAuthorAlreadyGuarantor(RequestRecommendationDto requestRecommendationDto, Skill skill) {
         return skill.getGuarantees().stream()
                 .map(UserSkillGuarantee::getGuarantor)
                 .map(User::getId)
-                .anyMatch(recommendationDto.getAuthorId()::equals);
+                .anyMatch(requestRecommendationDto.getAuthorId()::equals);
     }
 
-    private void addGuaranteeToSkill(RecommendationDto recommendationDto, Skill skill) {
-        User receiver = userRepository.findById(recommendationDto.getReceiverId())
+    private void addGuaranteeToSkill(RequestRecommendationDto requestRecommendationDto, Skill skill) {
+        User receiver = userRepository.findById(requestRecommendationDto.getReceiverId())
                 .orElseThrow(() -> {
-                    log.error("Receiver with id {} not found", recommendationDto.getReceiverId());
+                    log.error("Receiver with id {} not found", requestRecommendationDto.getReceiverId());
                     return new NoSuchElementException(String.format("There isn't receiver with id = %d",
-                            recommendationDto.getReceiverId()));
+                            requestRecommendationDto.getReceiverId()));
                 });
 
-        User author = userRepository.findById(recommendationDto.getAuthorId())
+        User author = userRepository.findById(requestRecommendationDto.getAuthorId())
                 .orElseThrow(() -> {
-                    log.error("Author with id {} not found", recommendationDto.getAuthorId());
+                    log.error("Author with id {} not found", requestRecommendationDto.getAuthorId());
                     return new NoSuchElementException(String.format("There isn't author of recommendation with id = %d",
-                            recommendationDto.getAuthorId()));
+                            requestRecommendationDto.getAuthorId()));
                 });
 
         UserSkillGuarantee guarantee = UserSkillGuarantee.builder()
