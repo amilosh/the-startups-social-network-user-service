@@ -10,7 +10,7 @@ import java.util.List;
 public class UserDto {
     private Long id;
     private String username;
-    private List<Long> menteeId;
-    private List<Long> mentorId;
-    private List<Long> skillId;
+    private List<Long> menteesId;
+    private List<Long> mentorsId;
+    private List<Long> skillsId;
 }
