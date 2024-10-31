@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class SkillOfferDto {
-    private long id;
+public class UserDto {
+    private Long id;
     private List<Long> skillsId;
 }

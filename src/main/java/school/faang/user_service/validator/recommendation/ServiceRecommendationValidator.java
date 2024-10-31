@@ -3,8 +3,10 @@ package school.faang.user_service.validator.recommendation;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.SkillOfferDto;
+import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exeption.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
@@ -34,11 +36,27 @@ public class ServiceRecommendationValidator {
         }
     }
 
-    public void checkingTheSkillsOfRecommendation(List<SkillOffer> skills) {
-        skills.forEach(skillOffer -> {
-            if (!skillRepository.existsByTitle(skillOffer.getSkill().getTitle())) {
-                throw new DataValidationException("These skills do not correspond to the system ones");
+    public void checkingTheSkillsOfRecommendation(List<SkillOfferDto> skills) {
+        skills.stream()
+                .forEach(skillOfferDto -> {
+                    int skillsAvailableInDB = skillRepository.countExisting(skillOfferDto.getSkillsId());
+                    if (skillsAvailableInDB != skillOfferDto.getSkillsId().size()) {
+                        throw new DataValidationException("These skills do not meet the conditions");
+                    }
+                });
+    }
+
+    public void checkingTheUserSkills(RecommendationDto recommendationDto, List<Long> skills) {
+        Long receiverId = recommendationDto.getReceiverId();
+        Long authorId = recommendationDto.getAuthorId();
+        skills.forEach(skillId -> {
+            Optional<Skill> skill = skillRepository.findUserSkill(skillId, receiverId);
+            if (skill.isEmpty()) {
+                skillRepository.assignSkillToUser(skillId, receiverId);
+            } else {
+                if ()
             }
         });
+
     }
 }
