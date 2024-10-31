@@ -28,7 +28,7 @@ public class SubscriptionController {
     public ResponseEntity<String> followUser(@RequestParam Long followerId, @RequestParam Long followeeId) {
         log.info("Попытка подписки пользователя. followerId={}, followeeId={}", followerId, followeeId);
 
-        if (followerId == null || followeeId == null) {
+        if (validateUserIds(followerId, followeeId)) {
             return ResponseEntity.badRequest().body("ID подписчика и ID пользователя, на которого подписываются, не должны быть null.");
         }
 
@@ -52,9 +52,9 @@ public class SubscriptionController {
         }
     }
 
-    @PostMapping("/unfollow")
+    @DeleteMapping("/unfollow")
     public ResponseEntity<String> unfollowUser(@RequestParam Long followerId, @RequestParam Long followeeId) {
-        if (followerId == null || followeeId == null) {
+        if (validateUserIds(followerId, followeeId)) {
             return ResponseEntity.badRequest().body("ID подписчика и ID пользователя, от которого отписываются, не должны быть null.");
         }
 
@@ -73,7 +73,7 @@ public class SubscriptionController {
 
     @GetMapping("/followers")
     public ResponseEntity<List<UserDTO>> getFollowers(
-        @RequestParam Long userId,
+        @RequestParam(required = false) Long userId,
         @RequestBody(required = false) UserFilterDTO filter) {
 
         if (userId == null) {
@@ -89,20 +89,12 @@ public class SubscriptionController {
         return ResponseEntity.ok(followers);
     }
 
+    private boolean validateUserIds(Long followerId, Long followeeId) {
+        return followerId != null && followeeId != null && followerId.equals(followeeId);
+    }
+
     private boolean isValidFilter(UserFilterDTO filter) {
         return filter.getExperienceMin() == null || filter.getExperienceMax() == null ||
             filter.getExperienceMin() <= filter.getExperienceMax();
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
-        log.warn("Произошло исключение IllegalArgumentException: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(DataAccessException.class)
-    public ResponseEntity<String> handleDataAccessException(DataAccessException ex) {
-        log.error("Ошибка доступа к базе данных: ", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Произошла ошибка базы данных.");
     }
 }
