@@ -27,11 +27,16 @@ public class SkillService {
         return skillMapper.toDto(skill);
     }
 
+    public boolean validateSkillExists(Long skillId) {
+        return skillRepository.existsById(skillId);
+    }
+
     public List<SkillDto> getUserSkills(Long userId) {
         List<Skill> skills = skillRepository.findAllByUserId(userId);
 
         return skillMapper.toDto(skills);
     }
+
 
     public SkillCandidateDto getOfferedSkills(SkillCandidateDto skillCandidateDto) {
         Skill skill = skillMapper.toEntity(skillCandidateDto.getSkill());
