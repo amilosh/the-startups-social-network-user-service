@@ -11,7 +11,7 @@ public class UserValidator {
 
     private final UserRepository userRepository;
 
-    public void loadUser(long userId) {
+    public void userAlreadyExists(long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new DataValidationException("Такого пользователя в БД не существует"));
     }

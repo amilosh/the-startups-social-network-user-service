@@ -28,7 +28,7 @@ public class UserValidatorTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(DataValidationException.class, () -> userValidator.loadUser(userId));
+        assertThrows(DataValidationException.class, () -> userValidator.userAlreadyExists(userId));
     }
 
 }

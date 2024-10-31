@@ -44,7 +44,7 @@ public class SkillService {
     }
 
     public List<SkillDto> getUserSkills(long userId) {
-        userValidator.loadUser(userId);
+        userValidator.userAlreadyExists(userId);
 
         List<Skill> skills = skillRepository.findAllByUserId(userId);
         log.info("У пользователя {} было найдено {} навыков", userId, skills.size());
@@ -52,7 +52,7 @@ public class SkillService {
     }
 
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
-        userValidator.loadUser(userId);
+        userValidator.userAlreadyExists(userId);
 
         List<SkillDto> skills = skillMapper.toDtoList(skillRepository.findSkillsOfferedToUser(userId));
 
@@ -61,7 +61,7 @@ public class SkillService {
     }
 
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
-        userValidator.loadUser(userId);
+        userValidator.userAlreadyExists(userId);
         Skill skill = skillValidator.skillAlreadyExists(skillId);
 
         Optional<Skill> skillOptional = skillRepository.findUserSkill(skillId, userId);
