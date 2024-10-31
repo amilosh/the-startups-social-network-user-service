@@ -21,27 +21,27 @@ public class GoalController {
 
     @PostMapping("/users/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public GoalDto createGoal(@PathVariable("userId") @Positive long userId,
+    public GoalDto createGoal(@PathVariable("userId") @Positive Long userId,
                               @RequestBody @Valid GoalDto goalDto) {
         return goalService.createGoal(userId, goalDto);
     }
 
     @PatchMapping("/{goalId}")
     @ResponseStatus(HttpStatus.OK)
-    public GoalDto updateGoal(@PathVariable("goalId") @Positive long goalId,
+    public GoalDto updateGoal(@PathVariable("goalId") @Positive Long goalId,
                               @RequestBody @Valid GoalDto goal) {
         return goalService.updateGoal(goalId, goal);
     }
 
     @DeleteMapping("/{goalId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteGoal(@PathVariable("goalId") @Positive long goalId) {
+    public void deleteGoal(@PathVariable("goalId") @Positive Long goalId) {
         goalService.deleteGoal(goalId);
     }
 
     @GetMapping("/{goalId}/subtasks")
     @ResponseStatus(HttpStatus.OK)
-    public List<GoalDto> findSubtasksByGoalId(@PathVariable("goalId") @Positive long goalId,
+    public List<GoalDto> findSubtasksByGoalId(@PathVariable("goalId") @Positive Long goalId,
                                               @RequestParam(value = "filterTitle", required = false) String filterTitle,
                                               @RequestParam(value = "filterDescription", required = false) String filterDescription,
                                               @RequestParam(value = "filterStatus", required = false) GoalStatus filterStatus,
@@ -53,7 +53,7 @@ public class GoalController {
 
     @GetMapping("/users/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<GoalDto> getGoalsByUser(@PathVariable("userId") @Positive long userId,
+    public List<GoalDto> getGoalsByUser(@PathVariable("userId") @Positive Long userId,
                                         @RequestParam(value = "filterTitle", required = false) String filterTitle,
                                         @RequestParam(value = "filterDescription", required = false) String filterDescription,
                                         @RequestParam(value = "filterStatus", required = false) GoalStatus filterStatus,
