@@ -1,8 +1,7 @@
-package school.faang.user_service.publisher;
+package school.faang.user_service.producer;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -25,7 +24,7 @@ public class ProfileViewEventPublisherTest {
     private ChannelTopic channelTopic;
 
     @InjectMocks
-    private ProfileViewEventPublisherImpl profileViewEventPublisher;
+    private ProfileViewEventPublisher profileViewEventPublisher;
 
 
     @BeforeEach

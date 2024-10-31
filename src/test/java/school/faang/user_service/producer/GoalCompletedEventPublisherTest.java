@@ -1,4 +1,4 @@
-package school.faang.user_service.publisher;
+package school.faang.user_service.producer;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,12 +8,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
-import school.faang.user_service.model.event.FollowerEvent;
+import school.faang.user_service.model.event.GoalCompletedEvent;
 
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class FollowerEventPublisherTest {
+class GoalCompletedEventPublisherTest {
 
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
@@ -22,16 +22,13 @@ class FollowerEventPublisherTest {
     private ChannelTopic channelTopic;
 
     @InjectMocks
-    private FollowerEventPublisher followerEventPublisher;
+    private GoalCompletedEventPublisher goalCompletedEventPublisher;
 
     @Test
     @DisplayName("Send Event Test")
-    void testSendEvent() {
-        // given
-        var followerEvent = FollowerEvent.builder().build();
-        // when
-        followerEventPublisher.publish(followerEvent);
-        // then
-        verify(redisTemplate).convertAndSend(channelTopic.getTopic(), followerEvent);
+    void  publish_isOk() {
+        var goalCompletedEvent = GoalCompletedEvent.builder().build();
+        goalCompletedEventPublisher.publish(goalCompletedEvent);
+        verify(redisTemplate).convertAndSend(channelTopic.getTopic(), goalCompletedEvent);
     }
 }
