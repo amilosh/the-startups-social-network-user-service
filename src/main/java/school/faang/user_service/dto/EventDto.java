@@ -1,4 +1,4 @@
-package school.faang.user_service.dto.event;
+package school.faang.user_service.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,9 +1,9 @@
-package school.faang.user_service.service.event;
+package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
@@ -31,6 +31,7 @@ public class EventService {
         validateUserSkillsForEvent(userOwner, eventDto);
 
         Event event = eventMapper.toEntity(eventDto);
+
         event.setOwner(userOwner);
         event.setRelatedSkills(eventDto.relatedSkills().stream()
                 .map(relatedSkill -> skillMapper.toEntity(relatedSkill))
@@ -48,6 +49,7 @@ public class EventService {
                 .toList();
 
         log.debug("Checking if user has required skills: {}", relatedSkills);
+
         if (!userHasSkills(userOwner, relatedSkills)) {
             log.error("User {} doesn't have required skills to create event", userOwner.getId());
             throw new DataValidationException("User don't have required skills to create event");
