@@ -13,5 +13,5 @@ public interface MentorshipRequestService {
 
     MentorshipRequestDto acceptRequest(Long id);
 
-    MentorshipRequestDto rejectRequest(long id, RejectionDto rejection);
+    MentorshipRequestDto rejectRequest(Long id, RejectionDto rejection);
 }
