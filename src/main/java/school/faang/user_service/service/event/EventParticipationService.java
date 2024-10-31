@@ -45,7 +45,7 @@ public class EventParticipationService {
     }
 
     public List<UserDTO> findAllParticipantsByEventId(Long eventId){
-        if (eventId == null || eventId == 0) {
+        if (eventId == null) {
             throw new IllegalArgumentException("Event id can't be zero.");
         }
 
@@ -55,7 +55,7 @@ public class EventParticipationService {
     }
 
     public int countParticipants(Long eventId){
-        if (eventId == null || eventId == 0) {
+        if (eventId == null) {
             throw new IllegalArgumentException("Event id can't be zero.");
         }
 
@@ -63,11 +63,11 @@ public class EventParticipationService {
     }
 
     private void validateIdsNotNull(Long eventId, Long userId) {
-        if (eventId == null || eventId == 0) {
+        if (eventId == null) {
             log.error("Event ID is null");
             throw new IllegalArgumentException("Event ID must not be null");
         }
-        if (userId == null || userId == 0) {
+        if (userId == null) {
             log.error("User ID is null");
             throw new IllegalArgumentException("User ID must not be null");
         }
