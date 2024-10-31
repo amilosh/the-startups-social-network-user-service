@@ -78,22 +78,22 @@ public class SubscriptionService {
 
     public List<UserDTO> filterUsers(List<User> users, UserFilterDTO filter) {
         log.info("Применение фильтров к пользователям. Количество пользователей: {}", users.size());
-        List<UserFilter> filters = new ArrayList<>();
-        if (filter.getNamePattern() != null) {
-            filters.add(new NameFilter(filter.getNamePattern()));
-            log.info("Фильтр по имени с паттерном: {}", filter.getNamePattern());
-        }
-        if (filter.getExperienceMin() != null || filter.getExperienceMax() != null) {
-            filters.add(new ExperienceFilter(filter.getExperienceMin(), filter.getExperienceMax()));
-            log.info("Фильтр по опыту: min={}, max={}", filter.getExperienceMin(), filter.getExperienceMax());
-        }
 
-        List<UserDTO> filteredUsers = users.stream()
-            .filter(user -> filters.stream().allMatch(f -> f.filter(user)))
+        return users.stream()
+            .filter(user -> {
+                boolean matches = true;
+                if (filter.getNamePattern() != null) {
+                    matches = matches && new NameFilter(filter.getNamePattern()).filter(user);
+                    log.info("Фильтр по имени с паттерном: {}", filter.getNamePattern());
+                }
+                if (filter.getExperienceMin() != null || filter.getExperienceMax() != null) {
+                    matches = matches && new ExperienceFilter(filter.getExperienceMin(), filter.getExperienceMax()).filter(user);
+                    log.info("Фильтр по опыту: min={}, max={}", filter.getExperienceMin(), filter.getExperienceMax());
+                }
+                return matches;
+            })
             .map(user -> new UserDTO(user.getId(), user.getUsername(), user.getEmail()))
+            .peek(filteredUser -> log.info("Добавлен пользователь: {}", filteredUser.getUsername()))
             .collect(Collectors.toList());
-
-        log.info("Найдено {} пользователей после применения фильтров.", filteredUsers.size());
-        return filteredUsers;
     }
 }
