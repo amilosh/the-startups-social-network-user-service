@@ -41,6 +41,8 @@ spring:
           name: project_channel
         mentorshipStartEvent:
           name: mentorship_start_event_channel
+        goalSetChannel:
+          name: goal_set_channel
 
 servlet:
   multipart:
