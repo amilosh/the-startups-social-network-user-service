@@ -1,4 +1,4 @@
-package school.faang.user_service.validation;
+package school.faang.user_service.validation.recommendation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +18,7 @@ import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.service.SkillService;
+import school.faang.user_service.validation.skill.SkillValidation;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,7 +32,7 @@ class RecommendationValidatorTest {
     private SkillOfferRepository skillOfferRepository;
 
     @Mock
-    private SkillService skillService;
+    private SkillValidation skillValidation;
 
     @Spy
     private RecommendationMapperImpl recommendationMapper;
@@ -116,7 +116,7 @@ class RecommendationValidatorTest {
 
     @Test
     void testSkillNotExists() {
-        Mockito.when(skillService.validateSkillExists(Mockito.anyLong())).thenReturn(false);
+        Mockito.when(skillValidation.validateSkillExists(Mockito.anyLong())).thenReturn(false);
 
         assertThrows(DataValidationException.class, () -> recommendationValidator.validateSkillExists(dto));
     }

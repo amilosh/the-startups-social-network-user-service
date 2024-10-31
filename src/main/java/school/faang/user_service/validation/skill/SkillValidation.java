@@ -16,4 +16,8 @@ public class SkillValidation {
             throw new SkillDuplicateException("Такой навык уже существует");
         }
     }
+
+    public boolean validateSkillExists(Long skillId) {
+        return skillRepository.existsById(skillId);
+    }
 }

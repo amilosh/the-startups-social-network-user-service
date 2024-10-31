@@ -1,4 +1,4 @@
-package school.faang.user_service.validation;
+package school.faang.user_service.validation.recommendation;
 
 import lombok.Data;
 import org.springframework.stereotype.Component;
@@ -8,6 +8,7 @@ import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.service.SkillService;
+import school.faang.user_service.validation.skill.SkillValidation;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import java.util.List;
 public class RecommendationValidator {
     private final SkillOfferRepository skillOfferRepository;
     private final SkillService skillService;
+    private final SkillValidation skillValidation;
 
 
     public void validateDto(RecommendationDto recommendationDto) {
@@ -59,7 +61,7 @@ public class RecommendationValidator {
 
     public void validateSkillExists(RecommendationDto recommendationDto) {
         recommendationDto.getSkillOffers().forEach(skillOffer -> {
-            if (!skillService.validateSkillExists(skillOffer.getSkillId())) {
+            if (!skillValidation.validateSkillExists(skillOffer.getSkillId())) {
                 throw new DataValidationException("Skill doesn't exist " + skillOffer.getSkillId());
             }
         });

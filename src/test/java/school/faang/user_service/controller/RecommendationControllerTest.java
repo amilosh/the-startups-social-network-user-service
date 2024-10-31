@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.dto.SkillOfferDto;
 import school.faang.user_service.service.RecommendationService;
-import school.faang.user_service.validation.RecommendationValidator;
+import school.faang.user_service.validation.recommendation.RecommendationValidator;
 
 import java.util.List;
 

@@ -11,10 +11,9 @@ import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.dto.SkillOfferDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
-import school.faang.user_service.mapper.SkillOfferMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.validation.RecommendationValidator;
+import school.faang.user_service.validation.recommendation.RecommendationValidator;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,16 +31,10 @@ class RecommendationServiceTest {
     SkillOfferRepository skillOfferRepository;
 
     @Mock
-    SkillService skillService;
-
-    @Mock
     RecommendationValidator recommendationValidator;
 
     @Spy
     RecommendationMapperImpl recommendationMapper;
-
-    @Spy
-    SkillOfferMapperImpl skillOfferMapper;
 
     @InjectMocks
     RecommendationService recommendationService;

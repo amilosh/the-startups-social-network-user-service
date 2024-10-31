@@ -9,10 +9,9 @@ import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.mapper.RecommendationMapper;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.validation.RecommendationValidator;
+import school.faang.user_service.validation.recommendation.RecommendationValidator;
 
 import java.util.List;
 
@@ -23,7 +22,7 @@ public class RecommendationService {
     private final SkillOfferRepository skillOfferRepository;
     private final RecommendationMapper recommendationMapper;
     private final RecommendationValidator recommendationValidator;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     public RecommendationDto create(RecommendationDto recommendationDto) {
         recommendationValidator.validateTimeAfterLastRecommendation(recommendationDto);
@@ -60,9 +59,9 @@ public class RecommendationService {
 
         skillsToGuarantee.forEach(skill -> {
             UserSkillGuarantee userSkillGuarantee = UserSkillGuarantee.builder()
-                    .user(userRepository.findById(dto.getReceiverId()).orElseThrow(() -> new IllegalArgumentException("Receiver not found")))
+                    .user(userService.findUserById(dto.getReceiverId()))
                     .skill(skill)
-                    .guarantor(userRepository.findById(dto.getAuthorId()).orElseThrow(() -> new IllegalArgumentException("Author not found")))
+                    .guarantor(userService.findUserById(dto.getAuthorId()))
                     .build();
             skill.getGuarantees().add(userSkillGuarantee);
         });
