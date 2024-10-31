@@ -49,7 +49,7 @@ public class SkillControllerTest {
     }
 
     @Test
-    public void testCreateSkill() {
+    public void createSkillTest() {
         when(skillService.create(firstSkill)).thenReturn(firstSkill);
 
         skillController.create(firstSkill);
@@ -61,7 +61,7 @@ public class SkillControllerTest {
     }
 
     @Test
-    public void testGetUserSkills() {
+    public void getUserSkillsTest() {
         when(skillService.getUserSkills(userId)).thenReturn(List.of(firstSkill, secondSkill));
 
         List<SkillDto> skills = skillController.getUserSkills(userId);
@@ -75,7 +75,7 @@ public class SkillControllerTest {
     }
 
     @Test
-    public void testGetOfferedSkills() {
+    public void getOfferedSkillsTest() {
         when(skillService.getOfferedSkills(userId)).thenReturn(List.of(firstCandidateSkill, secondCandidateSkill));
 
         List<SkillCandidateDto> skills = skillController.getOfferedSkills(userId);
@@ -89,7 +89,7 @@ public class SkillControllerTest {
     }
 
     @Test
-    public void testAcquireSkillFromOffers() {
+    public void acquireSkillFromOffersTest() {
         when(skillService.acquireSkillFromOffers(skillId, userId)).thenReturn(firstSkill);
 
         SkillDto skill = skillController.acquireSkillFromOffers(skillId, userId);

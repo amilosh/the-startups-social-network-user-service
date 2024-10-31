@@ -8,13 +8,13 @@ import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.skill.SkillCandidateMapper;
 import school.faang.user_service.mapper.skill.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
+import school.faang.user_service.validator.SkillValidator;
+import school.faang.user_service.validator.UserValidator;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,14 +27,15 @@ public class SkillService {
     private static final int MIN_SKILL_OFFERS = 3;
 
     private final SkillRepository skillRepository;
-    private final UserRepository userRepository;
+    private final UserValidator userValidator;
     private final SkillOfferRepository skillOfferRepository;
     private final SkillMapper skillMapper;
+    private final SkillValidator skillValidator;
     private final SkillCandidateMapper skillCandidateMapper;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
     public SkillDto create(SkillDto skillDto) {
-        validateSkill(skillDto);
+        skillValidator.validateTitle(skillDto);
 
         Skill skill = skillMapper.toEntity(skillDto);
         skill = skillRepository.save(skill);
@@ -43,7 +44,7 @@ public class SkillService {
     }
 
     public List<SkillDto> getUserSkills(long userId) {
-        validateUser(userId);
+        userValidator.loadUser(userId);
 
         List<Skill> skills = skillRepository.findAllByUserId(userId);
         log.info("У пользователя {} было найдено {} навыков", userId, skills.size());
@@ -51,7 +52,7 @@ public class SkillService {
     }
 
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
-        validateUser(userId);
+        userValidator.loadUser(userId);
 
         List<SkillDto> skills = skillMapper.toDtoList(skillRepository.findSkillsOfferedToUser(userId));
 
@@ -60,8 +61,8 @@ public class SkillService {
     }
 
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
-        validateUser(userId);
-        Skill skill = validateSkill(skillId);
+        userValidator.loadUser(userId);
+        Skill skill = skillValidator.skillAlreadyExists(skillId);
 
         Optional<Skill> skillOptional = skillRepository.findUserSkill(skillId, userId);
         if (skillOptional.isPresent()) {
@@ -84,25 +85,5 @@ public class SkillService {
             }
         }
         return skillMapper.toDto(skill);
-    }
-
-    private Skill validateSkill(long skillId) {
-        return skillRepository.findById(skillId)
-                .orElseThrow(() -> new DataValidationException("Такого навыка в БД не существует"));
-    }
-
-    private void validateUser(long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new DataValidationException("Такого пользователя в БД не существует"));
-    }
-
-    private void validateSkill(SkillDto skillDto) {
-        if (skillDto.getTitle() == null || skillDto.getTitle().isBlank()) {
-            throw new DataValidationException("Название навыка не может быть пустым");
-        }
-
-        if (skillRepository.existsByTitle(skillDto.getTitle())) {
-            throw new DataValidationException("Навык с таким названием уже существует");
-        }
     }
 }

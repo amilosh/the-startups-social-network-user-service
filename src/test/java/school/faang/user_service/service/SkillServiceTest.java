@@ -14,19 +14,19 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.skill.SkillCandidateMapper;
 import school.faang.user_service.mapper.skill.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
+import school.faang.user_service.validator.SkillValidator;
+import school.faang.user_service.validator.UserValidator;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,6 +40,12 @@ public class SkillServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private UserValidator userValidator;
+
+    @Mock
+    private SkillValidator skillValidator;
 
     @Mock
     private SkillOfferRepository skillOfferRepository;
@@ -82,28 +88,7 @@ public class SkillServiceTest {
     }
 
     @Test
-    public void testCreateSkillWithEmptyTitle() {
-        SkillDto skillDto = new SkillDto(1L, null);
-
-        assertThrows(DataValidationException.class, () -> skillService.create(skillDto));
-    }
-
-    @Test
-    public void testCreateSkillWithBlankTitle() {
-        SkillDto skillDto = new SkillDto(1L, "");
-
-        assertThrows(DataValidationException.class, () -> skillService.create(skillDto));
-    }
-
-    @Test
-    public void testCreateSkillWhichAlreadyExists() {
-        when(skillRepository.existsByTitle(skillDto.getTitle())).thenReturn(true);
-
-        assertThrows(DataValidationException.class, () -> skillService.create(skillDto));
-    }
-
-    @Test
-    public void testCreateSkill() {
+    public void createSkillTest() {
         Skill skill = skillMapper.toEntity(skillDto);
         when(skillRepository.save(skill)).thenReturn(skill);
 
@@ -115,21 +100,13 @@ public class SkillServiceTest {
     }
 
     @Test
-    public void testGetUserSkillsForANonExistsUser() {
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        assertThrows(DataValidationException.class, () -> skillService.getUserSkills(userId));
-    }
-
-    @Test
-    public void testGetUserSkills() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+    public void getUserSkillsTest() {
         when(skillRepository.findAllByUserId(userId)).thenReturn(List.of(firstSkill, secondSkill));
 
         List<SkillDto> skills = skillService.getUserSkills(userId);
 
         verify(skillRepository, times(1)).findAllByUserId(userId);
-
+        assertEquals(2, skills.size());
         assertEquals(firstSkill.getId(), skills.get(0).getId());
         assertEquals(firstSkill.getTitle(), skills.get(0).getTitle());
         assertEquals(secondSkill.getId(), skills.get(1).getId());
@@ -137,20 +114,13 @@ public class SkillServiceTest {
     }
 
     @Test
-    public void testGetOfferedSkillsForANonExistsUser() {
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        assertThrows(DataValidationException.class, () -> skillService.getOfferedSkills(userId));
-    }
-
-    @Test
-    public void testGetOfferedSkills() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+    public void getOfferedSkillsTest() {
         when(skillRepository.findSkillsOfferedToUser(userId)).thenReturn(List.of(firstSkill, secondSkill));
 
         List<SkillCandidateDto> skills = skillService.getOfferedSkills(userId);
 
         verify(skillRepository, times(1)).findSkillsOfferedToUser(userId);
+        assertEquals(2, skills.size());
         assertEquals(firstSkill.getTitle(), skills.get(0).getSkill().getTitle());
         assertEquals(1, skills.get(0).getOffersAmount());
         assertEquals(secondSkill.getTitle(), skills.get(1).getSkill().getTitle());
@@ -158,24 +128,7 @@ public class SkillServiceTest {
     }
 
     @Test
-    public void testAcquireSkillFromOffersForANonExistentUser() {
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(skillId, userId));
-    }
-
-    @Test
-    public void testAcquireSkillFromOffersForANonExistentSkill() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(skillRepository.findById(skillId)).thenReturn(Optional.empty());
-
-        assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(skillId, userId));
-    }
-
-    @Test
-    public void acquireSkillFromOffersSkillHasAlreadyBeenAdded() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(skillRepository.findById(skillId)).thenReturn(Optional.of(firstSkill));
+    public void acquireSkillIfSkillAlreadyBeenAddedTest() {
         when(skillRepository.findUserSkill(skillId, userId)).thenReturn(Optional.of(firstSkill));
 
         SkillDto skillDto = skillService.acquireSkillFromOffers(skillId, userId);
@@ -186,9 +139,8 @@ public class SkillServiceTest {
     }
 
     @Test
-    public void acquireSkillFromOffersSkillWhenLessThan3Guarantors() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(skillRepository.findById(skillId)).thenReturn(Optional.of(firstSkill));
+    public void acquireSkillWhenLessThanThreeGuarantorsTest() {
+        when(skillValidator.skillAlreadyExists(firstSkill.getId())).thenReturn(firstSkill);
         when(skillRepository.findUserSkill(skillId, userId)).thenReturn(Optional.empty());
         when(skillOfferRepository.findAllOffersOfSkill(skillId, userId))
                 .thenReturn(List.of(new SkillOffer(), new SkillOffer()));
@@ -201,7 +153,7 @@ public class SkillServiceTest {
     }
 
     @Test
-    public void acquireSkillFromOffersSkill() {
+    public void acquireSkillFromOffersSkillTest() {
         Recommendation recommendation = Recommendation.builder()
                 .author(new User())
                 .receiver(new User())
@@ -220,8 +172,7 @@ public class SkillServiceTest {
                 .build();
         List<SkillOffer> skillOffers = List.of(firstSkillOffer, secondSkillOffer, thirdSkillOffer);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(skillRepository.findById(skillId)).thenReturn(Optional.of(firstSkill));
+        when(skillValidator.skillAlreadyExists(firstSkill.getId())).thenReturn(firstSkill);
         when(skillRepository.findUserSkill(skillId, userId)).thenReturn(Optional.empty());
         when(skillOfferRepository.findAllOffersOfSkill(skillId, userId)).thenReturn(skillOffers);
 
