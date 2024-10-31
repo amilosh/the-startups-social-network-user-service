@@ -1,10 +1,11 @@
-package school.faang.user_service.controller.event;
+package school.faang.user_service.aaa;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.controller.EventController;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validation.EventValidation;
