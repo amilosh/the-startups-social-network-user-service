@@ -13,22 +13,9 @@ spring:
       hibernate:
         format_sql: true
 
-  liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.yaml
-
   kafka:
-    consumer:
-      bootstrap-servers: localhost:9092
-      group-id: CorpX
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-      properties:
-        spring.json.trusted.packages: '*'
-    producer:
-      bootstrap-servers: localhost:9092
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    host: localhost
+    port: 9092
     channels:
       event-starter: event_starter_channel
       profile: profile_channel
@@ -62,6 +49,9 @@ spring:
         name: fund-raised-channel
       mentorship-start-channel:
         name: mentorship_start_channel
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 
   data:
     redis:

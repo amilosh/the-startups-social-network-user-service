@@ -1,15 +1,33 @@
 package school.faang.user_service.config.kafka;
 
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.annotation.EnableKafka;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.TopicBuilder;
+import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.support.serializer.JsonDeserializer;
+import school.faang.user_service.model.event.UserBanEvent;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
-public class KafkaTopicConfig {
+@EnableKafka
+public class KafkaConfig {
     @Value("${spring.kafka.channels.ban-user-channel.name}")
     private String banUserTopic;
+
+    @Value("${spring.kafka.host}")
+    private String host;
+
+    @Value("${spring.kafka.port}")
+    private int port;
 
     @Value("${spring.kafka.channels.follower-event-channel.name}")
     private String followerEvent;
@@ -55,6 +73,27 @@ public class KafkaTopicConfig {
 
     @Value("${spring.kafka.channels.search-appearance-channel.name}")
     private String searchAppearanceTopic;
+
+    public Map<String, Object> consumerProps() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, String.format("%s:%s", host, port));
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
+        return props;
+    }
+
+    @Bean
+    public ConsumerFactory<String, UserBanEvent> consumerFactory() {
+        return new DefaultKafkaConsumerFactory<>(consumerProps(), new StringDeserializer(),
+                new JsonDeserializer<>(UserBanEvent.class, false));
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, UserBanEvent> kafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, UserBanEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumerFactory());
+        return factory;
+    }
 
     @Bean
     public NewTopic banUserTopic() {
@@ -167,5 +206,4 @@ public class KafkaTopicConfig {
                 .name(searchAppearanceTopic)
                 .build();
     }
-
 }
