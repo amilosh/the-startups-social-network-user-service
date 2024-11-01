@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.validator.EventValidator;
@@ -18,7 +16,6 @@ import java.util.List;
 public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
     private final UserService userService;
-    private final EventMapper eventMapper;
     private final UserMapper userMapper;
     private final EventValidator eventValidator;
 
