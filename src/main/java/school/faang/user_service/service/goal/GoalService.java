@@ -11,6 +11,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.exception.MentorNotFoundException;
 import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.mapper.goal.GoalMapper;
 import school.faang.user_service.repository.SkillRepository;
@@ -20,6 +21,8 @@ import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.goal.GoalValidator;
 import school.faang.user_service.validator.skill.SkillValidator;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -47,19 +50,33 @@ public class GoalService {
                     .orElseThrow(() -> new EntityNotFoundException("Goal not found by Id: " + goalDto.getParentId()));
             goalToSave.setParent(parentGoal);
         }
-        //todo: Добавить проверку скилл айди
-        if (goalDto.getSkillIds() != null) {
-            Goal parentGoal = goalRepository.findById(goalDto.getParentId())
-                    .orElseThrow(() -> new EntityNotFoundException("Goal not found by Id: " + goalDto.getParentId()));
-            goalToSave.setParent(parentGoal);
+        //todo: Добавить проверку скилл айди через List
+//        if (goalDto.getSkillIds() != null) {
+//            Goal parentGoal = goalRepository.findById(goalDto.getParentId())
+//                    .orElseThrow(() -> new EntityNotFoundException("Goal not found by Id: " + goalDto.getParentId()));
+//            goalToSave.setParent(parentGoal);
+//        }
+        if (goalDto.getSkillIds() != null && !goalDto.getSkillIds().isEmpty()) {
+            List<Skill> foundSkills = skillRepository.findAllById(goalDto.getSkillIds());
+
+            if (foundSkills.size() != goalDto.getSkillIds().size()) {
+                List<Long> missingSkillIds = new ArrayList<>(goalDto.getSkillIds());
+                missingSkillIds.removeAll(foundSkills.stream().map(Skill::getId).toList());
+
+                throw new EntityNotFoundException("Skills not found by IDs: " + missingSkillIds);
+            }
+
+            goalToSave.setSkillsToAchieve((List<Skill>) new HashSet<>(foundSkills));
         }
         if (goalDto.getMentorId() != null) {
             User mentor = userRepository.findById(goalDto.getMentorId())
                     .orElseThrow(() -> new EntityNotFoundException("User not found by Id: " + goalDto.getMentorId()));
+
             if (!user.getMentors().contains(mentor)) {
-            //todo: Добавить кастомную ошибку
-                throw new EntityNotFoundException();
+                throw new MentorNotFoundException("Mentor with ID " + goalDto.getMentorId() +
+                        " is not associated with user ID " + userId);
             }
+
             goalToSave.setMentor(mentor);
         }
         if (goalDto.getDeadline() != null) {
