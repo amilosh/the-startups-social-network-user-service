@@ -4,8 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import school.faang.user_service.dto.mentorship.MentorshipRequestCreationDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.RejectionDto;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
@@ -19,6 +18,7 @@ import school.faang.user_service.service.mentorship.filter.RequestFilter;
 import school.faang.user_service.validation.mentorship.MentorshipRequestDtoValidator;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -32,46 +32,46 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
 
     @Transactional
     @Override
-    public MentorshipRequestDto requestMentorship(MentorshipRequestDto creationRequestDto) {
+    public MentorshipRequestDto requestMentorship(MentorshipRequestCreationDto creationRequestDto) {
         Long requesterId = creationRequestDto.getRequesterId();
         Long receiverId = creationRequestDto.getReceiverId();
-
         log.info(
-                "Received a mentorship request! Sender ID - {}, Receiver ID - {}.",
+                "Received a mentorship request! Requester ID - {}, Receiver ID - {}.",
                 requesterId,
                 receiverId
         );
+
         requestValidator.validateCreationRequest(creationRequestDto);
 
-        MentorshipRequest request = requestMapper.toEntity(creationRequestDto);
+        MentorshipRequest request = requestMapper.toMentorshipRequest(creationRequestDto);
+        request.setStatus(RequestStatus.PENDING);
         MentorshipRequest savedRequest = mentorshipRequestRepository.save(request);
         log.info(
                 "The mentorship request has been saved in data base! Requester ID - {}, receiver ID - {}, date of creation - {}",
-                requesterId, receiverId, creationRequestDto.getCreatedAt()
+                requesterId, receiverId, savedRequest.getCreatedAt()
         );
 
-        return requestMapper.toDto(savedRequest);
+        return requestMapper.toMentorshipRequestDto(savedRequest);
     }
 
     @Transactional
     @Override
     public List<MentorshipRequestDto> getRequests(RequestFilterDto filterDto) {
-        log.info("A request has been received to retrieve mentorship requests with the provided filter."); // Изменено на "provided filter" для большей ясности.
+        log.info("A request has been received to retrieve mentorship requests with the provided filter.");
+        Stream<MentorshipRequest> requestsToFilter = mentorshipRequestRepository.findAll().stream();
+        List<RequestFilter> filtersToApply =
+                requestFilters.stream()
+                        .filter(requestFilter -> requestFilter.isApplicable(filterDto))
+                        .toList();
 
-        List<MentorshipRequestDto> filteredRequestsDtos =
-                requestMapper.toDtoList(
-                        requestFilters.stream()
-                                .filter(requestFilter -> requestFilter.isApplicable(filterDto))
-                                .reduce(
-                                        mentorshipRequestRepository.findAll().stream(),
-                                        (requestsStream, requestFilter) -> requestFilter.apply(requestsStream, filterDto),
-                                        (s1, s2) -> s1
-                                )
-                                .toList()
-                );
+        for (RequestFilter filter: filtersToApply) {
+            requestsToFilter = filter.apply(requestsToFilter, filterDto);
+        }
 
-        log.info("Requests matching the given filters have been successfully found! Total requests: {}", filteredRequestsDtos.size()); // Изменено на "matching" и "found" для большей ясности.
-        return filteredRequestsDtos;
+        List<MentorshipRequest> filteredRequests = requestsToFilter.toList();
+
+        log.info("Requests matching the given filters have been successfully found! Total requests: {}", filteredRequests.size());
+        return requestMapper.toDtoList(filteredRequests);
     }
 
     @Transactional

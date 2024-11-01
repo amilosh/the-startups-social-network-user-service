@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.mentorship.MentorshipRequestCreationDto;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.RejectionDto;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
@@ -16,7 +17,7 @@ import school.faang.user_service.service.mentorship.MentorshipRequestService;
 
 import java.util.List;
 
-@Tag(name = "MentorshipRequests")
+@Tag(name = "MentorshipRequests", description = "API for managing mentorship requests.")
 @RestController
 @RequestMapping("/api/mentorship/requests")
 @RequiredArgsConstructor
@@ -24,7 +25,7 @@ public class MentorshipRequestController {
     private final MentorshipRequestService mentorshipRequestService;
 
     @PostMapping
-    public MentorshipRequestDto requestMentorship(@RequestBody MentorshipRequestDto creationRequestDto) {
+    public MentorshipRequestDto requestMentorship(@RequestBody MentorshipRequestCreationDto creationRequestDto) {
         return mentorshipRequestService.requestMentorship(creationRequestDto);
     }
 
