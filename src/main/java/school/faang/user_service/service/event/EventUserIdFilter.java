@@ -15,10 +15,8 @@ public class EventUserIdFilter implements EventFilter {
 
     @Override
     public List<Event> apply(List<Event> events, EventFilterDto filterDto) {
-        events = events.stream()
+        return events.stream()
                 .filter(event -> event.getOwner().getId().equals(filterDto.getUserId()))
                 .toList();
-
-        return events;
     }
 }
