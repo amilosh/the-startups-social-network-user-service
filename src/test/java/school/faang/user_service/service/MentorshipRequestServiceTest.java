@@ -11,7 +11,6 @@ import school.faang.user_service.repository.mentorship.MentorshipRequestReposito
 import school.faang.user_service.validator.MentorshipRequestValidator;
 
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class MentorshipRequestServiceTest {
 
@@ -46,7 +45,7 @@ class MentorshipRequestServiceTest {
 
     @Test
     void testServiceRequestMentorshipShouldCreateRequest() {
-        when(requestValidator.validateMentorshipRequest(dto)).thenReturn(true);
+        requestValidator.validateMentorshipRequest(dto);
         requestService.requestMentorship(dto);
 
         verify(requestRepository).create(dto.getRequesterId(), dto.getReceiverId(), dto.getDescription());

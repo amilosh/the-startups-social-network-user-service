@@ -13,11 +13,10 @@ import school.faang.user_service.repository.UserRepository;
 public class UserValidator {
     private final UserRepository repository;
 
-    public boolean isUserExists(Long id) {
+    public void isUserExists(Long id) {
         if (!repository.existsById(id)) {
             log.warn("User with id '{}' not exists.", id);
             throw new UserNotExistsException("User with id '" + id + "' not exists.");
         }
-        return true;
     }
 }

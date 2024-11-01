@@ -16,9 +16,9 @@ public class MentorshipRequestService {
     private final MentorshipRequestValidator requestValidator;
 
     public void requestMentorship(MentorshipRequestDto dto) {
-        if (requestValidator.validateMentorshipRequest(dto)) {
-            log.info("Request dto validation successful. Creating request.");
-            requestRepository.create(dto.getRequesterId(), dto.getReceiverId(), dto.getDescription());
-        }
+        requestValidator.validateMentorshipRequest(dto);
+        log.info("Request dto validation successful. Creating request id '{}'.", dto.getId());
+        requestRepository.create(dto.getRequesterId(), dto.getReceiverId(), dto.getDescription());
     }
 }
+

@@ -16,8 +16,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 class MentorshipRequestValidatorTest {
@@ -51,25 +53,25 @@ class MentorshipRequestValidatorTest {
     }
 
     @Test
-    void testCheckRequesterDoesNotExist() {
-        when(userValidator.isUserExists(dto.getRequesterId()))
-                .thenThrow(new UserNotExistsException("User does not exists"));
-        when(userValidator.isUserExists(dto.getReceiverId())).thenReturn(true);
+    void testValidateRequesterDoesNotExist() {
+        doThrow(new UserNotExistsException("User does not exists"))
+                .when(userValidator).isUserExists(dto.getRequesterId());
+        doNothing().when(userValidator).isUserExists(dto.getReceiverId());
 
         assertThrows(UserNotExistsException.class, () -> requestValidator.validateMentorshipRequest(dto));
     }
 
     @Test
-    void testCheckReceiverDoesNotExist() {
-        when(userValidator.isUserExists(dto.getRequesterId())).thenReturn(true);
-        when(userValidator.isUserExists(dto.getReceiverId()))
-                .thenThrow(new UserNotExistsException("User does not exist"));
+    void testValidateReceiverDoesNotExist() {
+        doNothing().when(userValidator).isUserExists(dto.getRequesterId());
+        doThrow(new UserNotExistsException("User does not exist"))
+                .when(userValidator).isUserExists(dto.getReceiverId());
 
         assertThrows(UserNotExistsException.class, () -> requestValidator.validateMentorshipRequest(dto));
     }
 
     @Test
-    void testCheckOneRequestPerThreeMonthsShouldThrowException() {
+    void testValidateOneRequestPerThreeMonthsShouldThrowException() {
         MentorshipRequest request = new MentorshipRequest();
         request.setCreatedAt(LocalDateTime.now(ZoneId.of("UTC")).minusMonths(1));
 
@@ -81,7 +83,7 @@ class MentorshipRequestValidatorTest {
     }
 
     @Test
-    void testSelfRequestShouldThrownException() {
+    void testSelfRequestShouldThrowException() {
         dto.setReceiverId(dto.getRequesterId());
         MentorshipRequest request = new MentorshipRequest();
         request.setCreatedAt(LocalDateTime.now(ZoneId.of("UTC")).minusMonths(4));
@@ -100,9 +102,32 @@ class MentorshipRequestValidatorTest {
 
         when(requestRepository.findLatestRequest(dto.getRequesterId(), dto.getReceiverId()))
                 .thenReturn(Optional.of(request));
-        when(userValidator.isUserExists(dto.getRequesterId())).thenReturn(true);
-        when(userValidator.isUserExists(dto.getReceiverId())).thenReturn(true);
+        doNothing().when(userValidator).isUserExists(dto.getRequesterId());
+        doNothing().when(userValidator).isUserExists(dto.getReceiverId());
 
-        assertTrue(requestValidator.validateMentorshipRequest(dto));
+        assertDoesNotThrow(() -> requestValidator.validateMentorshipRequest(dto));
+    }
+
+    @Test
+    void testBlankDescriptionShouldThrowException() {
+        dto.setDescription("   ");
+
+        assertThrows(InvalidMentorshipRequestException.class,
+                () -> requestValidator.validateNullOrBlankDescription(dto));
+    }
+
+    @Test
+    void testNullDescriptionShouldThrowException() {
+        dto.setDescription(null);
+
+        assertThrows(InvalidMentorshipRequestException.class,
+                () -> requestValidator.validateNullOrBlankDescription(dto));
+    }
+
+    @Test
+    void testCorrectDescriptionIsSuccessful() {
+        dto.setDescription("Help me with java please!");
+
+        assertDoesNotThrow(() -> requestValidator.validateNullOrBlankDescription(dto));
     }
 }

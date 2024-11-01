@@ -7,16 +7,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.exception.InvalidMentorshipRequestException;
 import school.faang.user_service.service.MentorshipRequestService;
+import school.faang.user_service.validator.MentorshipRequestValidator;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 
 class MentorshipRequestControllerTest {
 
     @Mock
     private MentorshipRequestService requestService;
+    @Mock
+    private MentorshipRequestValidator validator;
 
     @InjectMocks
     private MentorshipRequestController requestController;
@@ -47,13 +48,5 @@ class MentorshipRequestControllerTest {
         requestController.requestMentorship(dto);
 
         verify(requestService).requestMentorship(dto);
-    }
-
-    @Test
-    void testControllerRequestMentorshipShouldThrowException() {
-        dto.setDescription("   ");
-
-        assertThrows(InvalidMentorshipRequestException.class,
-                () -> requestController.requestMentorship(dto));
     }
 }
