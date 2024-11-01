@@ -1,20 +1,13 @@
 package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.SkillDto;
 import school.faang.user_service.entity.Skill;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SkillMapper {
+    Skill toEntity(SkillDto skillDto);
 
-   @Mapping(target = "users", ignore = true)
-   @Mapping(target = "guarantees", ignore = true)
-   @Mapping(target = "events", ignore = true)
-   @Mapping(target = "goals", ignore = true)
-   @Mapping(target = "createdAt", ignore = true)
-   @Mapping(target = "updatedAt", ignore = true)
-   Skill toEntity(SkillDto skillDto);
-
-   SkillDto toDto(Skill skillEntity);
+    SkillDto toDto(Skill skillEntity);
 }

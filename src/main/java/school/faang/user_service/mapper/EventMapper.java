@@ -2,22 +2,22 @@ package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.entity.event.Event;
 
-@Mapper(componentModel = "spring", uses = SkillMapper.class)
+import java.util.List;
+
+@Mapper(componentModel = "spring", uses = SkillMapper.class, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EventMapper {
-//    @Mapping(target = "relatedSkills", ignore = true)
-    @Mapping(target = "owner", ignore = true)
-    @Mapping(target = "attendees", ignore = true)
-    @Mapping(target = "ratings", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "type", ignore = true)
-    @Mapping(target = "status", ignore = true)
+    @Mapping(source = "relatedSkills", target = "relatedSkills")
     Event toEntity(EventDto eventDto);
 
-//    @Mapping(target = "relatedSkills", ignore = true)
     @Mapping(source = "owner.id", target = "ownerId")
+    @Mapping(source = "relatedSkills", target = "relatedSkills")
     EventDto toDto(Event event);
+
+    List<Event> toEntityList(List<EventDto> eventDtos);
+
+    List<EventDto> toDtoList(List<Event> events);
 }

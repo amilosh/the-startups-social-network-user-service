@@ -15,7 +15,7 @@ public record EventDto(
         @NotNull @PastOrPresent LocalDateTime startDate,
         @NotNull @PastOrPresent LocalDateTime endDate,
         @NotNull Long ownerId,
-        String description,
+        @NotBlank String description,
         List<SkillDto> relatedSkills,
         @NotBlank String location,
         int maxAttendees
