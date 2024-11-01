@@ -1,6 +1,5 @@
 package school.faang.user_service.service.goal;
 
-import com.github.dockerjava.api.exception.BadRequestException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +18,6 @@ import school.faang.user_service.mapper.goal.GoalMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
-//import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.validator.goal.GoalValidator;
-import school.faang.user_service.validator.skill.SkillValidator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,10 +32,7 @@ public class GoalService {
     private final GoalRepository goalRepository;
     private final GoalMapper goalMapper;
     private final List<GoalFilter> goalFilters;
-    private final GoalValidator goalValidator;
     private final SkillRepository skillRepository;
-    // private final UserService userService;
-    private final SkillValidator skillValidator;
     private final UserRepository userRepository;
 
     @Value("${application.constants.max-active-goals-count}")
@@ -54,20 +47,12 @@ public class GoalService {
         if (activeGoalsCount >= maxActiveGoalsCount) {
             throw new IllegalStateException("User has reached the maximum number of active goals (" + maxActiveGoalsCount + ").");
         }
-
-
         Goal goalToSave = goalMapper.toGoal(goalDto);
         if (goalDto.getParentId() != null) {
             Goal parentGoal = goalRepository.findById(goalDto.getParentId())
                     .orElseThrow(() -> new EntityNotFoundException("Goal not found by Id: " + goalDto.getParentId()));
             goalToSave.setParent(parentGoal);
         }
-        //todo: Добавить проверку скилл айди через List
-//        if (goalDto.getSkillIds() != null) {
-//            Goal parentGoal = goalRepository.findById(goalDto.getParentId())
-//                    .orElseThrow(() -> new EntityNotFoundException("Goal not found by Id: " + goalDto.getParentId()));
-//            goalToSave.setParent(parentGoal);
-//        }
         if (goalDto.getSkillIds() != null && !goalDto.getSkillIds().isEmpty()) {
             List<Skill> foundSkills = skillRepository.findAllById(goalDto.getSkillIds());
 
@@ -83,12 +68,10 @@ public class GoalService {
         if (goalDto.getMentorId() != null) {
             User mentor = userRepository.findById(goalDto.getMentorId())
                     .orElseThrow(() -> new EntityNotFoundException("User not found by Id: " + goalDto.getMentorId()));
-
             if (!user.getMentors().contains(mentor)) {
                 throw new MentorNotFoundException("Mentor with ID " + goalDto.getMentorId() +
                         " is not associated with user ID " + userId);
             }
-
             goalToSave.setMentor(mentor);
         }
         if (goalDto.getDeadline() != null) {
@@ -99,33 +82,16 @@ public class GoalService {
         return goalMapper.toGoalDto(savedGoal);
     }
 
-    //    @Transactional
-//    public GoalDto updateGoal(Long goalId, GoalDto goalDto) {
-//
-//        Goal goalToUpdate = goalRepository.findById(goalId)
-//                .orElseThrow(() -> new EntityNotFoundException("Goal not found by Id: " + goalId));
-//        if(goalDto.getParentId() != null) {}
-//
-//        Goal existingGoal = getGoalById(goalId);
-//        Goal updatedGoal = updateGoalEntity(existingGoal, goalDto);
-//
-//        return goalMapper.toGoalDto(updatedGoal);
-//    }
     @Transactional
     public GoalDto updateGoal(Long goalId, GoalDto goalDto) {
-        // Извлечение цели для обновления
         Goal goalToUpdate = goalRepository.findById(goalId)
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found by Id: " + goalId));
 
-        // Проверка статуса завершения: можно завершить только незавершенные цели
         if (goalDto.getStatus() == GoalStatus.COMPLETED && goalToUpdate.getStatus() == GoalStatus.COMPLETED) {
             throw new IllegalStateException("Goal is already completed and cannot be updated further.");
         }
-
-        // Проверка существования скиллов
         if (goalDto.getSkillIds() != null && !goalDto.getSkillIds().isEmpty()) {
             List<Skill> foundSkills = skillRepository.findAllById(goalDto.getSkillIds());
-
             if (foundSkills.size() != goalDto.getSkillIds().size()) {
                 List<Long> missingSkillIds = new ArrayList<>(goalDto.getSkillIds());
                 missingSkillIds.removeAll(foundSkills.stream().map(Skill::getId).toList());
@@ -135,24 +101,11 @@ public class GoalService {
 
             goalToUpdate.setSkillsToAchieve((List<Skill>) new HashSet<>(foundSkills));
         }
-        // Обновление других полей цели сразу после проверки
-        if (goalDto.getTitle() != null) {
-            goalToUpdate.setTitle(goalDto.getTitle());
-        }
-        if (goalDto.getDescription() != null) {
-            goalToUpdate.setDescription(goalDto.getDescription());
-        }
-        if (goalDto.getDeadline() != null) {
-            goalToUpdate.setDeadline(goalDto.getDeadline());
-        }
-        if (goalDto.getStatus() != null) {
-            goalToUpdate.setStatus(goalDto.getStatus());
-        }
 
-//        goalToUpdate.setTitle(goalDto.getTitle());
-//        goalToUpdate.setDescription(goalDto.getDescription());
-//        goalToUpdate.setStatus(goalDto.getStatus());
-//        goalToUpdate.setDeadline(goalDto.getDeadline());
+        goalToUpdate.setTitle(goalDto.getTitle());
+        goalToUpdate.setDescription(goalDto.getDescription());
+        goalToUpdate.setStatus(goalDto.getStatus());
+        goalToUpdate.setDeadline(goalDto.getDeadline());
 
         Goal savedGoal = goalRepository.save(goalToUpdate);
         return goalMapper.toGoalDto(savedGoal);
@@ -160,10 +113,8 @@ public class GoalService {
 
     @Transactional
     public void deleteGoal(long goalId) {
-        // Проверка существования цели
         Goal goalToDelete = goalRepository.findById(goalId)
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found by Id: " + goalId));
-        // Проверка, завершена ли цель (если требуется) перед удалением
         if (goalToDelete.getStatus() == GoalStatus.COMPLETED) {
             throw new IllegalStateException("Cannot delete a completed goal. Please unmark it before deletion.");
         }
@@ -183,53 +134,6 @@ public class GoalService {
 
         return filterGoals(goals, filterDto);
     }
-
-//    private Goal getGoalById(Long goalId) {
-//        return goalRepository.findById(goalId)
-//                .orElseThrow(() -> new EntityNotFoundException("Goal with this id does not exist in the database"));
-//    }
-//
-//    private Goal createGoalEntity(GoalDto goalDto, User user) {
-//        Goal goal = goalRepository.create(goalDto.getTitle(), goalDto.getDescription(), goalDto.getParentId());
-//
-//        goal.getUsers().add(user);
-//        setSkillsToGoal(goalDto.getSkillIds(), goal);
-//
-//        goalRepository.save(goal);
-//        return goal;
-//    }
-//
-//    private Goal updateGoalEntity(Goal existingGoal, GoalDto goalDto) {
-//        goalValidator.validateGoalStatusNotCompleted(existingGoal);
-//
-//        existingGoal.setTitle(goalDto.getTitle());
-//        existingGoal.setDescription(goalDto.getDescription());
-//
-//        GoalStatus status = goalDto.getStatus();
-//        if (status != null) {
-//            existingGoal.setStatus(status);
-//        }
-//
-//        Long parentId = goalDto.getParentId();
-//        if (parentId != null) {
-//            Goal parentGoal = getGoalById(parentId);
-//            existingGoal.setParent(parentGoal);
-//        }
-//
-//        setSkillsToGoal(goalDto.getSkillIds(), existingGoal);
-//
-//        goalRepository.save(existingGoal);
-//
-//        return existingGoal;
-//    }
-//
-//    private void setSkillsToGoal(List<Long> skillIds, Goal goal) {
-//        if (skillIds != null) {
-//            skillValidator.validateAllSkillsIdsExist(skillIds);
-//            List<Skill> skills = skillRepository.findAllById(skillIds);
-//            goal.setSkillsToAchieve(skills);
-//        }
-//    }
 
     private List<GoalDto> filterGoals(Stream<Goal> goals, GoalFilterDto filterDto) {
         return goalFilters.stream()
