@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.EventDto;
+import school.faang.user_service.dto.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
@@ -31,42 +32,33 @@ public class EventService {
         validateUserSkillsForEvent(userOwner, eventDto);
 
         Event event = eventMapper.toEntity(eventDto);
-
         event.setOwner(userOwner);
-        event.setRelatedSkills(eventDto.relatedSkills().stream()
-                .map(relatedSkill -> skillMapper.toEntity(relatedSkill))
-                .toList());
 
         Event savedEvent = eventRepository.save(event);
         log.info("Event saved with ID: {}", savedEvent.getId());
 
-        EventDto newEventDto = eventMapper.toDto(event);
+        return eventMapper.toDto(event);
+    }
 
-        EventDto updatedEventDto = EventDto.builder()
-                .id(newEventDto.id())
-                .title(newEventDto.title())
-                .startDate(newEventDto.startDate())
-                .endDate(newEventDto.endDate())
-                .ownerId(newEventDto.ownerId())
-                .description(newEventDto.description())
-                .relatedSkills(savedEvent.getRelatedSkills().stream()
-                        .map(skill -> skillMapper.toDto(skill))
-                        .toList())
-                .location(newEventDto.location())
-                .maxAttendees(newEventDto.maxAttendees())
-                .build();
+    public EventDto getEvent(Long eventId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new DataValidationException("Event do not found"));
+        log.info("Event found by {}", eventId);
+        return eventMapper.toDto(event);
+    }
 
-        return updatedEventDto;
+    public List<EventDto> getEventsByFilter(EventFilterDto filter) {
+        eventRepository.findAll();
     }
 
     private void validateUserSkillsForEvent(User userOwner, EventDto eventDto) {
         List<Skill> relatedSkills = eventDto.relatedSkills().stream()
                 .map(skillDto -> skillMapper.toEntity(skillDto))
                 .toList();
+        List<Skill> userOwnerSkills = userOwner.getSkills();
 
         log.debug("Checking if user has required skills: {}", relatedSkills);
 
-        if (!userHasSkills(userOwner, relatedSkills)) {
+        if (!userHasSkills(userOwnerSkills, relatedSkills)) {
             log.error("User {} doesn't have required skills to create event", userOwner.getId());
             throw new DataValidationException("User don't have required skills to create event");
         }
@@ -74,8 +66,8 @@ public class EventService {
         log.info("User {} has all required skills to create event", userOwner.getId());
     }
 
-    private boolean userHasSkills(User userOwner, List<Skill> relatedSkills) {
-        List<Skill> userOwnerSkills = userOwner.getSkills();
+    private boolean userHasSkills(List<Skill> userOwnerSkills, List<Skill> relatedSkills) {
+
 
         return relatedSkills.stream()
                 .allMatch(relatedSkill -> userOwnerSkills.stream()
