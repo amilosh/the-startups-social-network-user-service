@@ -3,6 +3,8 @@ package school.faang.user_service.controller.goal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,5 +49,23 @@ public class GoalController {
         }
 
         return ResponseEntity.status(201).body(response);
+    }
+
+    /**
+     * Endpoint to delete an existing goal.
+     *
+     * @param goalId the ID of the goal to be deleted
+     * @return a ResponseEntity containing the result of the goal deletion process
+     *         with status 204 if successful
+     */
+    @DeleteMapping(value = "/{goalId}", consumes = "application/json", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GoalResponse> deleteGoal(@PathVariable Long goalId) {
+        GoalResponse response = goalService.deleteGoal(goalId);
+
+        if (response.getCode() == 400) {
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        return ResponseEntity.status(204).body(response);
     }
 }

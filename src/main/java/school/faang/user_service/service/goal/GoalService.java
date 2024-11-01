@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.GoalDTO;
 import school.faang.user_service.dto.response.GoalResponse;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skill.SkillService;
@@ -45,6 +46,9 @@ public class GoalService {
             response.setErrors(validationResponse.getErrors());
             return response;
         }
+
+        goal.setStatus(GoalStatus.ACTIVE);
+        goal.setId(null);
 
         Goal entity = goalMapper.toEntity(goal);
         entity.setUsers(List.of(userService.getUserById(userId)));
@@ -127,5 +131,33 @@ public class GoalService {
         response.setData(goalMapper.toDto(entity));
 
         return response;
+    }
+
+
+    /**
+     * Deletes a goal by its ID.
+     *
+     * @param goalId the ID of the goal to delete
+     * @return a response containing the result of the delete operation
+     *         with status 204 if successful or 400 if validation fails
+     *
+     * The deletion will fail if the goal does not exist.
+     */
+    public GoalResponse deleteGoal(long goalId) {
+        if (!goalValidation.checkIfGoalExistsByID(goalId)) {
+            var response = new GoalResponse(
+                    "Validation failed",
+                    400
+            );
+            response.setErrors(List.of("Goal does not exist"));
+            return response;
+        }
+
+        goalRepository.delete(goalRepository.findGoalById(goalId));
+
+        return new GoalResponse(
+                "Goal deleted successfully",
+                204
+        );
     }
 }
