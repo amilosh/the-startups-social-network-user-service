@@ -1,8 +1,10 @@
 package school.faang.user_service.service.goal;
 
+import com.github.dockerjava.api.exception.BadRequestException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.goal.GoalDto;
@@ -40,10 +42,20 @@ public class GoalService {
     private final SkillValidator skillValidator;
     private final UserRepository userRepository;
 
+    @Value("${application.constants.max-active-goals-count}")
+    private int maxActiveGoalsCount;
+
     @Transactional
     public GoalDto createGoal(Long userId, GoalDto goalDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found by Id: " + userId));
+
+        int activeGoalsCount = goalRepository.countActiveGoalsPerUser(userId);
+        if (activeGoalsCount >= maxActiveGoalsCount) {
+            throw new IllegalStateException("User has reached the maximum number of active goals (" + maxActiveGoalsCount + ").");
+        }
+
+
         Goal goalToSave = goalMapper.toGoal(goalDto);
         if (goalDto.getParentId() != null) {
             Goal parentGoal = goalRepository.findById(goalDto.getParentId())
