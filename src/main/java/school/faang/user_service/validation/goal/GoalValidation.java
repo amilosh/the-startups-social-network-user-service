@@ -3,6 +3,7 @@ package school.faang.user_service.validation.goal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.GoalDTO;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.validation.goal.responce.ValidationResponse;
@@ -14,7 +15,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GoalValidation {
     private final ValidationResponse response = new ValidationResponse();
+
     private final GoalRepository goalRepository;
+    private final UserRepository userRepository;
+
     private final SkillService skillService;
 
     private static final int MAX_GOALS_PER_USER = 3;
@@ -32,33 +36,34 @@ public class GoalValidation {
      * The validation will fail if the user ID is 0, the goal is missing, the goal title is missing, the goal title is empty, the goal title is too long, the goal description is too long, the goal status is missing, the user already has the maximum number of active goals, the skill IDs are missing, or one of the skill IDs does not exist.
      *
      */
-    public ValidationResponse validateCreateGoalRequest(Long userId, GoalDTO goal) {
+    public ValidationResponse validateGoalRequest(Long userId, GoalDTO goal) {
         List<String> errors = new ArrayList<>();
 
         if (userId == 0) {
             errors.add("User ID is missing");
         }
 
-        if (goal == null) {
-            errors.add("Goal is missing");
+        if (!userRepository.existsById(userId)) {
+            errors.add("User does not exist");
         }
 
-        if (goal.getTitle() == null) {
-            errors.add("Goal title is missing");
-            response.setValid(false);
+        if (goal == null) {
+            errors.add("Goal is missing");
             response.setErrors(errors);
             return response;
         }
 
-        if (goal.getTitle().isEmpty()) {
-            errors.add("Goal title is empty");
+        if (goal.getTitle() == null || goal.getTitle().isEmpty()) {
+            errors.add("Goal title is missing");
+            response.setErrors(errors);
+            return response;
         }
 
         if (goal.getTitle().length() > MAX_LENGTH_TITLE) {
             errors.add("Goal title is too long");
         }
 
-        if (goal.getDescription().length() > MAX_LENGTH_DESCRIPTION) {
+        if (goal.getDescription() == null || goal.getDescription().length() > MAX_LENGTH_DESCRIPTION) {
             errors.add("Goal description is missing");
         }
 
@@ -72,7 +77,6 @@ public class GoalValidation {
 
         if (goal.getSkillIds() == null) {
             errors.add("Skill IDs is missing");
-            response.setValid(false);
             response.setErrors(errors);
             return response;
         }
@@ -91,5 +95,9 @@ public class GoalValidation {
 
         response.setValid(true);
         return response;
+    }
+
+    public boolean checkIfGoalExistsByID(Long goalId) {
+        return goalRepository.existsById(goalId);
     }
 }

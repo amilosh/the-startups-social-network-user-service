@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,6 +30,17 @@ public class GoalController {
     @PostMapping(consumes = "application/json", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createGoal(@RequestBody CreateGoalRequest request) {
         GoalResponse response = goalService.createGoal(request.getUserId(), request.getGoal());
+
+        if (response.getCode() == 400) {
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        return ResponseEntity.status(201).body(response);
+    }
+
+    @PutMapping(consumes = "application/json", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GoalResponse> updateGoal(@RequestBody CreateGoalRequest request) {
+        GoalResponse response = goalService.updateGoal(request.getUserId(), request.getGoal());
 
         if (response.getCode() == 400) {
             return ResponseEntity.badRequest().body(response);

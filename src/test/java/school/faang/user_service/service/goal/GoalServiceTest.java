@@ -61,7 +61,7 @@ class GoalServiceTest {
         validationResponse.setValid(true);
         validationResponse.setErrors(List.of());
 
-        when(goalValidation.validateCreateGoalRequest(userId, goalDTO)).thenReturn(validationResponse);
+        when(goalValidation.validateGoalRequest(userId, goalDTO)).thenReturn(validationResponse);
         when(userService.getUserById(userId)).thenReturn(new User());
         when(goalMapper.toEntity(goalDTO)).thenReturn(goalEntity);
         when(skillService.getSkillById(2L)).thenReturn(new Skill());
@@ -83,7 +83,7 @@ class GoalServiceTest {
         validationResponse.setValid(false);
         validationResponse.setErrors(List.of("Invalid data"));
 
-        when(goalValidation.validateCreateGoalRequest(userId, goalDTO)).thenReturn(validationResponse);
+        when(goalValidation.validateGoalRequest(userId, goalDTO)).thenReturn(validationResponse);
 
         GoalResponse response = goalService.createGoal(userId, goalDTO);
 
