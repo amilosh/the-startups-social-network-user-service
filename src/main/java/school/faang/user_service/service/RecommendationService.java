@@ -29,16 +29,40 @@ public class RecommendationService {
         recommendationValidator.validateSkillExists(recommendationDto);
 
         saveSkillOffers(recommendationDto);
+        addSkillGuarantee(recommendationDto);
 
-        addGuarantee(recommendationDto);
+        Recommendation updatedRecommendation = saveAndReturnRecommendation(recommendationDto);
+        return recommendationMapper.toDto(updatedRecommendation);
+    }
 
-        Recommendation updatedRecommendation = recommendationRepository.
+    public RecommendationDto update(RecommendationDto recommendationDto) {
+        recommendationValidator.validateTimeAfterLastRecommendation(recommendationDto);
+        recommendationValidator.validateSkillExists(recommendationDto);
+
+        recommendationRepository.update(
+                recommendationDto.getAuthorId(),
+                recommendationDto.getReceiverId(),
+                recommendationDto.getContent()
+        );
+        skillOfferRepository.deleteAllByRecommendationId(recommendationDto.getId());
+        saveSkillOffers(recommendationDto);
+        addSkillGuarantee(recommendationDto);
+
+        return recommendationMapper.toDto(getRecommendationById(recommendationDto.getId()));
+    }
+
+    public Recommendation getRecommendationById(Long recommendationId) {
+        return recommendationRepository.findById(recommendationId).orElseThrow(() ->
+                new IllegalArgumentException("Recommendation with id #" + recommendationId + " not found"));
+    }
+
+    private Recommendation saveAndReturnRecommendation(RecommendationDto recommendationDto){
+        return recommendationRepository.
                 findById(recommendationRepository.create(recommendationDto.getAuthorId(),
                         recommendationDto.getReceiverId(),
                         recommendationDto.getContent())).orElseThrow(
                         () -> new IllegalArgumentException("Recommendation not found")
                 );
-        return recommendationMapper.toDto(updatedRecommendation);
     }
 
     private void saveSkillOffers(RecommendationDto recommendationDto) {
@@ -47,7 +71,7 @@ public class RecommendationService {
         );
     }
 
-    private void addGuarantee(RecommendationDto dto) {
+    private void addSkillGuarantee(RecommendationDto dto) {
         List<SkillOffer> userSkillOffers = skillOfferRepository.findAllByUserId(dto.getReceiverId());
         List<Long> recommendedSkillsIds = dto.getSkillOffers().stream().map(SkillOfferDto::getSkillId).toList();
 

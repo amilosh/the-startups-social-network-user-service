@@ -13,12 +13,11 @@ import school.faang.user_service.validation.recommendation.RecommendationValidat
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class RecommendationControllerTest {
+class RecommendationControllerTest {
 
     @Mock
     private RecommendationService recommendationService;
@@ -56,5 +55,18 @@ public class RecommendationControllerTest {
 
         assertNotNull(result);
         assertEquals(dto, result);
+    }
+
+    @Test
+    void testUpdateRecommendation() {
+        when(recommendationService.update(dto)).thenReturn(dto);
+
+        RecommendationDto result = recommendationController.updateRecommendation(dto);
+
+        assertNotNull(result);
+        assertEquals(dto, result);
+
+        verify(recommendationValidator, times(1)).validateDto(dto);
+        verify(recommendationService, times(1)).update(dto);
     }
 }

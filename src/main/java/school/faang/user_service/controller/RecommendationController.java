@@ -16,4 +16,9 @@ public class RecommendationController {
         recommendationValidator.validateDto(recommendationDto);
         return recommendationService.create(recommendationDto);
     }
+
+    public RecommendationDto updateRecommendation(RecommendationDto recommendationDto) {
+        recommendationValidator.validateDto(recommendationDto);
+        return recommendationService.update(recommendationDto);
+    }
 }

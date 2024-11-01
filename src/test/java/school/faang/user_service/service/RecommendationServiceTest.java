@@ -47,7 +47,7 @@ class RecommendationServiceTest {
         dto = RecommendationDto.builder()
                 .authorId(1L)
                 .receiverId(2L)
-                .content("text")
+                .content("initial content")
                 .skillOffers(List.of(SkillOfferDto.builder()
                         .id(1L)
                         .recommendationId(1L)
@@ -59,18 +59,6 @@ class RecommendationServiceTest {
         recommendation.setId(10L);
     }
 
-    @Test
-    void testRecommendationNotFound() {
-        when(recommendationRepository.create(
-                dto.getAuthorId(),
-                dto.getReceiverId(),
-                dto.getContent()))
-                .thenReturn(10L);
-        when(recommendationRepository.findById(10L)).thenReturn(Optional.empty());
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> recommendationService.create(dto));
-        assertEquals("Recommendation not found", exception.getMessage());
-    }
 
     @Test
     void testCreate() {
@@ -83,9 +71,60 @@ class RecommendationServiceTest {
 
         RecommendationDto result = recommendationService.create(dto);
 
+        assertEquals(10L, result.getId());
+
         verify(recommendationValidator, times(1)).validateTimeAfterLastRecommendation(dto);
         verify(recommendationValidator, times(1)).validateSkillExists(dto);
+    }
 
+    @Test
+    void testUpdate() {
+        when(recommendationRepository.findById(10L)).thenReturn(Optional.of(recommendation));
+        dto.setId(10L);
+
+        RecommendationDto result = recommendationService.update(dto);
+        result.setContent("Updated content");
+
+        assertNotNull(result);
         assertEquals(10L, result.getId());
+        assertEquals("Updated content", result.getContent());
+
+        verify(recommendationValidator, times(1)).validateTimeAfterLastRecommendation(dto);
+        verify(recommendationValidator, times(1)).validateSkillExists(dto);
+        verify(recommendationRepository, times(1))
+                .update(dto.getAuthorId(), dto.getReceiverId(), dto.getContent());
+        verify(skillOfferRepository, times(1)).deleteAllByRecommendationId(dto.getId());
+
+    }
+
+    @Test
+    void testGetRecommendationByIdNotFound() {
+        when(recommendationRepository.findById(recommendation.getId())).thenReturn(Optional.empty());
+
+        Exception result = assertThrows(IllegalArgumentException.class, () -> recommendationService.getRecommendationById(10L));
+        assertEquals("Recommendation with id #" + recommendation.getId() + " not found", result.getMessage());
+    }
+
+    @Test
+    void testGetRecommendationSuccess() {
+        when(recommendationRepository.findById(recommendation.getId())).thenReturn(Optional.of(recommendation));
+
+        Recommendation result = recommendationService.getRecommendationById(recommendation.getId());
+
+        assertEquals(recommendation.getId(), result.getId());
+        verify(recommendationRepository, times(1)).findById(recommendation.getId());
+    }
+
+    @Test
+    void testSaveAndReturnRecommendationNotFound() {
+        when(recommendationRepository.create(
+                dto.getAuthorId(),
+                dto.getReceiverId(),
+                dto.getContent()))
+                .thenReturn(10L);
+        when(recommendationRepository.findById(10L)).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> recommendationService.create(dto));
+        assertEquals("Recommendation not found", exception.getMessage());
     }
 }
