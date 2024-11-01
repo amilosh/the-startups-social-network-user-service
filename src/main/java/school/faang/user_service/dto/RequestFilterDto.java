@@ -4,9 +4,8 @@ import lombok.Data;
 import school.faang.user_service.entity.RequestStatus;
 
 @Data
-public class MentorshipRequestDto {
-    private Long id;
-    private String description;
+public class RequestFilterDto {
+    private String descriptionPattern;
     private Long requesterId;
     private Long receiverId;
     private RequestStatus status;

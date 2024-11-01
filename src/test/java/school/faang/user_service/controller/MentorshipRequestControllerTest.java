@@ -6,10 +6,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import school.faang.user_service.TestDataCreator;
 import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.service.MentorshipRequestService;
 import school.faang.user_service.validator.MentorshipRequestValidator;
+import school.faang.user_service.validator.RequestFilterValidator;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
 class MentorshipRequestControllerTest {
@@ -17,21 +22,22 @@ class MentorshipRequestControllerTest {
     @Mock
     private MentorshipRequestService requestService;
     @Mock
-    private MentorshipRequestValidator validator;
+    private MentorshipRequestValidator requestValidator;
+    @Mock
+    private RequestFilterValidator filterValidator;
 
     @InjectMocks
     private MentorshipRequestController requestController;
 
-    private MentorshipRequestDto dto;
     private AutoCloseable mocks;
+    private MentorshipRequestDto requestDto;
+    private RequestFilterDto filterDto;
 
     @BeforeEach
     void setUp() {
         mocks = MockitoAnnotations.openMocks(this);
-        dto = new MentorshipRequestDto();
-        dto.setRequesterId(1L);
-        dto.setReceiverId(2L);
-        dto.setDescription("Need help with Java!");
+        requestDto = TestDataCreator.createMentorshipRequestDto(1L, 2L, "Need help with Java!");
+        filterDto = TestDataCreator.createRequestFilterDto(1L, 2L, "HELP", RequestStatus.ACCEPTED);
     }
 
     @AfterEach
@@ -44,9 +50,16 @@ class MentorshipRequestControllerTest {
     }
 
     @Test
-    void testControllerRequestMentorshipShouldCreateRequest() {
-        requestController.requestMentorship(dto);
+    void testControllerCreateRequest() {
+        requestController.requestMentorship(requestDto);
 
-        verify(requestService).requestMentorship(dto);
+        verify(requestService).requestMentorship(any(MentorshipRequestDto.class));
+    }
+
+    @Test
+    void testControllerGettingRequests() {
+        requestController.getRequests(filterDto);
+
+        verify(requestService).getRequests(any(RequestFilterDto.class));
     }
 }
