@@ -137,6 +137,11 @@ public class GoalService {
             goalToUpdate.setStatus(goalDto.getStatus());
         }
 
+//        goalToUpdate.setTitle(goalDto.getTitle());
+//        goalToUpdate.setDescription(goalDto.getDescription());
+//        goalToUpdate.setStatus(goalDto.getStatus());
+//        goalToUpdate.setDeadline(goalDto.getDeadline());
+
         Goal savedGoal = goalRepository.save(goalToUpdate);
         return goalMapper.toGoalDto(savedGoal);
     }
@@ -167,52 +172,52 @@ public class GoalService {
         return filterGoals(goals, filterDto);
     }
 
-    private Goal getGoalById(Long goalId) {
-        return goalRepository.findById(goalId)
-                .orElseThrow(() -> new EntityNotFoundException("Goal with this id does not exist in the database"));
-    }
-
-    private Goal createGoalEntity(GoalDto goalDto, User user) {
-        Goal goal = goalRepository.create(goalDto.getTitle(), goalDto.getDescription(), goalDto.getParentId());
-
-        goal.getUsers().add(user);
-        setSkillsToGoal(goalDto.getSkillIds(), goal);
-
-        goalRepository.save(goal);
-        return goal;
-    }
-
-    private Goal updateGoalEntity(Goal existingGoal, GoalDto goalDto) {
-        goalValidator.validateGoalStatusNotCompleted(existingGoal);
-
-        existingGoal.setTitle(goalDto.getTitle());
-        existingGoal.setDescription(goalDto.getDescription());
-
-        GoalStatus status = goalDto.getStatus();
-        if (status != null) {
-            existingGoal.setStatus(status);
-        }
-
-        Long parentId = goalDto.getParentId();
-        if (parentId != null) {
-            Goal parentGoal = getGoalById(parentId);
-            existingGoal.setParent(parentGoal);
-        }
-
-        setSkillsToGoal(goalDto.getSkillIds(), existingGoal);
-
-        goalRepository.save(existingGoal);
-
-        return existingGoal;
-    }
-
-    private void setSkillsToGoal(List<Long> skillIds, Goal goal) {
-        if (skillIds != null) {
-            skillValidator.validateAllSkillsIdsExist(skillIds);
-            List<Skill> skills = skillRepository.findAllById(skillIds);
-            goal.setSkillsToAchieve(skills);
-        }
-    }
+//    private Goal getGoalById(Long goalId) {
+//        return goalRepository.findById(goalId)
+//                .orElseThrow(() -> new EntityNotFoundException("Goal with this id does not exist in the database"));
+//    }
+//
+//    private Goal createGoalEntity(GoalDto goalDto, User user) {
+//        Goal goal = goalRepository.create(goalDto.getTitle(), goalDto.getDescription(), goalDto.getParentId());
+//
+//        goal.getUsers().add(user);
+//        setSkillsToGoal(goalDto.getSkillIds(), goal);
+//
+//        goalRepository.save(goal);
+//        return goal;
+//    }
+//
+//    private Goal updateGoalEntity(Goal existingGoal, GoalDto goalDto) {
+//        goalValidator.validateGoalStatusNotCompleted(existingGoal);
+//
+//        existingGoal.setTitle(goalDto.getTitle());
+//        existingGoal.setDescription(goalDto.getDescription());
+//
+//        GoalStatus status = goalDto.getStatus();
+//        if (status != null) {
+//            existingGoal.setStatus(status);
+//        }
+//
+//        Long parentId = goalDto.getParentId();
+//        if (parentId != null) {
+//            Goal parentGoal = getGoalById(parentId);
+//            existingGoal.setParent(parentGoal);
+//        }
+//
+//        setSkillsToGoal(goalDto.getSkillIds(), existingGoal);
+//
+//        goalRepository.save(existingGoal);
+//
+//        return existingGoal;
+//    }
+//
+//    private void setSkillsToGoal(List<Long> skillIds, Goal goal) {
+//        if (skillIds != null) {
+//            skillValidator.validateAllSkillsIdsExist(skillIds);
+//            List<Skill> skills = skillRepository.findAllById(skillIds);
+//            goal.setSkillsToAchieve(skills);
+//        }
+//    }
 
     private List<GoalDto> filterGoals(Stream<Goal> goals, GoalFilterDto filterDto) {
         return goalFilters.stream()
