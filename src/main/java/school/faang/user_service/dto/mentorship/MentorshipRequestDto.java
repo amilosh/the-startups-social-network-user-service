@@ -7,6 +7,7 @@ import school.faang.user_service.entity.RequestStatus;
 
 import java.time.LocalDateTime;
 
+@Getter
 @Builder
 public class MentorshipRequestDto {
     private Long id;

@@ -17,6 +17,7 @@ import school.faang.user_service.repository.mentorship.MentorshipRequestReposito
 import school.faang.user_service.service.mentorship.filter.RequestFilter;
 import school.faang.user_service.validation.mentorship.MentorshipRequestDtoValidator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -24,7 +25,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @Service
 public class MentorshipRequestServiceImpl implements MentorshipRequestService {
-    private final MentorshipRequestRepository mentorshipRequestRepository;
+    private final MentorshipRequestRepository requestRepository;
     private final UserRepository userRepository;
     private final MentorshipRequestDtoValidator requestValidator;
     private final MentorshipRequestMapper requestMapper;
@@ -44,8 +45,9 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         requestValidator.validateCreationRequest(creationRequestDto);
 
         MentorshipRequest request = requestMapper.toMentorshipRequest(creationRequestDto);
+        log.info("{}", request);
         request.setStatus(RequestStatus.PENDING);
-        MentorshipRequest savedRequest = mentorshipRequestRepository.save(request);
+        MentorshipRequest savedRequest = requestRepository.save(request);
         log.info(
                 "The mentorship request has been saved in data base! Requester ID - {}, receiver ID - {}, date of creation - {}",
                 requesterId, receiverId, savedRequest.getCreatedAt()
@@ -58,13 +60,13 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     @Override
     public List<MentorshipRequestDto> getRequests(RequestFilterDto filterDto) {
         log.info("A request has been received to retrieve mentorship requests with the provided filter.");
-        Stream<MentorshipRequest> requestsToFilter = mentorshipRequestRepository.findAll().stream();
+        Stream<MentorshipRequest> requestsToFilter = requestRepository.findAll().stream();
         List<RequestFilter> filtersToApply =
                 requestFilters.stream()
                         .filter(requestFilter -> requestFilter.isApplicable(filterDto))
                         .toList();
 
-        for (RequestFilter filter: filtersToApply) {
+        for (RequestFilter filter : filtersToApply) {
             requestsToFilter = filter.apply(requestsToFilter, filterDto);
         }
 
@@ -77,10 +79,13 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
     @Transactional
     @Override
     public MentorshipRequestDto acceptRequest(Long requestId) {
+        log.info("Accepting mentorship request with ID: {}", requestId);
         MentorshipRequest request = requestValidator.validateAcceptRequest(requestId);
 
         User requester = request.getRequester();
         User receiver = request.getReceiver();
+        initializeLists(requester);
+        initializeLists(receiver);
         requester.getMentors().add(receiver);
         receiver.getMentees().add(requester);
 
@@ -88,17 +93,32 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         userRepository.save(receiver);
 
         request.setStatus(RequestStatus.ACCEPTED);
-        return requestMapper.toMentorshipRequestDto(mentorshipRequestRepository.save(request));
+
+        MentorshipRequest savedRequest = requestRepository.save(request);
+        log.info("Successfully accepted request ID: {}", requestId);
+        return requestMapper.toMentorshipRequestDto(savedRequest);
     }
 
     @Transactional
     @Override
     public MentorshipRequestDto rejectRequest(Long requestId, RejectionDto rejectionDto) {
+        log.info("Rejecting mentorship request with ID: {}. Reason: {}", requestId, rejectionDto.getReason());
         MentorshipRequest request = requestValidator.validateRejectRequest(requestId);
 
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(rejectionDto.getReason());
 
-        return requestMapper.toMentorshipRequestDto(mentorshipRequestRepository.save(request));
+        MentorshipRequest savedRequest = requestRepository.save(request);
+        log.info("Successfully rejected request ID: {}", requestId);
+        return requestMapper.toMentorshipRequestDto(savedRequest);
+    }
+
+    private void initializeLists(User user) {
+        if (user.getMentors() == null) {
+            user.setMentors(new ArrayList<>());
+        }
+        if (user.getMentees() == null) {
+            user.setMentees(new ArrayList<>());
+        }
     }
 }
