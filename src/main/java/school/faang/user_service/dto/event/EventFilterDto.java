@@ -1,4 +1,4 @@
-package school.faang.user_service.dto.skill;
+package school.faang.user_service.dto.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,8 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SkillDto {
-    private Long id;
+public class EventFilterDto {
     private String title;
+    private Long ownerId;
+    private String location;
 }
