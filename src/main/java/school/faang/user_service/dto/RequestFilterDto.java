@@ -1,20 +1,17 @@
 package school.faang.user_service.dto;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import school.faang.user_service.entity.RequestStatus;
 
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
 @NoArgsConstructor
 public class RequestFilterDto {
-    private Long id;
+    @NotNull
     private Long requesterId;
-    private Long mentorId;
-    private String description;
+    private Long receiverId;
     private RequestStatus status;
+    private String description;
 }

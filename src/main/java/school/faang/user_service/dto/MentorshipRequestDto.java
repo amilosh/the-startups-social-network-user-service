@@ -1,15 +1,19 @@
 package school.faang.user_service.dto;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import school.faang.user_service.entity.RequestStatus;
 
 @Data
+@AllArgsConstructor
 @NoArgsConstructor
 public class MentorshipRequestDto {
-    private long id;
-    private String username;
-    private String email;
-
+    private Long id;
+    @NonNull
+    private Long requesterId;
+    @NonNull
+    private Long receiverId;
+    @NonNull
+    private String description;
+    private RequestStatus status;
+    private String rejectionReason;
 }

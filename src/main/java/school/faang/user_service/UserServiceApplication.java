@@ -28,6 +28,4 @@ public class UserServiceApplication {
         objectMapper.registerModule(new JavaTimeModule());
         return objectMapper;
     }
-
-    
 }

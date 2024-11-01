@@ -2,15 +2,14 @@ package school.faang.user_service.dto;
 
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import school.faang.user_service.entity.RequestStatus;
 
-@Getter
-@Setter
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class RejectionDto {
+    @NotNull
     private String reason;
-
-    @Enumerated(EnumType.STRING)
-    private RequestStatus status;
 }
