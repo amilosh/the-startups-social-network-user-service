@@ -18,23 +18,23 @@ public class RecommendationController {
     private final RecommendationService recommendationService;
     private final ControllerRecommendationValidator recommendationValidator;
 
-    public void updateRecommendation(RecommendationDto upRecommendation) {
-        log.info("A request has been received to update the recommendation {}", upRecommendation);
-        recommendationValidator.validateContentRecommendation(upRecommendation.getContent());
+    public void updateRecommendation(RecommendationDto updateRecommendationDto) {
+        log.info("A request has been received to update the recommendation {}", updateRecommendationDto);
+        recommendationValidator.validateContentRecommendation(updateRecommendationDto.getContent());
+        updateRecommendation(updateRecommendationDto);
     }
 
-    public RecommendationDto giveRecommendation(RecommendationDto recommendation) {
-        log.info("A request has been received for a recommendation {}", recommendation);
-        recommendationValidator.validateContentRecommendation(recommendation.getContent());
-        return recommendationService.giveRecommendation(recommendation);
+    public RecommendationDto giveRecommendation(RecommendationDto recommendationDto) {
+        log.info("A request has been received for a recommendation {}", recommendationDto);
+        recommendationValidator.validateContentRecommendation(recommendationDto.getContent());
+        return recommendationService.giveRecommendation(recommendationDto);
     }
 
-    public void deleteRecommendation(RecommendationDto delRecommendation) {
-        log.info("A request was received to delete the recommendation {}", delRecommendation);
+    public void deleteRecommendation(RecommendationDto delRecommendationDto) {
+        log.info("A request was received to delete the recommendation {}", delRecommendationDto);
     }
 
     public List<SkillOfferDto> getAllUserRecommendations(long receiverId) {
-
         return null;
     }
 }
