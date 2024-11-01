@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.mentorship.MentorshipRequestCreationDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
@@ -28,6 +29,22 @@ public class MentorshipRequestDtoValidator {
         validateUserExistence(requesterId, receiverId);
         validateDifferentUsers(requesterId, receiverId);
         validateLastRequestDate(requesterId, receiverId);
+    }
+
+    public MentorshipRequest validateAcceptRequest(Long requestId) {
+        MentorshipRequest request = validateRequest(requestId);
+        if (requestRepository.existAcceptedRequest(request.getRequester().getId(), request.getReceiver().getId())) {
+            throw new DataValidationException(
+                    "User %d and user %d already have an active mentorship relationship!".formatted(
+                            request.getRequester().getId(), request.getReceiver().getId()
+                    )
+            );
+        }
+        return request;
+    }
+
+    public MentorshipRequest validateRejectRequest(Long requestId) {
+        return validateRequest(requestId);
     }
 
     private void validateUserExistence(Long... userIds) {
@@ -60,23 +77,8 @@ public class MentorshipRequestDtoValidator {
         }
     }
 
-    public MentorshipRequest validateAcceptRequest(Long requestId) {
-        MentorshipRequest request = validateRequest(requestId);
-        if (requestRepository.existAcceptedRequest(request.getRequester().getId(), request.getReceiver().getId())) {
-            throw new DataValidationException(
-                    "The mentorship request from user %d to user %d has already been accepted!".formatted(request.getRequester().getId(), request.getReceiver().getId())
-            );
-        }
-        return request;
-    }
-
-    public MentorshipRequest validateRejectRequest(Long requestId) {
-        return validateRequest(requestId);
-    }
-
     private MentorshipRequest validateRequest(Long requestId) {
         validateIdIsNotNull(requestId);
-
         MentorshipRequest request = validateRequestExistence(requestId);
         validateRequestIsPending(request);
 
@@ -84,8 +86,8 @@ public class MentorshipRequestDtoValidator {
     }
 
     private void validateRequestIsPending(MentorshipRequest request) {
-        if (request.getStatus() == RequestStatus.ACCEPTED) {
-            throw new DataValidationException("The mentorship request with ID %d has already been accepted!".formatted(request.getId()));
+        if (request.getStatus() != RequestStatus.PENDING) {
+            throw new DataValidationException("The mentorship request with ID %d has already been processed!".formatted(request.getId()));
         }
     }
 
