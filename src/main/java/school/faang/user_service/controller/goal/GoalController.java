@@ -51,13 +51,13 @@ public class GoalController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/user-goals/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<List<GoalDto>> getGoalsByUserId(@PathVariable("userId") Long userId,
                                                           @RequestBody GoalFilterDto filters) {
         return ResponseEntity.ok(goalService.getGoalsByUserId(userId, filters));
     }
 
-    @GetMapping("/subtasks/{goalId}")
+    @GetMapping("/{goalId}/subtasks")
     public ResponseEntity<List<GoalDto>> findSubtasksByGoalId(@PathVariable("goalId") Long goalId,
                                                               @RequestBody GoalFilterDto filters) {
         return ResponseEntity.ok(goalService.findSubtasksByGoalId(goalId, filters));

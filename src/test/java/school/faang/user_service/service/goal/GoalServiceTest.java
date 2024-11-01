@@ -34,7 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class GoalServiceImplTest {
+public class GoalServiceTest {
 
     @Mock
     private GoalRepository goalRepository;
@@ -49,7 +49,7 @@ public class GoalServiceImplTest {
     private SkillRepository skillRepository;
 
     @InjectMocks
-    private GoalServiceImpl service;
+    private GoalService service;
 
     @BeforeEach
     public void setUp() {
