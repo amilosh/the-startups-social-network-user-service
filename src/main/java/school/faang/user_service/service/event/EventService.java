@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.user.UserService;
@@ -22,6 +23,12 @@ public class EventService {
         Event event = eventMapper.toEntity(eventDto);
         event.setOwner(userService.findById(eventDto.getOwnerId()));
         event = eventRepository.save(event);
+        return eventMapper.toDto(event);
+    }
+
+    public EventDto getEvent(long id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new DataValidationException("There is no event with this number"));
         return eventMapper.toDto(event);
     }
 }
