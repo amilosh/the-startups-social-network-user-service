@@ -40,7 +40,7 @@ public class EventParticipationControllerTest {
         postgres.withDatabaseName("test_db")
                 .withUsername("user")
                 .withPassword("password");
-        postgres.withInitScript("service/event/init.sql");
+        postgres.withInitScript("event/init.sql");
         postgres.start();
     }
 
