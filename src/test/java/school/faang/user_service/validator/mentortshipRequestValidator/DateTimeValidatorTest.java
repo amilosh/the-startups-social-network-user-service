@@ -21,7 +21,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class DateTimeValidatorTest {
-
     @InjectMocks
     private DateTimeValidation dateTimeValidation;
 
@@ -56,13 +55,17 @@ public class DateTimeValidatorTest {
     public void testDateTimeValidatorFailed() {
         prepareLatestRequestMock(LocalDateTime.now().minusDays(10));
 
-        assertThrows(IllegalArgumentException.class, () -> dateTimeValidation.validate(dto, validationContext));
+        assertThrows(IllegalArgumentException.class,
+                () -> dateTimeValidation.validate(dto, validationContext));
     }
 
     private void prepareLatestRequestMock(LocalDateTime date) {
         MentorshipRequestDto dto = prepareData(1L, 2L, "description");
 
-        when(validationContext.mentorshipRequestService().findLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId()))
+        when(validationContext.mentorshipRequestService()
+                .findLatestRequest(
+                        dto.getRequesterUserId(),
+                        dto.getReceiverUserId()))
                 .thenReturn(Optional.of(mentorshipRequest));
         when(mentorshipRequest.getCreatedAt()).thenReturn(date);
     }

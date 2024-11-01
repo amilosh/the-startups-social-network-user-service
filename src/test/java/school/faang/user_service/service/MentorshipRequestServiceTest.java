@@ -4,7 +4,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.MentorshipRequestDto;
@@ -30,8 +29,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class MentorshipRequestServiceTest {
-
-    @InjectMocks
     private MentorshipRequestService mentorshipRequestService;
 
     @Mock
@@ -69,8 +66,11 @@ public class MentorshipRequestServiceTest {
     public void testCreateMentorshipRequestValidationFailed() {
         mentorshipRequestValidators.add(mentorshipRequestValidator);
 
-        doThrow(new IllegalArgumentException()).when(mentorshipRequestValidator).validate(any(), any());
-        assertThrows(IllegalArgumentException.class, () -> mentorshipRequestService.createRequestMentorship(new MentorshipRequestDto()));
+        doThrow(new IllegalArgumentException()).
+                when(mentorshipRequestValidator).validate(any(), any());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mentorshipRequestService.createRequestMentorship(new MentorshipRequestDto()));
     }
 
     @Test
@@ -108,7 +108,8 @@ public class MentorshipRequestServiceTest {
         long invalidId = -1;
 
         when(mentorshipRequestRepository.findById(invalidId)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> mentorshipRequestService.acceptRequest(invalidId));
+        assertThrows(EntityNotFoundException.class,
+                () -> mentorshipRequestService.acceptRequest(invalidId));
     }
 
     @Test
@@ -116,7 +117,8 @@ public class MentorshipRequestServiceTest {
         MentorshipRequest request = prepareDataMentorshipRequest(1L, true);
         when(mentorshipRequestRepository.findById(request.getId())).thenReturn(Optional.of(request));
 
-        assertThrows(IllegalStateException.class, () -> mentorshipRequestService.acceptRequest(request.getId()));
+        assertThrows(IllegalStateException.class,
+                () -> mentorshipRequestService.acceptRequest(request.getId()));
     }
 
     @Test
@@ -158,8 +160,11 @@ public class MentorshipRequestServiceTest {
     private void assertFindLatestRequest(long requesterId, long receiverId, Optional<MentorshipRequest> expectedResult) {
         MentorshipRequestDto dto = prepareMentorshipRequestDto(requesterId, receiverId, "description");
 
-        when(mentorshipRequestRepository.findLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId())).thenReturn(expectedResult);
-        Optional<MentorshipRequest> result = mentorshipRequestService.findLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId());
+        when(mentorshipRequestRepository
+                .findLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId())).thenReturn(expectedResult);
+        Optional<MentorshipRequest> result = mentorshipRequestService
+                .findLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId());
+
         assertEquals(expectedResult.isPresent(), result.isPresent());
     }
 

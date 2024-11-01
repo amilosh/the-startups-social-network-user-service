@@ -16,6 +16,7 @@ public class ReceiverFilter implements MentorshipRequestFilter {
 
     @Override
     public void apply(Stream<MentorshipRequest> mentorshipRequestStream, MentorshipRequestFilterDto requestFilterDto) {
-        mentorshipRequestStream.filter(mentorshipRequest -> mentorshipRequest.getReceiver().getId().equals(requestFilterDto.getReceiverUserId()));
+        mentorshipRequestStream.filter(mentorshipRequest ->
+                mentorshipRequest.getReceiver().getId().equals(requestFilterDto.getReceiverUserId()));
     }
 }

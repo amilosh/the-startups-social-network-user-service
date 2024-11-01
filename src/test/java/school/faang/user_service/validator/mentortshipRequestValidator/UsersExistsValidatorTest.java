@@ -16,7 +16,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class UsersExistsValidatorTest {
-
     @InjectMocks
     private UsersExistsValidator usersExistsValidator;
 
@@ -39,8 +38,8 @@ public class UsersExistsValidatorTest {
     @Test
     public void testRequesterUsersExistsValidatorFailed() {
         testOnExistsUsers(dto.getRequesterUserId(), false);
-
-        assertThrows(IllegalArgumentException.class, () -> usersExistsValidator.validate(dto, validationContext));
+        assertThrows(IllegalArgumentException.class,
+                () -> usersExistsValidator.validate(dto, validationContext));
     }
 
     @Test
@@ -48,7 +47,8 @@ public class UsersExistsValidatorTest {
         testOnExistsUsers(dto.getRequesterUserId(), true);
         testOnExistsUsers(dto.getReceiverUserId(), false);
 
-        assertThrows(IllegalArgumentException.class, () -> usersExistsValidator.validate(dto, validationContext));
+        assertThrows(IllegalArgumentException.class,
+                () -> usersExistsValidator.validate(dto, validationContext));
     }
 
     @Test

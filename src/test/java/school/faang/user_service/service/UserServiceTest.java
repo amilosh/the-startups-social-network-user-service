@@ -14,7 +14,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
-
     @InjectMocks
     private UserService userService;
 
@@ -29,13 +28,13 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testFindUserById() {
+    public void testExistsUserById() {
         when(userRepository.existsById(userId)).thenReturn(true);
         assertTrue(userService.existsById(userId));
     }
 
     @Test
-    public void testNotFoundUserById() {
+    public void testNotExistsUserById() {
         when(userRepository.existsById(userId)).thenReturn(false);
         assertFalse(userService.existsById(userId));
     }

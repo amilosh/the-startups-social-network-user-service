@@ -31,8 +31,8 @@ public interface MentorshipRequestMapper {
     @Mapping(target = "requester", ignore = true)
     @Mapping(target = "receiver", ignore = true)
     @Mapping(source = "status", target = "status", qualifiedByName = "stringToStatus")
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(source = "createdAt", target = "createdAt", qualifiedByName = "stringToLocalDateTime")
+    @Mapping(source = "updatedAt", target = "updatedAt", qualifiedByName = "stringToLocalDateTime")
     MentorshipRequest toEntity(MentorshipRequestDto mentorshipRequestDto);
 
     @Named("statusToString")

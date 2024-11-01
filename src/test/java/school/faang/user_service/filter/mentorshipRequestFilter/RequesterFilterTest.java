@@ -19,7 +19,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class RequesterFilterTest {
-
     RequesterFilter requesterFilter = new RequesterFilter();
 
     MentorshipRequestFilterDto requestFilterDto;
