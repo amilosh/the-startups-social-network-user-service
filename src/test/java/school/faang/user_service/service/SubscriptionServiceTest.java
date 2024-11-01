@@ -6,127 +6,187 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.controller.SubscriptionController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.filters.UserFilter;
+import school.faang.user_service.filter.SubscriptionFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.util.List;
-import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionServiceTest {
 
-  private long followerId = 1L;
-  private long followeeId = 2L;
+    @Mock
+    private SubscriptionRepository subscriptionRepository;
 
-  @Mock
-  private SubscriptionRepository subscriptionRepository;
+    @Mock
+    private SubscriptionFilter subscriptionFilter;
 
-  @Mock
-  private UserMapper userMapper;
+    @Mock
+    private UserMapper userMapper;
 
-  @Mock
-  private List<UserFilter> userFilters;
+    @InjectMocks
+    private SubscriptionService subscriptionService;
 
-  @InjectMocks
-  private SubscriptionService subscriptionService;
+    private SubscriptionController subscriptionController = new SubscriptionController(subscriptionService);
 
-  private User user;
-  private UserDto userDto;
+    private long followerId;
+    private long followeeId;
+    private User user1;
+    private User user2;
+    private List<User> users;
+    private List<UserDto> userDtos;
+    private UserFilterDto filterDto;
 
-  @BeforeEach
-  void setUp() {
-    user = new User();
-    userDto = new UserDto();
-  }
+    @BeforeEach
+    public void setUp() {
+        subscriptionController = new SubscriptionController(subscriptionService);
+        followerId = 1L;
+        followeeId = 2L;
+        filterDto = UserFilterDto.builder().emailPattern("example.com").build();
+        user1 = new User();
+        user1.setEmail("user1@example.com");
+        user1.setUsername("user1");
+        user1.setId(1L);
+        user2 = new User();
+        user2.setEmail("user2@example.com");
+        user2.setUsername("user2");
+        user2.setId(2L);
+        users = List.of(user1, user2);
+        userDtos = List.of(
+                UserDto.builder().id(1L).username("user1").email("user1@example.com").build(),
+                UserDto.builder().id(2L).username("user2").email("user2@example.com").build()
+        );
+    }
 
-  @Test
-  void testFollowYourself() {
-    assertThrows(DataValidationException.class, () -> subscriptionService.followUser(followerId, followerId));
-  }
+    @Test
+    public void testIfThrowsExceptionWhenUserFollowsHimself() {
+        assertThrows(DataValidationException.class,
+                () -> subscriptionController.followUser(followerId, followerId));
+    }
 
-  @Test
-  void testExistingSubscription() {
-    when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(true);
-    assertThrows(DataValidationException.class, () -> subscriptionService.followUser(followerId, followeeId));
-  }
+    @Test
+    public void testIfThrowsExceptionWhenUserIsAlreadyFollowingTheUser() {
+        // arrange
+        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
+                .thenReturn(false)
+                .thenReturn(true);
 
-  @Test
-  void testFollowUser() throws DataValidationException {
-    when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(false);
-    subscriptionService.followUser(followerId, followeeId);
+        // act, assert, verify
+        subscriptionService.followUser(followerId, followeeId);
+        assertThrows(DataValidationException.class,
+                () -> subscriptionService.followUser(followerId, followeeId));
 
-    verify(subscriptionRepository, times(1)).followUser(followerId, followeeId);
+        verify(subscriptionRepository).followUser(followerId, followeeId);
+    }
 
-  }
+    @Test
+    public void testFollowUser() {
+        // arrange
+        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
+                .thenReturn(false);
 
-  @Test
-  void testUnfollowYourself() {
-    assertThrows(DataValidationException.class, () -> subscriptionService.unfollowUser(followerId, followerId));
-  }
+        // act
+        subscriptionService.followUser(followerId, followeeId);
 
-  @Test
-  void testUnfollowUser() throws DataValidationException {
-    subscriptionService.unfollowUser(followerId, followeeId);
+        // assert
+        verify(subscriptionRepository).followUser(followerId, followeeId);
+    }
 
-    verify(subscriptionRepository, times(1)).unfollowUser(followerId, followeeId);
-  }
+    @Test
+    public void testIfThrowsExceptionWhenUserUnfollowsHimself() {
+        assertThrows(DataValidationException.class,
+                () -> subscriptionController.unfollowUser(followerId, followerId));
+    }
 
-  @Test
-  void testGetFollowers() {
-    List<User> users = List.of(user);
+    @Test
+    public void testIfThrowsExceptionWhenUserIsNotFollowingTheUser() {
+        // arrange
+        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
+                .thenReturn(true)
+                .thenReturn(false);
 
-    when(subscriptionRepository.findByFollowerId(followeeId)).thenReturn(users.stream());
-    when(userMapper.toDto(user)).thenReturn(userDto);
+        // act, assert, verify
+        subscriptionService.unfollowUser(followerId, followeeId);
+        assertThrows(DataValidationException.class,
+                () -> subscriptionService.unfollowUser(followerId, followeeId));
 
-    List<UserDto> result = subscriptionService.getFollowers(followeeId);
+        verify(subscriptionRepository).unfollowUser(followerId, followeeId);
+    }
 
-    assertEquals(1, result.size());
-    assertEquals(userDto, result.get(0));
-  }
+    @Test
+    public void testUnfollowUser() {
+        // arrange
+        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId))
+                .thenReturn(true);
 
-  @Test
-  void testGetFollowersCount() {
-    int count = 5;
+        // act
+        subscriptionService.unfollowUser(followerId, followeeId);
 
-    when(subscriptionRepository.findFollowersAmountByFolloweeId(followeeId)).thenReturn(count);
+        // assert
+        verify(subscriptionRepository).unfollowUser(followerId, followeeId);
+    }
 
-    int result = subscriptionService.getFollowersCount(followeeId);
+    @Test
+    public void testGetFollowers() {
+        // Arrange
+        when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(users.stream());
+        when(userMapper.toDto(anyList())).thenReturn(userDtos);
 
-    assertEquals(count, result);
-  }
+        // Act
+        List<UserDto> result = subscriptionService.getFollowers(followeeId, filterDto);
 
-  @Test
-  void testGetFollowing() {
-    List<User> users = List.of(user);
-    UserFilterDto filter = new UserFilterDto();
+        // Assert
+        assertEquals(userDtos, result);
+        verify(subscriptionRepository).findByFolloweeId(followeeId);
+        verify(userMapper).toDto(anyList());
+    }
 
-    when(subscriptionRepository.findByFollowerId(followeeId)).thenReturn(users.stream());
-    when(userMapper.toDto(user)).thenReturn(userDto);
-    when(userFilters.stream()).thenReturn(Stream.empty());
+    @Test
+    public void testGetFollowingCount() {
+        // arrange
+        when(subscriptionRepository.findFollowersAmountByFolloweeId(followeeId))
+                .thenReturn(2);
 
-    List<UserDto> result = subscriptionService.getFollowing(followeeId, filter);
+        // act
+        int followingCount = subscriptionService.getFollowingCount(followeeId);
 
-    assertNotNull(result);
-    assertEquals(1, result.size());
-    assertEquals(userDto, result.get(0));
-  }
+        // assert
+        assertEquals(2, followingCount);
+    }
 
-  @Test
-  void testGetFollowingCount() {
-    int count = 5;
+    @Test
+    public void testGetFollowing() {
+        when(subscriptionRepository.findByFollowerId(followerId)).thenReturn(users.stream());
+        when(userMapper.toDto(anyList())).thenReturn(userDtos);
 
-    when(subscriptionRepository.findFolloweesAmountByFollowerId(followerId)).thenReturn(count);
+        List<UserDto> result = subscriptionService.getFollowing(followerId, filterDto);
 
-    int result = subscriptionService.getFollowingCount(followerId);
+        assertEquals(userDtos, result);
+        verify(subscriptionRepository).findByFollowerId(followerId);
+        verify(userMapper).toDto(anyList());
+    }
 
-    assertEquals(count, result);
-  }
+    @Test
+    public void testGetFollowersCount() {
+        // arrange
+        when(subscriptionRepository.findFolloweesAmountByFollowerId(followerId))
+                .thenReturn(2);
+
+        // act
+        int followersCount = subscriptionService.getFollowersCount(followerId);
+
+        // assert
+        assertEquals(2, followersCount);
+    }
 }
