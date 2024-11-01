@@ -14,31 +14,30 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/invitation")
+@RequestMapping("/GoalInvitation")
 public class GoalInvitationController {
     private final GoalInvitationService goalInvitationService;
 
-    @PutMapping("/create")
+    @PostMapping()
     public GoalInvitationDto createInvitation(@RequestBody GoalInvitationDto invitationDTO) {
         return goalInvitationService.createInvitation(invitationDTO);
     }
 
-    @PutMapping("/accept/id")
+    @PutMapping("/{id}")
     public GoalInvitationResponseDto acceptGoalInvitation(@PathVariable long id) {
         return goalInvitationService.acceptGoalInvitation(id);
     }
 
-    @DeleteMapping("/reject/id")
+    @DeleteMapping("/{id}")
     public SuccessResponse rejectGoalInvitation(@PathVariable long id) {
         if(goalInvitationService.rejectGoalInvitation(id)) {
             return new SuccessResponse("Invitation declined.");
         } else {
             throw new IllegalArgumentException("Invitation does not exist.");
         }
-
     }
 
-    @PostMapping("/getInvitations")
+    @GetMapping()
     public List<GoalInvitation> getInvitations(@RequestBody GoalInvitationFilterDto filterDTO) {
         return goalInvitationService.getInvitationsByFilter(filterDTO);
     }
