@@ -36,11 +36,12 @@ public class MentorshipService {
         User mentee = validateId(menteeId);
         User mentor = validateId(mentorId);
 
-        boolean resultOfDeletion = removeFromListWithResult(mentor.getMentees(), mentee, mentee.getMentors(), mentor);
+        boolean resultOfDeletion = removeFromListWithResult(mentor.getMentees(), mentee);
         if (resultOfDeletion) {
+            saveChangesOfUserInDB(mentor);
             log.info("Mentee with menteeId={} was successfully removed from the mentor with mentorId={}", menteeId, mentorId);
         } else {
-            log.warn("Mentee with menteeId={} not found by the mentor with mentorId={}", menteeId, mentorId);
+            log.info("Mentee with menteeId={} not found by the mentor with mentorId={}", menteeId, mentorId);
         }
     }
 
@@ -48,36 +49,25 @@ public class MentorshipService {
         User mentee = validateId(menteeId);
         User mentor = validateId(mentorId);
 
-        boolean resultOfDeletion = removeFromListWithResult(mentee.getMentors(), mentor, mentor.getMentees(), mentee);
+        boolean resultOfDeletion = removeFromListWithResult(mentee.getMentors(), mentor);
         if (resultOfDeletion) {
+            saveChangesOfUserInDB(mentee);
             log.info("Mentor with mentorId={} was successfully removed from the mentee with menteeId={}", mentorId, menteeId);
         } else {
-            log.warn("Mentor with mentorId={} not found by the mentee with menteeId={}", mentorId, menteeId);
+            log.info("Mentor with mentorId={} not found by the mentee with menteeId={}", mentorId, menteeId);
         }
     }
 
     private User validateId(long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("UserId is not found"));
+        return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("UserId " + userId + " is not found"));
     }
 
-    private boolean removeFromListWithResult(List<User> users, User userForDelete, List<User> listOfUserForDelete, User whoHadSomethingRemoved) {
-        boolean result = users.removeIf(user ->
-                Objects.equals(user.getId(), userForDelete.getId())
-                        && validateOfTheSecondUsersList(listOfUserForDelete, whoHadSomethingRemoved));
-        if (result) {
-            userRepository.save(whoHadSomethingRemoved);
-            listOfUserForDelete.remove(whoHadSomethingRemoved);
-            userRepository.save(userForDelete);
-        }
-        return result;
+    private boolean removeFromListWithResult(List<User> users, User userForDelete) {
+        return users.removeIf(user -> Objects.equals(user.getId(), userForDelete.getId()));
     }
 
-    private boolean validateOfTheSecondUsersList(List<User> users, User userForDelete) {
-        if (users.stream().noneMatch(user -> user.getId().equals(userForDelete.getId()))) {
-            log.warn("An error occurred during deletion. A user with an ID={} in another list for deletion was not found. Please check the correctness of the database.", userForDelete.getId());
-            throw new EntityNotFoundException("User ID Not Found in Related List for Deletion");
-        }
-        return true;
+    private void saveChangesOfUserInDB(User user) {
+        userRepository.save(user);
     }
 }
 

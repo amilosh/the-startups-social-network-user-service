@@ -15,7 +15,6 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -38,25 +37,12 @@ public class MentorshipServiceTest {
 
     private final long CORRECT_ID_1 = 1L;
     private final long CORRECT_ID_2 = 2L;
-    private final long SIMPLE_ID = 15L;
     private final long NON_EXIST_USER_ID = 123456L;
-    private User simpleUser;
     private User userWithEmptyListOfMenteesAndMentors;
     private User userWithMenteesAndMentors;
 
     @BeforeEach
     void initData() {
-        User userForSimpleUser = User.builder()
-                .id(CORRECT_ID_2)
-                .build();
-        simpleUser = User.builder()
-                .id(SIMPLE_ID)
-                .username("Roma")
-                .email("roma@mail.ru")
-                .city("London")
-                .mentees(new ArrayList<>(Collections.singletonList(userForSimpleUser)))
-                .mentors(new ArrayList<>(Collections.singletonList(userForSimpleUser)))
-                .build();
         userWithEmptyListOfMenteesAndMentors = User.builder()
                 .id(CORRECT_ID_1)
                 .username("Max")
@@ -70,8 +56,8 @@ public class MentorshipServiceTest {
                 .username("Denis")
                 .email("denis@mail.ru")
                 .city("New York")
-                .mentees(new ArrayList<>(Collections.singletonList(simpleUser)))
-                .mentors(new ArrayList<>(Arrays.asList(simpleUser, userWithEmptyListOfMenteesAndMentors)))
+                .mentees(new ArrayList<>(Collections.singletonList(userWithEmptyListOfMenteesAndMentors)))
+                .mentors(new ArrayList<>(Collections.singletonList(userWithEmptyListOfMenteesAndMentors)))
                 .build();
     }
 
@@ -128,15 +114,14 @@ public class MentorshipServiceTest {
     @Test
     public void testDeleteMenteeWithExistingMenteeForMentor() {
         when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
-        when(repository.findById(SIMPLE_ID)).thenReturn(Optional.ofNullable(simpleUser));
+        when(repository.findById(CORRECT_ID_1)).thenReturn(Optional.ofNullable(userWithEmptyListOfMenteesAndMentors));
 
-        service.deleteMentee(SIMPLE_ID, CORRECT_ID_2);
+        service.deleteMentee(CORRECT_ID_1, CORRECT_ID_2);
         List<User> realList = userWithMenteesAndMentors.getMentees();
         List<User> expectedList = new ArrayList<>();
 
         verify(repository).findById(CORRECT_ID_2);
-        verify(repository).findById(SIMPLE_ID);
-        verify(repository).save(simpleUser);
+        verify(repository).findById(CORRECT_ID_1);
         verify(repository).save(userWithMenteesAndMentors);
         assertEquals(expectedList, realList);
     }
@@ -146,9 +131,9 @@ public class MentorshipServiceTest {
         when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
         when(repository.findById(CORRECT_ID_1)).thenReturn(Optional.ofNullable(userWithEmptyListOfMenteesAndMentors));
 
-        List<User> realList = userWithMenteesAndMentors.getMentees();
-        service.deleteMentee(CORRECT_ID_1, CORRECT_ID_2);
-        List<User> expectedList = userWithMenteesAndMentors.getMentees();
+        List<User> realList = userWithEmptyListOfMenteesAndMentors.getMentees();
+        service.deleteMentee(CORRECT_ID_2, CORRECT_ID_1);
+        List<User> expectedList = userWithEmptyListOfMenteesAndMentors.getMentees();
 
         verify(repository).findById(CORRECT_ID_2);
         verify(repository).findById(CORRECT_ID_1);
@@ -159,15 +144,14 @@ public class MentorshipServiceTest {
     @Test
     public void testDeleteMentorWithExistingMentorForMentee() {
         when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
-        when(repository.findById(SIMPLE_ID)).thenReturn(Optional.ofNullable(simpleUser));
+        when(repository.findById(CORRECT_ID_1)).thenReturn(Optional.ofNullable(userWithEmptyListOfMenteesAndMentors));
 
-        service.deleteMentor(SIMPLE_ID, CORRECT_ID_2);
-        List<User> realList = simpleUser.getMentors();
+        service.deleteMentor(CORRECT_ID_2, CORRECT_ID_1);
+        List<User> realList = userWithMenteesAndMentors.getMentors();
         List<User> expectedList = new ArrayList<>();
 
         verify(repository).findById(CORRECT_ID_2);
-        verify(repository).findById(SIMPLE_ID);
-        verify(repository).save(simpleUser);
+        verify(repository).findById(CORRECT_ID_1);
         verify(repository).save(userWithMenteesAndMentors);
         assertEquals(expectedList, realList);
     }
@@ -177,21 +161,13 @@ public class MentorshipServiceTest {
         when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
         when(repository.findById(CORRECT_ID_1)).thenReturn(Optional.ofNullable(userWithEmptyListOfMenteesAndMentors));
 
-        List<User> realList = userWithMenteesAndMentors.getMentors();
+        List<User> realList = userWithEmptyListOfMenteesAndMentors.getMentors();
         service.deleteMentor(CORRECT_ID_1, CORRECT_ID_2);
-        List<User> expectedList = userWithMenteesAndMentors.getMentors();
+        List<User> expectedList = userWithEmptyListOfMenteesAndMentors.getMentors();
 
         verify(repository).findById(CORRECT_ID_2);
         verify(repository).findById(CORRECT_ID_1);
         verify(repository, never()).save(any());
         assertEquals(expectedList, realList);
-    }
-
-    @Test
-    public void testDeleteMentorWithNotExistingByMentorMentee() {
-        when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
-        when(repository.findById(CORRECT_ID_1)).thenReturn(Optional.ofNullable(userWithEmptyListOfMenteesAndMentors));
-
-        assertThrows(EntityNotFoundException.class, () -> service.deleteMentor(CORRECT_ID_2, CORRECT_ID_1));
     }
 }
