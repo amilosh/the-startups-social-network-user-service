@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,7 +9,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.MentorshipRequestFilterDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
@@ -67,9 +70,7 @@ public class MentorshipRequestServiceTest {
         mentorshipRequestValidators.add(mentorshipRequestValidator);
 
         doThrow(new IllegalArgumentException()).when(mentorshipRequestValidator).validate(any(), any());
-
         assertThrows(IllegalArgumentException.class, () -> mentorshipRequestService.createRequestMentorship(new MentorshipRequestDto()));
-
     }
 
     @Test
@@ -81,10 +82,9 @@ public class MentorshipRequestServiceTest {
 
     @Test
     public void testCreateMentorshipRequestValidationSuccessful() {
-        MentorshipRequestDto dto = prepareData(1L, 2L, "description");
+        MentorshipRequestDto dto = prepareMentorshipRequestDto(1L, 2L, "description");
 
         mentorshipRequestService.createRequestMentorship(dto);
-
         verify(mentorshipRequestRepository).create(
                 dto.getRequesterUserId(),
                 dto.getReceiverUserId(),
@@ -103,15 +103,67 @@ public class MentorshipRequestServiceTest {
         assertFindLatestRequest(1L, 2L, Optional.empty());
     }
 
+    @Test
+    public void testAcceptRequestNotFound() {
+        long invalidId = -1;
+
+        when(mentorshipRequestRepository.findById(invalidId)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> mentorshipRequestService.acceptRequest(invalidId));
+    }
+
+    @Test
+    public void testRequestAlreadyAccepted() {
+        MentorshipRequest request = prepareDataMentorshipRequest(1L, true);
+        when(mentorshipRequestRepository.findById(request.getId())).thenReturn(Optional.of(request));
+
+        assertThrows(IllegalStateException.class, () -> mentorshipRequestService.acceptRequest(request.getId()));
+    }
+
+    @Test
+    public void testAcceptRequestSuccessful() {
+        MentorshipRequest request = prepareDataMentorshipRequest(2L, false);
+        when(mentorshipRequestRepository.findById(request.getId())).thenReturn(Optional.of(request));
+
+        mentorshipRequestService.acceptRequest(request.getId());
+    }
+
+    @Test
+    public void testRejectRequestNotFound() {
+        testAcceptRequestNotFound();
+    }
+
+    @Test
+    public void testRejectRequestSuccessful() {
+        MentorshipRequest request = prepareDataMentorshipRequest(2L, false);
+        when(mentorshipRequestRepository.findById(request.getId())).thenReturn(Optional.of(request));
+
+        mentorshipRequestService.rejectRequest(request.getId(), new RejectionDto());
+    }
+
+    private MentorshipRequest prepareDataMentorshipRequest(long id, boolean isAccepted) {
+        MentorshipRequest request = new MentorshipRequest();
+        request.setId(id);
+        User requesterUser = new User();
+        User receiverUser = new User();
+        if (isAccepted) {
+            requesterUser.setMentors(List.of(receiverUser));
+        } else {
+            requesterUser.setMentors(new ArrayList<>());
+        }
+        request.setRequester(requesterUser);
+        request.setReceiver(receiverUser);
+        return request;
+    }
+
     private void assertFindLatestRequest(long requesterId, long receiverId, Optional<MentorshipRequest> expectedResult) {
-        MentorshipRequestDto dto = prepareData(requesterId, receiverId, "description");
+        MentorshipRequestDto dto = prepareMentorshipRequestDto(requesterId, receiverId, "description");
 
         when(mentorshipRequestRepository.findLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId())).thenReturn(expectedResult);
         Optional<MentorshipRequest> result = mentorshipRequestService.findLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId());
         assertEquals(expectedResult.isPresent(), result.isPresent());
     }
 
-    private MentorshipRequestDto prepareData(long requesterId, long receiverId, String description) {
+    private MentorshipRequestDto prepareMentorshipRequestDto(long requesterId, long receiverId, String description) {
         MentorshipRequestDto dto = new MentorshipRequestDto();
         dto.setRequesterUserId(requesterId);
         dto.setReceiverUserId(receiverId);
