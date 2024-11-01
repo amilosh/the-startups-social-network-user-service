@@ -16,6 +16,7 @@ public class SkillDto {
 
     @Min(0)
     @Max(300)
-    @NotBlank
     private String title;
+
+    private int userIds;
 }

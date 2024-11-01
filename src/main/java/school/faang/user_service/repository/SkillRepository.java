@@ -18,15 +18,6 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
     int countExisting(List<Long> ids);
 
     @Query(nativeQuery = true, value = """
-           SELECT COUNT(so.id)
-           FROM skill_offer so
-           JOIN recommendation r ON so.recommendation_id = r.id
-           WHERE so.skill_id = :skillId
-           AND r.receiver_id = :userId
-           """)
-    long countOffersBySkillAndUser(Long skillId, Long userId);
-
-    @Query(nativeQuery = true, value = """
             SELECT s.* FROM skill s
             JOIN user_skill us ON us.skill_id = s.id
             WHERE us.user_id = ?1
@@ -57,10 +48,4 @@ public interface SkillRepository extends JpaRepository<Skill, Long> {
             WHERE gs.goal_id = ?1)
             """)
     List<Skill> findSkillsByGoalId(long goalId);
-
-    @Query(nativeQuery = true, value = """
-            INSERT INTO user_skill_guarantee (user_id, skill_id, guarantor_id) 
-            VALUES (?1, ?2, ?3)
-            """)
-    void addGuarantor(long userId, long skillId, long guarantorId);
 }
