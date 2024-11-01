@@ -142,8 +142,15 @@ public class GoalService {
     }
 
     @Transactional
-    public void deleteGoal(Long goalId) {
-        goalRepository.deleteById(goalId);
+    public void deleteGoal(long goalId) {
+        // Проверка существования цели
+        Goal goalToDelete = goalRepository.findById(goalId)
+                .orElseThrow(() -> new EntityNotFoundException("Goal not found by Id: " + goalId));
+        // Проверка, завершена ли цель (если требуется) перед удалением
+        if (goalToDelete.getStatus() == GoalStatus.COMPLETED) {
+            throw new IllegalStateException("Cannot delete a completed goal. Please unmark it before deletion.");
+        }
+        goalRepository.delete(goalToDelete);
     }
 
     @Transactional
