@@ -1,6 +1,5 @@
 package school.faang.user_service.validation.mentorship;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.mentorship.MentorshipRequestCreationDto;
@@ -35,7 +34,7 @@ public class MentorshipRequestDtoValidator {
         Arrays.stream(userIds)
                 .forEach(userId -> {
                     if (!userRepository.existsById(userId)) {
-                        throw new EntityNotFoundException("User with ID %d does not exist in the database!".formatted(userId));
+                        throw new DataValidationException("User with ID %d does not exist in the database!".formatted(userId));
                     }
                 });
     }
@@ -92,7 +91,7 @@ public class MentorshipRequestDtoValidator {
 
     private MentorshipRequest validateRequestExistence(Long requestId) {
         return requestRepository.findById(requestId)
-                .orElseThrow(() -> new EntityNotFoundException(
+                .orElseThrow(() -> new DataValidationException(
                         "The mentorship request with ID %d does not exist in the database!".formatted(requestId))
                 );
     }
