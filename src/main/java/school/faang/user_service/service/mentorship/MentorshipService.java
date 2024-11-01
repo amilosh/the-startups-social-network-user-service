@@ -40,7 +40,7 @@ public class MentorshipService {
         if (resultOfDeletion) {
             log.info("Mentee with menteeId={} was successfully removed from the mentor with mentorId={}", menteeId, mentorId);
         } else {
-            log.info("Mentee with menteeId={} not found by the mentor with mentorId={}", menteeId, mentorId);
+            log.warn("Mentee with menteeId={} not found by the mentor with mentorId={}", menteeId, mentorId);
         }
     }
 
@@ -52,7 +52,7 @@ public class MentorshipService {
         if (resultOfDeletion) {
             log.info("Mentor with mentorId={} was successfully removed from the mentee with menteeId={}", mentorId, menteeId);
         } else {
-            log.info("Mentor with mentorId={} not found by the mentee with menteeId={}", mentorId, menteeId);
+            log.warn("Mentor with mentorId={} not found by the mentee with menteeId={}", mentorId, menteeId);
         }
     }
 
@@ -61,19 +61,23 @@ public class MentorshipService {
     }
 
     private boolean removeFromListWithResult(List<User> users, User userForDelete, List<User> listOfUserForDelete, User whoHadSomethingRemoved) {
-        boolean result = users.removeIf(user -> Objects.equals(user.getId(), userForDelete.getId()));
+        boolean result = users.removeIf(user ->
+                Objects.equals(user.getId(), userForDelete.getId())
+                        && validateOfTheSecondUsersList(listOfUserForDelete, whoHadSomethingRemoved));
         if (result) {
-            validateOfTheSecondUsersList(listOfUserForDelete, whoHadSomethingRemoved);
+            userRepository.save(whoHadSomethingRemoved);
             listOfUserForDelete.remove(whoHadSomethingRemoved);
+            userRepository.save(userForDelete);
         }
         return result;
     }
 
-    private void validateOfTheSecondUsersList(List<User> users, User userForDelete) {
+    private boolean validateOfTheSecondUsersList(List<User> users, User userForDelete) {
         if (users.stream().noneMatch(user -> user.getId().equals(userForDelete.getId()))) {
-            log.info("An error occurred during deletion. A user with an ID={} in another list for deletion was not found. Please check the correctness of the database.", userForDelete.getId());
+            log.warn("An error occurred during deletion. A user with an ID={} in another list for deletion was not found. Please check the correctness of the database.", userForDelete.getId());
             throw new EntityNotFoundException("UserId is not found");
         }
+        return true;
     }
 }
 

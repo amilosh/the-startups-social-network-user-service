@@ -70,7 +70,7 @@ public class MentorshipServiceTest {
                 .username("Denis")
                 .email("denis@mail.ru")
                 .city("New York")
-                .mentees(new ArrayList<>(Arrays.asList(simpleUser, userWithEmptyListOfMenteesAndMentors)))
+                .mentees(new ArrayList<>(Collections.singletonList(simpleUser)))
                 .mentors(new ArrayList<>(Arrays.asList(simpleUser, userWithEmptyListOfMenteesAndMentors)))
                 .build();
     }
@@ -132,7 +132,7 @@ public class MentorshipServiceTest {
 
         service.deleteMentee(SIMPLE_ID, CORRECT_ID_2);
         List<User> realList = userWithMenteesAndMentors.getMentees();
-        List<User> expectedList = new ArrayList<>(Collections.singletonList(userWithEmptyListOfMenteesAndMentors));
+        List<User> expectedList = new ArrayList<>();
 
         verify(repository).findById(CORRECT_ID_2);
         verify(repository).findById(SIMPLE_ID);
@@ -140,14 +140,16 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void testDeleteMentorWithNonExistingMenteeForMentor() {
+    public void testDeleteMenteeWithNonExistingMenteeForMentor() {
         when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
+        when(repository.findById(CORRECT_ID_1)).thenReturn(Optional.ofNullable(userWithEmptyListOfMenteesAndMentors));
 
         List<User> realList = userWithMenteesAndMentors.getMentees();
-        service.deleteMentee(CORRECT_ID_2, CORRECT_ID_2);
+        service.deleteMentee(CORRECT_ID_1, CORRECT_ID_2);
         List<User> expectedList = userWithMenteesAndMentors.getMentees();
 
-        verify(repository, times(2)).findById(CORRECT_ID_2);
+        verify(repository).findById(CORRECT_ID_2);
+        verify(repository).findById(CORRECT_ID_1);
         assertEquals(expectedList, realList);
     }
 
@@ -162,26 +164,29 @@ public class MentorshipServiceTest {
 
         verify(repository).findById(CORRECT_ID_2);
         verify(repository).findById(SIMPLE_ID);
+
         assertEquals(expectedList, realList);
     }
 
     @Test
     public void testDeleteMentorWithNonExistingMentorForMentee() {
         when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
+        when(repository.findById(CORRECT_ID_1)).thenReturn(Optional.ofNullable(userWithEmptyListOfMenteesAndMentors));
 
         List<User> realList = userWithMenteesAndMentors.getMentors();
-        service.deleteMentee(CORRECT_ID_2, CORRECT_ID_2);
+        service.deleteMentor(CORRECT_ID_1, CORRECT_ID_2);
         List<User> expectedList = userWithMenteesAndMentors.getMentors();
 
-        verify(repository, times(2)).findById(CORRECT_ID_2);
+        verify(repository).findById(CORRECT_ID_2);
+        verify(repository).findById(CORRECT_ID_1);
         assertEquals(expectedList, realList);
     }
 
     @Test
-    public void testDeleteMenteeWithNotExistingByMenteeMentor() {
+    public void testDeleteMentorWithNotExistingByMentorMentee() {
         when(repository.findById(CORRECT_ID_2)).thenReturn(Optional.ofNullable(userWithMenteesAndMentors));
         when(repository.findById(CORRECT_ID_1)).thenReturn(Optional.ofNullable(userWithEmptyListOfMenteesAndMentors));
 
-        assertThrows(EntityNotFoundException.class, () -> service.deleteMentee(CORRECT_ID_1, CORRECT_ID_2));
+        assertThrows(EntityNotFoundException.class, () -> service.deleteMentor(CORRECT_ID_2, CORRECT_ID_1));
     }
 }
