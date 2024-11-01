@@ -136,6 +136,8 @@ public class MentorshipServiceTest {
 
         verify(repository).findById(CORRECT_ID_2);
         verify(repository).findById(SIMPLE_ID);
+        verify(repository).save(simpleUser);
+        verify(repository).save(userWithMenteesAndMentors);
         assertEquals(expectedList, realList);
     }
 
@@ -150,6 +152,7 @@ public class MentorshipServiceTest {
 
         verify(repository).findById(CORRECT_ID_2);
         verify(repository).findById(CORRECT_ID_1);
+        verify(repository, never()).save(any());
         assertEquals(expectedList, realList);
     }
 
@@ -164,7 +167,8 @@ public class MentorshipServiceTest {
 
         verify(repository).findById(CORRECT_ID_2);
         verify(repository).findById(SIMPLE_ID);
-
+        verify(repository).save(simpleUser);
+        verify(repository).save(userWithMenteesAndMentors);
         assertEquals(expectedList, realList);
     }
 
@@ -179,6 +183,7 @@ public class MentorshipServiceTest {
 
         verify(repository).findById(CORRECT_ID_2);
         verify(repository).findById(CORRECT_ID_1);
+        verify(repository, never()).save(any());
         assertEquals(expectedList, realList);
     }
 

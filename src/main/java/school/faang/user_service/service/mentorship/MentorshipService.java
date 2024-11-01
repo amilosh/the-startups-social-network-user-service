@@ -75,7 +75,7 @@ public class MentorshipService {
     private boolean validateOfTheSecondUsersList(List<User> users, User userForDelete) {
         if (users.stream().noneMatch(user -> user.getId().equals(userForDelete.getId()))) {
             log.warn("An error occurred during deletion. A user with an ID={} in another list for deletion was not found. Please check the correctness of the database.", userForDelete.getId());
-            throw new EntityNotFoundException("UserId is not found");
+            throw new EntityNotFoundException("User ID Not Found in Related List for Deletion");
         }
         return true;
     }
