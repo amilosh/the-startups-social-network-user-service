@@ -15,10 +15,8 @@ public class EventTitleFilter implements EventFilter {
 
     @Override
     public List<Event> apply(List<Event> events, EventFilterDto filterDto) {
-        events = events.stream()
-                .filter(event -> event.getTitle().equals(filterDto.getTitlePattern()))
+        return events.stream()
+                .filter(event -> event.getTitle().contains(filterDto.getTitlePattern()))
                 .toList();
-
-        return events;
     }
 }
