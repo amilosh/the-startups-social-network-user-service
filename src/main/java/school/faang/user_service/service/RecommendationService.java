@@ -11,7 +11,7 @@ import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.validation.recommendation.RecommendationValidator;
+import school.faang.user_service.validation.recommendation.RecommendationServiceValidator;
 
 import java.util.List;
 
@@ -21,12 +21,12 @@ public class RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final RecommendationMapper recommendationMapper;
-    private final RecommendationValidator recommendationValidator;
+    private final RecommendationServiceValidator recommendationServiceValidator;
     private final UserService userService;
 
     public RecommendationDto create(RecommendationDto recommendationDto) {
-        recommendationValidator.validateTimeAfterLastRecommendation(recommendationDto);
-        recommendationValidator.validateSkillExists(recommendationDto);
+        recommendationServiceValidator.validateTimeAfterLastRecommendation(recommendationDto);
+        recommendationServiceValidator.validateSkillExists(recommendationDto);
 
         saveSkillOffers(recommendationDto);
         addSkillGuarantee(recommendationDto);
@@ -36,8 +36,8 @@ public class RecommendationService {
     }
 
     public RecommendationDto update(RecommendationDto recommendationDto) {
-        recommendationValidator.validateTimeAfterLastRecommendation(recommendationDto);
-        recommendationValidator.validateSkillExists(recommendationDto);
+        recommendationServiceValidator.validateTimeAfterLastRecommendation(recommendationDto);
+        recommendationServiceValidator.validateSkillExists(recommendationDto);
 
         recommendationRepository.update(
                 recommendationDto.getAuthorId(),
@@ -51,12 +51,18 @@ public class RecommendationService {
         return recommendationMapper.toDto(getRecommendationById(recommendationDto.getId()));
     }
 
+    public boolean delete(long id) {
+        recommendationServiceValidator.validateRecommendationExistsById(id);
+        recommendationRepository.deleteById(id);
+        return !recommendationRepository.existsById(id);
+    }
+
     public Recommendation getRecommendationById(Long recommendationId) {
         return recommendationRepository.findById(recommendationId).orElseThrow(() ->
                 new IllegalArgumentException("Recommendation with id #" + recommendationId + " not found"));
     }
 
-    private Recommendation saveAndReturnRecommendation(RecommendationDto recommendationDto){
+    private Recommendation saveAndReturnRecommendation(RecommendationDto recommendationDto) {
         return recommendationRepository.
                 findById(recommendationRepository.create(recommendationDto.getAuthorId(),
                         recommendationDto.getReceiverId(),

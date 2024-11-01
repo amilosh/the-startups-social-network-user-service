@@ -1,13 +1,13 @@
 package school.faang.user_service.validation.recommendation;
 
-import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.service.SkillService;
 import school.faang.user_service.validation.skill.SkillValidation;
 
 import java.time.LocalDate;
@@ -16,29 +16,15 @@ import java.util.Comparator;
 import java.util.List;
 
 @Component
-@Data
-public class RecommendationValidator {
+@RequiredArgsConstructor
+public class RecommendationServiceValidator {
+    private final RecommendationRepository recommendationRepository;
     private final SkillOfferRepository skillOfferRepository;
-    private final SkillService skillService;
     private final SkillValidation skillValidation;
 
-
-    public void validateDto(RecommendationDto recommendationDto) {
-
-        if (recommendationDto.getAuthorId() == null) {
-            throw new DataValidationException("Author id cannot be null");
-        }
-
-        if (recommendationDto.getReceiverId() == null) {
-            throw new DataValidationException("Receiver id cannot be null");
-        }
-
-        if (recommendationDto.getReceiverId().equals(recommendationDto.getAuthorId())) {
-            throw new DataValidationException("You cannot recommend yourself");
-        }
-
-        if (recommendationDto.getContent() == null || recommendationDto.getContent().isBlank()) {
-            throw new DataValidationException("Recommendation cannot be empty");
+    public void validateRecommendationExistsById(Long id) {
+        if (!recommendationRepository.existsById(id)) {
+            throw new DataValidationException("Recommendation with id #" + id + " doesn't exist in the system");
         }
     }
 

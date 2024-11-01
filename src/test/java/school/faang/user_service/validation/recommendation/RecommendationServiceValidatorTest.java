@@ -1,7 +1,6 @@
 package school.faang.user_service.validation.recommendation;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,28 +16,33 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
+import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validation.skill.SkillValidation;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class RecommendationValidatorTest {
-
+class RecommendationServiceValidatorTest {
     @Mock
     private SkillOfferRepository skillOfferRepository;
 
     @Mock
     private SkillValidation skillValidation;
 
+    @Mock
+    private RecommendationRepository recommendationRepository;
+
     @Spy
     private RecommendationMapperImpl recommendationMapper;
 
     @InjectMocks
-    private RecommendationValidator recommendationValidator;
+    private RecommendationServiceValidator recommendationServiceValidator;
 
     private RecommendationDto dto;
     private Recommendation recommendation;
@@ -60,47 +64,6 @@ class RecommendationValidatorTest {
     }
 
     @Test
-    @DisplayName("testAuthorIdIsNull")
-    void testAuthorIdIsNull() {
-        dto.setAuthorId(null);
-
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateDto(dto));
-    }
-
-    @Test
-    @DisplayName("testReceiverIdIsNull")
-    void testReceiverIdIsNull() {
-        dto.setReceiverId(null);
-
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateDto(dto));
-    }
-
-    @Test
-    @DisplayName("testReceiverIdEqualsAuthorId")
-    void testReceiverIdEqualsAuthorId() {
-        dto.setReceiverId(3L);
-        dto.setAuthorId(3L);
-
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateDto(dto));
-    }
-
-    @Test
-    @DisplayName("testContentIsNull")
-    void testContentIsNull() {
-        dto.setContent(null);
-
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateDto(dto));
-    }
-
-    @Test
-    @DisplayName("testContentIsBlank")
-    void testContentIsBlank() {
-        dto.setContent(" ");
-
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateDto(dto));
-    }
-
-    @Test
     void testRecommendationWithEarlyDate() {
         User author = new User();
         author.setId(dto.getAuthorId());
@@ -108,16 +71,28 @@ class RecommendationValidatorTest {
         recommendation.setCreatedAt(LocalDateTime.now().minusDays(150));
 
 
-        Mockito.when(skillOfferRepository.findAllByUserId(dto.getReceiverId())).thenReturn(
+        when(skillOfferRepository.findAllByUserId(dto.getReceiverId())).thenReturn(
                 List.of(new SkillOffer(1L, new Skill(), recommendation)));
 
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateTimeAfterLastRecommendation(dto));
+        assertThrows(DataValidationException.class, () -> recommendationServiceValidator.validateTimeAfterLastRecommendation(dto));
     }
 
     @Test
     void testSkillNotExists() {
-        Mockito.when(skillValidation.validateSkillExists(Mockito.anyLong())).thenReturn(false);
+        when(skillValidation.validateSkillExists(Mockito.anyLong())).thenReturn(false);
 
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateSkillExists(dto));
+        assertThrows(DataValidationException.class, () -> recommendationServiceValidator.validateSkillExists(dto));
+    }
+
+    @Test
+    void testRecommendationExistenceInvalidId() {
+        recommendation.setId(1L);
+        when(recommendationRepository.existsById(recommendation.getId())).thenReturn(false);
+
+        Exception result = assertThrows(DataValidationException.class, () ->
+                recommendationServiceValidator.validateRecommendationExistsById(recommendation.getId()));
+
+        assertEquals("Recommendation with id #" + recommendation.getId() + " doesn't exist in the system",
+                result.getMessage());
     }
 }

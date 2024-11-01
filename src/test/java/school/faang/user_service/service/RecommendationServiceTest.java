@@ -13,7 +13,7 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.validation.recommendation.RecommendationValidator;
+import school.faang.user_service.validation.recommendation.RecommendationServiceValidator;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +31,7 @@ class RecommendationServiceTest {
     SkillOfferRepository skillOfferRepository;
 
     @Mock
-    RecommendationValidator recommendationValidator;
+    RecommendationServiceValidator recommendationServiceValidator;
 
     @Spy
     RecommendationMapperImpl recommendationMapper;
@@ -59,7 +59,6 @@ class RecommendationServiceTest {
         recommendation.setId(10L);
     }
 
-
     @Test
     void testCreate() {
         when(recommendationRepository.create(
@@ -73,8 +72,8 @@ class RecommendationServiceTest {
 
         assertEquals(10L, result.getId());
 
-        verify(recommendationValidator, times(1)).validateTimeAfterLastRecommendation(dto);
-        verify(recommendationValidator, times(1)).validateSkillExists(dto);
+        verify(recommendationServiceValidator, times(1)).validateTimeAfterLastRecommendation(dto);
+        verify(recommendationServiceValidator, times(1)).validateSkillExists(dto);
     }
 
     @Test
@@ -89,11 +88,25 @@ class RecommendationServiceTest {
         assertEquals(10L, result.getId());
         assertEquals("Updated content", result.getContent());
 
-        verify(recommendationValidator, times(1)).validateTimeAfterLastRecommendation(dto);
-        verify(recommendationValidator, times(1)).validateSkillExists(dto);
+        verify(recommendationServiceValidator, times(1)).validateTimeAfterLastRecommendation(dto);
+        verify(recommendationServiceValidator, times(1)).validateSkillExists(dto);
         verify(recommendationRepository, times(1))
                 .update(dto.getAuthorId(), dto.getReceiverId(), dto.getContent());
         verify(skillOfferRepository, times(1)).deleteAllByRecommendationId(dto.getId());
+
+    }
+
+    @Test
+    void testDelete() {
+        recommendation.setId(1L);
+        when(recommendationRepository.existsById(recommendation.getId())).thenReturn(false);
+
+        boolean result = recommendationService.delete(recommendation.getId());
+
+        assertTrue(result);
+        verify(recommendationServiceValidator, times(1)).validateRecommendationExistsById(recommendation.getId());
+        verify(recommendationRepository, times(1)).existsById(recommendation.getId());
+
 
     }
 

@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.dto.SkillOfferDto;
 import school.faang.user_service.service.RecommendationService;
-import school.faang.user_service.validation.recommendation.RecommendationValidator;
+import school.faang.user_service.validation.recommendation.RecommendationControllerValidator;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ class RecommendationControllerTest {
     private RecommendationService recommendationService;
 
     @Mock
-    private RecommendationValidator recommendationValidator;
+    private RecommendationControllerValidator recommendationControllerValidator;
 
     @InjectMocks
     private RecommendationController recommendationController;
@@ -50,7 +50,7 @@ class RecommendationControllerTest {
 
         RecommendationDto result = recommendationController.giveRecommendation(dto);
 
-        verify(recommendationValidator, times(1)).validateDto(dto);
+        verify(recommendationControllerValidator, times(1)).validateDto(dto);
         verify(recommendationService, times(1)).create(dto);
 
         assertNotNull(result);
@@ -66,7 +66,33 @@ class RecommendationControllerTest {
         assertNotNull(result);
         assertEquals(dto, result);
 
-        verify(recommendationValidator, times(1)).validateDto(dto);
+        verify(recommendationControllerValidator, times(1)).validateDto(dto);
         verify(recommendationService, times(1)).update(dto);
+    }
+
+    @Test
+    void testDeleteRecommendationSuccess() {
+        dto.setId(1L);
+        when(recommendationService.delete(dto.getId())).thenReturn(true);
+
+        boolean result = recommendationController.deleteRecommendation(dto.getId());
+
+        assertTrue(result);
+
+        verify(recommendationControllerValidator, times(1)).validateRecommendationId(dto.getId());
+        verify(recommendationService, times(1)).delete(dto.getId());
+    }
+
+    @Test
+    void testDeleteRecommendationInvalidId() {
+        dto.setId(1L);
+        when(recommendationService.delete(dto.getId())).thenReturn(false);
+
+        boolean result = recommendationController.deleteRecommendation(dto.getId());
+
+        assertFalse(result);
+
+        verify(recommendationControllerValidator, times(1)).validateRecommendationId(dto.getId());
+        verify(recommendationService, times(1)).delete(dto.getId());
     }
 }
