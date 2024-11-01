@@ -1,3 +1,8 @@
+app:
+  user-service:
+    goal-service:
+      max-goals-amount: 3
+
 spring:
   mvc:
     servlet:
