@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import school.faang.user_service.entity.MentorshipRequest;
 
-@Mapper
+@Mapper (componentModel = "spring")
 public interface MentorshipRequestMapper {
     @Mapping(source = "requester.id", target = "requesterId")
     @Mapping(source = "receiver.id", target = "receiverId")
