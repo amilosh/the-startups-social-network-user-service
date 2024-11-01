@@ -7,6 +7,6 @@ import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.entity.goal.GoalInvitation;
 
 @Repository
-public interface GoalInvitationRepository extends CrudRepository<GoalInvitation, Long> {
+public interface GoalInvitationRepository extends JpaRepository<GoalInvitation, Long> {
     void save(GoalInvitationDto goalInvitationDto);
 }
