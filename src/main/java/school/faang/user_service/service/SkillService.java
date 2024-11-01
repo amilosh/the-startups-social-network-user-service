@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
@@ -9,9 +10,10 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.SkillAlreadyAcquiredException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.UserSkillGuaranteeRepository; // Ensure this repository is created
+import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.List;
@@ -25,22 +27,26 @@ public class SkillService {
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
     private final SkillOfferRepository skillOfferRepository;
-    private final UserSkillGuaranteeRepository userSkillGuaranteeRepository; // Injected for saving guarantors
+    private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
-    private static final int MIN_SKILL_OFFERS = 3;
+    @Value("${skill.minOffersRequired}")
+    private int minOffersRequired;
 
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
 
-        if (skillRepository.findUserSkill(skillId, userId).isPresent()) {
-            return null;
-        }
+//        if (skillRepository.findUserSkill(skillId, userId).isPresent()) {
+//            return null;
+//        }
+        skillRepository.findUserSkill(skillId, userId)
+                .ifPresent(skill -> {
+                    throw new SkillAlreadyAcquiredException("User already has this skill. ");
+                });
 
         List<SkillOffer> skillOffers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
 
-        if (skillOffers.size() < MIN_SKILL_OFFERS) {
+        if (skillOffers.size() < minOffersRequired) {
             throw new DataValidationException("Not enough offers to acquire the skill.");
         }
-
 
         skillRepository.assignSkillToUser(skillId, userId);
 
@@ -52,7 +58,6 @@ public class SkillService {
                     .build();
             userSkillGuaranteeRepository.save(guarantee);
         });
-
 
         Skill skill = skillRepository.findById(skillId)
                 .orElseThrow(() -> new DataValidationException("Skill not found."));
