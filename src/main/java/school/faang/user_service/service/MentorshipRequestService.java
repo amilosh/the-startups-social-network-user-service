@@ -79,8 +79,9 @@ public class MentorshipRequestService {
         return mentorshipRequestMapper.toDto(mentorshipRequest);
     }
 
-    public Optional<MentorshipRequest> findLatestRequest(long requesterId, long receiverId) {
-        return mentorshipRequestRepository.findLatestRequest(requesterId, receiverId);
+    public MentorshipRequest findLatestRequest(long requesterId, long receiverId) {
+        return mentorshipRequestRepository.findLatestRequest(requesterId, receiverId)
+                .orElseThrow(() -> new EntityNotFoundException("latest mentorship request not found"));
     }
 
     private MentorshipRequest findMentorshipRequestById(long id) {

@@ -3,6 +3,7 @@ package school.faang.user_service.validator.mentortshipRequestValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.validator.MentorshipRequestValidator;
 import school.faang.user_service.validator.ValidationContext;
 
@@ -17,8 +18,10 @@ public class DateTimeValidation implements MentorshipRequestValidator {
         long requesterUserId = mentorshipRequestDto.getRequesterUserId();
         long receiverUserId = mentorshipRequestDto.getReceiverUserId();
 
-        validationContext.mentorshipRequestService().findLatestRequest(requesterUserId, receiverUserId)
-                .ifPresent(request -> checkIfOlderThanThreeMonths(request.getCreatedAt()));
+        MentorshipRequest request = validationContext.mentorshipRequestService()
+                .findLatestRequest(requesterUserId, receiverUserId);
+
+        checkIfOlderThanThreeMonths(request.getCreatedAt());
     }
 
     private void checkIfOlderThanThreeMonths(LocalDateTime date) {

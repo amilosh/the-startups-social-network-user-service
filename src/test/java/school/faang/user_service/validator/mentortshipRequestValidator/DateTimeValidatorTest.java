@@ -66,7 +66,7 @@ public class DateTimeValidatorTest {
                 .findLatestRequest(
                         dto.getRequesterUserId(),
                         dto.getReceiverUserId()))
-                .thenReturn(Optional.of(mentorshipRequest));
+                .thenReturn(mentorshipRequest);
         when(mentorshipRequest.getCreatedAt()).thenReturn(date);
     }
 

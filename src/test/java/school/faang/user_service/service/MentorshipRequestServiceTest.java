@@ -95,12 +95,30 @@ public class MentorshipRequestServiceTest {
 
     @Test
     public void testFindLatestRequest() {
-        assertFindLatestRequest(1L, 2L, Optional.of(new MentorshipRequest()));
+        MentorshipRequestDto dto = prepareMentorshipRequestDto(1L, 2L, "description");
+        Optional<MentorshipRequest> expected = Optional.of(new MentorshipRequest());
+
+        when(mentorshipRequestRepository
+                .findLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId()))
+                .thenReturn(expected);
+
+        MentorshipRequest result = mentorshipRequestService
+                .findLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId());
+
+        assertEquals(expected.get(), result);
     }
 
     @Test
     public void testNotFoundLastRequest() {
-        assertFindLatestRequest(1L, 2L, Optional.empty());
+        MentorshipRequestDto dto = prepareMentorshipRequestDto(1L, 2L, "description");
+        Optional<MentorshipRequest> expected = Optional.empty();
+
+        when(mentorshipRequestRepository
+                .findLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId()))
+                .thenReturn(expected);
+
+        assertThrows(EntityNotFoundException.class,
+                () -> mentorshipRequestService.findLatestRequest(1L, 2L));
     }
 
     @Test
@@ -155,17 +173,6 @@ public class MentorshipRequestServiceTest {
         request.setRequester(requesterUser);
         request.setReceiver(receiverUser);
         return request;
-    }
-
-    private void assertFindLatestRequest(long requesterId, long receiverId, Optional<MentorshipRequest> expectedResult) {
-        MentorshipRequestDto dto = prepareMentorshipRequestDto(requesterId, receiverId, "description");
-
-        when(mentorshipRequestRepository
-                .findLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId())).thenReturn(expectedResult);
-        Optional<MentorshipRequest> result = mentorshipRequestService
-                .findLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId());
-
-        assertEquals(expectedResult.isPresent(), result.isPresent());
     }
 
     private MentorshipRequestDto prepareMentorshipRequestDto(long requesterId, long receiverId, String description) {
