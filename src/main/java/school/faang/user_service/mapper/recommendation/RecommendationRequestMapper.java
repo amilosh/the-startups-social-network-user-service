@@ -14,6 +14,8 @@ import java.util.List;
 public interface RecommendationRequestMapper {
 
     @Mapping(source = "skills", target = "skillIds", qualifiedByName = "map")
+    @Mapping(source = "requester.id", target = "requesterId")
+    @Mapping(source = "receiver.id", target = "receiverId")
     RecommendationRequestDto toDto(RecommendationRequest recommendationRequest);
 
     @Mapping(target = "skills", ignore = true)

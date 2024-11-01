@@ -3,8 +3,8 @@ package school.faang.user_service.controller.recommendation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
-import school.faang.user_service.dto.recommendation.RejectionDto;
-import school.faang.user_service.dto.recommendation.RequestFilterDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestRejectionDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
 import school.faang.user_service.service.recommendation.RecommendationRequestService;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class RecommendationRequestController {
         return recommendationRequestService.create(recommendationRequest);
     }
 
-    public List<RecommendationRequestDto> getRecommendationRequests(RequestFilterDto filter) {
+    public List<RecommendationRequestDto> getRecommendationRequests(RecommendationRequestFilterDto filter) {
         return recommendationRequestService.getRequests(filter);
     }
 
@@ -30,7 +30,7 @@ public class RecommendationRequestController {
         return recommendationRequestService.getRequest(id);
     }
 
-    public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection){
+    public RecommendationRequestDto rejectRequest(long id, RecommendationRequestRejectionDto rejection) {
         return recommendationRequestService.rejectRequest(id, rejection);
     }
 }
