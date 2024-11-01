@@ -88,17 +88,17 @@ public class MentorshipRequestServiceImpl implements MentorshipRequestService {
         userRepository.save(receiver);
 
         request.setStatus(RequestStatus.ACCEPTED);
-        return requestMapper.toDto(mentorshipRequestRepository.save(request));
+        return requestMapper.toMentorshipRequestDto(mentorshipRequestRepository.save(request));
     }
 
     @Transactional
     @Override
-    public MentorshipRequestDto rejectRequest(Long requestId, RejectionDto rejection) {
+    public MentorshipRequestDto rejectRequest(Long requestId, RejectionDto rejectionDto) {
         MentorshipRequest request = requestValidator.validateRejectRequest(requestId);
 
         request.setStatus(RequestStatus.REJECTED);
-        request.setRejectionReason(rejection.getReason());
+        request.setRejectionReason(rejectionDto.getReason());
 
-        return requestMapper.toDto(mentorshipRequestRepository.save(request));
+        return requestMapper.toMentorshipRequestDto(mentorshipRequestRepository.save(request));
     }
 }

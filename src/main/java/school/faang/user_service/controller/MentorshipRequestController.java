@@ -40,7 +40,7 @@ public class MentorshipRequestController {
     }
 
     @PatchMapping("/{requestId}/reject")
-    public MentorshipRequestDto rejectRequest(@PathVariable Long requestId, @RequestBody RejectionDto rejection) {
-        return mentorshipRequestService.rejectRequest(requestId, rejection);
+    public MentorshipRequestDto rejectRequest(@PathVariable Long requestId, @RequestBody RejectionDto rejectionDto) {
+        return mentorshipRequestService.rejectRequest(requestId, rejectionDto);
     }
 }
