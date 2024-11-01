@@ -15,4 +15,6 @@ public class UserService {
         return userRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
+
+
 }

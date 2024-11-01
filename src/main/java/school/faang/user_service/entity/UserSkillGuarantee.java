@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -22,6 +23,7 @@ public class UserSkillGuarantee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Exclude
     private Long id;
 
     @ManyToOne
@@ -35,6 +37,12 @@ public class UserSkillGuarantee {
     @ManyToOne
     @JoinColumn(name = "guarantor_id")
     private User guarantor;
+
+    public UserSkillGuarantee(User user, Skill skill, User guarantor) {
+        this.user = user;
+        this.skill = skill;
+        this.guarantor = guarantor;
+    }
 
     public boolean isGuarantor(User user) {
         return guarantor.equals(user);
