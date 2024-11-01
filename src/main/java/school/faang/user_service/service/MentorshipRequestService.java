@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class MentorshipRequestService {
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final UserRepository userRepository;
     private final MentorshipRequestMapper mentorshipRequestMapper;
-
+    @Transactional
     public void requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
         long idRequester = mentorshipRequestDto.requesterId();
         long idReceiver = mentorshipRequestDto.receiverId();
@@ -42,7 +43,7 @@ public class MentorshipRequestService {
 
         }
     }
-
+    @Transactional
     public List<MentorshipRequestDto> getRequest(RequestFilterDto filter) {
         List<MentorshipRequest> allMentorshipRequest = mentorshipRequestRepository.findAll();
         return allMentorshipRequest.stream()
@@ -59,6 +60,7 @@ public class MentorshipRequestService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void acceptRequest(long id) {
         mentorshipRequestRepository.findById(id)
                 .ifPresentOrElse(
@@ -82,7 +84,7 @@ public class MentorshipRequestService {
                         }
                 );
     }
-
+    @Transactional
     public void rejectRequest(long id, String rejection) {
         mentorshipRequestRepository.findById(id)
                 .ifPresentOrElse(
