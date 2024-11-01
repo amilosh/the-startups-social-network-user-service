@@ -15,7 +15,8 @@ public interface UserMapper {
     @Mapping(source = "mentees", target = "menteesIds", qualifiedByName = "mentees")
     @Mapping(source = "mentors", target = "mentorsIds", qualifiedByName = "mentors")
     UserDto toDto(User user);
-
+    @Mapping(target = "mentees" , ignore = true)
+    @Mapping(target = "mentors" , ignore = true)
     User toUser(UserDto dto);
 
     @Named("mentees")
