@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.MentorshipRequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.filter.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
@@ -74,7 +74,7 @@ public class MentorshipRequestServiceTest {
 
     @Test
     public void testGetMentorshipRequest() {
-        mentorshipRequestService.getRequests(new RequestFilterDto());
+        mentorshipRequestService.getRequests(new MentorshipRequestFilterDto());
         verify(mentorshipRequestRepository).findAll();
     }
 

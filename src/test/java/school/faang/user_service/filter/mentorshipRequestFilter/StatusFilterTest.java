@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.MentorshipRequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 
@@ -21,11 +21,11 @@ import static org.mockito.Mockito.when;
 public class StatusFilterTest {
     StatusFilter requesterFilter = new StatusFilter();
 
-    RequestFilterDto requestFilterDto;
+    MentorshipRequestFilterDto requestFilterDto;
 
     @BeforeEach
     public void setUp() {
-        requestFilterDto = new RequestFilterDto();
+        requestFilterDto = new MentorshipRequestFilterDto();
     }
 
     @Test

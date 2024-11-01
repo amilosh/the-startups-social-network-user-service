@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.MentorshipRequestFilterDto;
 import school.faang.user_service.service.MentorshipRequestService;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public class MentorshipRequestController {
     private final MentorshipRequestService mentorshipRequestService;
 
     @GetMapping
-    public List<MentorshipRequestDto> getRequests(RequestFilterDto filter) {
+    public List<MentorshipRequestDto> getRequests(MentorshipRequestFilterDto filter) {
         return mentorshipRequestService.getRequests(filter);
     }
 

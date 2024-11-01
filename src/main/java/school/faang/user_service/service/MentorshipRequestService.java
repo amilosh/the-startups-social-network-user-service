@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.MentorshipRequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.filter.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
@@ -26,7 +26,7 @@ public class MentorshipRequestService {
     private final List<MentorshipRequestValidator> requestValidators;
     private final UserService userService;
 
-    public List<MentorshipRequestDto> getRequests(RequestFilterDto requestFilterDto) {
+    public List<MentorshipRequestDto> getRequests(MentorshipRequestFilterDto requestFilterDto) {
 
         Stream<MentorshipRequest> mentorshipRequestStream = mentorshipRequestRepository.findAll().stream();
 
@@ -44,6 +44,7 @@ public class MentorshipRequestService {
         // спросить по поводу обработки исключения, как мне например ловить исключение валидации и залогтровать его
         requestValidators.forEach(validator -> validator.validate(mentorshipRequestDto, context));
 
+        // спросить как добавлять другие поля в базу данных
         mentorshipRequestRepository.create(
                 mentorshipRequestDto.getRequesterUserId(),
                 mentorshipRequestDto.getReceiverUserId(),
