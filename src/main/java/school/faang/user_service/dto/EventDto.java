@@ -15,6 +15,6 @@ public record EventDto(
         @NotNull @FutureOrPresent LocalDateTime startDate,
         @NotNull @Future LocalDateTime endDate,
         @NotNull Long ownerId,
-        @NotBlank String description
+        String description
 ) {
 }

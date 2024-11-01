@@ -1,32 +1,13 @@
 package school.faang.user_service.mapper;
 
+import org.mapstruct.Mapper;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 
+@Mapper(componentModel = "Spring")
+public interface UserMapper {
 
-public class UserMapper {
+    UserDto toUserDto(User user);
 
-    public static User toEntity(UserDto userDto) {
-        if (userDto == null) {
-            return null;
-        }
-
-        return User.builder()
-                .id(userDto.id())
-                .username(userDto.username())
-                .email(userDto.email())
-                .build();
-    }
-
-    public static UserDto toDto(User user) {
-        if (user == null) {
-            return null;
-        }
-
-        return UserDto.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .build();
-    }
+    User toUser(UserDto userDto);
 }
