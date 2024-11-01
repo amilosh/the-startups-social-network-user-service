@@ -17,7 +17,7 @@ import school.faang.user_service.mapper.goal.GoalMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
-import school.faang.user_service.service.user.UserService;
+//import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.goal.GoalValidator;
 import school.faang.user_service.validator.skill.SkillValidator;
 
@@ -36,7 +36,7 @@ public class GoalService {
     private final List<GoalFilter> goalFilters;
     private final GoalValidator goalValidator;
     private final SkillRepository skillRepository;
-    private final UserService userService;
+    // private final UserService userService;
     private final SkillValidator skillValidator;
     private final UserRepository userRepository;
 
@@ -87,42 +87,80 @@ public class GoalService {
         return goalMapper.toGoalDto(savedGoal);
     }
 
+    //    @Transactional
+//    public GoalDto updateGoal(Long goalId, GoalDto goalDto) {
+//
+//        Goal goalToUpdate = goalRepository.findById(goalId)
+//                .orElseThrow(() -> new EntityNotFoundException("Goal not found by Id: " + goalId));
+//        if(goalDto.getParentId() != null) {}
+//
+//        Goal existingGoal = getGoalById(goalId);
+//        Goal updatedGoal = updateGoalEntity(existingGoal, goalDto);
+//
+//        return goalMapper.toGoalDto(updatedGoal);
+//    }
     @Transactional
-    public GoalDto updateGoal(long goalId, GoalDto goalDto) {
-
+    public GoalDto updateGoal(Long goalId, GoalDto goalDto) {
+        // Извлечение цели для обновления
         Goal goalToUpdate = goalRepository.findById(goalId)
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found by Id: " + goalId));
-        if(goalDto.getParentId() != null) {}
 
+        // Проверка статуса завершения: можно завершить только незавершенные цели
+        if (goalDto.getStatus() == GoalStatus.COMPLETED && goalToUpdate.getStatus() == GoalStatus.COMPLETED) {
+            throw new IllegalStateException("Goal is already completed and cannot be updated further.");
+        }
 
+        // Проверка существования скиллов
+        if (goalDto.getSkillIds() != null && !goalDto.getSkillIds().isEmpty()) {
+            List<Skill> foundSkills = skillRepository.findAllById(goalDto.getSkillIds());
 
-        Goal existingGoal = getGoalById(goalId);
+            if (foundSkills.size() != goalDto.getSkillIds().size()) {
+                List<Long> missingSkillIds = new ArrayList<>(goalDto.getSkillIds());
+                missingSkillIds.removeAll(foundSkills.stream().map(Skill::getId).toList());
 
-        Goal updatedGoal = updateGoalEntity(existingGoal, goalDto);
+                throw new EntityNotFoundException("Skills not found by IDs: " + missingSkillIds);
+            }
 
-        return goalMapper.toGoalDto(updatedGoal);
+            goalToUpdate.setSkillsToAchieve((List<Skill>) new HashSet<>(foundSkills));
+        }
+        // Обновление других полей цели сразу после проверки
+        if (goalDto.getTitle() != null) {
+            goalToUpdate.setTitle(goalDto.getTitle());
+        }
+        if (goalDto.getDescription() != null) {
+            goalToUpdate.setDescription(goalDto.getDescription());
+        }
+        if (goalDto.getDeadline() != null) {
+            goalToUpdate.setDeadline(goalDto.getDeadline());
+        }
+        if (goalDto.getStatus() != null) {
+            goalToUpdate.setStatus(goalDto.getStatus());
+        }
+
+        Goal savedGoal = goalRepository.save(goalToUpdate);
+        return goalMapper.toGoalDto(savedGoal);
     }
 
     @Transactional
-    public void deleteGoal(long goalId) {
+    public void deleteGoal(Long goalId) {
         goalRepository.deleteById(goalId);
     }
 
     @Transactional
-    public List<GoalDto> findSubtasksByGoalId(long goalId, GoalFilterDto filterDto) {
+    public List<GoalDto> findSubtasksByGoalId(Long goalId, GoalFilterDto filterDto) {
         Stream<Goal> goals = goalRepository.findByParent(goalId);
 
         return filterGoals(goals, filterDto);
     }
 
     @Transactional
-    public List<GoalDto> findGoalsByUserId(long userId, GoalFilterDto filterDto) {
+    public List<GoalDto> findGoalsByUserId(Long userId, GoalFilterDto filterDto) {
         Stream<Goal> goals = goalRepository.getGoalsByUserIdId(userId);
 
         return filterGoals(goals, filterDto);
     }
 
-    private Goal getGoalById(long goalId) {
+    private Goal getGoalById(Long goalId) {
         return goalRepository.findById(goalId)
                 .orElseThrow(() -> new EntityNotFoundException("Goal with this id does not exist in the database"));
     }
