@@ -40,10 +40,26 @@ public class EventService {
         Event savedEvent = eventRepository.save(event);
         log.info("Event saved with ID: {}", savedEvent.getId());
 
-        return eventMapper.toDto(event);
+        EventDto newEventDto = eventMapper.toDto(event);
+
+        EventDto updatedEventDto = EventDto.builder()
+                .id(newEventDto.id())
+                .title(newEventDto.title())
+                .startDate(newEventDto.startDate())
+                .endDate(newEventDto.endDate())
+                .ownerId(newEventDto.ownerId())
+                .description(newEventDto.description())
+                .relatedSkills(savedEvent.getRelatedSkills().stream()
+                        .map(skill -> skillMapper.toDto(skill))
+                        .toList())
+                .location(newEventDto.location())
+                .maxAttendees(newEventDto.maxAttendees())
+                .build();
+
+        return updatedEventDto;
     }
 
-    public void validateUserSkillsForEvent(User userOwner, EventDto eventDto) {
+    private void validateUserSkillsForEvent(User userOwner, EventDto eventDto) {
         List<Skill> relatedSkills = eventDto.relatedSkills().stream()
                 .map(skillDto -> skillMapper.toEntity(skillDto))
                 .toList();
