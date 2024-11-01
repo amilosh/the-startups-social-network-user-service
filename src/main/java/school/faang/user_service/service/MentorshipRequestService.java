@@ -16,7 +16,6 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,9 +79,7 @@ public class MentorshipRequestService {
                     .filter(res -> res.getDescription().equals(requestFilterDto.getDescription()))
                     .toList());
         }
-
-
-        return filteredRequests = filteredRequests.stream().distinct().toList();
+        return filteredRequests.stream().distinct().toList();
     }
 
     public Long acceptMentorship(Long id) {
@@ -94,12 +91,13 @@ public class MentorshipRequestService {
     }
 
     @Transactional
-    public void rejectRequest(long id, RejectionDto rejection) {
+    public MentorshipRequestDto rejectRequest(long id, RejectionDto rejection) {
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("MentorshipRequest not found"));
 
         mentorshipRequest.setStatus(RequestStatus.REJECTED);
         mentorshipRequest.setRejectionReason(rejection.getReason());
         mentorshipRequestRepository.save(mentorshipRequest);
+        return mentorshipRequestMapper.mapToDto(mentorshipRequest);
     }
 }

@@ -41,7 +41,7 @@ public class MentorshipRequestController {
     }
 
     @PostMapping("/{id}/reject")
-    public ResponseEntity<Void> rejectRequest(@Valid @PathVariable long id, @RequestBody RejectionDto rejection) {
+    public ResponseEntity<MentorshipRequestDto> rejectRequest(@Valid @PathVariable long id, @RequestBody RejectionDto rejection) {
         mentorshipRequestService.rejectRequest(id, rejection);
         return ResponseEntity.ok().build();
     }
