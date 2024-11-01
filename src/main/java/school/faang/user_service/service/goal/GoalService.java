@@ -108,8 +108,6 @@ public class GoalService {
                 .toList();
     }
 
-    // Вспомогательные методы
-
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found by Id: " + userId));
