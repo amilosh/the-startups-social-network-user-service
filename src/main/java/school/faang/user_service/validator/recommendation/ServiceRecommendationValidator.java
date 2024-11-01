@@ -28,7 +28,7 @@ public class ServiceRecommendationValidator {
     private final RecommendationRepository recommendationRepository;
 
     public void checkingThePeriodOfFasting(long authorId, long receiverId) {
-        //почему Recommendation а не Dto? Стоит ли его преобразовать?
+        //TODO  Написать маппер
         Optional<Recommendation> recommendation = recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId);
         if (recommendation.isPresent()) {
             int lastRecommendationMonth = recommendation.get().getCreatedAt().getMonthValue();
