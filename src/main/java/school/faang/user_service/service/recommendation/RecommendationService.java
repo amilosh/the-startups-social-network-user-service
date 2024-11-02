@@ -13,7 +13,6 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validator.recommendation.RecommendationValidator;
 
 import java.util.List;
@@ -34,12 +33,12 @@ public class RecommendationService {
         validator.validateDate(recommendationDto);
         validator.validateSkills(recommendationDto);
 
-        saveSkills(recommendationDto, author, user);
+        setGuarantee(recommendationDto, author, user);
         Recommendation savedRecommendation = recommendationRepository.save(mapper.toRecommendation(recommendationDto));
         return mapper.toRecommendationDto(savedRecommendation);
     }
 
-    private void saveSkills(RecommendationDto recommendationDto, User author, User user) {
+    private void setGuarantee(RecommendationDto recommendationDto, User author, User user) {
         List<Skill> skills = user.getSkills();
         if (recommendationDto.getSkillOffers() == null){
             return;
