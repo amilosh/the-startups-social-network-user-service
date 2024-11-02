@@ -32,6 +32,10 @@ public class RecommendationControllerValidator {
         if (recommendationDto.getContent() == null || recommendationDto.getContent().isBlank()) {
             throw new DataValidationException("Recommendation cannot be empty");
         }
+
+        if (recommendationDto.getSkillOffers() == null) {
+            throw new DataValidationException("Skill offers list cannot be null");
+        }
     }
 
     public void validateRecommendationId(Long id) {

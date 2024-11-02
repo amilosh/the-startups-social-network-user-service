@@ -34,7 +34,7 @@ class RecommendationControllerValidatorTest {
     }
 
     @Test
-    @DisplayName("testAuthorIdIsNull")
+    @DisplayName("Test Exception throw when Author Id is Null")
     void testAuthorIdIsNull() {
         dto.setAuthorId(null);
 
@@ -42,7 +42,7 @@ class RecommendationControllerValidatorTest {
     }
 
     @Test
-    @DisplayName("testAuthorIdIsZero")
+    @DisplayName("Test Exception throw when Author Id is 0")
     void testAuthorIdIsZero() {
         dto.setAuthorId(0L);
 
@@ -50,7 +50,7 @@ class RecommendationControllerValidatorTest {
     }
 
     @Test
-    @DisplayName("testAuthorIdIsNegative")
+    @DisplayName("Test Exception throw when Author Id is negative")
     void testAuthorIdIsNegative() {
         dto.setAuthorId(-5L);
 
@@ -58,7 +58,7 @@ class RecommendationControllerValidatorTest {
     }
 
     @Test
-    @DisplayName("testReceiverIdIsNull")
+    @DisplayName("Test Exception throw when Receiver Id is Null")
     void testReceiverIdIsNull() {
         dto.setReceiverId(null);
 
@@ -66,7 +66,7 @@ class RecommendationControllerValidatorTest {
     }
 
     @Test
-    @DisplayName("testReceiverIdIsZero")
+    @DisplayName("Test Exception throw when Receiver Id is 0")
     void testReceiverIdIsZero() {
         dto.setReceiverId(0L);
 
@@ -74,7 +74,7 @@ class RecommendationControllerValidatorTest {
     }
 
     @Test
-    @DisplayName("testReceiverIdIsNegative")
+    @DisplayName("Test Exception throw when Receiver Id is negative")
     void testReceiverIdIsNegative() {
         dto.setReceiverId(-5L);
 
@@ -82,7 +82,7 @@ class RecommendationControllerValidatorTest {
     }
 
     @Test
-    @DisplayName("testReceiverIdEqualsAuthorId")
+    @DisplayName("Test Exception throw when Receiver and Author are same person")
     void testReceiverIdEqualsAuthorId() {
         dto.setReceiverId(3L);
         dto.setAuthorId(3L);
@@ -91,7 +91,7 @@ class RecommendationControllerValidatorTest {
     }
 
     @Test
-    @DisplayName("testContentIsNull")
+    @DisplayName("Test Exception throw when Content is Null")
     void testContentIsNull() {
         dto.setContent(null);
 
@@ -99,7 +99,7 @@ class RecommendationControllerValidatorTest {
     }
 
     @Test
-    @DisplayName("testContentIsBlank")
+    @DisplayName("Test Exception throw when Content is Blank")
     void testContentIsBlank() {
         dto.setContent(" ");
 
@@ -107,7 +107,15 @@ class RecommendationControllerValidatorTest {
     }
 
     @Test
-    @DisplayName("testRecommendationIdIsNull")
+    @DisplayName("Test Exception throw when Skill Offer list is Null")
+    void testSkillOfferListIsNull() {
+        dto.setSkillOffers(null);
+
+        assertThrows(DataValidationException.class, () -> recommendationControllerValidator.validateDto(dto));
+    }
+
+    @Test
+    @DisplayName("Test Exception throw when Recommendation Id is Null")
     void testRecommendationIdIsNull() {
         dto.setId(null);
 
@@ -116,7 +124,7 @@ class RecommendationControllerValidatorTest {
     }
 
     @Test
-    @DisplayName("testRecommendationIdIsZero")
+    @DisplayName("Test Exception throw when Recommendation Id is 0")
     void testRecommendationIdIsZero() {
         dto.setId(0L);
 
@@ -125,7 +133,7 @@ class RecommendationControllerValidatorTest {
     }
 
     @Test
-    @DisplayName("testRecommendationIdIsNegative")
+    @DisplayName("Test Exception throw when Recommendation Id is negative")
     void testRecommendationIdIsNegative() {
         dto.setId(-6L);
 

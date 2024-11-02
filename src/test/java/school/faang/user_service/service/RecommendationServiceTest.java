@@ -9,10 +9,13 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.dto.SkillOfferDto;
+import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.entity.recommendation.SkillOffer;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validation.recommendation.RecommendationServiceValidator;
 
 import java.util.List;
@@ -25,22 +28,28 @@ import static org.mockito.Mockito.*;
 class RecommendationServiceTest {
 
     @Mock
-    RecommendationRepository recommendationRepository;
-
-    @Mock
-    SkillOfferRepository skillOfferRepository;
-
-    @Mock
-    RecommendationServiceValidator recommendationServiceValidator;
+    private RecommendationRepository recommendationRepository;
 
     @Spy
-    RecommendationMapperImpl recommendationMapper;
+    private RecommendationMapperImpl recommendationMapper;
+
+    @Mock
+    private RecommendationServiceValidator recommendationServiceValidator;
+
+    @Mock
+    private UserService userService;
+
+    @Mock
+    private SkillOfferService skillOfferService;
+
+    @Mock
+    private SkillService skillService;
 
     @InjectMocks
-    RecommendationService recommendationService;
+    private RecommendationService recommendationService;
 
-    RecommendationDto dto;
-    Recommendation recommendation;
+    private RecommendationDto dto;
+    private Recommendation recommendation;
 
     @BeforeEach
     void setUp() {
@@ -56,30 +65,55 @@ class RecommendationServiceTest {
                 .build();
 
         recommendation = recommendationMapper.toEntity(dto);
-        recommendation.setId(10L);
     }
 
     @Test
-    void testCreate() {
-        when(recommendationRepository.create(
-                dto.getAuthorId(),
-                dto.getReceiverId(),
-                dto.getContent()))
-                .thenReturn(10L);
-        when(recommendationRepository.findById(10L)).thenReturn(Optional.of(recommendation));
+    void createRecommendationFromDto() {
+        when(userService.findUserById(dto.getAuthorId())).thenReturn(User.builder().id(1L).build());
+        when(userService.findUserById(dto.getReceiverId())).thenReturn(User.builder().id(2L).build());
+        when(skillOfferService.findAllByUserId(dto.getReceiverId())).thenReturn(List.of(SkillOffer.builder().
+                id(1L)
+                .skill(Skill.builder().id(1L).build())
+                .build()));
+
+        Recommendation result = recommendationService.createRecommendationFromDto(dto);
+        assertNotNull(result);
+        assertEquals(1L, result.getAuthor().getId());
+        assertEquals(2L, result.getReceiver().getId());
+        assertEquals("initial content", result.getContent());
+        assertEquals(1L, result.getSkillOffers().get(0).getSkill().getId());
+    }
+
+
+    @Test
+    void testCreateSuccessful() {
+        recommendation.setId(10L);
+        when(userService.findUserById(dto.getAuthorId())).thenReturn(User.builder().id(1L).build());
+        when(userService.findUserById(dto.getReceiverId())).thenReturn(User.builder().id(2L).build());
+        when(skillOfferService.findAllByUserId(dto.getReceiverId())).thenReturn(List.of(SkillOffer.builder().
+                id(1L)
+                .skill(Skill.builder().id(1L).build())
+                .build()));
+
+        when(recommendationRepository.save(any(Recommendation.class))).thenReturn(recommendation);
 
         RecommendationDto result = recommendationService.create(dto);
 
         assertEquals(10L, result.getId());
 
-        verify(recommendationServiceValidator, times(1)).validateTimeAfterLastRecommendation(dto);
-        verify(recommendationServiceValidator, times(1)).validateSkillExists(dto);
+        verify(recommendationServiceValidator, times(1)).validateSkillAndTimeRequirementsForGuarantee(dto);
+        verify(skillOfferService, times(1)).saveSkillOffers(recommendation);
+        verify(skillService, times(1)).addGuarantee(dto);
+        verify(userService, times(1)).findUserById(dto.getAuthorId());
+        verify(userService, times(1)).findUserById(dto.getReceiverId());
+        verify(skillOfferService, times(1)).findAllByUserId(dto.getReceiverId());
     }
 
     @Test
-    void testUpdate() {
-        when(recommendationRepository.findById(10L)).thenReturn(Optional.of(recommendation));
+    void testUpdateSuccessful() {
         dto.setId(10L);
+        recommendation.setId(10L);
+        when(recommendationRepository.findById(10L)).thenReturn(Optional.of(recommendation));
 
         RecommendationDto result = recommendationService.update(dto);
         result.setContent("Updated content");
@@ -88,17 +122,18 @@ class RecommendationServiceTest {
         assertEquals(10L, result.getId());
         assertEquals("Updated content", result.getContent());
 
-        verify(recommendationServiceValidator, times(1)).validateTimeAfterLastRecommendation(dto);
-        verify(recommendationServiceValidator, times(1)).validateSkillExists(dto);
+        verify(recommendationServiceValidator, times(1)).validateSkillAndTimeRequirementsForGuarantee(dto);
         verify(recommendationRepository, times(1))
                 .update(dto.getAuthorId(), dto.getReceiverId(), dto.getContent());
-        verify(skillOfferRepository, times(1)).deleteAllByRecommendationId(dto.getId());
+        verify(skillOfferService, times(1)).deleteAllByRecommendationId(dto.getId());
+        verify(skillOfferService, times(1)).saveSkillOffers(recommendation);
+        verify(skillService, times(1)).addGuarantee(dto);
 
     }
 
     @Test
     void testDelete() {
-        recommendation.setId(1L);
+        recommendation.setId(10L);
         when(recommendationRepository.existsById(recommendation.getId())).thenReturn(false);
 
         boolean result = recommendationService.delete(recommendation.getId());
@@ -106,38 +141,25 @@ class RecommendationServiceTest {
         assertTrue(result);
         verify(recommendationServiceValidator, times(1)).validateRecommendationExistsById(recommendation.getId());
         verify(recommendationRepository, times(1)).existsById(recommendation.getId());
-
-
     }
 
     @Test
     void testGetRecommendationByIdNotFound() {
+        recommendation.setId(10L);
         when(recommendationRepository.findById(recommendation.getId())).thenReturn(Optional.empty());
 
-        Exception result = assertThrows(IllegalArgumentException.class, () -> recommendationService.getRecommendationById(10L));
+        Exception result = assertThrows(EntityNotFoundException.class, () -> recommendationService.getRecommendationById(10L));
         assertEquals("Recommendation with id #" + recommendation.getId() + " not found", result.getMessage());
     }
 
     @Test
     void testGetRecommendationSuccess() {
+        recommendation.setId(10L);
         when(recommendationRepository.findById(recommendation.getId())).thenReturn(Optional.of(recommendation));
 
         Recommendation result = recommendationService.getRecommendationById(recommendation.getId());
 
         assertEquals(recommendation.getId(), result.getId());
         verify(recommendationRepository, times(1)).findById(recommendation.getId());
-    }
-
-    @Test
-    void testSaveAndReturnRecommendationNotFound() {
-        when(recommendationRepository.create(
-                dto.getAuthorId(),
-                dto.getReceiverId(),
-                dto.getContent()))
-                .thenReturn(10L);
-        when(recommendationRepository.findById(10L)).thenReturn(Optional.empty());
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> recommendationService.create(dto));
-        assertEquals("Recommendation not found", exception.getMessage());
     }
 }

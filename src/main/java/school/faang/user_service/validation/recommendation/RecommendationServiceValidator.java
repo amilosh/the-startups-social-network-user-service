@@ -4,23 +4,26 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validation.skill.SkillValidation;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class RecommendationServiceValidator {
+    private static final int RECOMMENDATION_COOLDOWN_MONTHS = 6;
     private final RecommendationRepository recommendationRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final SkillValidation skillValidation;
+
+    public void validateSkillAndTimeRequirementsForGuarantee(RecommendationDto recommendationDto) {
+        validateTimeAfterLastRecommendation(recommendationDto);
+        validateSkillExists(recommendationDto);
+    }
 
     public void validateRecommendationExistsById(Long id) {
         if (!recommendationRepository.existsById(id)) {
@@ -28,20 +31,17 @@ public class RecommendationServiceValidator {
         }
     }
 
-    public void validateTimeAfterLastRecommendation(RecommendationDto recommendationDto) {
-        List<SkillOffer> userSKillOffers = skillOfferRepository.findAllByUserId(recommendationDto.getReceiverId());
+    public void validateTimeAfterLastRecommendation(RecommendationDto dto) {
+        Optional<Recommendation> lastRecommendation = recommendationRepository.
+                findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(dto.getAuthorId(), dto.getReceiverId());
 
-        LocalDate lastRecommendationDate = userSKillOffers.stream()
-                .map(SkillOffer::getRecommendation)
-                .filter(recommendation -> recommendation.getAuthor().getId().equals(recommendationDto.getAuthorId()))
-                .map(Recommendation::getCreatedAt)
-                .map(LocalDateTime::toLocalDate)
-                .max(Comparator.naturalOrder())
-                .orElse(null);
-
-        if (lastRecommendationDate != null &&
-                lastRecommendationDate.isAfter(LocalDate.now().minusMonths(6))) {
-            throw new DataValidationException("Less 6 months passed since last recommendation " + lastRecommendationDate);
+        if (lastRecommendation.isPresent()) {
+            LocalDate lastRecommendationDate = lastRecommendation.get().getCreatedAt().toLocalDate();
+            if (lastRecommendationDate != null &&
+                    lastRecommendationDate.isAfter(LocalDate.now().minusMonths(RECOMMENDATION_COOLDOWN_MONTHS))) {
+                throw new DataValidationException("Less " + RECOMMENDATION_COOLDOWN_MONTHS +
+                        " months passed since last recommendation " + lastRecommendationDate);
+            }
         }
     }
 

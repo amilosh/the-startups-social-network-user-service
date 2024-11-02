@@ -14,10 +14,10 @@ import static org.mockito.Mockito.*;
 class SkillValidationTest {
 
     @Mock
-    SkillRepository skillRepository;
+    private SkillRepository skillRepository;
 
     @InjectMocks
-    SkillValidation skillValidation;
+    private SkillValidation skillValidation;
 
     @Test
     void testValidateSkillExists() {

@@ -17,10 +17,10 @@ import static org.mockito.Mockito.when;
 class UserServiceTest {
 
     @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @InjectMocks
-    UserService userService;
+    private UserService userService;
 
     @Test
     void testUserNotFound() {
