@@ -29,37 +29,46 @@ public class MentorshipRequestService {
     private final UserRepository userRepository;
     private final MentorshipRequestMapper mentorshipRequestMapper;
 
+    @Transactional
     public MentorshipRequestDto requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
-        if (mentorshipRequestDto.getRequesterId().equals(mentorshipRequestDto.getRequesterId())) {
+        if (mentorshipRequestDto.getRequesterId().equals(mentorshipRequestDto.getReceiverId())) {
             throw new IllegalArgumentException("You cannot request mentorship from yourself");
         }
-       User requester = userRepository.findById(mentorshipRequestDto.getRequesterId())
-               .orElseThrow(()-> new EntityNotFoundException("User not found by Id: " + mentorshipRequestDto.getRequesterId()));
+
+        User requester = userRepository.findById(mentorshipRequestDto.getRequesterId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found by Id: " + mentorshipRequestDto.getRequesterId()));
+
         if (!requester.getSentMentorshipRequests().isEmpty()) {
             List<MentorshipRequest> sortedRequests = requester.getSentMentorshipRequests().stream()
                     .sorted((mentorshipRequest1, mentorshipRequest2) ->
                             mentorshipRequest2.getCreatedAt().compareTo(mentorshipRequest1.getCreatedAt()))
                     .toList();
-            LocalDateTime maxDateLastRequest = LocalDateTime.now().plusMonths(THREE_MONTHS);
-            if (sortedRequests.get(0).getCreatedAt().isBefore(maxDateLastRequest)){
-                //TODO: Create custom error
+            LocalDateTime maxDateLastRequest = LocalDateTime.now().minusMonths(3);
+            if (sortedRequests.get(0).getCreatedAt().isAfter(maxDateLastRequest)) {
                 throw new IllegalArgumentException("You can't request mentorship for less than 3 months");
             }
         }
-       User receiver = userRepository.findById(mentorshipRequestDto.getReceiverId())
-               .orElseThrow(()-> new EntityNotFoundException("User not found by Id: " + mentorshipRequestDto.getReceiverId()));
 
-        MentorshipRequest mentorshipRequest = mentorshipRequestMapper.mapToEntity(mentorshipRequestDto);
+        User receiver = userRepository.findById(mentorshipRequestDto.getReceiverId())
+                .orElseThrow(() -> new EntityNotFoundException("User not found by Id: " + mentorshipRequestDto.getReceiverId()));
+
+        MentorshipRequest mappedMentorshipRequest = mentorshipRequestMapper.mapToEntity(mentorshipRequestDto);
+        MentorshipRequest mentorshipRequest = mappedMentorshipRequest != null ? mappedMentorshipRequest : new MentorshipRequest();
+
         mentorshipRequest.setRequester(requester);
         mentorshipRequest.setReceiver(receiver);
         mentorshipRequest.setStatus(RequestStatus.PENDING);
+        mentorshipRequest.setDescription(mentorshipRequestDto.getDescription());
+        mentorshipRequest.setCreatedAt(LocalDateTime.now());
+
         MentorshipRequest savedMentorshipRequest = mentorshipRequestRepository.save(mentorshipRequest);
         return mentorshipRequestMapper.mapToDto(savedMentorshipRequest);
     }
 
-    public List<MentorshipRequest> getRequests(RequestFilterDto requestFilterDto) {
-        List<MentorshipRequest> allRequests = mentorshipRequestRepository.findAll();
 
+    @Transactional(readOnly = true)
+    public List<MentorshipRequestDto> getRequests(RequestFilterDto requestFilterDto) {
+        List<MentorshipRequest> allRequests = mentorshipRequestRepository.findAll();
         List<MentorshipRequest> filteredRequests = new ArrayList<>();
 
         if (requestFilterDto.getStatus() != null) {
@@ -74,19 +83,41 @@ public class MentorshipRequestService {
                     .toList());
         }
 
+        if (requestFilterDto.getReceiverId() != null) {
+            filteredRequests.addAll(allRequests.stream()
+                    .filter(res -> res.getReceiver().getId().equals(requestFilterDto.getReceiverId()))
+                    .toList());
+        }
+
         if (requestFilterDto.getDescription() != null) {
             filteredRequests.addAll(allRequests.stream()
                     .filter(res -> res.getDescription().equals(requestFilterDto.getDescription()))
                     .toList());
         }
-        return filteredRequests.stream().distinct().toList();
+
+        return filteredRequests.stream()
+                .distinct()
+                .map(mentorshipRequestMapper::mapToDto)
+                .toList();
     }
 
+    @Transactional
     public Long acceptMentorship(Long id) {
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Mentorship request not found"));
+        User requester = mentorshipRequest.getRequester();
+        User receiver = mentorshipRequest.getReceiver();
+
+        if (requester.getMentors().contains(receiver)) {
+            throw new IllegalArgumentException("User is already a mentor");
+        }
+
         mentorshipRequest.setStatus(RequestStatus.ACCEPTED);
         mentorshipRequestRepository.save(mentorshipRequest);
+
+        requester.getMentors().add(receiver);
+        userRepository.save(requester);
+
         return mentorshipRequest.getId();
     }
 
