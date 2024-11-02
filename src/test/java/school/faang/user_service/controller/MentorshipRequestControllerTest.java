@@ -15,6 +15,7 @@ import school.faang.user_service.validator.MentorshipRequestValidator;
 import school.faang.user_service.validator.RequestFilterValidator;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 class MentorshipRequestControllerTest {
@@ -36,7 +37,8 @@ class MentorshipRequestControllerTest {
     @BeforeEach
     void setUp() {
         mocks = MockitoAnnotations.openMocks(this);
-        requestDto = TestDataCreator.createMentorshipRequestDto(1L, 2L, "Need help with Java!");
+        requestDto = TestDataCreator.createMentorshipRequestDto(1L, 1L, 2L,
+                RequestStatus.PENDING, "Need help with Java!");
         filterDto = TestDataCreator.createRequestFilterDto(1L, 2L, "HELP", RequestStatus.ACCEPTED);
     }
 
@@ -53,13 +55,20 @@ class MentorshipRequestControllerTest {
     void testControllerCreateRequest() {
         requestController.requestMentorship(requestDto);
 
-        verify(requestService).requestMentorship(any(MentorshipRequestDto.class));
+        verify(requestService, times(1)).requestMentorship(any(MentorshipRequestDto.class));
     }
 
     @Test
     void testControllerGettingRequests() {
         requestController.getRequests(filterDto);
 
-        verify(requestService).getRequests(any(RequestFilterDto.class));
+        verify(requestService, times(1)).getRequests(any(RequestFilterDto.class));
+    }
+
+    @Test
+    void testControllerAcceptRequest() {
+        requestController.acceptRequest(requestDto.getId());
+
+        verify(requestService, times(1)).acceptRequest(requestDto.getId());
     }
 }

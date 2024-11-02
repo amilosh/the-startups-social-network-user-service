@@ -26,4 +26,9 @@ public class MentorshipRequestController {
         filterValidator.validateNullFilter(filters);
         return requestService.getRequests(filters);
     }
+
+    public void acceptRequest(Long id) {
+        requestValidator.validateNullOrUnavailableId(id);
+        requestService.acceptRequest(id);
+    }
 }

@@ -3,7 +3,7 @@ package school.faang.user_service.validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.exception.UserNotExistsException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 
 
@@ -16,7 +16,7 @@ public class UserValidator {
     public void isUserExists(Long id) {
         if (!repository.existsById(id)) {
             log.warn("User with id '{}' not exists.", id);
-            throw new UserNotExistsException("User with id '" + id + "' not exists.");
+            throw new EntityNotFoundException("User with id '" + id + "' not exists.");
         }
     }
 }

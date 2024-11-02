@@ -6,6 +6,9 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filter.MentorshipRequestFilter.RequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
@@ -25,7 +28,6 @@ public class MentorshipRequestService {
 
     public void requestMentorship(MentorshipRequestDto dto) {
         requestValidator.validateMentorshipRequest(dto);
-        log.info("Request dto validation successful. Creating request id '{}'.", dto.getId());
         requestRepository.create(dto.getRequesterId(), dto.getReceiverId(), dto.getDescription());
     }
 
@@ -37,6 +39,20 @@ public class MentorshipRequestService {
                 .reduce(requests, (requestsStream, filter) -> filter.apply(requestsStream, filters), (s1, s2) -> s1)
                 .map(requestMapper::toDto)
                 .toList();
+    }
+
+    public void acceptRequest(long id) {
+        requestValidator.validateMentorshipRequestExists(id);
+        MentorshipRequest request = requestRepository.findById(id).orElseThrow(() -> {
+            log.warn("Request with id '{}' is Null", id);
+            return new EntityNotFoundException("Request with id '" + id + "' is Null");
+        });
+        User requester = request.getRequester();
+        User receiver = request.getReceiver();
+
+        requestValidator.validateRequesterHasReceiverAsMentor(requester, receiver);
+        requester.getMentors().add(receiver);
+        request.setStatus(RequestStatus.ACCEPTED);
     }
 }
 
