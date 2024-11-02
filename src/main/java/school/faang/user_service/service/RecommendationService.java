@@ -37,26 +37,26 @@ public class RecommendationService {
     public RecommendationDto create(RecommendationDto recDto) {
         isDateTimeRecommendationOlderSixMonth(recDto);
         isSkillOfferExists(recDto);
-
-
-        Long recId = recRepository.create(recDto.getAuthorId(),
-                recDto.getReceiverId(),
-                recDto.getContent());
-        recDto.setId(recId);
         addSkillOffersAndGuarantee(recDto);
-        log.info("Recommendation with id - " + recId + "successfully saved");
+        Recommendation result = recRepository.save(recMapper.toEntity(recDto));
+        log.info("Recommendation with id - " + result.getId() + "successfully saved");
 
-        return recMapper.toDto(getRecommendation(recDto.getId()));
+        return recMapper.toDto(result);
 
     }
 
+    @Transactional
+    public RecommendationDto update(Long id, RecommendationDto requestRecDto) {
+        log.info("Updating recommendation with id - " + id);
+        requestRecDto.setId(id);
+        isDateTimeRecommendationOlderSixMonth(requestRecDto);
+        isSkillOfferExists(requestRecDto);
+        addSkillOffersAndGuarantee(requestRecDto);
 
-    private Recommendation getRecommendation(Long recId) {
-        return recRepository.findById(recId)
-                .orElseThrow(() -> {
-                    log.error("Recommendation with id " + recId + " not found");
-                    return new RuntimeException("There is no recommendation with id - " + recId);
-                });
+        skillOfferRepository.deleteAllByRecommendationId(requestRecDto.getId());
+        Recommendation result = recRepository.save(recMapper.toEntity(requestRecDto));
+
+        return recMapper.toDto(result);
     }
 
     private void addSkillOffersAndGuarantee(RecommendationDto recDto) {
@@ -123,4 +123,6 @@ public class RecommendationService {
             }
         });
     }
+
+
 }

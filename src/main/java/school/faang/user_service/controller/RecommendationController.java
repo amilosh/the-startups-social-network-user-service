@@ -1,8 +1,15 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessage;
@@ -13,9 +20,16 @@ import school.faang.user_service.service.RecommendationService;
 public class RecommendationController {
     public static RecommendationService recommendationService;
 
-    public void giveRecommendation(RecommendationDto recommendation) throws DataValidationException {
+    @PostMapping("/give")
+    public ResponseEntity<RecommendationDto> giveRecommendation(@RequestBody @Valid RecommendationDto recommendation) {
         validateRecommendation(recommendation);
-        recommendationService.create(recommendation);
+        return new ResponseEntity<>(recommendationService.create(recommendation), HttpStatus.OK);
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<RecommendationDto> updateRecommendation(@PathVariable long id, @RequestBody RecommendationDto updatedRequestRecommendationDto) {
+        validateRecommendation(updatedRequestRecommendationDto);
+        return new ResponseEntity<>(recommendationService.update(id, updatedRequestRecommendationDto), HttpStatus.OK);
     }
 
     private void validateRecommendation(RecommendationDto recommendationDto) throws DataValidationException {
