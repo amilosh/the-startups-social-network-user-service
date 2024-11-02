@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
@@ -25,6 +26,7 @@ public class MentorshipRequestService {
     private final MentorshipRequestValidator requestValidator;
     private final MentorshipRequestMapper requestMapper;
     private final List<RequestFilter> requestFilters;
+    private MentorshipRequest request;
 
     public void requestMentorship(MentorshipRequestDto dto) {
         requestValidator.validateMentorshipRequest(dto);
@@ -42,17 +44,28 @@ public class MentorshipRequestService {
     }
 
     public void acceptRequest(long id) {
-        requestValidator.validateMentorshipRequestExists(id);
-        MentorshipRequest request = requestRepository.findById(id).orElseThrow(() -> {
-            log.warn("Request with id '{}' is Null", id);
-            return new EntityNotFoundException("Request with id '" + id + "' is Null");
-        });
+        request = validateAndGetMentorshipRequest(id);
         User requester = request.getRequester();
         User receiver = request.getReceiver();
 
         requestValidator.validateRequesterHasReceiverAsMentor(requester, receiver);
         requester.getMentors().add(receiver);
         request.setStatus(RequestStatus.ACCEPTED);
+    }
+
+    public void rejectRequest(long id, RejectionDto rejectionDto) {
+        request = validateAndGetMentorshipRequest(id);
+        request.setStatus(RequestStatus.REJECTED);
+        request.setRejectionReason(rejectionDto.getReason());
+    }
+
+    private MentorshipRequest validateAndGetMentorshipRequest(long id) {
+        requestValidator.validateMentorshipRequestExists(id);
+        MentorshipRequest request = requestRepository.findById(id).orElseThrow(() -> {
+            log.warn("Request with id '{}' is Null", id);
+            return new EntityNotFoundException("Request with id '" + id + "' is Null");
+        });
+        return request;
     }
 }
 

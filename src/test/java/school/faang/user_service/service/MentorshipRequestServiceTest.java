@@ -1,12 +1,13 @@
 package school.faang.user_service.service;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.TestDataCreator;
 import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,6 +33,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class MentorshipRequestServiceTest {
 
     @Mock
@@ -50,30 +53,20 @@ class MentorshipRequestServiceTest {
 
     private MentorshipRequestService requestService;
     private MentorshipRequestDto requestDto;
-    private AutoCloseable mocks;
     private RequestFilterDto filterDto;
     private Long firstRequestId;
+    private RejectionDto rejectionDto;
 
     @BeforeEach
     void setUp() {
-        mocks = MockitoAnnotations.openMocks(this);
         requestDto = TestDataCreator.createMentorshipRequestDto(1L, 1L, 2L, RequestStatus.ACCEPTED,
                 "Need help with Java!");
-
         filterDto = TestDataCreator.createRequestFilterDto(1L, 2L, "HELP", RequestStatus.ACCEPTED);
         List<RequestFilter> requestFilters = List.of(descriptionFilter);
-        requestService = new MentorshipRequestService(requestRepository, requestValidator, requestMapper,
-                requestFilters);
+        requestService = new MentorshipRequestService(requestRepository, requestValidator,
+                requestMapper, requestFilters);
         firstRequestId = firstRequest.getId();
-    }
-
-    @AfterEach
-    void closeMocks() {
-        try {
-            mocks.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        rejectionDto = TestDataCreator.createRejectionDto("reason");
     }
 
     @Test
@@ -138,5 +131,24 @@ class MentorshipRequestServiceTest {
         verify(firstUser, times(1)).getMentors();
         verify(firstRequest, times(1)).setStatus(RequestStatus.ACCEPTED);
         assertEquals(1, mentors.size());
+    }
+
+    @Test
+    void testRejectRequestGotNullRequestById() {
+        when(requestRepository.findById(firstRequestId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class,
+                () -> requestService.rejectRequest(firstRequestId, rejectionDto));
+        verify(firstRequest, times(0)).setStatus(RequestStatus.REJECTED);
+        verify(firstRequest, times(0)).setRejectionReason(rejectionDto.getReason());
+    }
+
+    @Test
+    void testRejectRequestSuccessful() {
+        when(requestRepository.findById(firstRequestId)).thenReturn(Optional.of(firstRequest));
+
+        assertDoesNotThrow(() -> requestService.rejectRequest(firstRequestId, rejectionDto));
+        verify(firstRequest, times(1)).setStatus(RequestStatus.REJECTED);
+        verify(firstRequest, times(1)).setRejectionReason(rejectionDto.getReason());
     }
 }

@@ -1,6 +1,7 @@
 package school.faang.user_service;
 
 import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
@@ -55,6 +56,12 @@ public class TestDataCreator {
         dto.setReceiverId(receiverId);
         dto.setDescriptionPattern(descriptionPattern);
         dto.setStatus(status);
+        return dto;
+    }
+
+    public static RejectionDto createRejectionDto(String reason) {
+        RejectionDto dto = new RejectionDto();
+        dto.setReason(reason);
         return dto;
     }
 }

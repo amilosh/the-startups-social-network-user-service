@@ -4,14 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.EntityNotFoundException;
+import school.faang.user_service.exception.InvalidMentorshipRejectException;
 import school.faang.user_service.exception.InvalidMentorshipRequestException;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-
 
 @Component
 @RequiredArgsConstructor
@@ -29,15 +30,15 @@ public class MentorshipRequestValidator {
 
     public void validateNullOrBlankDescription(MentorshipRequestDto dto) {
         if (dto.getDescription() == null || dto.getDescription().isBlank()) {
-            log.warn("Mentorship request failed: description is missing or blank.");
-            throw new InvalidMentorshipRequestException("Description is missing or blank.");
+            log.warn("Mentorship description is missing or blank.");
+            throw new InvalidMentorshipRequestException("Mentorship description is missing or blank.");
         }
     }
 
     public void validateMentorshipRequestExists(long id) {
         if (!repository.existsById(id)) {
             log.warn("Mentorship request with id '{}' not exists.", id);
-            throw new EntityNotFoundException("Mentorship request with id '" + id +"' not exists.");
+            throw new EntityNotFoundException("Mentorship request with id '" + id + "' not exists.");
         }
     }
 
@@ -53,6 +54,13 @@ public class MentorshipRequestValidator {
             log.warn("Requester id '{}' already has mentor id '{}'.", requester.getId(), receiver.getId());
             throw new InvalidMentorshipRequestException("Requester id '" + requester.getId() +
                     "' already has mentor id '" + receiver.getId() + "'.");
+        }
+    }
+
+    public void validateNullOrBlankRejectReason(RejectionDto dto) {
+        if (dto.getReason() == null || dto.getReason().isBlank()) {
+            log.warn("Rejection reason is missing or blank.");
+            throw new InvalidMentorshipRejectException("Rejection reason is missing or blank.");
         }
     }
 

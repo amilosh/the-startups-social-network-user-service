@@ -1,13 +1,14 @@
 package school.faang.user_service.controller;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.TestDataCreator;
 import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.service.MentorshipRequestService;
@@ -18,6 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 class MentorshipRequestControllerTest {
 
     @Mock
@@ -30,25 +32,16 @@ class MentorshipRequestControllerTest {
     @InjectMocks
     private MentorshipRequestController requestController;
 
-    private AutoCloseable mocks;
     private MentorshipRequestDto requestDto;
     private RequestFilterDto filterDto;
+    private RejectionDto rejectionDto;
 
     @BeforeEach
     void setUp() {
-        mocks = MockitoAnnotations.openMocks(this);
         requestDto = TestDataCreator.createMentorshipRequestDto(1L, 1L, 2L,
                 RequestStatus.PENDING, "Need help with Java!");
         filterDto = TestDataCreator.createRequestFilterDto(1L, 2L, "HELP", RequestStatus.ACCEPTED);
-    }
-
-    @AfterEach
-    void closeMocks() {
-        try {
-            mocks.close();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        rejectionDto = TestDataCreator.createRejectionDto("Reason");
     }
 
     @Test
@@ -70,5 +63,12 @@ class MentorshipRequestControllerTest {
         requestController.acceptRequest(requestDto.getId());
 
         verify(requestService, times(1)).acceptRequest(requestDto.getId());
+    }
+
+    @Test
+    void testControllerRejectRequest() {
+        requestController.rejectRequest(requestDto.getId(), rejectionDto);
+
+        verify(requestService, times(1)).rejectRequest(requestDto.getId(), rejectionDto);
     }
 }

@@ -3,6 +3,7 @@ package school.faang.user_service.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.service.MentorshipRequestService;
 import school.faang.user_service.validator.MentorshipRequestValidator;
@@ -30,5 +31,11 @@ public class MentorshipRequestController {
     public void acceptRequest(Long id) {
         requestValidator.validateNullOrUnavailableId(id);
         requestService.acceptRequest(id);
+    }
+
+    public void rejectRequest(Long id, RejectionDto rejectionDto) {
+        requestValidator.validateNullOrUnavailableId(id);
+        requestValidator.validateNullOrBlankRejectReason(rejectionDto);
+        requestService.rejectRequest(id, rejectionDto);
     }
 }
