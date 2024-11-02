@@ -18,5 +18,6 @@ public class UserValidator {
             log.warn("User with id '{}' not exists.", id);
             throw new EntityNotFoundException("User with id '" + id + "' not exists.");
         }
+        log.info("User '{}' exist.", id);
     }
 }

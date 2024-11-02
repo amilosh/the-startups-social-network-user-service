@@ -28,9 +28,13 @@ public class MentorshipRequestService {
     private final List<RequestFilter> requestFilters;
     private MentorshipRequest request;
 
-    public void requestMentorship(MentorshipRequestDto dto) {
+    public MentorshipRequestDto requestMentorship(MentorshipRequestDto dto) {
         requestValidator.validateMentorshipRequest(dto);
         requestRepository.create(dto.getRequesterId(), dto.getReceiverId(), dto.getDescription());
+
+        log.info("Mentorship request with id '{}' from UserId '{}' to UserId '{}' created successfully.",
+                dto.getId(), dto.getRequesterId(), dto.getReceiverId());
+        return dto;
     }
 
     public List<MentorshipRequestDto> getRequests(RequestFilterDto filters) {
@@ -43,7 +47,7 @@ public class MentorshipRequestService {
                 .toList();
     }
 
-    public void acceptRequest(long id) {
+    public long acceptRequest(long id) {
         request = validateAndGetMentorshipRequest(id);
         User requester = request.getRequester();
         User receiver = request.getReceiver();
@@ -51,21 +55,28 @@ public class MentorshipRequestService {
         requestValidator.validateRequesterHasReceiverAsMentor(requester, receiver);
         requester.getMentors().add(receiver);
         request.setStatus(RequestStatus.ACCEPTED);
+
+        log.info("Request with id '{}' was accepted by UserId '{}'.", id, receiver.getId());
+        return request.getId();
     }
 
-    public void rejectRequest(long id, RejectionDto rejectionDto) {
+    public long rejectRequest(long id, RejectionDto rejectionDto) {
         request = validateAndGetMentorshipRequest(id);
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(rejectionDto.getReason());
+
+        log.info("Request with id '{}' was rejected by UserId '{}' with reason '{}'.",
+                id, request.getReceiver(), rejectionDto.getReason());
+        return request.getId();
     }
 
     private MentorshipRequest validateAndGetMentorshipRequest(long id) {
         requestValidator.validateMentorshipRequestExists(id);
-        MentorshipRequest request = requestRepository.findById(id).orElseThrow(() -> {
+
+        return requestRepository.findById(id).orElseThrow(() -> {
             log.warn("Request with id '{}' is Null", id);
             return new EntityNotFoundException("Request with id '" + id + "' is Null");
         });
-        return request;
     }
 }
 

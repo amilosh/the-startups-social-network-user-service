@@ -1,6 +1,7 @@
 package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RejectionDto;
@@ -11,6 +12,7 @@ import school.faang.user_service.validator.RequestFilterValidator;
 
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class MentorshipRequestController {
@@ -18,24 +20,28 @@ public class MentorshipRequestController {
     private final MentorshipRequestValidator requestValidator;
     private final RequestFilterValidator filterValidator;
 
-    public void requestMentorship(MentorshipRequestDto dto) {
+    public MentorshipRequestDto requestMentorship(MentorshipRequestDto dto) {
         requestValidator.validateNullOrBlankDescription(dto);
-        requestService.requestMentorship(dto);
+        log.info("Requesting mentorship from userId '{}' to userId '{}'.", dto.getRequesterId(), dto.getReceiverId());
+        return requestService.requestMentorship(dto);
     }
 
     public List<MentorshipRequestDto> getRequests(RequestFilterDto filters) {
         filterValidator.validateNullFilter(filters);
+        log.info("Getting all requests by filters: {}.", filters);
         return requestService.getRequests(filters);
     }
 
-    public void acceptRequest(Long id) {
+    public long acceptRequest(Long id) {
         requestValidator.validateNullOrUnavailableId(id);
-        requestService.acceptRequest(id);
+        log.info("Accepting request with id '{}'", id);
+        return requestService.acceptRequest(id);
     }
 
-    public void rejectRequest(Long id, RejectionDto rejectionDto) {
+    public long rejectRequest(Long id, RejectionDto rejectionDto) {
         requestValidator.validateNullOrUnavailableId(id);
         requestValidator.validateNullOrBlankRejectReason(rejectionDto);
-        requestService.rejectRequest(id, rejectionDto);
+        log.info("Rejecting request with id '{}' and reason '{}'", id, rejectionDto.getReason());
+        return requestService.rejectRequest(id, rejectionDto);
     }
 }

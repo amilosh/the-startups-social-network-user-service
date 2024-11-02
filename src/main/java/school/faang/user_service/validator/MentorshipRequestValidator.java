@@ -33,6 +33,7 @@ public class MentorshipRequestValidator {
             log.warn("Mentorship description is missing or blank.");
             throw new InvalidMentorshipRequestException("Mentorship description is missing or blank.");
         }
+        log.info("Mentorship request id '{}' successfully validated for null or blank.", dto.getId());
     }
 
     public void validateMentorshipRequestExists(long id) {
@@ -40,6 +41,7 @@ public class MentorshipRequestValidator {
             log.warn("Mentorship request with id '{}' not exists.", id);
             throw new EntityNotFoundException("Mentorship request with id '" + id + "' not exists.");
         }
+        log.info("Mentorship request id '{}' exists.", id);
     }
 
     public void validateNullOrUnavailableId(Long id) {
@@ -47,6 +49,7 @@ public class MentorshipRequestValidator {
             log.warn("Request id cannot be null or negative.");
             throw new InvalidMentorshipRequestException("Id is null or negative.");
         }
+        log.info("Mentorship request id '{}' successfully validated.", id);
     }
 
     public void validateRequesterHasReceiverAsMentor(User requester, User receiver) {
@@ -55,6 +58,7 @@ public class MentorshipRequestValidator {
             throw new InvalidMentorshipRequestException("Requester id '" + requester.getId() +
                     "' already has mentor id '" + receiver.getId() + "'.");
         }
+        log.info("User '{}' has no User '{}' as mentor.", requester.getId(), receiver.getId());
     }
 
     public void validateNullOrBlankRejectReason(RejectionDto dto) {
@@ -62,36 +66,33 @@ public class MentorshipRequestValidator {
             log.warn("Rejection reason is missing or blank.");
             throw new InvalidMentorshipRejectException("Rejection reason is missing or blank.");
         }
+        log.info("Rejection reason successfully validated for null or blank.");
     }
 
     private void validateOneRequestPerThreeMonth(MentorshipRequestDto dto) {
-        repository.findLatestRequest(getRequesterId(dto), getReceiverId(dto))
+        repository.findLatestRequest(dto.getRequesterId(), dto.getReceiverId())
                 .filter(request -> !request.getCreatedAt().isBefore(getThreeMonthAgo()))
                 .ifPresent(request -> {
                     log.warn("Cannot request mentorship more then 1 time per 3 months.");
                     throw new InvalidMentorshipRequestException("Cannot request mentorship more then" +
                             " 1 time per 3 months.");
                 });
+        log.info("User '{}' did not request mentorship from User '{}' in the last 3 months.",
+                dto.getRequesterId(), dto.getReceiverId());
     }
 
     private void validateRequesterAndReceiverExists(MentorshipRequestDto dto) {
-        userValidator.isUserExists(getRequesterId(dto));
-        userValidator.isUserExists(getReceiverId(dto));
+        userValidator.isUserExists(dto.getRequesterId());
+        userValidator.isUserExists(dto.getReceiverId());
+        log.info("All users in request id '{}' exist.", dto.getId());
     }
 
     private void validateSelfRequest(MentorshipRequestDto dto) {
-        if (getRequesterId(dto).equals(getReceiverId(dto))) {
-            log.warn("Cannot request mentorship from yourself.");
-            throw new InvalidMentorshipRequestException("Cannot request mentorship from yourself.");
+        if (dto.getRequesterId().equals(dto.getReceiverId())) {
+            log.warn("Self-mentorship requests are not allowed.");
+            throw new InvalidMentorshipRequestException("Self-mentorship requests are not allowed.");
         }
-    }
-
-    private Long getRequesterId(MentorshipRequestDto dto) {
-        return dto.getRequesterId();
-    }
-
-    private Long getReceiverId(MentorshipRequestDto dto) {
-        return dto.getReceiverId();
+        log.info("User '{}' is not self-requesting mentorship.", dto.getRequesterId());
     }
 
     private LocalDateTime getThreeMonthAgo() {

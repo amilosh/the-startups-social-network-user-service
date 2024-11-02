@@ -47,6 +47,8 @@ class MentorshipRequestServiceTest {
     @Mock
     private User firstUser;
     @Mock
+    private User secondUser;
+    @Mock
     private MentorshipRequest firstRequest;
     @Mock
     private MentorshipRequest secondRequest;
@@ -119,6 +121,7 @@ class MentorshipRequestServiceTest {
 
         when(requestRepository.findById(firstRequestId)).thenReturn(Optional.of(firstRequest));
         when(firstRequest.getRequester()).thenReturn(firstUser);
+        when(firstRequest.getReceiver()).thenReturn(secondUser);
         when(firstUser.getMentors()).thenReturn(mentors);
 
         requestService.acceptRequest(firstRequestId);
