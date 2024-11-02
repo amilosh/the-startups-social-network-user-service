@@ -10,21 +10,21 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class MentorshipController {
-    private final MentorshipService mentorshipServis;
+    private final MentorshipService mentorshipService;
 
     public List<UserDto> getMentes(long userId) {
-        return mentorshipServis.getMentees(userId);
+        return mentorshipService.getMentees(userId);
     }
 
     public List<UserDto> getMentors(long userId) {
-        return mentorshipServis.getMentors(userId);
+        return mentorshipService.getMentors(userId);
     }
 
     public void deleteMentee(long menteeId, long mentorId) {
-        mentorshipServis.deleteMentee(menteeId, mentorId);
+        mentorshipService.deleteMentee(menteeId, mentorId);
     }
 
     public void deleteMentor(long menteeId, long mentorId) {
-        mentorshipServis.deleteMentor(menteeId, mentorId);
+        mentorshipService.deleteMentor(menteeId, mentorId);
     }
 }

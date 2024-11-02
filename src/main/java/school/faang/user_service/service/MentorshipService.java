@@ -17,7 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class MentorshipService {
     private final UserMapper userMapper;
-    final UserService userService;
+    private final UserService userService;
 
     public List<UserDto> getMentees(long userId) {
         User user = userService.findUser(userId);
