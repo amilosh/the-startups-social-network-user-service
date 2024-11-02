@@ -2,6 +2,8 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.RecommendationDto;
@@ -99,9 +101,19 @@ public class RecommendationService {
         return recommendationMapper.toDto(updatedRecommendation);
     }
 
-    public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
-        List<Recommendation> recommendationsReceived = recommendationRepo.findAllByReceiverId(receiverId);
-        return recommendationMapper.toDtoList(recommendationsReceived);
+    public Page<RecommendationDto> getAllUserRecommendations(long receiverId, Pageable pageable) {
+        Page<Recommendation> recommendationsReceived = recommendationRepo.findAllByReceiverId(receiverId, pageable);
+        return recommendationsReceived.map(recommendationMapper::toDto);
+    }
+
+    public Page<RecommendationDto> getAllRecommendations(Pageable pageable) {
+        Page<Recommendation> recommendations = recommendationRepo.findAll(pageable);
+        return recommendations.map(recommendationMapper::toDto);
+    }
+
+    public Page<RecommendationDto> getAllGivenRecommendations(long authorId, Pageable pageable) {
+        Page<Recommendation> recommendationsGiven = recommendationRepo.findAllByAuthorId(authorId, pageable);
+        return recommendationsGiven.map(recommendationMapper::toDto);
     }
 
     private void removeUserSkillIfNoOtherGuarantees(Recommendation recommendation, List<Skill> removedSkills) {
