@@ -28,14 +28,14 @@ public class RecommendationValidator {
                 () -> new DataValidationException("Пользователь с id " + userId + " не найден"));
     }
 
-    public void checkDate(RecommendationDto recommendationDto) {
+    public void validateDate(RecommendationDto recommendationDto) {
         Optional<Recommendation> recommendationOptional = recommendationRepository
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(
                         recommendationDto.getAuthorId(), recommendationDto.getReceiverId());
-        checkDate(recommendationDto, recommendationOptional);
+        validateDate(recommendationDto, recommendationOptional);
     }
 
-    private void checkDate(RecommendationDto recommendationDto, Optional<Recommendation> recommendationOptional) {
+    private void validateDate(RecommendationDto recommendationDto, Optional<Recommendation> recommendationOptional) {
         if (recommendationOptional.isEmpty()){ //рекомендация дается впервые
             return;
         }
@@ -47,7 +47,7 @@ public class RecommendationValidator {
         }
     }
 
-    public void checkSkills(RecommendationDto recommendationDto) {
+    public void validateSkills(RecommendationDto recommendationDto) {
         for (SkillOfferDto skillOffer : recommendationDto.getSkillOffers()) {
             long skillId = skillOffer.getSkillId();
             if (!skillRepository.existsById(skillId)){

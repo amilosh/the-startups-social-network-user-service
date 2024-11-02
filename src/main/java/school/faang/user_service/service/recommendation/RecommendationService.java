@@ -32,8 +32,8 @@ public class RecommendationService {
     public RecommendationDto create(RecommendationDto recommendationDto) {
         User user = validator.validateUser(recommendationDto.getReceiverId());
         User author = validator.validateUser(recommendationDto.getAuthorId());
-        validator.checkDate(recommendationDto);
-        validator.checkSkills(recommendationDto);
+        validator.validateDate(recommendationDto);
+        validator.validateSkills(recommendationDto);
 
         Recommendation savedRecommendation = recommendationRepository.save(mapper.toRecommendation(recommendationDto));
         saveSkills(recommendationDto, author, user);
