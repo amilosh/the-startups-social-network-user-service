@@ -19,4 +19,14 @@ public class UserService {
     public User getUserById(Long userId) {
         return userRepository.getUserById(userId);
     }
+
+    /**
+     * Checks if a user with the given ID exists in the database.
+     *
+     * @param userId the ID of the user to check
+     * @return true if the user exists, false otherwise
+     */
+    public boolean checkIfUserExistsById(Long userId) {
+        return userRepository.existsById(userId);
+    }
 }

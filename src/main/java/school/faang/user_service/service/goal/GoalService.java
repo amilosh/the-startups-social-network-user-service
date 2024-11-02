@@ -3,7 +3,9 @@ package school.faang.user_service.service.goal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.GoalDTO;
+import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.dto.response.GoalResponse;
+import school.faang.user_service.dto.response.GoalsResponse;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.mapper.GoalMapper;
@@ -14,6 +16,7 @@ import school.faang.user_service.validation.goal.GoalValidation;
 import school.faang.user_service.validation.goal.responce.ValidationResponse;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -22,6 +25,7 @@ public class GoalService {
 
     private final UserService userService;
     private final SkillService skillService;
+    private final List<GoalFilter> goalFilters;
 
     private final GoalMapper goalMapper;
 
@@ -52,6 +56,10 @@ public class GoalService {
 
         Goal entity = goalMapper.toEntity(goal);
         entity.setUsers(List.of(userService.getUserById(userId)));
+
+        if (goal.getParentGoalId() != null) {
+            entity.setParent(goalRepository.findGoalById(goal.getParentGoalId()));
+        }
 
         entity.setSkillsToAchieve(goal.getSkillIds().stream().map(skillService::getSkillById).toList());
 
@@ -88,7 +96,7 @@ public class GoalService {
             return response;
         }
 
-        if (!goalValidation.checkIfGoalExistsByID(goal.getId())) {
+        if (!goalRepository.existsById(goal.getId())) {
             var response = new GoalResponse(
                     "Validation failed",
                     400
@@ -144,7 +152,7 @@ public class GoalService {
      * The deletion will fail if the goal does not exist.
      */
     public GoalResponse deleteGoal(long goalId) {
-        if (!goalValidation.checkIfGoalExistsByID(goalId)) {
+        if (!goalRepository.existsById(goalId)) {
             var response = new GoalResponse(
                     "Validation failed",
                     400
@@ -159,5 +167,45 @@ public class GoalService {
                 "Goal deleted successfully",
                 204
         );
+    }
+
+    /**
+     * Gets a list of goals for a given user ID, with optional filters.
+     *
+     * @param userId the ID of the user to get goals for
+     * @param filters a DTO containing optional filters to apply
+     * @return a response containing the list of filtered goals
+     *         with status 200 if successful or 400 if validation fails
+     * <p>
+     * If the user does not exist, the method will return a response with a 400
+     * status and an error message.
+     */
+    public GoalsResponse getGoalsByUser(long userId, GoalFilterDto filters) {
+        if (!userService.checkIfUserExistsById(userId)) {
+            var response = new GoalsResponse(
+                    "Validation failed",
+                    400
+            );
+            response.setErrors(List.of("Goal does not exist"));
+            return response;
+        }
+
+        Stream<Goal> goals = goalRepository.findAll().stream();
+
+        Stream<Goal> filteredGoals = goalFilters.stream()
+                .filter(filter -> filter.isApplicable(filters))
+                .reduce(
+                        goals,
+                        (currentStream, filter) -> filter.apply(currentStream, filters),
+                        (s1, s2) -> s1
+                );
+
+        var response = new GoalsResponse(
+                "Goal fetched successfully",
+                200
+        );
+        response.setData(filteredGoals.map(goalMapper::toDto).toList());
+
+        return response;
     }
 }

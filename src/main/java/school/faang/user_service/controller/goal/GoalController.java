@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.request.GetGoalsByFilterRequest;
 import school.faang.user_service.dto.response.GoalResponse;
 import school.faang.user_service.dto.request.CreateGoalRequest;
+import school.faang.user_service.dto.response.GoalsResponse;
 import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.service.skill.SkillService;
 
@@ -40,6 +42,13 @@ public class GoalController {
         return ResponseEntity.status(201).body(response);
     }
 
+    /**
+     * Endpoint to update an existing goal.
+     *
+     * @param request the request payload containing user ID and goal details
+     * @return a ResponseEntity containing the result of the goal update process
+     *         with status 201 if successful or 400 if validation fails
+     */
     @PutMapping(consumes = "application/json", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GoalResponse> updateGoal(@RequestBody CreateGoalRequest request) {
         GoalResponse response = goalService.updateGoal(request.getUserId(), request.getGoal());
@@ -67,5 +76,24 @@ public class GoalController {
         }
 
         return ResponseEntity.status(204).body(response);
+    }
+
+    /**
+     * Endpoint to get all goals for a given user, filtered by a set of filters.
+     *
+     * @param userId the ID of the user to get goals for
+     * @param filters the filters to apply
+     * @return a ResponseEntity containing the goals matching the given filters
+     *         with status 200 if successful or 400 if filters are invalid
+     */
+    @PostMapping(value = "/{userId}", consumes = "application/json", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<GoalsResponse> getGoalsByUser(@PathVariable long userId, @RequestBody GetGoalsByFilterRequest filters) {
+        GoalsResponse response = goalService.getGoalsByUser(userId, filters.getFilters());
+
+        if (response.getCode() == 400) {
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        return ResponseEntity.ok(response);
     }
 }

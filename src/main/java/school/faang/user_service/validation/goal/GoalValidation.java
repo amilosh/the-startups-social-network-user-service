@@ -96,8 +96,4 @@ public class GoalValidation {
         response.setValid(true);
         return response;
     }
-
-    public boolean checkIfGoalExistsByID(Long goalId) {
-        return goalRepository.existsById(goalId);
-    }
 }
