@@ -180,7 +180,34 @@ class RecommendationServiceTest {
         verify(userValidator, times(1)).validateUserById(dto.getReceiverId());
     }
 
+    @Test
+    void getAllAuthorRecommendationsRecommendationFound() {
+        Page<Recommendation> page = new PageImpl<>(List.of(recommendation));
+        Pageable pageable = PageRequest.of(0, 10);
+        when(recommendationRepository.findAllByReceiverId(dto.getAuthorId(), pageable))
+                .thenReturn(page);
+        List<RecommendationDto> result = recommendationService.getAllUserRecommendations(dto.getAuthorId());
 
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("initial content", result.get(0).getContent());
+
+        verify(userValidator, times(1)).validateUserById(dto.getAuthorId());
+    }
+
+    @Test
+    void getAllAuthorRecommendationsRecommendationNotFound() {
+        Page<Recommendation> page = new PageImpl<>(List.of());
+        Pageable pageable = PageRequest.of(0, 10);
+        when(recommendationRepository.findAllByReceiverId(dto.getAuthorId(), pageable))
+                .thenReturn(page);
+        List<RecommendationDto> result = recommendationService.getAllUserRecommendations(dto.getAuthorId());
+
+        assertNotNull(result);
+        assertEquals(0, result.size());
+
+        verify(userValidator, times(1)).validateUserById(dto.getAuthorId());
+    }
 
     @Test
     void testGetRecommendationByIdNotFound() {

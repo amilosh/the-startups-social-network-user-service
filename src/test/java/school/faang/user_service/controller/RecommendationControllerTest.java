@@ -110,4 +110,19 @@ class RecommendationControllerTest {
         verify(recommendationControllerValidator, times(1)).validateId(dto.getReceiverId());
         verify(recommendationService, times(1)).getAllUserRecommendations(dto.getReceiverId());
     }
+
+    @Test
+    void testGetAllGivenRecommendations() {
+        dto.setId(1L);
+        when(recommendationService.getAllGivenRecommendations(dto.getAuthorId())).thenReturn(List.of(dto));
+
+        List<RecommendationDto> result = recommendationController.getAllGivenRecommendations(dto.getAuthorId());
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(dto, result.get(0));
+
+        verify(recommendationControllerValidator, times(1)).validateId(dto.getAuthorId());
+        verify(recommendationService, times(1)).getAllGivenRecommendations(dto.getAuthorId());
+    }
 }

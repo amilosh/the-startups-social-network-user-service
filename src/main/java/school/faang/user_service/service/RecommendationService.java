@@ -66,6 +66,12 @@ public class RecommendationService {
         return recommendationMapper.toDtoList(allRecommendations);
     }
 
+    public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
+        userValidator.validateUserById(authorId);
+        List<Recommendation> allRecommendations = getAllRecommendationsByAuthorId(authorId);
+        return recommendationMapper.toDtoList(allRecommendations);
+    }
+
     public Recommendation getRecommendationById(Long recommendationId) {
         return recommendationRepository.findById(recommendationId).orElseThrow(() ->
                 new EntityNotFoundException("Recommendation with id #" + recommendationId + " not found"));
@@ -90,6 +96,20 @@ public class RecommendationService {
 
         do {
             page = recommendationRepository.findAllByReceiverId(receiverId, PageRequest.of(startPage, PAGE_SIZE));
+            allRecommendations.addAll(page.getContent());
+            startPage++;
+        } while (page.hasNext());
+
+        return allRecommendations;
+    }
+
+    private List<Recommendation> getAllRecommendationsByAuthorId(long authorId) {
+        int startPage = 0;
+        List<Recommendation> allRecommendations = new ArrayList<>();
+        Page<Recommendation> page;
+
+        do {
+            page = recommendationRepository.findAllByAuthorId(authorId, PageRequest.of(startPage, PAGE_SIZE));
             allRecommendations.addAll(page.getContent());
             startPage++;
         } while (page.hasNext());

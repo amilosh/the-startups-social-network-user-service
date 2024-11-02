@@ -33,4 +33,9 @@ public class RecommendationController {
         recommendationControllerValidator.validateId(receiverId);
         return recommendationService.getAllUserRecommendations(receiverId);
     }
+
+    public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
+        recommendationControllerValidator.validateId(authorId);
+        return recommendationService.getAllGivenRecommendations(authorId);
+    }
 }
