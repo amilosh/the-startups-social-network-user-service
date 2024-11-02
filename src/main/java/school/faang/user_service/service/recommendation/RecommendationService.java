@@ -49,7 +49,7 @@ public class RecommendationService {
 
         for (SkillOfferDto offer : recommendationDto.getSkillOffers()) {
             Skill skill = skillMap.get(offer.getSkillId());
-            if (skill != null) { // Если навык существует у пользователя
+            if (skill != null) {
                 UserSkillGuarantee skillGuarantee = UserSkillGuarantee.builder()
                         .skill(skill)
                         .guarantor(author)
