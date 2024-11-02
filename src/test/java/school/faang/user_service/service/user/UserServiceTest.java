@@ -2,9 +2,11 @@ package school.faang.user_service.service.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
@@ -17,6 +19,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class UserServiceTest {
     @Mock
     private UserRepository userRepository;
@@ -24,10 +27,6 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void testGetUserById_UserExists() {
@@ -47,21 +46,6 @@ class UserServiceTest {
                 .country(country)
                 .city("CityName")
                 .experience(5)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .followers(Collections.emptyList())
-                .followees(Collections.emptyList())
-                .ownedEvents(Collections.emptyList())
-                .mentors(Collections.emptyList())
-                .mentees(Collections.emptyList())
-                .setGoals(Collections.emptyList())
-                .goals(Collections.emptyList())
-                .skills(Collections.emptyList())
-                .participatedEvents(Collections.emptyList())
-                .recommendationsGiven(Collections.emptyList())
-                .recommendationsReceived(Collections.emptyList())
-                .contacts(Collections.emptyList())
-                .ratings(Collections.emptyList())
                 .build();
 
         when(userRepository.getUserById(userId)).thenReturn(mockUser);

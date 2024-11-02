@@ -40,7 +40,7 @@ class GoalValidationTest {
     @Test
     void testValidateGoalRequest_UserIdMissing() {
         GoalDTO goal = new GoalDTO();
-        ValidationResponse response = goalValidation.validateGoalRequest(0L, goal);
+        ValidationResponse response = goalValidation.validateGoalRequest(0L, goal, true);
 
         assertFalse(response.isValid());
         assertTrue(response.getErrors().contains("User ID is missing"));
@@ -51,7 +51,7 @@ class GoalValidationTest {
         GoalDTO goal = new GoalDTO();
         when(userRepository.existsById(1L)).thenReturn(false);
 
-        ValidationResponse response = goalValidation.validateGoalRequest(1L, goal);
+        ValidationResponse response = goalValidation.validateGoalRequest(1L, goal, true);
 
         assertFalse(response.isValid());
         assertTrue(response.getErrors().contains("User does not exist"));
@@ -61,7 +61,7 @@ class GoalValidationTest {
     void testValidateGoalRequest_GoalIsMissing() {
         when(userRepository.existsById(1L)).thenReturn(true);
 
-        ValidationResponse response = goalValidation.validateGoalRequest(1L, null);
+        ValidationResponse response = goalValidation.validateGoalRequest(1L, null, true);
 
         assertFalse(response.isValid());
         assertTrue(response.getErrors().contains("Goal is missing"));
@@ -73,7 +73,7 @@ class GoalValidationTest {
         goal.setTitle(null);
         when(userRepository.existsById(1L)).thenReturn(true);
 
-        ValidationResponse response = goalValidation.validateGoalRequest(1L, goal);
+        ValidationResponse response = goalValidation.validateGoalRequest(1L, goal, true);
 
         assertFalse(response.isValid());
         assertTrue(response.getErrors().contains("Goal title is missing"));
@@ -85,7 +85,7 @@ class GoalValidationTest {
         goal.setTitle("A".repeat(65));
         when(userRepository.existsById(1L)).thenReturn(true);
 
-        ValidationResponse response = goalValidation.validateGoalRequest(1L, goal);
+        ValidationResponse response = goalValidation.validateGoalRequest(1L, goal, true);
 
         assertFalse(response.isValid());
         assertTrue(response.getErrors().contains("Goal title is too long"));
@@ -102,7 +102,7 @@ class GoalValidationTest {
         when(goalRepository.countActiveGoalsPerUser(1L)).thenReturn(1);
         when(skillService.checkIfSkillExistsById(any(Long.class))).thenReturn(true);
 
-        ValidationResponse response = goalValidation.validateGoalRequest(1L, goal);
+        ValidationResponse response = goalValidation.validateGoalRequest(1L, goal, true);
 
         assertTrue(response.isValid());
         assertTrue(response.getErrors().isEmpty());
@@ -112,12 +112,12 @@ class GoalValidationTest {
     void testValidateGoalRequest_SkillDoesNotExist() {
         GoalDTO goal = new GoalDTO();
         goal.setTitle("Valid Title");
-        goal.setSkillIds(Arrays.asList(1L, 999L)); // 999L не существует
+        goal.setSkillIds(Arrays.asList(1L, 999L));
         when(userRepository.existsById(1L)).thenReturn(true);
         when(goalRepository.countActiveGoalsPerUser(1L)).thenReturn(1);
         when(skillService.checkIfSkillExistsById(999L)).thenReturn(false);
 
-        ValidationResponse response = goalValidation.validateGoalRequest(1L, goal);
+        ValidationResponse response = goalValidation.validateGoalRequest(1L, goal, true);
 
         assertFalse(response.isValid());
         assertTrue(response.getErrors().contains("Skill with ID: 999 does not exist"));

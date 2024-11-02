@@ -14,6 +14,10 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class GoalValidation {
+    private static final int MAX_GOALS_PER_USER = 3;
+    private static final int MAX_LENGTH_TITLE = 64;
+    private static final int MAX_LENGTH_DESCRIPTION = 128;
+
     private final ValidationResponse response = new ValidationResponse();
 
     private final GoalRepository goalRepository;
@@ -21,22 +25,16 @@ public class GoalValidation {
 
     private final SkillService skillService;
 
-    private static final int MAX_GOALS_PER_USER = 3;
-    private static final int MAX_LENGTH_TITLE = 64;
-    private static final int MAX_LENGTH_DESCRIPTION = 128;
-
     /**
      * Validates a create goal request.
      *
      * @param userId the user ID, must not be 0
-     * @param goal the goal to validate, must not be null
-     *
+     * @param goal   the goal to validate, must not be null
      * @return a {@link ValidationResponse} which contains the result of the validation
-     *
+     * <p>
      * The validation will fail if the user ID is 0, the goal is missing, the goal title is missing, the goal title is empty, the goal title is too long, the goal description is too long, the goal status is missing, the user already has the maximum number of active goals, the skill IDs are missing, or one of the skill IDs does not exist.
-     *
      */
-    public ValidationResponse validateGoalRequest(Long userId, GoalDTO goal) {
+    public ValidationResponse validateGoalRequest(Long userId, GoalDTO goal, boolean isCreate) {
         List<String> errors = new ArrayList<>();
 
         if (userId == 0) {
@@ -71,7 +69,7 @@ public class GoalValidation {
             errors.add("Goal status is missing");
         }
 
-        if (goalRepository.countActiveGoalsPerUser(userId) >= MAX_GOALS_PER_USER) {
+        if (isCreate && goalRepository.countActiveGoalsPerUser(userId) >= MAX_GOALS_PER_USER) {
             errors.add("User cannot have more than %s active goals".formatted(MAX_GOALS_PER_USER));
         }
 

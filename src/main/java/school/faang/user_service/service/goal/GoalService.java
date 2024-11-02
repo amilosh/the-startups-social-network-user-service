@@ -8,6 +8,7 @@ import school.faang.user_service.dto.response.GoalResponse;
 import school.faang.user_service.dto.response.GoalsResponse;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.exception.InvalidException;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skill.SkillService;
@@ -40,15 +41,10 @@ public class GoalService {
      * @return a response containing the created goal
      */
     public GoalResponse createGoal(Long userId, GoalDTO goal) {
-        ValidationResponse validationResponse = goalValidation.validateGoalRequest(userId, goal);
+        ValidationResponse validationResponse = goalValidation.validateGoalRequest(userId, goal, true);
 
         if (!validationResponse.isValid()) {
-            var response = new GoalResponse(
-                    "Validation failed",
-                    400
-            );
-            response.setErrors(validationResponse.getErrors());
-            return response;
+            throw new InvalidException(validationResponse.getErrors());
         }
 
         goal.setStatus(GoalStatus.ACTIVE);
@@ -78,31 +74,21 @@ public class GoalService {
      * Updates an existing goal with the provided details.
      *
      * @param userId the ID of the user updating the goal
-     * @param goal the updated goal details
+     * @param goal   the updated goal details
      * @return a response containing the result of the update operation
-     *         with status 201 if successful or 400 if validation fails
-     *
+     * with status 201 if successful or 400 if validation fails
+     * <p>
      * The update will fail if the validation of the goal request fails or if the goal does not exist.
      */
     public GoalResponse updateGoal(Long userId, GoalDTO goal) {
-        ValidationResponse validationResponse = goalValidation.validateGoalRequest(userId, goal);
+        ValidationResponse validationResponse = goalValidation.validateGoalRequest(userId, goal, false);
 
         if (!validationResponse.isValid()) {
-            var response = new GoalResponse(
-                    "Validation failed",
-                    400
-            );
-            response.setErrors(validationResponse.getErrors());
-            return response;
+            throw new InvalidException(validationResponse.getErrors());
         }
 
         if (!goalRepository.existsById(goal.getId())) {
-            var response = new GoalResponse(
-                    "Validation failed",
-                    400
-            );
-            response.setErrors(List.of("Goal does not exist"));
-            return response;
+            throw new InvalidException(List.of("Goal does not exist"));
         }
 
         Goal entity = goalRepository.findGoalById(goal.getId());
@@ -147,18 +133,13 @@ public class GoalService {
      *
      * @param goalId the ID of the goal to delete
      * @return a response containing the result of the delete operation
-     *         with status 204 if successful or 400 if validation fails
-     *
+     * with status 204 if successful or 400 if validation fails
+     * <p>
      * The deletion will fail if the goal does not exist.
      */
     public GoalResponse deleteGoal(long goalId) {
         if (!goalRepository.existsById(goalId)) {
-            var response = new GoalResponse(
-                    "Validation failed",
-                    400
-            );
-            response.setErrors(List.of("Goal does not exist"));
-            return response;
+            throw new InvalidException(List.of("Goal does not exist"));
         }
 
         goalRepository.delete(goalRepository.findGoalById(goalId));
@@ -172,22 +153,17 @@ public class GoalService {
     /**
      * Gets a list of goals for a given user ID, with optional filters.
      *
-     * @param userId the ID of the user to get goals for
+     * @param userId  the ID of the user to get goals for
      * @param filters a DTO containing optional filters to apply
      * @return a response containing the list of filtered goals
-     *         with status 200 if successful or 400 if validation fails
+     * with status 200 if successful or 400 if validation fails
      * <p>
      * If the user does not exist, the method will return a response with a 400
      * status and an error message.
      */
     public GoalsResponse getGoalsByUser(long userId, GoalFilterDto filters) {
         if (!userService.checkIfUserExistsById(userId)) {
-            var response = new GoalsResponse(
-                    "Validation failed",
-                    400
-            );
-            response.setErrors(List.of("Goal does not exist"));
-            return response;
+            throw new InvalidException(List.of("User does not exist"));
         }
 
         Stream<Goal> goals = goalRepository.findAll().stream();

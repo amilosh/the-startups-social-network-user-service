@@ -73,7 +73,7 @@ class GoalServiceTest {
         validationResponse.setValid(true);
         validationResponse.setErrors(List.of());
 
-        when(goalValidation.validateGoalRequest(userId, goalDTO)).thenReturn(validationResponse);
+        when(goalValidation.validateGoalRequest(userId, goalDTO, true)).thenReturn(validationResponse);
         when(userService.getUserById(userId)).thenReturn(new User());
         when(goalMapper.toEntity(goalDTO)).thenReturn(goalEntity);
         when(skillService.getSkillById(2L)).thenReturn(new Skill());
@@ -95,7 +95,7 @@ class GoalServiceTest {
         validationResponse.setValid(false);
         validationResponse.setErrors(List.of("Invalid data"));
 
-        when(goalValidation.validateGoalRequest(userId, goalDTO)).thenReturn(validationResponse);
+        when(goalValidation.validateGoalRequest(userId, goalDTO, true)).thenReturn(validationResponse);
 
         GoalResponse response = goalService.createGoal(userId, goalDTO);
 
@@ -122,7 +122,7 @@ class GoalServiceTest {
         var validationResponse = new ValidationResponse();
         validationResponse.setValid(true);
 
-        when(goalValidation.validateGoalRequest(userId, goalDto)).thenReturn(validationResponse);
+        when(goalValidation.validateGoalRequest(userId, goalDto, false)).thenReturn(validationResponse);
         when(goalRepository.existsById(goalDto.getId())).thenReturn(true);
         when(goalRepository.findGoalById(goalDto.getId())).thenReturn(goalEntity);
         when(userService.getUserById(userId)).thenReturn(new User());
@@ -149,7 +149,7 @@ class GoalServiceTest {
         var validationResponse = new ValidationResponse();
         validationResponse.setValid(true);
 
-        when(goalValidation.validateGoalRequest(userId, goalDto)).thenReturn(validationResponse);
+        when(goalValidation.validateGoalRequest(userId, goalDto, false)).thenReturn(validationResponse);
         when(goalRepository.existsById(goalDto.getId())).thenReturn(false);
 
         GoalResponse response = goalService.updateGoal(userId, goalDto);
@@ -174,7 +174,7 @@ class GoalServiceTest {
         validationResponse.setValid(false);
         validationResponse.setErrors(List.of("Title is required"));
 
-        when(goalValidation.validateGoalRequest(userId, goalDto)).thenReturn(validationResponse);
+        when(goalValidation.validateGoalRequest(userId, goalDto, false)).thenReturn(validationResponse);
 
         GoalResponse response = goalService.updateGoal(userId, goalDto);
 
@@ -206,7 +206,7 @@ class GoalServiceTest {
         var validationResponse = new ValidationResponse();
         validationResponse.setValid(true);
 
-        when(goalValidation.validateGoalRequest(userId, goalDto)).thenReturn(validationResponse);
+        when(goalValidation.validateGoalRequest(userId, goalDto, false)).thenReturn(validationResponse);
         when(goalRepository.existsById(goalDto.getId())).thenReturn(true);
         when(goalRepository.findGoalById(goalDto.getId())).thenReturn(goalEntity);
         when(userService.getUserById(userId)).thenReturn(new User());
