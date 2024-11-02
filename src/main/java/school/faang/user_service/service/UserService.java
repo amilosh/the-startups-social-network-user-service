@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 
 @Service
@@ -13,8 +14,6 @@ public class UserService {
 
     public User getUserById(Long id) {
         return userRepo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
     }
-
-
 }
