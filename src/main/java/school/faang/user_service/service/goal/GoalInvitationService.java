@@ -66,24 +66,26 @@ public class GoalInvitationService {
     public GoalInvitationDto acceptGoalInvitation(long id) {
         GoalInvitation goalInvitation = goalInvitationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Goal invitation not found by ID: " + id));
+        if (!goalInvitation.getStatus().equals(RequestStatus.PENDING)) {
+            throw new GoalInvitationStatusException("The goal invitation status is already " + goalInvitation.getStatus());
+        }
         Goal goal = goalRepository.findById(goalInvitation.getGoal().getId())
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found by ID: " + goalInvitation.getGoal().getId()));
+        if (userRepository.findById(goalInvitation.getInviter().getId()).isEmpty()) {
+            throw new EntityNotFoundException("User not found by ID: " + goalInvitation.getInviter().getId());
+        }
         User invited = userRepository.findById(goalInvitation.getInvited().getId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found by ID: " + goalInvitation.getInvited().getId()));
 
         List<Goal> userGoals = invited.getGoals();
-        if (userGoals.size() >= maxActiveGoalsCount) {
-            throw new ValueExceededException("The maximum number: " + maxActiveGoalsCount + " of active targets has been exceeded  for user with ID: " + invited.getId());
-        }
         if (userGoals.contains(goal)) {
             throw new DuplicateObjectException("User with ID: " + invited.getId() + " already has the goal with ID: " + goal.getId());
         }
+        if (userGoals.size() >= maxActiveGoalsCount) {
+            throw new ValueExceededException("The maximum number: " + maxActiveGoalsCount + " of active goals has been exceeded for user with ID: " + invited.getId());
+        }
         userGoals.add(goal);
         userRepository.save(invited);
-
-        if (!goalInvitation.getStatus().equals(RequestStatus.PENDING)) {
-            throw new GoalInvitationStatusException("The goal invitation status is already " + goalInvitation.getStatus());
-        }
 
         goalInvitation.setStatus(RequestStatus.ACCEPTED);
         goalInvitation.setUpdatedAt(LocalDateTime.now());
@@ -95,11 +97,17 @@ public class GoalInvitationService {
     public GoalInvitationDto rejectGoalInvitation(long id) {
         GoalInvitation goalInvitation = goalInvitationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Goal invitation not found by ID: " + id));
-        Goal goal = goalRepository.findById(goalInvitation.getGoal().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Goal not found by ID: " + goalInvitation.getGoal().getId()));
-
         if (!goalInvitation.getStatus().equals(RequestStatus.PENDING)) {
             throw new GoalInvitationStatusException("The goal invitation status is already " + goalInvitation.getStatus());
+        }
+        if (goalRepository.findById(goalInvitation.getGoal().getId()).isEmpty()) {
+            throw new EntityNotFoundException("Goal not found by ID: " + goalInvitation.getGoal().getId());
+        }
+        if (userRepository.findById(goalInvitation.getInviter().getId()).isEmpty()) {
+            throw new EntityNotFoundException("User not found by ID: " + goalInvitation.getInviter().getId());
+        }
+        if (userRepository.findById(goalInvitation.getInvited().getId()).isEmpty()) {
+            throw new EntityNotFoundException("User not found by ID: " + goalInvitation.getInvited().getId());
         }
 
         goalInvitation.setStatus(RequestStatus.REJECTED);
