@@ -1,19 +1,19 @@
-package school.faang.user_service.filter;
+package school.faang.user_service.filter.userFilter;
 
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 
-public class PhonePatternFilter implements SubscriptionFilter {
+public class NamePatternFilter implements UserFilter {
     private String pattern;
 
     @Override
     public boolean isApplicable(UserFilterDto filterDto) {
-        this.pattern = filterDto.phonePattern();
+        this.pattern = filterDto.namePattern();
         return pattern != null && !pattern.isEmpty();
     }
 
     @Override
     public boolean apply(User user) {
-        return user.getPhone() != null && user.getPhone().contains(pattern);
+        return user.getUsername() != null && user.getUsername().contains(pattern);
     }
 }

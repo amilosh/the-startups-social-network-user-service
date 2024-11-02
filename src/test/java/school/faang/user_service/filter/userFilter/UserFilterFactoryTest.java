@@ -1,4 +1,4 @@
-package school.faang.user_service.filter;
+package school.faang.user_service.filter.userFilter;
 
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.UserFilterDto;
@@ -17,7 +17,7 @@ public class UserFilterFactoryTest {
     @Test
     public void testIfCreatesNeededFilters() {
         // Act
-        List<SubscriptionFilter> filters = UserFilterFactory.createFilters(userFilter);
+        List<UserFilter> filters = UserFilterFactory.createFilters(userFilter);
 
         // Assert
         assertEquals(1, filters.size());
@@ -26,7 +26,7 @@ public class UserFilterFactoryTest {
     @Test
     public void testIfFiltersAreCorrect() {
         // Act
-        List<SubscriptionFilter> filters = UserFilterFactory.createFilters(userFilter);
+        List<UserFilter> filters = UserFilterFactory.createFilters(userFilter);
 
         // Assert
         assertEquals(AboutPatternFilter.class, filters.get(0).getClass());
@@ -43,8 +43,8 @@ public class UserFilterFactoryTest {
 
 
         // Act
-        List<SubscriptionFilter> filters = UserFilterFactory.createFilters(userFilter);
-        List<SubscriptionFilter> applicableFilters = filters.stream()
+        List<UserFilter> filters = UserFilterFactory.createFilters(userFilter);
+        List<UserFilter> applicableFilters = filters.stream()
                 .filter(filter -> filter.isApplicable(userFilter))
                 .toList();
 

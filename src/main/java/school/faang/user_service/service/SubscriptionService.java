@@ -6,8 +6,8 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.filter.SubscriptionFilter;
-import school.faang.user_service.filter.UserFilterFactory;
+import school.faang.user_service.filter.userFilter.UserFilter;
+import school.faang.user_service.filter.userFilter.UserFilterFactory;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 
@@ -59,8 +59,8 @@ public class SubscriptionService {
     }
 
     private List<UserDto> filterUsers(Stream<User> users, UserFilterDto filterDto) {
-        List<SubscriptionFilter> filters = UserFilterFactory.createFilters(filterDto);
-        List<SubscriptionFilter> applicableFilters = filters.stream()
+        List<UserFilter> filters = UserFilterFactory.createFilters(filterDto);
+        List<UserFilter> applicableFilters = filters.stream()
                 .filter(filter -> filter.isApplicable(filterDto))
                 .toList();
 
