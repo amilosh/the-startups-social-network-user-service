@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<GoalResponse> handleBadRequestException(BadRequestException ex) {
-        GoalResponse response = new GoalResponse("Bad request", 404);
+        GoalResponse response = new GoalResponse("Bad request", 400);
         response.setErrors(List.of(ex.getMessage()));
         return ResponseEntity.badRequest().body(response);
     }
