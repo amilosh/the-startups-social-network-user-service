@@ -11,11 +11,12 @@ import school.faang.user_service.entity.User;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
-    @Mapping(source = "mentees", target = "menteesId", qualifiedByName = "mapToMenteesId")
-    @Mapping(source = "mentors", target = "mentorsId", qualifiedByName = "mapToMentorsId")
+    @Mapping(source = "mentees", target = "menteesId", qualifiedByName = "mapToUsersId")
+    @Mapping(source = "mentors", target = "mentorsId", qualifiedByName = "mapToUsersId")
     @Mapping(source = "skills", target = "skillsId", qualifiedByName = "mapToSkillsId")
     UserDto toDto(User user);
 
@@ -25,28 +26,24 @@ public interface UserMapper {
     User toEntity(UserDto userDto);
 
 
-    List<UserDto> toDto (List<User> users);
+    List<UserDto> toDto(List<User> users);
 
-    List<User> toEntity (List<UserDto> usersDto);
-@Named("mapToMenteesId")
-    default List<Long> mapToMenteesId(List<User> mentees) {
-    if (mentees == null) {
-        return new ArrayList<>();
+    List<User> toEntity(List<UserDto> usersDto);
+
+    @Named("mapToUsersId")
+    default List<Long> mapToUsersId (List<User> users) {
+        return mapToIds(users, User::getId);
     }
-    return mentees.stream().map(User::getId).toList();
-    }
-@Named("mapToMentorsId")
-    default List<Long> mapToMentorsId(List<User> mentors) {
-    if (mentors == null) {
-        return new ArrayList<>();
-    }
-    return mentors.stream().map(User::getId).toList();
-    }
-@Named("mapToSkillsId")
+
+    @Named("mapToSkillsId")
     default List<Long> mapToSkillsId(List<Skill> skills) {
-    if (skills == null) {
-        return new ArrayList<>();
+        return mapToIds(skills, Skill::getId);
     }
-        return skills.stream().map(Skill::getId).toList();
+
+    default <T> List<Long> mapToIds(List<T> items, Function<T, Long> mapper) {
+        if (items == null) {
+            return new ArrayList<>();
+        }
+        return items.stream().map(mapper).toList();
     }
 }

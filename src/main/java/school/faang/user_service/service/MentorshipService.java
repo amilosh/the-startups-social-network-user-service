@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class MentorshipService {
@@ -21,36 +23,35 @@ public class MentorshipService {
 
     public List<UserDto> getMentees(long userId) {
         User user = userService.findUser(userId);
-        List<User> mentees = user.getMentees() != null ? user.getMentees() : new ArrayList<>();
-        return userMapper.toDto(mentees);
+        return userMapper.toDto(user.getMentees());
     }
 
     public List<UserDto> getMentors(long userId) {
         User user = userService.findUser(userId);
-        List<User> mentors = user.getMentors() != null ? user.getMentors() : new ArrayList<>();
-        return userMapper.toDto(mentors);
+        return userMapper.toDto(user.getMentors());
     }
 
     public void deleteMentee(long menteeId, long mentorId) {
         User mentor = userService.findUser(mentorId);
-        mentor.getMentees().stream()
-                .filter(m -> m.getId() == menteeId)
-                .findFirst()
-                .ifPresentOrElse(userService::deleteUser, () -> {
-                    System.out.println("Mentor " + mentor.getUsername() +
-                            " does not have a mentee with " + menteeId + " id");
-                });
+        boolean remove = mentor.getMentees().removeIf(mentee -> mentee.getId().equals(menteeId));
+        if (remove) {
+            userService.saveUser(mentor);
+        } else {
+            log.info("Mentor " + mentor.getUsername() + " does not have a mentee with "
+                    + menteeId + " id");
+        }
     }
 
     public void deleteMentor(long menteeId, long mentorId) {
         User mentee = userService.findUser(menteeId);
-        mentee.getMentors().stream()
-                .filter(m -> m.getId() == mentorId)
-                .findFirst()
-                .ifPresentOrElse(userService::deleteUser, () -> {
-                    System.out.println("User " + mentee.getUsername()
-                            + " does not have a mentor with " + mentorId + " id");
-                });
+        boolean remove = mentee.getMentors().removeIf(mentor -> mentor.getId().equals(mentorId));
+        if (remove) {
+            userService.saveUser(mentee);
+        } else {
+            log.info("User " + mentee.getUsername()
+                    + " does not have a mentor with " + mentorId + " id");
+        }
     }
+
 }
 

@@ -13,6 +13,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapperImpl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -60,7 +61,7 @@ public class MentorshipServiceTest {
         long userId = 1l;
         User user = new User();
         user.setId(userId);
-        user.setMentees(null);
+        user.setMentees(Collections.emptyList());
         when(userService.findUser(userId)).thenReturn(user);
 
         List<UserDto> result = mentorshipService.getMentees(userId);
@@ -71,7 +72,7 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void getMentorsWhenUserHasMentees() {
+    public void testGetMentorsWhenUserHasMentees() {
         long userId = 1l;
         User user = new User();
         user.setId(userId);
@@ -88,15 +89,16 @@ public class MentorshipServiceTest {
         assertNotNull(result);
         assertEquals(2, result.size());
         assertEquals(2l, result.get(0).getId());
+        assertEquals(3l, result.get(1).getId());
         verify(userService, times(1)).findUser(userId);
     }
 
     @Test
-    public void getMentorsUserWithNoMenteesReturnsEmptyList() {
+    public void testGetMentorsUserWithNoMenteesReturnsEmptyList() {
         long userId = 1l;
         User user = new User();
         user.setId(userId);
-        user.setMentors(null);
+        user.setMentors(Collections.emptyList());
         when(userService.findUser(userId)).thenReturn(user);
 
         List<UserDto> result = mentorshipService.getMentors(userId);
@@ -107,7 +109,7 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void deleteMenteeWhenMenteeExists() {
+    public void testDeleteMenteeWhenMenteeExists() {
         User mentor = new User();
         mentor.setId(1l);
         User mentee = new User();
@@ -119,11 +121,12 @@ public class MentorshipServiceTest {
 
         mentorshipService.deleteMentee(mentee.getId(), mentor.getId());
 
-        verify(userService, times(1)).deleteUser(mentee);
+        verify(userService, times(1)).saveUser(mentor);
+        assertTrue(mentor.getMentees().isEmpty());
     }
 
     @Test
-    public void deleteMenteeWhenMenteeDoesNotExist() {
+    public void testDeleteMenteeWhenMenteeDoesNotExist() {
         User mentor = new User();
         mentor.setId(1l);
         mentor.setMentees(new ArrayList<>());
@@ -131,11 +134,11 @@ public class MentorshipServiceTest {
 
         mentorshipService.deleteMentee(3l, mentor.getId());
 
-        verify(userService, never()).deleteUser(any());
+        verify(userService, never()).saveUser(mentor);
     }
 
     @Test
-    public void deleteMentorWhenMenteeExists() {
+    public void testDeleteMentorWhenMenteeExists() {
         User mentee = new User();
         mentee.setId(1l);
         User mentor = new User();
@@ -146,11 +149,12 @@ public class MentorshipServiceTest {
 
         mentorshipService.deleteMentor(mentee.getId(), mentor.getId());
 
-        verify(userService, times(1)).deleteUser(mentor);
+        verify(userService, times(1)).saveUser(mentee);
+        assertTrue(mentee.getMentors().isEmpty());
     }
 
     @Test
-    public void deleteMentorWhenMenteeDoesNotExist() {
+    public void testDeleteMentorWhenMenteeDoesNotExist() {
         User mentee = new User();
         mentee.setId(1l);
         mentee.setMentors(new ArrayList<>());
@@ -158,7 +162,7 @@ public class MentorshipServiceTest {
 
         mentorshipService.deleteMentor(mentee.getId(), 3l);
 
-        verify(userService, never()).deleteUser(any());
+        verify(userService, never()).saveUser(mentee);
     }
 }
 

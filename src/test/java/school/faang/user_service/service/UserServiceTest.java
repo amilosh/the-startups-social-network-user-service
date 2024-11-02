@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.NoSuchElementException;
@@ -26,7 +27,7 @@ public class UserServiceTest {
     private UserService userService;
 
     @Test
-    public void findUserWhenUserExist() {
+    public void testFindUserWhenUserExist() {
         long userId = 1L;
         User user = new User();
         user.setId(userId);
@@ -40,18 +41,18 @@ public class UserServiceTest {
     }
 
     @Test
-    public void findUserWhenUserDoesNotExist() {
+    public void testFindUserWhenUserDoesNotExist() {
         long userId = 1;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () ->
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
                 userService.findUser(userId));
         assertEquals("User with ID " + userId + " not found", exception.getMessage());
         verify(userRepository, times(1)).findById(userId);
     }
 
     @Test
-    public void deleteUserWhenUserExist() {
+    public void testDeleteUserWhenUserExist() {
         User user = new User();
 
         userService.deleteUser(user);
