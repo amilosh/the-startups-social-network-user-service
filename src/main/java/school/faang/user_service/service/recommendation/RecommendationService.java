@@ -33,6 +33,7 @@ public class RecommendationService {
         User user = validator.validateUser(recommendationDto.getReceiverId());
         User author = validator.validateUser(recommendationDto.getAuthorId());
         validator.checkDate(recommendationDto);
+        validator.checkSkills(recommendationDto);
 
         Recommendation savedRecommendation = recommendationRepository.save(mapper.toRecommendation(recommendationDto));
         saveSkills(recommendationDto, author, user);

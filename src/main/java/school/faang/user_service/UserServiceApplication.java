@@ -35,7 +35,7 @@ public class UserServiceApplication {
 //        recommendation.setSkillOffers(
 //                List.of(
 //                        SkillOfferDto.builder()
-//                                .skillId(1L)
+//                                .skillId(3L)
 //                                .recommendationId(2L)
 //                                .build()
 //                )
