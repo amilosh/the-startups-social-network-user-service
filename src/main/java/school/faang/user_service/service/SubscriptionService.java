@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.user_filter.UserFilter;
@@ -46,25 +45,20 @@ public class SubscriptionService {
     public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
         userValidation.isUserExists(followeeId);
 
-        if (isNull(filter)) {
-            log.info("Getting followers for user with id: {}", followeeId);
-            return userMapper.entityStreamToDtoList(subscriptionRepository.findByFolloweeId(followeeId));
-        }
-        return filterUsers(followeeId, filter);
-    }
-
-    private List<UserDto> filterUsers(long followeeId, UserFilterDto filter) {
-        userValidation.isUserExists(followeeId);
-
         Stream<User> followers = subscriptionRepository.findByFolloweeId(followeeId);
 
-        for (UserFilter userFilter : userFilters) {
-            if (userFilter.isApplicable(filter)) {
-                followers = userFilter.apply(followers, filter);
-            }
-        }
-        log.info("Getting filtered followers/followings for user with id {}", followeeId);
-        return userMapper.entityStreamToDtoList(followers);
+        log.info("Getting filtered followers for user with id {}", followeeId);
+        return filterUsers(filter, followers);
+    }
+
+    private List<UserDto> filterUsers(UserFilterDto filter, Stream<User> usersStream) {
+        return userMapper.entityStreamToDtoList(
+                userFilters.stream()
+                        .filter(userFilter -> userFilter.isApplicable(filter))
+                        .reduce(usersStream,
+                                (users, userFilter) -> userFilter.apply(users, filter),
+                                (a, b) -> b)
+        );
     }
 
     public int getFollowersCount(long followeeId) {
@@ -74,14 +68,13 @@ public class SubscriptionService {
         return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
     }
 
-    public List<UserDto> getFollowing(long followeeId, UserFilterDto filter) {
-        userValidation.isUserExists(followeeId);
+    public List<UserDto> getFollowing(long followerId, UserFilterDto filter) {
+        userValidation.isUserExists(followerId);
 
-        if (isNull(filter)) {
-            log.info("Getting followings for user with id: {}", followeeId);
-            return userMapper.entityStreamToDtoList(subscriptionRepository.findByFolloweeId(followeeId));
-        }
-        return filterUsers(followeeId, filter);
+        Stream<User> followings = subscriptionRepository.findByFollowerId(followerId);
+
+        log.info("Getting filtered followings for user with id {}", followerId);
+        return filterUsers(filter, followings);
     }
 
     public int getFollowingCount(long followeeId) {
@@ -89,9 +82,5 @@ public class SubscriptionService {
 
         log.info("Getting followings count for user with id: {}", followeeId);
         return subscriptionRepository.findFolloweesAmountByFollowerId(followeeId);
-    }
-
-    private boolean isNull(UserFilterDto userFilterDto) {
-        return userFilterDto == null;
     }
 }
