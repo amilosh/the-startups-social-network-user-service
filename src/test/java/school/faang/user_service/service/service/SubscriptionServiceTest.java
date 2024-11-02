@@ -1,5 +1,6 @@
 package school.faang.user_service.service.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,26 +24,47 @@ class SubscriptionServiceTest {
     @InjectMocks
     private SubscriptionService subscriptionService;
 
-    @Test
-    void testYourselfFollowing() {
-        assertThrows(DataValidationException.class, () -> subscriptionService.followUser(1L, 1L));
-        verify(subscriptionRepository, times(0)).followUser(1L, 2L);
+    private long followerId;
+    private long followeeId;
+
+    @BeforeEach
+    void setUp() {
+        followerId = 1L;
+        followeeId = 2L;
     }
 
     @Test
-    void testExistsFollowing() {
+    void testYourselfSubscription() {
+        assertThrows(DataValidationException.class, () -> subscriptionService.followUser(followerId, followerId));
+        verify(subscriptionRepository, times(0)).followUser(followerId, followerId);
+    }
+
+    @Test
+    void testExistsSubscription() {
         Mockito.when(subscriptionRepository.existsByFollowerIdAndFolloweeId(anyLong(), anyLong())).thenReturn(true);
 
-        assertThrows(DataValidationException.class, () -> subscriptionService.followUser(1L, 2L));
-        verify(subscriptionRepository, times(0)).followUser(1L, 2L);
+        assertThrows(DataValidationException.class, () -> subscriptionService.followUser(followerId, followeeId));
+        verify(subscriptionRepository, times(0)).followUser(followerId, followeeId);
     }
 
     @Test
-    void testNotExistsFollowing() {
+    void testNotExistsSubscription() {
         Mockito.when(subscriptionRepository.existsByFollowerIdAndFolloweeId(anyLong(), anyLong())).thenReturn(false);
 
-        assertDoesNotThrow(() -> subscriptionService.followUser(1L, 2L));
-        verify(subscriptionRepository, times(1)).followUser(1L, 2L);
+        assertDoesNotThrow(() -> subscriptionService.followUser(followerId, followeeId));
+        verify(subscriptionRepository, times(1)).followUser(followerId, followeeId);
+    }
+
+    @Test
+    void testYourselfUnsubscription() {
+        assertThrows(DataValidationException.class, () -> subscriptionService.unfollowUser(followerId, followerId));
+        verify(subscriptionRepository, times(0)).followUser(followerId, followerId);
+    }
+
+    @Test
+    void testUnsubscription() {
+        assertThrows(DataValidationException.class, () -> subscriptionService.unfollowUser(followerId, followeeId));
+        verify(subscriptionRepository, times(0)).followUser(followerId, followeeId);
     }
 
 }
