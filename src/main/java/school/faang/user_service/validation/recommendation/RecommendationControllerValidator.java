@@ -38,13 +38,13 @@ public class RecommendationControllerValidator {
         }
     }
 
-    public void validateRecommendationId(Long id) {
+    public void validateId(Long id) {
         if (id == null || id == 0) {
-            throw new DataValidationException("Recommendation id cannot be null");
+            throw new DataValidationException("Id cannot be null");
         }
 
         if (id <= 0) {
-            throw new DataValidationException("Recommendation id cannot be negative");
+            throw new DataValidationException("Id cannot be negative");
         }
     }
 }

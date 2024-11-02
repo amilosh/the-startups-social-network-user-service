@@ -79,7 +79,7 @@ class RecommendationControllerTest {
 
         assertTrue(result);
 
-        verify(recommendationControllerValidator, times(1)).validateRecommendationId(dto.getId());
+        verify(recommendationControllerValidator, times(1)).validateId(dto.getId());
         verify(recommendationService, times(1)).delete(dto.getId());
     }
 
@@ -92,7 +92,22 @@ class RecommendationControllerTest {
 
         assertFalse(result);
 
-        verify(recommendationControllerValidator, times(1)).validateRecommendationId(dto.getId());
+        verify(recommendationControllerValidator, times(1)).validateId(dto.getId());
         verify(recommendationService, times(1)).delete(dto.getId());
+    }
+
+    @Test
+    void testGetAllUserRecommendations() {
+        dto.setId(1L);
+        when(recommendationService.getAllUserRecommendations(dto.getReceiverId())).thenReturn(List.of(dto));
+
+        List<RecommendationDto> result = recommendationController.getAllUserRecommendations(dto.getReceiverId());
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(dto, result.get(0));
+
+        verify(recommendationControllerValidator, times(1)).validateId(dto.getReceiverId());
+        verify(recommendationService, times(1)).getAllUserRecommendations(dto.getReceiverId());
     }
 }

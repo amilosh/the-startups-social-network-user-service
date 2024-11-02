@@ -7,6 +7,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.dto.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
@@ -17,6 +21,7 @@ import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.validation.recommendation.RecommendationServiceValidator;
+import school.faang.user_service.validation.user.UserValidator;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +40,9 @@ class RecommendationServiceTest {
 
     @Mock
     private RecommendationServiceValidator recommendationServiceValidator;
+
+    @Mock
+    private UserValidator userValidator;
 
     @Mock
     private UserService userService;
@@ -132,7 +140,7 @@ class RecommendationServiceTest {
     }
 
     @Test
-    void testDelete() {
+    void testDeleteSuccessful() {
         recommendation.setId(10L);
         when(recommendationRepository.existsById(recommendation.getId())).thenReturn(false);
 
@@ -142,6 +150,37 @@ class RecommendationServiceTest {
         verify(recommendationServiceValidator, times(1)).validateRecommendationExistsById(recommendation.getId());
         verify(recommendationRepository, times(1)).existsById(recommendation.getId());
     }
+
+    @Test
+    void getAllUserRecommendationsRecommendationFound() {
+        Page<Recommendation> page = new PageImpl<>(List.of(recommendation));
+        Pageable pageable = PageRequest.of(0, 10);
+        when(recommendationRepository.findAllByReceiverId(dto.getReceiverId(), pageable))
+                .thenReturn(page);
+        List<RecommendationDto> result = recommendationService.getAllUserRecommendations(dto.getReceiverId());
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("initial content", result.get(0).getContent());
+
+        verify(userValidator, times(1)).validateUserById(dto.getReceiverId());
+    }
+
+    @Test
+    void getAllUserRecommendationsRecommendationNotFound() {
+        Page<Recommendation> page = new PageImpl<>(List.of());
+        Pageable pageable = PageRequest.of(0, 10);
+        when(recommendationRepository.findAllByReceiverId(dto.getReceiverId(), pageable))
+                .thenReturn(page);
+        List<RecommendationDto> result = recommendationService.getAllUserRecommendations(dto.getReceiverId());
+
+        assertNotNull(result);
+        assertEquals(0, result.size());
+
+        verify(userValidator, times(1)).validateUserById(dto.getReceiverId());
+    }
+
+
 
     @Test
     void testGetRecommendationByIdNotFound() {

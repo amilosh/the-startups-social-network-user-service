@@ -120,24 +120,24 @@ class RecommendationControllerValidatorTest {
         dto.setId(null);
 
         assertThrows(DataValidationException.class, () ->
-                recommendationControllerValidator.validateRecommendationId(dto.getId()));
+                recommendationControllerValidator.validateId(dto.getId()));
     }
 
     @Test
-    @DisplayName("Test Exception throw when Recommendation Id is 0")
-    void testRecommendationIdIsZero() {
+    @DisplayName("Test Exception throw when Id is 0")
+    void testIdIsZero() {
         dto.setId(0L);
 
         assertThrows(DataValidationException.class, () ->
-                recommendationControllerValidator.validateRecommendationId(dto.getId()));
+                recommendationControllerValidator.validateId(dto.getId()));
     }
 
     @Test
-    @DisplayName("Test Exception throw when Recommendation Id is negative")
-    void testRecommendationIdIsNegative() {
+    @DisplayName("Test Exception throw when Id is negative")
+    void testIdIsNegative() {
         dto.setId(-6L);
 
         assertThrows(DataValidationException.class, () ->
-                recommendationControllerValidator.validateRecommendationId(dto.getId()));
+                recommendationControllerValidator.validateId(dto.getId()));
     }
 }
