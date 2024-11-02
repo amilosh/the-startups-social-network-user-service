@@ -41,7 +41,7 @@ public class MentorshipService {
             saveChangesOfUserInDB(mentor);
             log.info("Mentee with menteeId={} was successfully removed from the mentor with mentorId={}", menteeId, mentorId);
         } else {
-            log.info("Mentee with menteeId={} not found by the mentor with mentorId={}", menteeId, mentorId);
+            log.warn("Mentee with menteeId={} not found by the mentor with mentorId={}", menteeId, mentorId);
         }
     }
 
@@ -54,7 +54,7 @@ public class MentorshipService {
             saveChangesOfUserInDB(mentee);
             log.info("Mentor with mentorId={} was successfully removed from the mentee with menteeId={}", mentorId, menteeId);
         } else {
-            log.info("Mentor with mentorId={} not found by the mentee with menteeId={}", mentorId, menteeId);
+            log.warn("Mentor with mentorId={} not found by the mentee with menteeId={}", mentorId, menteeId);
         }
     }
 
