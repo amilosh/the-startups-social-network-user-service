@@ -12,21 +12,23 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
+import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.service.UserService;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.UserSkillGuaranteeService;
 import school.faang.user_service.service.validation.RecommendationValidation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RecommendationServiceTest {
@@ -39,17 +41,19 @@ class RecommendationServiceTest {
     @Mock
     private RecommendationRepository recommendationRepository;
     @Mock
-    private UserSkillGuaranteeService userSkillGuaranteeService;
-    @Mock
-    private UserService userService;
-    @Mock
     private SkillOfferService skillOfferService;
     @Mock
     private RecommendationValidation recommendationValidation;
+    @Mock
+    private RecommendationMapper recommendationMapper;
+    @Mock
+    private SkillRepository skillRepository;
+    @Mock
+    private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+    @Mock
+    private UserService userService;
     @InjectMocks
     private RecommendationService recommendationService;
-    @Spy
-    private RecommendationMapper recommendationMapper;
 
     private RecommendationDto recommendationDto;
 
@@ -80,8 +84,10 @@ class RecommendationServiceTest {
 
     @Test
     void testCreateRecommendationCreated() {
-        when(userService.findById(recommendationDto.getAuthorId())).thenReturn(Optional.of(new User()));
-        when(userService.findById(recommendationDto.getReceiverId())).thenReturn(Optional.of(new User()));
+        when(userService.findById(recommendationDto.getAuthorId()))
+                .thenReturn(Optional.of(User.builder().id(AUTHOR_ID).build()));
+        when(userService.findById(recommendationDto.getReceiverId()))
+                .thenReturn(Optional.of(User.builder().id(RECEIVER_ID).build()));
         when(recommendationRepository
                 .create(recommendationDto.getAuthorId(),
                         recommendationDto.getReceiverId(),
@@ -99,8 +105,10 @@ class RecommendationServiceTest {
 
     @Test
     void testCreateSavedSkillOffers() {
-        when(userService.findById(recommendationDto.getAuthorId())).thenReturn(Optional.of(new User()));
-        when(userService.findById(recommendationDto.getReceiverId())).thenReturn(Optional.of(new User()));
+        when(userService.findById(recommendationDto.getAuthorId()))
+                .thenReturn(Optional.of(User.builder().id(AUTHOR_ID).build()));
+        when(userService.findById(recommendationDto.getReceiverId()))
+                .thenReturn(Optional.of(User.builder().id(RECEIVER_ID).build()));
         when(recommendationRepository
                 .create(recommendationDto.getAuthorId(),
                         recommendationDto.getReceiverId(),
@@ -118,21 +126,24 @@ class RecommendationServiceTest {
         User receiver = User.builder().id(RECEIVER_ID).build();
         when(userService.findById(recommendationDto.getAuthorId())).thenReturn(Optional.of(guarantor));
         when(userService.findById(recommendationDto.getReceiverId())).thenReturn(Optional.of(receiver));
+        when(skillRepository.findAllByUserId(receiver.getId()))
+                .thenReturn(recommendationDto.getSkillOffers().stream()
+                        .map(offer -> Skill.builder().id(offer.getSkillId()).guarantees(new ArrayList<>())
+                                .build()).toList());
 
         recommendationService.create(recommendationDto);
 
-        verify(userSkillGuaranteeService).createGuarantees(recommendationDto.getSkillOffers(), guarantor, receiver);
+        verify(userSkillGuaranteeRepository, times(2))
+                .save(any());
     }
 
+
     @Test
-    void testUpdateSuccessful() {
-        when(userService.findById(recommendationDto.getAuthorId())).thenReturn(Optional.of(new User()));
-        when(userService.findById(recommendationDto.getReceiverId())).thenReturn(Optional.of(new User()));
-        when(recommendationRepository
-                .create(recommendationDto.getAuthorId(),
-                        recommendationDto.getReceiverId(),
-                        recommendationDto.getContent()))
-                .thenReturn(CREATED_RECOMMENDATION_ID);
+    void testUpdateUpdatedRecommendation() {
+        when(userService.findById(recommendationDto.getAuthorId()))
+                .thenReturn(Optional.of(User.builder().id(AUTHOR_ID).build()));
+        when(userService.findById(recommendationDto.getReceiverId()))
+                .thenReturn(Optional.of(User.builder().id(RECEIVER_ID).build()));
 
         recommendationService.update(recommendationDto);
 
@@ -141,6 +152,24 @@ class RecommendationServiceTest {
                 recommendationDto.getReceiverId(),
                 recommendationDto.getContent());
     }
+
+    @Test
+    void testUpdateCreatedGuarantees() {
+        User guarantor = User.builder().id(AUTHOR_ID).build();
+        User receiver = User.builder().id(RECEIVER_ID).build();
+        when(userService.findById(recommendationDto.getAuthorId())).thenReturn(Optional.of(guarantor));
+        when(userService.findById(recommendationDto.getReceiverId())).thenReturn(Optional.of(receiver));
+        when(skillRepository.findAllByUserId(receiver.getId()))
+                .thenReturn(recommendationDto.getSkillOffers().stream()
+                        .map(offer -> Skill.builder().id(offer.getSkillId()).guarantees(new ArrayList<>())
+                                .build()).toList());
+
+        recommendationService.update(recommendationDto);
+
+        verify(userSkillGuaranteeRepository, times(2))
+                .save(any());
+    }
+
 
     @Test
     void testDelete() {
@@ -195,6 +224,7 @@ class RecommendationServiceTest {
 
     private RecommendationDto getRecommendationDto() {
         return RecommendationDto.builder()
+                .id(1L)
                 .authorId(AUTHOR_ID)
                 .receiverId(RECEIVER_ID)
                 .skillOffers(List.of(

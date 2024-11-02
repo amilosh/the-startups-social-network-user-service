@@ -83,7 +83,7 @@ class RecommendationValidationTest {
 
     @Test
     void testCheckTimeIntervalWithCorrect() {
-        LocalDateTime lastCreated = LocalDateTime.now().minusMonths(MONTHS_BEFORE_NEW_RECOMMENDATION);
+        LocalDateTime lastCreated = LocalDateTime.now().minusMonths(MONTHS_BEFORE_NEW_RECOMMENDATION + 1);
         when(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(anyLong(), anyLong()))
                 .thenReturn(Optional.of(
                         Recommendation.builder().createdAt(lastCreated).build()));
@@ -136,7 +136,7 @@ class RecommendationValidationTest {
 
     @Test
     void testCheckRequestWithNotFound() {
-        when(recommendationRepository.findById(anyLong())).thenReturn(Optional.empty());
+        when(recommendationRequestRepository.findById(anyLong())).thenReturn(Optional.empty());
         DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> recommendationValidation.checkRequest(RecommendationDto.builder().requestId(1L).build()));
         assertEquals("Request not found", exception.getMessage());

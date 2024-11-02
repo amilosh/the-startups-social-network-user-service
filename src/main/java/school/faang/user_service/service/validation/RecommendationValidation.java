@@ -10,6 +10,8 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
+import school.faang.user_service.service.UserService;
+import school.faang.user_service.service.recommendation.RecommendationService;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -27,6 +29,7 @@ public class RecommendationValidation {
     private final RecommendationRepository recommendationRepository;
     private final SkillRepository skillRepository;
     private final RecommendationRequestRepository recommendationRequestRepository;
+    private final UserService userService;
 
     public void checkId(RecommendationDto recommendationDto) {
         if (recommendationDto.getId() == null) {
