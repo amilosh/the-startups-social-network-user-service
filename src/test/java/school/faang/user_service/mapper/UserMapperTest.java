@@ -7,7 +7,7 @@ import school.faang.user_service.entity.User;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UserMapperTest {
-    UserMapper userMapper = new UserMapperImpl();
+    private UserMapper userMapper = new UserMapperImpl();
 
     @Test
     public void testToDto() {

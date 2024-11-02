@@ -1,5 +1,6 @@
 package school.faang.user_service.filter.userFilter;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
@@ -10,9 +11,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UserFilterFactoryTest {
 
-    UserFilterDto userFilter = UserFilterDto.builder()
-            .aboutPattern("something to filter")
-            .build();
+    private UserFilterDto userFilter;
+
+    @BeforeEach
+    public void setUp() {
+        userFilter = UserFilterDto.builder()
+                .aboutPattern("something to filter")
+                .build();
+    }
 
     @Test
     public void testIfCreatesNeededFilters() {
@@ -41,15 +47,11 @@ public class UserFilterFactoryTest {
         user2.setAboutMe("something NOT to filter. This user shouldn't be returned.");
         List<User> users = List.of(user1, user2);
 
-
         // Act
         List<UserFilter> filters = UserFilterFactory.createFilters(userFilter);
-        List<UserFilter> applicableFilters = filters.stream()
-                .filter(filter -> filter.isApplicable(userFilter))
-                .toList();
 
         List<User> filteredUsers = users.stream()
-                .filter(user -> applicableFilters.stream().allMatch(filter -> filter.apply(user)))
+                .filter(user -> filters.stream().allMatch(filter -> filter.apply(user)))
                 .toList();
 
         // Assert

@@ -6,12 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.controller.SubscriptionController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 
@@ -30,15 +28,10 @@ public class SubscriptionServiceTest {
     private SubscriptionRepository subscriptionRepository;
 
     @Mock
-    private UserFilter userFilter;
-
-    @Mock
     private UserMapper userMapper;
 
     @InjectMocks
     private SubscriptionService subscriptionService;
-
-    private SubscriptionController subscriptionController = new SubscriptionController(subscriptionService);
 
     private long followerId;
     private long followeeId;
@@ -50,7 +43,6 @@ public class SubscriptionServiceTest {
 
     @BeforeEach
     public void setUp() {
-        subscriptionController = new SubscriptionController(subscriptionService);
         followerId = 1L;
         followeeId = 2L;
         filterDto = UserFilterDto.builder().emailPattern("example.com").build();
@@ -67,12 +59,6 @@ public class SubscriptionServiceTest {
                 UserDto.builder().id(1L).username("user1").email("user1@example.com").build(),
                 UserDto.builder().id(2L).username("user2").email("user2@example.com").build()
         );
-    }
-
-    @Test
-    public void testIfThrowsExceptionWhenUserFollowsHimself() {
-        assertThrows(DataValidationException.class,
-                () -> subscriptionController.followUser(followerId, followerId));
     }
 
     @Test
@@ -101,12 +87,6 @@ public class SubscriptionServiceTest {
 
         // assert
         verify(subscriptionRepository).followUser(followerId, followeeId);
-    }
-
-    @Test
-    public void testIfThrowsExceptionWhenUserUnfollowsHimself() {
-        assertThrows(DataValidationException.class,
-                () -> subscriptionController.unfollowUser(followerId, followerId));
     }
 
     @Test

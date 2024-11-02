@@ -1,7 +1,7 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
@@ -14,7 +14,7 @@ import school.faang.user_service.repository.SubscriptionRepository;
 import java.util.List;
 import java.util.stream.Stream;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
@@ -39,9 +39,6 @@ public class SubscriptionService {
 
     public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
         Stream<User> users = subscriptionRepository.findByFolloweeId(followeeId);
-        if (users == null) {
-            throw new DataValidationException("User does not exist");
-        }
         return filterUsers(users, filter);
     }
 
@@ -60,12 +57,9 @@ public class SubscriptionService {
 
     private List<UserDto> filterUsers(Stream<User> users, UserFilterDto filterDto) {
         List<UserFilter> filters = UserFilterFactory.createFilters(filterDto);
-        List<UserFilter> applicableFilters = filters.stream()
-                .filter(filter -> filter.isApplicable(filterDto))
-                .toList();
 
         List<User> filteredUsers = users
-                .filter(user -> applicableFilters.stream().allMatch(filter -> filter.apply(user)))
+                .filter(user -> filters.stream().allMatch(filter -> filter.apply(user)))
                 .toList();
 
         return userMapper.toDto(filteredUsers);

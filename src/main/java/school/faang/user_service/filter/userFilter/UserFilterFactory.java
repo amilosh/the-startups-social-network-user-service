@@ -9,64 +9,52 @@ public class UserFilterFactory {
     public static List<UserFilter> createFilters(UserFilterDto filterDto) {
         List<UserFilter> filters = new ArrayList<>();
 
-        UserFilter nameFilter = new NamePatternFilter();
-        if (nameFilter.isApplicable(filterDto)) {
-            filters.add(nameFilter);
+        if (filterDto.namePattern() != null) {
+            filters.add(new NamePatternFilter(filterDto.namePattern()));
         }
 
-        UserFilter emailFilter = new EmailPatternFilter();
-        if (emailFilter.isApplicable(filterDto)) {
-            filters.add(emailFilter);
+        if (filterDto.emailPattern() != null) {
+            filters.add(new EmailPatternFilter(filterDto.emailPattern()));
         }
 
-        UserFilter pageSizeFilter = new PageSizePatternFilter();
-        if (pageSizeFilter.isApplicable(filterDto)) {
-            filters.add(pageSizeFilter);
+        if (filterDto.pageSize() != null) {
+            filters.add(new PageSizePatternFilter());
         }
 
-        UserFilter pageNumberFilter = new PagePatternFilter();
-        if (pageNumberFilter.isApplicable(filterDto)) {
-            filters.add(pageNumberFilter);
+        if (filterDto.page() != null) {
+            filters.add(new PagePatternFilter());
         }
 
-        UserFilter aboutFilter = new AboutPatternFilter();
-        if (aboutFilter.isApplicable(filterDto)) {
-            filters.add(aboutFilter);
+        if (filterDto.aboutPattern() != null) {
+            filters.add(new AboutPatternFilter(filterDto.aboutPattern()));
         }
 
-        UserFilter countryFilter = new CountryPatternFilter();
-        if (countryFilter.isApplicable(filterDto)) {
-            filters.add(countryFilter);
+        if (filterDto.countryPattern() != null) {
+            filters.add(new CountryPatternFilter(filterDto.countryPattern()));
         }
 
-        UserFilter cityFilter = new CityPatternFilter();
-        if (cityFilter.isApplicable(filterDto)) {
-            filters.add(cityFilter);
+        if (filterDto.cityPattern() != null) {
+            filters.add(new CityPatternFilter(filterDto.cityPattern()));
         }
 
-        UserFilter contactFilter = new ContactPatternFilter();
-        if (contactFilter.isApplicable(filterDto)) {
-            filters.add(contactFilter);
+        if (filterDto.contactPattern() != null) {
+            filters.add(new ContactPatternFilter(filterDto.contactPattern()));
         }
 
-        UserFilter minExperienceFilter = new MinExperiencePatternFilter();
-        if (minExperienceFilter.isApplicable(filterDto)) {
-            filters.add(minExperienceFilter);
+        if (filterDto.experienceMin() != null) {
+            filters.add(new MinExperiencePatternFilter(filterDto.experienceMin()));
         }
 
-        UserFilter maxExperienceFilter = new MaxExperiencePatternFilter();
-        if (maxExperienceFilter.isApplicable(filterDto)) {
-            filters.add(maxExperienceFilter);
+        if (filterDto.experienceMax() != null) {
+            filters.add(new MaxExperiencePatternFilter(filterDto.experienceMax()));
         }
 
-        UserFilter phoneNumberFilter = new PhonePatternFilter();
-        if (phoneNumberFilter.isApplicable(filterDto)) {
-            filters.add(phoneNumberFilter);
+        if (filterDto.phonePattern() != null) {
+            filters.add(new PhonePatternFilter(filterDto.phonePattern()));
         }
 
-        UserFilter skillsFilter = new SkillsPatternFilter();
-        if (skillsFilter.isApplicable(filterDto)) {
-            filters.add(skillsFilter);
+        if (filterDto.skillPattern() != null) {
+            filters.add(new SkillsPatternFilter(filterDto.skillPattern()));
         }
 
         return filters;

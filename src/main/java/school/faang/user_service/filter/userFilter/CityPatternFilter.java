@@ -1,16 +1,11 @@
 package school.faang.user_service.filter.userFilter;
 
-import school.faang.user_service.dto.UserFilterDto;
+import lombok.RequiredArgsConstructor;
 import school.faang.user_service.entity.User;
 
+@RequiredArgsConstructor
 public class CityPatternFilter implements UserFilter {
-    private String pattern;
-
-    @Override
-    public boolean isApplicable(UserFilterDto filterDto) {
-        this.pattern = filterDto.cityPattern();
-        return pattern != null && !pattern.isEmpty();
-    }
+    private final String pattern;
 
     @Override
     public boolean apply(User user) {

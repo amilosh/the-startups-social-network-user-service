@@ -1,19 +1,14 @@
 package school.faang.user_service.filter.userFilter;
 
-import school.faang.user_service.dto.UserFilterDto;
+import lombok.RequiredArgsConstructor;
 import school.faang.user_service.entity.User;
 
+@RequiredArgsConstructor
 public class AboutPatternFilter implements UserFilter {
-    private String pattern;
-
-    @Override
-    public boolean isApplicable(UserFilterDto filterDto) {
-        this.pattern = filterDto.aboutPattern();
-        return pattern != null && !pattern.isEmpty();
-    }
+    private final String pattern;
 
     @Override
     public boolean apply(User user) {
-        return user.getAboutMe() != null && user.getAboutMe().contains(pattern);
+        return pattern != null && user.getAboutMe().contains(pattern);
     }
 }

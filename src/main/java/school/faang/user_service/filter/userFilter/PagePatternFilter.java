@@ -1,17 +1,10 @@
 package school.faang.user_service.filter.userFilter;
 
-import school.faang.user_service.dto.UserFilterDto;
+import lombok.RequiredArgsConstructor;
 import school.faang.user_service.entity.User;
 
+@RequiredArgsConstructor
 public class PagePatternFilter implements UserFilter {
-    private int pattern;
-
-    @Override
-    public boolean isApplicable(UserFilterDto filterDto) {
-        this.pattern = filterDto.page();
-        return pattern > 0;
-    }
-
     @Override
     public boolean apply(User user) {
         return true;
