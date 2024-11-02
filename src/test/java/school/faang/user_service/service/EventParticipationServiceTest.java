@@ -31,25 +31,25 @@ class EventParticipationServiceTest {
     private final long userId = 100L;
 
     @Test
-    public void testRegisterParticipantWithRegisteredUser() {
+    public void registerParticipantWithRegisteredUserTest() {
         prepareData();
         assertThrows(IllegalStateException.class, () -> service.registerParticipant(eventId, userId));
     }
 
     @Test
-    public void testRegisterParticipant() {
+    public void registerParticipantTest() {
         service.registerParticipant(eventId, userId);
         verify(repository, times(1)).register(eventId, userId);
     }
 
     @Test
-    void testIsParticipantRegistered() {
+    void isParticipantRegisteredTest() {
         when(repository.findAllParticipantsByEventId(eventId)).thenReturn(new ArrayList<>());
         assertThrows(IllegalStateException.class, () -> service.unregisterParticipant(eventId, userId));
     }
 
     @Test
-    void testUnregisterParticipant() {
+    void unregisterParticipantTest() {
         prepareData();
         service.unregisterParticipant(eventId, userId);
         verify(repository, times(1)).unregister(eventId, userId);
@@ -62,20 +62,20 @@ class EventParticipationServiceTest {
     }
 
     @Test
-    void testEmptyEvent() {
+    void emptyEventTest() {
         when(repository.findAllParticipantsByEventId(eventId)).thenReturn(null);
         assertThrows(IllegalStateException.class, () -> service.getParticipant(eventId));
     }
 
     @Test
-    void testGetParticipants() {
+    void getParticipantsTest() {
         List<User> mockUsers = List.of(mock(User.class));
         when(repository.findAllParticipantsByEventId(eventId)).thenReturn(mockUsers);
         assertEquals(mockUsers, service.getParticipant(eventId));
     }
 
     @Test
-    void testGetParticipantsCount() {
+    void getParticipantsCountTest() {
         when(repository.countParticipants(eventId)).thenReturn(1);
         assertEquals(1, service.getParticipantsCount(eventId));
         verify(repository, times(1)).countParticipants(eventId);
