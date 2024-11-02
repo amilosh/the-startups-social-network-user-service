@@ -11,6 +11,7 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = SkillMapper.class, unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EventMapper {
     @Mapping(source = "relatedSkills", target = "relatedSkills")
+    @Mapping(target = "owner", ignore = true)
     Event toEntity(EventDto eventDto);
 
     @Mapping(source = "owner.id", target = "ownerId")

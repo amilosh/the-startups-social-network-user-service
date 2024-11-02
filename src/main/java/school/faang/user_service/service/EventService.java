@@ -6,11 +6,10 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.dto.EventFilterDto;
 import school.faang.user_service.dto.SkillDto;
-import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.filters.event.EventFilter;
+import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.event.EventRepository;
@@ -29,12 +28,11 @@ public class EventService {
     private final List<EventFilter> eventFilters;
 
 
-
     public EventDto create(EventDto eventDto) {
         log.info("Processing creation of event with title: {}", eventDto.title());
         User userOwner = userService.getUserById(eventDto.ownerId());
 
-        log.debug("Validating user skills for owner: {}", userOwner);
+        log.debug("Validating user skills for owner in createEvent: {}", userOwner);
         validateUserSkillsForEvent(userOwner, eventDto);
 
         Event event = eventMapper.toEntity(eventDto);
@@ -45,10 +43,9 @@ public class EventService {
         }
 
         Event savedEvent = eventRepository.save(event);
-
         log.info("Event saved with ID: {}", savedEvent.getId());
 
-        return eventMapper.toDto(event);
+        return eventMapper.toDto(savedEvent);
     }
 
     public EventDto getEvent(Long eventId) {
@@ -66,6 +63,8 @@ public class EventService {
                 .filter(filter -> filter.isApplicable(filters))
                 .forEach(filter -> filter.apply(allEvents, filters));
 
+        log.info("Events are filtered");
+
         return eventMapper.toDtoList(allEvents.toList());
     }
 
@@ -77,27 +76,31 @@ public class EventService {
         log.info("Event with ID: {} deleted", eventId);
     }
 
-    public int updateEvent(EventDto eventDto) {
+    public EventDto updateEvent(EventDto eventDto) {
         User userOwner = userService.getUserById(eventDto.ownerId());
 
-        log.debug("Validating user skills for owner: {}", userOwner);
+        log.debug("Validating user skills for owner in updateEvent: {}", userOwner);
         validateUserSkillsForEvent(userOwner, eventDto);
 
         Event event = eventMapper.toEntity(eventDto);
+        Event updatedSavedEvent = eventRepository.save(event);
+        log.info("Event are updated");
 
-        eventRepository.save(event);
-
-        return event.getAttendees().size();
+        return eventMapper.toDto(updatedSavedEvent);
     }
 
-    public long  getAttendeesCount(Long eventId){
-
-        return eventRepository.count(getEventById(eventId));
+    public List<EventDto> getOwnedEvents(long userId) {
+        List<Event> ownedEvents = userService.getUserById(userId).getOwnedEvents();
+        log.info("Owned Events found by {}", userId);
+        return eventMapper.toDtoList(ownedEvents);
     }
 
-    public Event getEventById(Long eventId){
-        return   eventRepository.findById(eventId).orElseThrow(() -> new DataValidationException("Event do not found"));
+    public List<EventDto> getParticipatedEvents(long userId) {
+        List<Event> participatedEvents = userService.getUserById(userId).getParticipatedEvents();
+        log.info("Participated Events found by {}", userId);
+        return eventMapper.toDtoList(participatedEvents);
     }
+
 
     private void validateUserSkillsForEvent(User userOwner, EventDto eventDto) {
         List<SkillDto> relatedSkills = eventDto.relatedSkills();
