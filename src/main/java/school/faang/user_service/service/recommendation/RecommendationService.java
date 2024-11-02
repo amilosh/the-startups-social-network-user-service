@@ -24,7 +24,6 @@ import java.util.List;
 public class RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
-    private final SkillOfferRepository skillOfferRepository;
     private final RecommendationValidator validator;
     private final RecommendationMapper mapper;
 
