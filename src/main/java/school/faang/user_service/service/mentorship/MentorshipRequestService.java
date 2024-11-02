@@ -14,7 +14,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import school.faang.user_service.service.mentorship.filter.RequestFilter;
+import school.faang.user_service.filter.mentorship.RequestFilter;
 import school.faang.user_service.validation.mentorship.MentorshipRequestDtoValidator;
 
 import java.util.ArrayList;

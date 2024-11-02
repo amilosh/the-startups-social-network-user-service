@@ -20,11 +20,11 @@ import school.faang.user_service.mapper.mentorship.MentorshipRequestMapper;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import school.faang.user_service.service.mentorship.filter.RequestDescriptionFilter;
-import school.faang.user_service.service.mentorship.filter.RequestFilter;
-import school.faang.user_service.service.mentorship.filter.RequestReceiverFilter;
-import school.faang.user_service.service.mentorship.filter.RequestRequesterFilter;
-import school.faang.user_service.service.mentorship.filter.RequestStatusFilter;
+import school.faang.user_service.filter.mentorship.RequestDescriptionFilter;
+import school.faang.user_service.filter.mentorship.RequestFilter;
+import school.faang.user_service.filter.mentorship.RequestReceiverFilter;
+import school.faang.user_service.filter.mentorship.RequestRequesterFilter;
+import school.faang.user_service.filter.mentorship.RequestStatusFilter;
 import school.faang.user_service.validation.mentorship.MentorshipRequestDtoValidator;
 
 import java.time.LocalDateTime;
