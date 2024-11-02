@@ -19,12 +19,12 @@ public class EventParticipationService {
     private final UserMapper userMapper;
 
     public int findParticipantsAmountByEventId(long eventId) {
-        validateEvent(eventId);
+        eventExistsOrThrow(eventId);
         return eventParticipationRepository.findAllParticipantsByEventId(eventId).size();
     }
 
     public List<UserDto> findAllParticipantsByEventId(long eventId) {
-        validateEvent(eventId);
+        eventExistsOrThrow(eventId);
         return eventParticipationRepository.findAllParticipantsByEventId(eventId)
                 .stream()
                 .map(userMapper::toDto)
@@ -58,17 +58,17 @@ public class EventParticipationService {
     }
 
     private void validateInput(long eventId, long userId) {
-        validateEvent(eventId);
-        validateUser(userId);
+        eventExistsOrThrow(eventId);
+        userExistsOrThrow(userId);
     }
 
-    private void validateUser(long userId) {
+    private void userExistsOrThrow(long userId) {
         if (!userService.checkUserExistence(userId)) {
             throw new EntityNotFoundException("User with id " + userId + " does not exist");
         }
     }
 
-    private void validateEvent(long eventId) {
+    private void eventExistsOrThrow(long eventId) {
         if (!eventService.checkEventExistence(eventId)) {
             throw new EntityNotFoundException("Event with id " + eventId + " does not exist");
         }
