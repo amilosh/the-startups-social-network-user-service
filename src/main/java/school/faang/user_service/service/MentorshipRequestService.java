@@ -104,7 +104,7 @@ public class MentorshipRequestService {
     @Transactional
     public Long acceptMentorship(Long id) {
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Mentorship request not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Mentorship request not found" + id));
         User requester = mentorshipRequest.getRequester();
         User receiver = mentorshipRequest.getReceiver();
 
@@ -113,6 +113,7 @@ public class MentorshipRequestService {
         }
 
         mentorshipRequest.setStatus(RequestStatus.ACCEPTED);
+        mentorshipRequest.setUpdatedAt(LocalDateTime.now());
         mentorshipRequestRepository.save(mentorshipRequest);
 
         requester.getMentors().add(receiver);
@@ -128,6 +129,7 @@ public class MentorshipRequestService {
 
         mentorshipRequest.setStatus(RequestStatus.REJECTED);
         mentorshipRequest.setRejectionReason(rejection.getReason());
+        mentorshipRequest.setUpdatedAt(LocalDateTime.now());
         mentorshipRequestRepository.save(mentorshipRequest);
         return mentorshipRequestMapper.mapToDto(mentorshipRequest);
     }
