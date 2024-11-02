@@ -37,10 +37,6 @@ public class EventValidator {
     }
 
     public void validateEventDto(EventDto eventDto) {
-        if (eventDto.getId() == null) {
-            throw new DataValidationException("ID не должен быть null");
-        }
-
         if (eventDto.getStartDate() == null) {
             throw new DataValidationException("StartDate не должен быть null");
         }
