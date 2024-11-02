@@ -33,7 +33,7 @@ public class EventService {
 
     public EventDto getEvent(long id) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new DataValidationException("There is no event with this number"));
+                .orElseThrow(() -> new DataValidationException("There is no event with this id"));
         return eventMapper.toDto(event);
     }
 
@@ -44,5 +44,13 @@ public class EventService {
                 .forEach(filter -> filter.apply(events, filters));
 
         return eventMapper.toListDto(events.toList());
+    }
+
+    public void deleteEvent(long id) {
+        if (eventRepository.existsById(id)) {
+            eventRepository.deleteById(id);
+        } else {
+            throw new DataValidationException("There is no event with this id");
+        }
     }
 }

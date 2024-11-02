@@ -2,6 +2,7 @@ package school.faang.user_service.controller.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,7 +36,13 @@ public class EventController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<EventDto> getEventsByFilters(@RequestBody EventFilterDto filters){
+    public List<EventDto> getEventsByFilters(@RequestBody EventFilterDto filters) {
         return eventService.getEventsByFilters(filters);
+    }
+
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteEvent(@PathVariable long id) {
+        eventService.deleteEvent(id);
     }
 }
