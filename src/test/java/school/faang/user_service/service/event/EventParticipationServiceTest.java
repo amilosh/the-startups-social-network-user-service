@@ -8,6 +8,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.service.UserService;
@@ -42,9 +43,7 @@ public class EventParticipationServiceTest {
 
     @Test
     void testFindParticipantsAmountByEventIdThrowExceptionIfEventDoesNotExit() {
-        when(eventService.checkEventExistence(eventId)).thenReturn(false);
-
-        assertThrows(IllegalStateException.class, () -> eventParticipationService.findParticipantsAmountByEventId(eventId),
+        assertThrows(EntityNotFoundException.class, () -> eventParticipationService.findParticipantsAmountByEventId(eventId),
                 "Event with id " + eventId + " does not exist");
     }
 
@@ -63,7 +62,7 @@ public class EventParticipationServiceTest {
     void testFindAllParticipantsByEventIdThrowExceptionIfEventDoesNotExit() {
         when(eventService.checkEventExistence(eventId)).thenReturn(false);
 
-        assertThrows(IllegalStateException.class, () -> eventParticipationService.findAllParticipantsByEventId(eventId),
+        assertThrows(EntityNotFoundException.class, () -> eventParticipationService.findAllParticipantsByEventId(eventId),
                 "Event with id " + eventId + " does not exist");
     }
 
@@ -85,7 +84,7 @@ public class EventParticipationServiceTest {
     void testRegisterParticipantThrowExceptionIfEventDoesNotExit() {
         when(eventService.checkEventExistence(eventId)).thenReturn(false);
 
-        assertThrows(IllegalStateException.class, () -> eventParticipationService.registerParticipant(eventId, userId),
+        assertThrows(EntityNotFoundException.class, () -> eventParticipationService.registerParticipant(eventId, userId),
                 "Event with id " + eventId + " does not exist");
     }
 
@@ -94,7 +93,7 @@ public class EventParticipationServiceTest {
         when(eventService.checkEventExistence(eventId)).thenReturn(true);
         when(userService.checkUserExistence(userId)).thenReturn(false);
 
-        assertThrows(IllegalStateException.class, () -> eventParticipationService.registerParticipant(eventId, userId),
+        assertThrows(EntityNotFoundException.class, () -> eventParticipationService.registerParticipant(eventId, userId),
                 "User with id " + userId + " does not exist");
     }
 
@@ -127,7 +126,7 @@ public class EventParticipationServiceTest {
     void testUnregisterParticipantThrowExceptionIfEventDoesNotExit() {
         when(eventService.checkEventExistence(eventId)).thenReturn(false);
 
-        assertThrows(IllegalStateException.class, () -> eventParticipationService.unregisterParticipant(eventId, userId),
+        assertThrows(EntityNotFoundException.class, () -> eventParticipationService.unregisterParticipant(eventId, userId),
                 "Event with id " + eventId + " does not exist");
     }
 
@@ -136,7 +135,7 @@ public class EventParticipationServiceTest {
         when(eventService.checkEventExistence(eventId)).thenReturn(true);
         when(userService.checkUserExistence(userId)).thenReturn(false);
 
-        assertThrows(IllegalStateException.class, () -> eventParticipationService.unregisterParticipant(eventId, userId),
+        assertThrows(EntityNotFoundException.class, () -> eventParticipationService.unregisterParticipant(eventId, userId),
                 "User with id " + userId + " does not exist");
     }
 

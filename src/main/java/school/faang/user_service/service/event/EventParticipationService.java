@@ -3,6 +3,7 @@ package school.faang.user_service.service.event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.service.UserService;
@@ -38,7 +39,7 @@ public class EventParticipationService {
                 .findFirst()
                 .ifPresentOrElse(
                         user -> {
-                            throw new IllegalStateException("User is already registered for the event");
+                            throw new IllegalStateException("User with id " + userId + " is already registered for the event");
                         },
                         () -> eventParticipationRepository.register(eventId, userId));
     }
@@ -52,7 +53,7 @@ public class EventParticipationService {
                 .ifPresentOrElse(
                         user -> eventParticipationRepository.unregister(eventId, userId),
                         () -> {
-                            throw new IllegalStateException("User is not registered for the event");
+                            throw new IllegalStateException("User with id " + userId + " is not registered for the event");
                         });
     }
 
@@ -63,13 +64,13 @@ public class EventParticipationService {
 
     private void validateUser(long userId) {
         if (!userService.checkUserExistence(userId)) {
-            throw new IllegalStateException("User with id " + userId + " does not exist");
+            throw new EntityNotFoundException("User with id " + userId + " does not exist");
         }
     }
 
     private void validateEvent(long eventId) {
         if (!eventService.checkEventExistence(eventId)) {
-            throw new IllegalStateException("Event with id " + eventId + " does not exist");
+            throw new EntityNotFoundException("Event with id " + eventId + " does not exist");
         }
     }
 }
