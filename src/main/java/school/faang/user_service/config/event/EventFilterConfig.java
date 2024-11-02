@@ -17,10 +17,11 @@ public class EventFilterConfig {
     private final EventService eventService;
 
     @Bean(value = "eventFilters")
-    public void getEventFilters(EventTitleFilter eventTitleFilter, EventUserIdFilter eventUserIdFilter) {
+    public List<EventFilter> getEventFilters(EventTitleFilter eventTitleFilter, EventUserIdFilter eventUserIdFilter) {
         List<EventFilter> filters = new ArrayList<>();
         filters.add(eventTitleFilter);
         filters.add(eventUserIdFilter);
         eventService.setEventFilters(filters);
+        return filters;
     }
 }
