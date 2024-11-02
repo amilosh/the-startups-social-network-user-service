@@ -27,7 +27,6 @@ public class EventService {
     private final SkillMapper skillMapper;
     private final List<EventFilter> eventFilters;
 
-
     public EventDto create(EventDto eventDto) {
         log.info("Processing creation of event with title: {}", eventDto.title());
         User userOwner = userService.getUserById(eventDto.ownerId());
