@@ -2,6 +2,11 @@ package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.exception.DataValidationException;
@@ -10,36 +15,43 @@ import school.faang.user_service.service.SubscriptionService;
 import java.util.List;
 
 @Controller
+@RequestMapping("/subscriptions")
 @RequiredArgsConstructor
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
 
-    public void followUser(long followerId, long followeeId) {
+    @PostMapping("/follow")
+    public void followUser(@RequestParam long followerId, @RequestParam long followeeId) {
         isFollowerFolloweeIdsEqual(followerId, followeeId, "Follower can't follow itself");
 
         subscriptionService.followUser(followerId, followeeId);
     }
 
-    public void unfollowUser(long followerId, long followeeId) {
+    @PostMapping("/unfollow")
+    public void unfollowUser(@RequestParam long followerId, @RequestParam long followeeId) {
         isFollowerFolloweeIdsEqual(followerId, followeeId, "Follower can't unfollow itself");
 
         subscriptionService.unfollowUser(followerId, followeeId);
     }
 
-    public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
+    @GetMapping("/followers/{followeeId}")
+    public List<UserDto> getFollowers(@PathVariable long followeeId, @RequestParam UserFilterDto filter) {
         return subscriptionService.getFollowers(followeeId, filter);
     }
 
-    public int getFollowersCount(long followeeId) {
+    @GetMapping("followers/{followeeId}")
+    public int getFollowersCount(@PathVariable long followeeId) {
         return subscriptionService.getFollowersCount(followeeId);
     }
 
-    public List<UserDto> getFollowing(long followeeId, UserFilterDto filter) {
+    @GetMapping("followings/{followeeId}")
+    public List<UserDto> getFollowing(@PathVariable long followeeId, @RequestParam UserFilterDto filter) {
         return subscriptionService.getFollowing(followeeId, filter);
     }
 
-    public int getFollowingCount(long followeeId) {
+    @GetMapping("followings/{followeeId}")
+    public int getFollowingCount(@PathVariable long followeeId) {
         return subscriptionService.getFollowingCount(followeeId);
     }
 
