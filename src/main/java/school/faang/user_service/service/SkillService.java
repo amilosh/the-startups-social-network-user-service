@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.repository.SkillRepository;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class SkillService {
 
     public Skill getSkillById(Long id) {
         return skillRepo.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Skill not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Skill", "id", id));
     }
 
     public List<Skill> getSkillsFrom(List<SkillOfferDto> skillOffers) {

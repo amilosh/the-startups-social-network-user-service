@@ -16,6 +16,9 @@ public class RecommendationValidator {
         if (oldRecommendation == null) {
             return true;
         }
+        if (newRecommendation.equals(oldRecommendation)) {
+            return true;
+        }
         Duration durationBetween = Duration.between(oldRecommendation.getUpdatedAt(),
                 newRecommendation.getCreatedAt());
         return durationBetween.compareTo(requiredDuration) > 0;

@@ -26,4 +26,9 @@ public class SkillOffer {
     @ManyToOne
     @JoinColumn(name = "recommendation_id", nullable = false)
     private Recommendation recommendation;
+
+    public SkillOffer(Skill skill, Recommendation recommendation) {
+        this.skill = skill;
+        this.recommendation = recommendation;
+    }
 }

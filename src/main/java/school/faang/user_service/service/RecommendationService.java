@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.RecommendationDto;
+import school.faang.user_service.dto.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
@@ -13,11 +14,12 @@ import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.mapper.SkillOfferMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
+import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.util.CollectionUtils;
 import school.faang.user_service.util.SkillUtils;
 import school.faang.user_service.validator.RecommendationValidator;
-import school.faang.user_service.validator.SkillValidator;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -32,22 +34,25 @@ public class RecommendationService {
     private static final long REQUIRED_DURATION_IN_DAYS = 6 * 30;
 
     private final RecommendationRepository recommendationRepo;
+    private final SkillOfferRepository skillOfferRepo;
 
     private final UserService userService;
     private final SkillService skillService;
 
     private final RecommendationMapper recommendationMapper;
+    private final SkillOfferMapper skillOfferMapper;
 
     private final RecommendationValidator recommendationValidator;
-    private final SkillValidator skillValidator;
 
     @Transactional
     public RecommendationDto create(RecommendationDto recommendationDto) {
         Recommendation recommendation = mapToFullRecommendation(recommendationDto);
-        validateNewRecommendation(recommendation);
+        validateRecommendation(recommendation);
 
-        addSkillToReceiverIfAbsent(recommendation);
-        addGuaranteeToReceiverSkillIfAbsent(recommendation);
+        List<Skill> recommendationSkills = SkillUtils.toSkillList(recommendation.getSkillOffers());
+
+        addSkillToReceiverIfAbsent(recommendation, recommendationSkills);
+        addGuaranteeToReceiverSkillIfAbsent(recommendation, recommendationSkills);
 
         recommendation = recommendationRepo.save(recommendation);
         return recommendationMapper.toDto(recommendation);
@@ -59,91 +64,107 @@ public class RecommendationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Recommendation", "id", recommendationId));
         User receiver = recommendation.getReceiver();
         User author = recommendation.getAuthor();
-        List<Recommendation> otherRecommendation = CollectionUtils.excludeItemFrom(
-                recommendationRepo.findAllByReceiverIdAndAuthorId(receiver.getId(), author.getId()),
-                recommendation);
-        List<Recommendation> receiverRecommendations = CollectionUtils.excludeItemFrom(
-                recommendationRepo.findAllByReceiverId(receiver.getId()),
-                recommendation);
         List<Skill> offeredSkills = SkillUtils.toSkillList(recommendation.getSkillOffers());
 
-        removeGuaranteeIfNoOtherRecommendations(otherRecommendation, offeredSkills, receiver, author);
-        removeSkillIfNoOtherGuarantees(receiverRecommendations, receiver, offeredSkills);
+        removeGuaranteeIfNoOtherRecommendations(recommendation, offeredSkills);
+        removeUserSkillIfNoOtherGuarantees(recommendation, offeredSkills);
         receiver.removeReceivedRecommendation(recommendation);
         author.removeGivenRecommendation(recommendation);
         recommendationRepo.delete(recommendation);
     }
 
+    @Transactional
     public RecommendationDto update(long recommendationId, RecommendationDto recommendationDto) {
-        return recommendationDto;
+        Recommendation recommendation = recommendationRepo.findById(recommendationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Recommendation", "id", recommendationId));
+        validateRecommendation(recommendation);
+
+        List<Skill> oldSkills = SkillUtils.toSkillList(recommendation.getSkillOffers());
+        List<Skill> updatedSkills = skillService.getSkillsFrom(recommendationDto.skillOffers());
+        List<Skill> removedSkills = CollectionUtils.findMissingElements(oldSkills, updatedSkills);
+        List<Skill> newSkills = CollectionUtils.findMissingElements(updatedSkills, oldSkills);
+
+        recommendation.setContent(recommendationDto.content());
+        recommendation.updateSkillOffers(recommendationDto.skillOffers().stream()
+                .map(skillOfferDto -> mapToFullSkillOffer(skillOfferDto, recommendation))
+                .toList()
+        );
+
+        removeGuaranteeIfNoOtherRecommendations(recommendation, removedSkills);
+        removeUserSkillIfNoOtherGuarantees(recommendation, removedSkills);
+        addSkillToReceiverIfAbsent(recommendation, newSkills);
+        addGuaranteeToReceiverSkillIfAbsent(recommendation, newSkills);
+
+        Recommendation updatedRecommendation = recommendationRepo.save(recommendation);
+        return recommendationMapper.toDto(updatedRecommendation);
     }
 
-    private void removeSkillIfNoOtherGuarantees(List<Recommendation> receiverRecommendations,
-                                                User receiver, List<Skill> skills) {
-        Set<Skill> skillsOther = new HashSet<>(
-                SkillUtils.getSkillsFromRecommendations(receiverRecommendations));
-        skills.stream()
-                .filter(skill -> !skillsOther.contains(skill))
+    private void removeUserSkillIfNoOtherGuarantees(Recommendation recommendation, List<Skill> removedSkills) {
+        User receiver = recommendation.getReceiver();
+        List<Recommendation> otherReceiverRecommendations = CollectionUtils.excludeItemFrom(
+                recommendationRepo.findAllByReceiverId(receiver.getId()),
+                recommendation);
+        Set<Skill> skillsOtherReceiverRecommendations = new HashSet<>(
+                SkillUtils.getSkillsFromRecommendations(otherReceiverRecommendations));
+
+        removedSkills.stream()
+                .filter(skill -> !skillsOtherReceiverRecommendations.contains(skill))
                 .forEach(skill -> {
                     receiver.removeSkill(skill);
                     skill.removeUser(receiver);
                 });
     }
 
-    private void removeGuaranteeIfNoOtherRecommendations(List<Recommendation> otherRecommendations,
-                                                         List<Skill> skills, User receiver, User author) {
+    private void removeGuaranteeIfNoOtherRecommendations(Recommendation recommendation, List<Skill> guaranteedSkills) {
+        User receiver = recommendation.getReceiver();
+        User author = recommendation.getAuthor();
+        List<Recommendation> otherRecommendations = CollectionUtils.excludeItemFrom(
+                recommendationRepo.findAllByReceiverIdAndAuthorId(receiver.getId(), author.getId()),
+                recommendation);
         Set<Skill> skillsOfOtherRecommends = new HashSet<>(
                 SkillUtils.getSkillsFromRecommendations(otherRecommendations));
-        skills.stream()
+
+        guaranteedSkills.stream()
                 .filter(skill -> !skillsOfOtherRecommends.contains(skill))
                 .forEach(skill -> skill.removeSameGuarantee(new UserSkillGuarantee(receiver, skill, author)));
     }
 
-    private static void addSkillToReceiverIfAbsent(Recommendation recommendation) {
+    private static void addSkillToReceiverIfAbsent(Recommendation recommendation, List<Skill> addedSkills) {
         User receiver = recommendation.getReceiver();
-        List<Skill> recommendationSkills = SkillUtils.toSkillList(recommendation.getSkillOffers());
         Set<Skill> receiverSkills = new HashSet<>(receiver.getSkills());
 
-        CollectionUtils.filterAndProcess(recommendationSkills,
-                skill -> {
+        addedSkills.stream()
+                .filter(skill -> !receiverSkills.contains(skill))
+                .forEach(skill -> {
                     receiver.addSkill(skill);
                     skill.addUser(receiver);
-                },
-                skill -> !receiverSkills.contains(skill));
+                });
     }
 
-    private void addGuaranteeToReceiverSkillIfAbsent(Recommendation recommendation) {
+    private void addGuaranteeToReceiverSkillIfAbsent(Recommendation recommendation, List<Skill> addedSkills) {
         User author = recommendation.getAuthor();
         User receiver = recommendation.getReceiver();
-        List<Skill> recommendationSkills = SkillUtils.toSkillList(recommendation.getSkillOffers());
 
-        CollectionUtils.filterAndProcess(receiver.getSkills(),
-                skill -> {
+        receiver.getSkills().stream()
+                .filter(addedSkills::contains)
+                .filter(skill -> !skill.userIsGuarantor(author))
+                .forEach(skill -> {
                     UserSkillGuarantee guarantee = UserSkillGuarantee.builder()
                             .user(receiver)
                             .skill(skill)
                             .guarantor(author)
                             .build();
                     skill.addGuarantee(guarantee);
-                },
-                recommendationSkills::contains,
-                skill -> !skill.userIsGuarantor(author)
-        );
+                });
     }
 
-    private void validateNewRecommendation(Recommendation newRecommendation) {
-        if (newRecommendation == null) {
-            throw new DataValidationException("Recommendation is null");
-        }
+    private void validateRecommendation(Recommendation newRecommendation) {
         if (!recommendationValidator.isPeriodElapsedSinceLastRecommendation(
                 getLastReceiverRecommendationFromAuthor(newRecommendation),
                 newRecommendation,
                 Duration.ofDays(REQUIRED_DURATION_IN_DAYS))) {
             throw new DataValidationException("Less than 6 months since last referral");
         }
-        skillValidator.validateSkillsForExistence(SkillUtils.toSkillList(
-                newRecommendation.getSkillOffers()
-        ));
     }
 
     private Recommendation getLastReceiverRecommendationFromAuthor(Recommendation recommendation) {
@@ -166,11 +187,22 @@ public class RecommendationService {
         recommendation.setAuthor(author);
         recommendation.setReceiver(receiver);
 
-        Queue<Skill> skills = new LinkedList<>(skillService.getSkillsFrom(recommendationDto.skillOffers()));
+        mapToFullSkillOffers(recommendationDto.skillOffers(), recommendation);
+        return recommendation;
+    }
+
+    private void mapToFullSkillOffers(List<SkillOfferDto> skillOfferDtos, Recommendation recommendation) {
+        Queue<Skill> skills = new LinkedList<>(skillService.getSkillsFrom(skillOfferDtos));
         for (SkillOffer skillOffer : recommendation.getSkillOffers()) {
             skillOffer.setRecommendation(recommendation);
             skillOffer.setSkill(skills.poll());
         }
-        return recommendation;
+    }
+
+    private SkillOffer mapToFullSkillOffer(SkillOfferDto skillOfferDto, Recommendation recommendation) {
+        SkillOffer skillOffer = skillOfferMapper.toEntity(skillOfferDto);
+        skillOffer.setSkill(skillService.getSkillById(skillOfferDto.skillId()));
+        skillOffer.setRecommendation(recommendation);
+        return skillOffer;
     }
 }

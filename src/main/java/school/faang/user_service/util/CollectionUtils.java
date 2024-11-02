@@ -26,4 +26,10 @@ public class CollectionUtils {
                 .filter(item -> !item.equals(excludedItem))
                 .toList();
     }
+
+    public static <T> List<T> findMissingElements(List<T> source, List<T> compareList) {
+        return source.stream()
+                .filter(skill -> !compareList.contains(skill))
+                .toList();
+    }
 }
