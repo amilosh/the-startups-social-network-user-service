@@ -46,9 +46,8 @@ public class RecommendationService {
     }
 
     @Transactional
-    public RecommendationDto update(Long id, RecommendationDto requestRecDto) {
-        log.info("Updating recommendation with id - " + id);
-        requestRecDto.setId(id);
+    public RecommendationDto update(RecommendationDto requestRecDto) {
+        log.info("Updating recommendation with id - " + requestRecDto.getId());
         isDateTimeRecommendationOlderSixMonth(requestRecDto);
         isSkillOfferExists(requestRecDto);
         addSkillOffersAndGuarantee(requestRecDto);

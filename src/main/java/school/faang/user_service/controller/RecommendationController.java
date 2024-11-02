@@ -30,10 +30,10 @@ public class RecommendationController {
         return new ResponseEntity<>(recommendationService.create(recommendation), HttpStatus.OK);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<RecommendationDto> updateRecommendation(@PathVariable long id, @RequestBody RecommendationDto updatedRequestRecDto) {
-        validateRecommendation(updatedRequestRecDto);
-        return new ResponseEntity<>(recommendationService.update(id, updatedRequestRecDto), HttpStatus.OK);
+    @PutMapping("/update")
+    public ResponseEntity<RecommendationDto> updateRecommendation(@RequestBody RecommendationDto updated) {
+        validateRecommendation(updated);
+        return new ResponseEntity<>(recommendationService.update(updated), HttpStatus.OK);
     }
 
     private void validateRecommendation(RecommendationDto recommendationDto) throws DataValidationException {
