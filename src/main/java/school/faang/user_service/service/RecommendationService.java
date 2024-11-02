@@ -99,6 +99,11 @@ public class RecommendationService {
         return recommendationMapper.toDto(updatedRecommendation);
     }
 
+    public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
+        List<Recommendation> recommendationsReceived = recommendationRepo.findAllByReceiverId(receiverId);
+        return recommendationMapper.toDtoList(recommendationsReceived);
+    }
+
     private void removeUserSkillIfNoOtherGuarantees(Recommendation recommendation, List<Skill> removedSkills) {
         User receiver = recommendation.getReceiver();
         List<Recommendation> otherReceiverRecommendations = CollectionUtils.excludeItemFrom(
