@@ -10,5 +10,6 @@ import school.faang.user_service.entity.recommendation.SkillOffer;
 public interface SkillOfferMapper {
 
     @Mapping(source = "skill.id", target = "skillId")
+    @Mapping(source = "recommendation.id", target = "recommendationId")
     ResponseSkillOfferDto toDto(SkillOffer skillOffer);
 }
