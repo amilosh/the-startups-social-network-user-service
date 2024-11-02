@@ -21,7 +21,6 @@ import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.service.event.EventTitleFilter;
 import school.faang.user_service.service.event.EventUserIdFilter;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
