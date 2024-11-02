@@ -53,4 +53,14 @@ public class EventService {
             throw new DataValidationException("There is no event with this id");
         }
     }
+
+    public EventDto updateEvent(EventDto eventDto) {
+        eventValidator.validate(eventDto);
+        Event event = eventRepository.findById(eventDto.getId())
+                .orElseThrow(() -> new DataValidationException("There is no event with this id"));
+        Event updatedEvent = eventMapper.toEntity(eventDto);
+        updatedEvent.setOwner(event.getOwner());
+        eventRepository.save(updatedEvent);
+        return eventMapper.toDto(updatedEvent);
+    }
 }
