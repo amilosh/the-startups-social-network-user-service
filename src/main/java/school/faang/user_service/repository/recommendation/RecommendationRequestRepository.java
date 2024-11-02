@@ -17,4 +17,11 @@ public interface RecommendationRequestRepository extends JpaRepository<Recommend
             LIMIT 1
             """)
     Optional<RecommendationRequest> findLatestPendingRequest(long requesterId, long receiverId);
+
+    @Query(nativeQuery = true, value = """
+            SELECT COUNT(*) = 2
+            FROM users
+            WHERE id = ?1 OR id = ?2
+            """)
+    boolean checkTheUsersExistInDb(long requesterId, long receiverId);
 }
