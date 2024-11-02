@@ -45,9 +45,7 @@ public class EventParticipationService {
     }
 
     public List<UserDTO> findAllParticipantsByEventId(Long eventId){
-        if (eventId == null) {
-            throw new IllegalArgumentException("Event id can't be zero.");
-        }
+        validateIdsNotNull(eventId);
 
         List<User> users = repository.findAllParticipantsByEventId(eventId);
 
@@ -55,21 +53,17 @@ public class EventParticipationService {
     }
 
     public int countParticipants(Long eventId){
-        if (eventId == null) {
-            throw new IllegalArgumentException("Event id can't be zero.");
-        }
+        validateIdsNotNull(eventId);
 
         return repository.countParticipants(eventId);
     }
 
-    private void validateIdsNotNull(Long eventId, Long userId) {
-        if (eventId == null) {
-            log.error("Event ID is null");
-            throw new IllegalArgumentException("Event ID must not be null");
-        }
-        if (userId == null) {
-            log.error("User ID is null");
-            throw new IllegalArgumentException("User ID must not be null");
+    private void validateIdsNotNull(Long...ids) {
+        for (Long id : ids){
+            if (id == null){
+                log.error("Id is null");
+                throw new IllegalArgumentException("Id must not be null");
+            }
         }
     }
 }

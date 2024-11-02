@@ -18,7 +18,6 @@ public class EventParticipationController {
     private final EventParticipationService service;
 
     @PutMapping(value = "/events/{eventId}/users/{userId}/register")
-    @ResponseStatus(value = HttpStatus.OK)
     public void register(@PathVariable Long eventId, @PathVariable Long userId) {
         log.info("New request to register user with id: {} for event with id: {}", userId, eventId);
         service.register(eventId, userId);
@@ -26,7 +25,6 @@ public class EventParticipationController {
     }
 
     @DeleteMapping(value = "/events/{eventId}/users/{userId}/unregister")
-    @ResponseStatus(value = HttpStatus.OK)
     public void unregister(@PathVariable Long eventId, @PathVariable Long userId) {
         log.info("New request to unregister user with id: {} from event with id: {}", userId, eventId);
         service.unregister(eventId, userId);
@@ -34,7 +32,6 @@ public class EventParticipationController {
     }
 
     @GetMapping(value = "/events/{eventId}/participants", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(value = HttpStatus.OK)
     public List<UserDTO> findAllParticipantsByEventId(@PathVariable Long eventId) {
         log.info("New request to get all users from event with id: {}",  eventId);
 
@@ -42,7 +39,6 @@ public class EventParticipationController {
     }
 
     @GetMapping(value = "/events/{eventId}/numberOfParticipants")
-    @ResponseStatus(value = HttpStatus.OK)
     public Integer countParticipants(@PathVariable Long eventId) {
         return service.countParticipants(eventId);
     }

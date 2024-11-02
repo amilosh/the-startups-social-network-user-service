@@ -36,55 +36,69 @@ class EventParticipationServiceTest {
 
     @Test
     void register_shouldRegisterUserForEvent_whenUserNotRegisteredYet() {
+        // given
         when(repository.existsByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(false);
 
+        // when
         service.register(EVENT_ID, USER_ID);
 
+        // then
         verify(repository).register(EVENT_ID, USER_ID);
     }
 
     @Test
     void register_shouldThrowException_whenUserAlreadyRegistered() {
+        // given
         when(repository.existsByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(true);
 
+        // when
         ParticipantRegistrationException exception = assertThrows(ParticipantRegistrationException.class, () -> {
             service.register(EVENT_ID, USER_ID);
         });
 
-        assertEquals("User already registered", exception.getMessage());
+        // then
         verify(repository, never()).register(EVENT_ID, USER_ID);
+        assertEquals("User already registered", exception.getMessage());
     }
 
 
     @Test
     void unregister_shouldUnregisterUserFromEvent_whenUserIsRegistered() {
+        // given
         when(repository.existsByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(true);
 
+        // when
         service.unregister(EVENT_ID, USER_ID);
 
+        // then
         verify(repository).unregister(EVENT_ID, USER_ID);
     }
 
     @Test
     void unregister_shouldThrowException_whenUserIsNotRegistered() {
+        // given
         when(repository.existsByEventIdAndUserId(EVENT_ID, USER_ID)).thenReturn(false);
 
+        // when
         ParticipantRegistrationException exception = assertThrows(ParticipantRegistrationException.class,
                 () -> service.unregister(EVENT_ID, USER_ID));
 
+        // then
         verify(repository, never()).unregister(EVENT_ID, USER_ID);
         assertEquals("User isn't registered", exception.getMessage());
     }
 
     @Test
     void findAllParticipantsByEventId_shouldReturnListOfParticipants() {
+        // given
         List<User> expectedUsers = getUserList();
         List<UserDTO> expectedUserDTOs = getUserDTOList();
-
         when(repository.findAllParticipantsByEventId(EVENT_ID)).thenReturn(expectedUsers);
 
+        // when
         List<UserDTO> actualUsers = service.findAllParticipantsByEventId(EVENT_ID);
 
+        // then
         verify(repository).findAllParticipantsByEventId(Mockito.anyLong());
         verify(userDTOMapper).toDTO(expectedUsers);
         assertEquals(expectedUserDTOs, actualUsers);
@@ -92,12 +106,14 @@ class EventParticipationServiceTest {
 
     @Test
     void countParticipants_shouldReturnNumberOfParticipants() {
+        // given
         int expectedCount = 5;
-
         when(repository.countParticipants(EVENT_ID)).thenReturn(expectedCount);
 
+        // when
         int actualCount = service.countParticipants(EVENT_ID);
 
+        // then
         verify(repository).countParticipants(Mockito.anyLong());
         assertEquals(expectedCount, actualCount);
     }
