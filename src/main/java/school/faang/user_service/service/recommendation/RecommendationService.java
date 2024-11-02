@@ -16,6 +16,8 @@ import school.faang.user_service.repository.recommendation.RecommendationReposit
 import school.faang.user_service.validator.recommendation.RecommendationValidator;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,20 +41,21 @@ public class RecommendationService {
     }
 
     private void setGuarantee(RecommendationDto recommendationDto, User author, User user) {
-        List<Skill> skills = user.getSkills();
         if (recommendationDto.getSkillOffers() == null){
             return;
         }
+        Map<Long, Skill> skillMap = user.getSkills().stream()
+                .collect(Collectors.toMap(Skill::getId, skill -> skill));
+
         for (SkillOfferDto offer : recommendationDto.getSkillOffers()) {
-            for (Skill skill : skills) {
-                if (skill.getId() == offer.getSkillId()){
-                    UserSkillGuarantee skillGuarantee = UserSkillGuarantee.builder()
-                            .skill(skill)
-                            .guarantor(author)
-                            .user(user)
-                            .build();
-                    userSkillGuaranteeRepository.save(skillGuarantee);
-                }
+            Skill skill = skillMap.get(offer.getSkillId());
+            if (skill != null) { // Если навык существует у пользователя
+                UserSkillGuarantee skillGuarantee = UserSkillGuarantee.builder()
+                        .skill(skill)
+                        .guarantor(author)
+                        .user(user)
+                        .build();
+                userSkillGuaranteeRepository.save(skillGuarantee);
             }
         }
     }
