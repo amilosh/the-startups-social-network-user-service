@@ -53,8 +53,6 @@ public class EventController {
         eventService.deleteEvent(eventId);
     }
 
-    //тут вернуть то update event or count subscribes?
-    //в задании немного не понятно
     @PostMapping("/update")
     public EventDto updateEvent(@RequestBody @Valid EventDto eventDto) {
         return eventService.updateEvent(eventDto);
