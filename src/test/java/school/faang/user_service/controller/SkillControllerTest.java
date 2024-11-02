@@ -1,5 +1,6 @@
 package school.faang.user_service.controller;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +23,11 @@ public class SkillControllerTest {
 
     @Mock
     private SkillService skillService;
+    private SkillDto skillDto;
+    @BeforeEach
+    void setUp() {
+        skillDto = new SkillDto();
+    }
 
     @Test
     void testCreateWithNullTitle() {
@@ -33,7 +39,6 @@ public class SkillControllerTest {
 
     @Test
     void testCreateWithEmptyTitle() {
-        SkillDto skillDto = new SkillDto();
         skillDto.setTitle("");
 
        assertThrows(DataValidationException.class, () -> skillController.create(skillDto));
@@ -41,7 +46,6 @@ public class SkillControllerTest {
 
     @Test
     void testCrateWithCorrectTitle() {
-        SkillDto skillDto = new SkillDto();
         skillDto.setTitle("title");
 
         skillController.create(skillDto);
