@@ -10,6 +10,7 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.event_filters.EventFilter;
+import school.faang.user_service.validation.EventServiceValidator;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -58,9 +59,7 @@ public class EventService {
         User eventOwner = eventServiceValidator.validateUserId(eventDto.getOwnerId());
         eventServiceValidator.validateOwnerSkills(eventOwner, eventDto);
 
-        eventMapper.update(eventToUpdate, eventDto);
-        log.info("An event with id " + eventToUpdate.getId() + " has been updated.");
-        eventToUpdate = eventRepository.save(eventToUpdate);
+        eventRepository.save(eventMapper.toEntity(eventDto));
         log.info("An updated event with id " + eventToUpdate.getId() + " has been saved to the database");
         return eventMapper.toDto(eventToUpdate);
     }
