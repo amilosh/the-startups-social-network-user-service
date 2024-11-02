@@ -107,7 +107,7 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    public void requestMentorshipValidTest() {
+    void requestMentorshipValidTest() {
         when(requestRepository.save(any(MentorshipRequest.class))).thenReturn(request);
 
         assertDoesNotThrow(() -> requestService.requestMentorship(creationDto));
@@ -121,7 +121,7 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    public void getRequestsEmptyFilter() {
+    void getRequestsEmptyFilter() {
         when(requestRepository.findAll()).thenReturn(requests);
 
         List<MentorshipRequestDto> filteredRequests = requestService.getRequests(emptyFilter);
@@ -131,7 +131,7 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    public void getRequestsComplexFilter() {
+    void getRequestsComplexFilter() {
         when(requestRepository.findAll()).thenReturn(requests);
 
         requestService.getRequests(complexFilter);
@@ -143,7 +143,7 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    public void getRequestsWithEmptyRequests() {
+    void getRequestsWithEmptyRequests() {
         when(requestRepository.findAll()).thenReturn(Collections.emptyList());
 
         List<MentorshipRequestDto> filteredRequests = requestService.getRequests(emptyFilter);
@@ -153,7 +153,7 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    public void acceptRequestValidTest() {
+    void acceptRequestValidTest() {
         Long requestId = 1L;
         when(requestValidator.validateAcceptRequest(requestId)).thenReturn(firstRequest);
         when(requestRepository.save(any(MentorshipRequest.class))).thenReturn(firstRequest);
@@ -166,7 +166,7 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    public void rejectRequestValidTest() {
+    void rejectRequestValidTest() {
         Long requestId = 3L;
         RejectionDto rejectionDto = new RejectionDto("Not enough experience");
         when(requestValidator.validateRejectRequest(requestId)).thenReturn(firstRequest);
@@ -196,14 +196,14 @@ class MentorshipRequestServiceTest {
     private MentorshipRequest createRequest(Long id, String description, Long requesterId, Long receiverId,
                                             RequestStatus status, String rejectionReason) {
         MentorshipRequest testRequest = new MentorshipRequest();
-        request.setId(id);
-        request.setDescription(description);
-        request.setRequester(User.builder().id(requesterId).username("user" + requesterId).build());
-        request.setReceiver(User.builder().id(receiverId).username("user" + receiverId).build());
-        request.setStatus(status);
-        request.setRejectionReason(rejectionReason);
-        request.setCreatedAt(LocalDateTime.now());
-        request.setUpdatedAt(LocalDateTime.now());
-        return request;
+        testRequest.setId(id);
+        testRequest.setDescription(description);
+        testRequest.setRequester(User.builder().id(requesterId).username("user" + requesterId).build());
+        testRequest.setReceiver(User.builder().id(receiverId).username("user" + receiverId).build());
+        testRequest.setStatus(status);
+        testRequest.setRejectionReason(rejectionReason);
+        testRequest.setCreatedAt(LocalDateTime.now());
+        testRequest.setUpdatedAt(LocalDateTime.now());
+        return testRequest;
     }
 }

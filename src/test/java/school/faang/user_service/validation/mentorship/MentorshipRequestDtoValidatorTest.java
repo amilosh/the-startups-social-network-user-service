@@ -71,7 +71,7 @@ class MentorshipRequestDtoValidatorTest {
     }
 
     @Test
-    public void validateCreationRequestNotExistingUserTest() {
+    void validateCreationRequestNotExistingUserTest() {
         when(userRepository.existsById(baseRequesterId)).thenReturn(false);
 
         DataValidationException exception = assertThrows(
@@ -84,7 +84,7 @@ class MentorshipRequestDtoValidatorTest {
     }
 
     @Test
-    public void validateCreationRequestSameUsersTest() {
+    void validateCreationRequestSameUsersTest() {
         requestCreationDto = requestCreationDto.toBuilder()
                 .receiverId(baseRequesterId)
                 .build();
@@ -102,7 +102,7 @@ class MentorshipRequestDtoValidatorTest {
     }
 
     @Test
-    public void validateCreationRequestInvalidDateTest() {
+    void validateCreationRequestInvalidDateTest() {
         baseRequest.setCreatedAt(LocalDateTime.now().minusMonths(MentorshipRequestDtoValidator.MIN_REQUEST_INTERVAL + 1));
 
         when(userRepository.existsById(baseRequesterId)).thenReturn(true);
@@ -116,7 +116,7 @@ class MentorshipRequestDtoValidatorTest {
     }
 
     @Test
-    public void validateCreationRequestValidTest() {
+    void validateCreationRequestValidTest() {
         baseRequest.setCreatedAt(LocalDateTime.now().minusMonths(MentorshipRequestDtoValidator.MIN_REQUEST_INTERVAL - 1));
 
         when(userRepository.existsById(baseRequesterId)).thenReturn(true);
@@ -130,22 +130,22 @@ class MentorshipRequestDtoValidatorTest {
     }
 
     @Test
-    public void validateAcceptRequestWithNullIdTest() {
+    void validateAcceptRequestWithNullIdTest() {
         assertNullRequestId(() -> validator.validateAcceptRequest(null));
     }
 
     @Test
-    public void validateAcceptNotExistingRequestTest() {
+    void validateAcceptNotExistingRequestTest() {
         assertRequestNotExisting(() -> validator.validateAcceptRequest(baseRequestId));
     }
 
     @Test
-    public void validateAcceptNotPendingRequestTest() {
+    void validateAcceptNotPendingRequestTest() {
         assertNotPendingRequest(() -> validator.validateAcceptRequest(baseRequestId));
     }
 
     @Test
-    public void validateAcceptRequestMentorshipAlreadyExists() {
+    void validateAcceptRequestMentorshipAlreadyExists() {
         when(requestRepository.findById(baseRequestId)).thenReturn(Optional.of(baseRequest));
         when(requestRepository.existAcceptedRequest(baseRequesterId, baseReceiverId)).thenReturn(true);
 
@@ -155,7 +155,7 @@ class MentorshipRequestDtoValidatorTest {
     }
 
     @Test
-    public void validateAcceptValidRequestTest() {
+    void validateAcceptValidRequestTest() {
         when(requestRepository.existAcceptedRequest(baseRequesterId, baseReceiverId)).thenReturn(false);
 
         assertValidRequestTest(() -> validator.validateAcceptRequest(baseRequestId));
@@ -163,22 +163,22 @@ class MentorshipRequestDtoValidatorTest {
     }
 
     @Test
-    public void validateRejectRequestWithNullIdTest() {
+    void validateRejectRequestWithNullIdTest() {
         assertNullRequestId(() -> validator.validateRejectRequest(null));
     }
 
     @Test
-    public void validateRejectNotExistingRequestTest() {
+    void validateRejectNotExistingRequestTest() {
         assertRequestNotExisting(() -> validator.validateRejectRequest(baseRequestId));
     }
 
     @Test
-    public void validateRejectNotPendingRequestTest() {
+    void validateRejectNotPendingRequestTest() {
         assertNotPendingRequest(() -> validator.validateRejectRequest(baseRequestId));
     }
 
     @Test
-    public void validateRejectValidRequestTest() {
+    void validateRejectValidRequestTest() {
         assertValidRequestTest(() -> validator.validateRejectRequest(baseRequestId));
     }
 
