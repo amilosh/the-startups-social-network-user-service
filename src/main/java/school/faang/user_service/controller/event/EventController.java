@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.service.event.EventService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/event")
@@ -28,5 +31,11 @@ public class EventController {
     @ResponseStatus(HttpStatus.OK)
     public EventDto getEvent(@PathVariable long id) {
         return eventService.getEvent(id);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<EventDto> getEventsByFilters(@RequestBody EventFilterDto filters){
+        return eventService.getEventsByFilters(filters);
     }
 }
