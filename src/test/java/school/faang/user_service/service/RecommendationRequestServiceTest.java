@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -18,6 +19,7 @@ import school.faang.user_service.repository.recommendation.SkillRequestRepositor
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -197,5 +199,109 @@ class RecommendationRequestServiceTest {
         assertEquals("Некоторых скиллов нет в базе данных", exception.getMessage());
     }
 
+    @Test
+    void testGetRequests_WithAllFilters() {
+        RequestFilterDto filter = new RequestFilterDto();
+        filter.setStatus(RequestStatus.PENDING);
+        filter.setRequesterId(1L);
+        filter.setReceiverId(2L);
+        filter.setStartDate(LocalDateTime.of(2024, 1, 1, 0, 0));
+        filter.setEndDate(LocalDateTime.of(2024, 12, 31, 23, 59));
 
+        User requester = new User();
+        requester.setId(1L);
+
+        User receiver = new User();
+        receiver.setId(2L);
+
+        RecommendationRequest requestOne = new RecommendationRequest();
+        requestOne.setId(1L);
+        requestOne.setStatus(RequestStatus.PENDING);
+        requestOne.setCreatedAt(LocalDateTime.of(2024, 8, 21, 12, 0));
+        requestOne.setRequester(requester);
+        requestOne.setReceiver(receiver);
+
+        RecommendationRequestDto dtoOne = new RecommendationRequestDto();
+        dtoOne.setId(1L);
+        dtoOne.setMessage("Пожалуйста дай мне рекомендацию");
+        dtoOne.setRequesterId(1L);
+        dtoOne.setReceiverId(2L);
+        dtoOne.setStatus(RequestStatus.PENDING);
+        dtoOne.setCreatedAt(LocalDateTime.of(2024, 8, 21, 12, 0));
+        dtoOne.setSkills(Arrays.asList(1L, 2L));
+
+        List<RecommendationRequest> requestsList = Arrays.asList(requestOne);
+
+        when(recommendationRequestRepository.findAll()).thenReturn(requestsList);
+        when(recommendationRequestMapper.toDto(requestOne)).thenReturn(dtoOne);
+
+        List<RecommendationRequestDto> result = recommendationRequestService.getRequests(filter);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(dtoOne.getId(), result.get(0).getId());
+
+        verify(recommendationRequestRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetRequests_NoFilters() {
+        RequestFilterDto filter = new RequestFilterDto();
+
+        RecommendationRequest requestOne = new RecommendationRequest();
+        requestOne.setId(1L);
+        requestOne.setStatus(RequestStatus.ACCEPTED);
+        requestOne.setCreatedAt(LocalDateTime.now());
+
+        RecommendationRequestDto dtoOne = new RecommendationRequestDto();
+        dtoOne.setId(1L);
+        dtoOne.setMessage("Пожалуйста дай мне рекомендацию");
+        dtoOne.setRequesterId(1L);
+        dtoOne.setReceiverId(2L);
+        dtoOne.setStatus(RequestStatus.ACCEPTED);
+        dtoOne.setCreatedAt(requestOne.getCreatedAt());
+        dtoOne.setSkills(Arrays.asList(1L, 2L));
+
+        RecommendationRequest requestTwo = new RecommendationRequest();
+        requestTwo.setId(2L);
+        requestTwo.setStatus(RequestStatus.REJECTED);
+        requestTwo.setCreatedAt(LocalDateTime.now().minusDays(10));
+
+        RecommendationRequestDto dtoTwo = new RecommendationRequestDto();
+        dtoTwo.setId(2L);
+        dtoTwo.setMessage("Пожалуйста дай мне рекомендацию");
+        dtoTwo.setRequesterId(1L);
+        dtoTwo.setReceiverId(2L);
+        dtoTwo.setStatus(RequestStatus.REJECTED);
+        dtoTwo.setCreatedAt(requestTwo.getCreatedAt());
+        dtoTwo.setSkills(Arrays.asList(1L, 2L));
+
+        when(recommendationRequestRepository.findAll()).thenReturn(Arrays.asList(requestOne, requestTwo));
+        when(recommendationRequestMapper.toDto(requestOne)).thenReturn(dtoOne);
+        when(recommendationRequestMapper.toDto(requestTwo)).thenReturn(dtoTwo);
+
+        List<RecommendationRequestDto> result = recommendationRequestService.getRequests(filter);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(dtoOne.getId(), result.get(0).getId());
+        assertEquals(dtoTwo.getId(), result.get(1).getId());
+
+        verify(recommendationRequestRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testGetRequests_NoResults() {
+        RequestFilterDto filter = new RequestFilterDto();
+        filter.setStatus(RequestStatus.REJECTED);
+
+        when(recommendationRequestRepository.findAll()).thenReturn(Arrays.asList());
+
+        List<RecommendationRequestDto> result = recommendationRequestService.getRequests(filter);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        verify(recommendationRequestRepository, times(1)).findAll();
+    }
 }

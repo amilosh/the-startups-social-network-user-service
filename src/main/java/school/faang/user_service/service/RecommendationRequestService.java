@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -18,22 +19,23 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class RecommendationRequestService {
     private final RecommendationRequestRepository recommendationRequestRepository;
+    private final RecommendationRequestMapper recommendationRequestMapper;
     private final UserRepository userRepository;
     private final SkillRepository skillRepository;
     private final SkillRequestRepository skillRequestRepository;
-    private final RecommendationRequestMapper recommendationRequestMapper;
 
     public RecommendationRequestDto create(RecommendationRequestDto dto) {
         User requester = userRepository.findById(dto.getRequesterId())
                 .orElseThrow(() -> new IllegalArgumentException("Пользователя, запрашивающего рекомендацию не существует"));
         User receiver = userRepository.findById(dto.getReceiverId())
                 .orElseThrow(() -> new IllegalArgumentException("Пользователя, получающего рекомендацию не существует"));
-        
+
         Optional<RecommendationRequest> lastRequest = recommendationRequestRepository.findLatestPendingRequest(
                 dto.getRequesterId(), dto.getReceiverId());
 
@@ -82,5 +84,23 @@ public class RecommendationRequestService {
         }
 
         return recommendationRequestMapper.toDto(savedRequest);
+    }
+
+
+    public List<RecommendationRequestDto> getRequests(RequestFilterDto filter) {
+        List<RecommendationRequest> requests = recommendationRequestRepository.findAll();
+
+        return requests.stream()
+                .filter(request -> filter.getStatus() == null || request.getStatus() == filter.getStatus())
+                .filter(request -> filter.getRequesterId() == null || request.getRequester()
+                        .getId().equals(filter.getRequesterId()))
+                .filter(request -> filter.getReceiverId() == null || request.getReceiver()
+                        .getId().equals(filter.getReceiverId()))
+                .filter(request -> filter.getStartDate() == null || !request.getCreatedAt()
+                        .isBefore(filter.getStartDate()))
+                .filter(request -> filter.getEndDate() == null || !request.getCreatedAt()
+                        .isAfter(filter.getEndDate()))
+                .map(recommendationRequestMapper::toDto)
+                .collect(Collectors.toList());
     }
 }
