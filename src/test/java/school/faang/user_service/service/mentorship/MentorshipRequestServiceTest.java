@@ -41,6 +41,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MentorshipRequestServiceTest {
+
     @Mock
     private MentorshipRequestRepository requestRepository;
 
@@ -59,7 +60,7 @@ class MentorshipRequestServiceTest {
     @Captor
     ArgumentCaptor<List<MentorshipRequest>> requestListCaptor;
 
-    private MentorshipRequestServiceImpl requestService;
+    private MentorshipRequestService requestService;
 
     private MentorshipRequest request;
     private MentorshipRequestCreationDto creationDto;
@@ -83,7 +84,7 @@ class MentorshipRequestServiceTest {
         List<RequestFilter> requestFilters = List.of(firstFilter, secondFilter, thirdFilter, fourthFilter);
 
         requestMapper = Mockito.spy(new MentorshipRequestMapperImpl());
-        requestService = new MentorshipRequestServiceImpl(
+        requestService = new MentorshipRequestService(
                 requestRepository, userRepository, requestValidator, requestMapper, requestFilters
         );
 
@@ -194,7 +195,7 @@ class MentorshipRequestServiceTest {
 
     private MentorshipRequest createRequest(Long id, String description, Long requesterId, Long receiverId,
                                             RequestStatus status, String rejectionReason) {
-        MentorshipRequest request = new MentorshipRequest();
+        MentorshipRequest testRequest = new MentorshipRequest();
         request.setId(id);
         request.setDescription(description);
         request.setRequester(User.builder().id(requesterId).username("user" + requesterId).build());

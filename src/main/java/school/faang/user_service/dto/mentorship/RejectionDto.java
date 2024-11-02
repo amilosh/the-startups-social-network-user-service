@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class RejectionDto {
+
     @NotBlank
     private String reason;
 }

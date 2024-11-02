@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 @Component
 public class RequestDescriptionFilter implements RequestFilter {
+
     @Override
     public boolean isApplicable(RequestFilterDto filterDto) {
         return filterDto.getDescriptionPattern() != null && !filterDto.getDescriptionPattern().isBlank();

@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 @Component
 public class RequestStatusFilter implements RequestFilter {
+
     @Override
     public boolean isApplicable(RequestFilterDto filterDto) {
         return filterDto.getStatus() != null;

@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 @Component
 public class RequestRequesterFilter implements RequestFilter {
+
     @Override
     public boolean isApplicable(RequestFilterDto filterDto) {
         return filterDto.getRequesterId() != null;
