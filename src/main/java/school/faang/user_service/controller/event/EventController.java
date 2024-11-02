@@ -58,4 +58,10 @@ public class EventController {
     public List<EventDto> getOwnedEvents(@PathVariable long userId) {
         return eventService.getOwnedEvents(userId);
     }
+
+    @GetMapping("/participate-events/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<EventDto> getParticipatedEvents(@PathVariable long userId) {
+        return eventService.getParticipatedEvents(userId);
+    }
 }
