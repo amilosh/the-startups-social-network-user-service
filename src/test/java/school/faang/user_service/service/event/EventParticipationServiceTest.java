@@ -9,11 +9,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.UserAlreadyRegisteredException;
+import school.faang.user_service.exceptions.UserNotFoundException;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -42,39 +44,98 @@ public class EventParticipationServiceTest {
     }
 
     @Test
-    @DisplayName("Проверка \"Пользователь зарегистрировался\"")
+    @DisplayName("Проверка register \"Пользователь зарегистрировался\"")
     public void testRegisterParticipant_UserRegistered() {
-        when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(new ArrayList<>());
+        when(eventParticipationRepository
+                .findAllParticipantsByEventId(eventId))
+                .thenReturn(new ArrayList<>());
 
         eventParticipationService.registerParticipant(eventId, userId);
 
-        verify(eventParticipationRepository, times(1)).register(eventId, userId);
-        verify(eventParticipationRepository, times(1)).findAllParticipantsByEventId(eventId);
+        verify(eventParticipationRepository, times(1))
+                .register(eventId, userId);
+
+        verify(eventParticipationRepository, times(1))
+                .findAllParticipantsByEventId(eventId);
     }
 
     @Test
-    @DisplayName("Проверка \"Пользователь уже зарегистрирован\"")
+    @DisplayName("Проверка register \"Пользователь уже зарегистрирован\"")
     public void testRegisterParticipant_UserAlreadyRegistered() {
         List<User> participants = List.of(testUser);
-        when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(participants);
+        when(eventParticipationRepository
+                .findAllParticipantsByEventId(eventId))
+                .thenReturn(participants);
 
         assertThrows(UserAlreadyRegisteredException.class, () -> {
             eventParticipationService.registerParticipant(eventId, userId);
         });
 
-        verify(eventParticipationRepository, never()).register(eventId, userId);
+        verify(eventParticipationRepository, never())
+                .register(eventId, userId);
+
+        verify(eventParticipationRepository, times(1))
+                .findAllParticipantsByEventId(eventId);
+    }
+
+    @Test
+    @DisplayName("Проверка unregister \"Пользователь отменил регистрацию\"")
+    public void testUnregisterParticipant_UserUnregistered() {
+        List<User> participants = List.of(testUser);
+        when(eventParticipationRepository
+                .findAllParticipantsByEventId(eventId))
+                .thenReturn(participants);
+
+        eventParticipationService.unregisterParticipant(eventId, userId);
+
+        verify(eventParticipationRepository, times(1))
+                .unregister(eventId, userId);
+
+        verify(eventParticipationRepository, times(1))
+                .findAllParticipantsByEventId(eventId);
+    }
+
+    @Test
+    @DisplayName("Проверка unregister \"Пользователь не зарегистрирован\"")
+    public void testUnregisterParticipant_UserIsNotRegistered() {
+        when(eventParticipationRepository
+                .findAllParticipantsByEventId(eventId))
+                .thenReturn(new ArrayList<>());
+
+        assertThrows(UserNotFoundException.class, () -> {
+            eventParticipationService.unregisterParticipant(eventId, userId);
+        });
+
+        verify(eventParticipationRepository, never())
+                .unregister(eventId, userId);
+
+        verify(eventParticipationRepository, times(1))
+                .findAllParticipantsByEventId(eventId);
+    }
+
+    @Test
+    @DisplayName("Проверка getParticipant")
+    public void testGetParticipant_ShouldReturnParticipantsList() {
+        List<User> participants = List.of(testUser);
+        when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(participants);
+
+        List<User> result = eventParticipationService.getParticipant(eventId);
+
+        assertEquals(participants, result);
+
         verify(eventParticipationRepository, times(1)).findAllParticipantsByEventId(eventId);
     }
 
     @Test
-    @DisplayName("Проверка \"Пользователь отменил регистрацию\"")
-    public void testUnregisterParticipant_UserUnregistered() {
+    @DisplayName("Проверка getParticipantsCount")
+    public void testGetParticipantsCount_ShouldReturnCount() {
+        int expectedCount = 5;
+        when(eventParticipationRepository.countParticipants(eventId)).thenReturn(expectedCount);
 
-    }
+        int result = eventParticipationService.getParticipantsCount(eventId);
 
-    @Test
-    @DisplayName("Проверка \"Пользователь не зарегистрирован\"")
-    public void testUnregisterParticipant_UserIsNotRegistered() {
+        assertEquals(expectedCount, result);
 
+        verify(eventParticipationRepository, times(1)).countParticipants(eventId);
     }
 }
