@@ -4,19 +4,45 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.EventService;
-import school.faang.user_service.validation.EventValidation;
 
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
 @Slf4j
 public class EventController {
     private final EventService eventService;
-    private final EventValidation eventValidation;
+    private final EventRepository eventRepository;
 
     public EventDto create(EventDto event) {
-        eventValidation.validateEvent(event);
         return eventService.create(event);
+    }
+
+    public EventDto getEvent(long eventId) {
+        return eventService.getEvent(eventId);
+    }
+
+    public List<EventDto> getEventsByFilter(EventFilterDto filter) {
+        return eventService.getEventsByFilter(filter);
+    }
+
+    public void deleteEvent(long eventId) {
+        eventService.deleteEvent(eventId);
+    }
+
+    public EventDto updateEvent(EventDto eventDto) {
+        return eventService.updateEvent(eventDto);
+    }
+
+    public void getOwnedEvents(long userId) {
+        eventService.getOwnedEvents(userId);
+    }
+
+    public void getParticipatedEvents(long userId) {
+        eventService.getParticipatedEvents(userId);
     }
 }

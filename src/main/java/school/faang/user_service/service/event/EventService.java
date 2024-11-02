@@ -2,48 +2,69 @@ package school.faang.user_service.service.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import school.faang.user_service.dto.event.EventDto;
-import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.filter.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.validation.EventValidation;
+import school.faang.user_service.service.user.UserService;
+import school.faang.user_service.validation.event.EventValidation;
 
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class EventService {
+    private final EventValidation eventValidation;
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
-    private final UserRepository userRepository;
-    private final EventValidation eventValidation;
+    private final UserService userService;
+    private final EventFilter eventFilter;
 
-    public EventDto create(EventDto event) {
-        eventValidation.validateEvent(event);
-
-        User user = userRepository.findById(event.getOwnerId()).orElseThrow(() -> new NoSuchElementException("User not found"));
-        List<Skill> userOwnerSkills = user.getSkills();
-
-        Event findEvent = eventRepository.findById(event.getId()).orElseThrow(() -> new NoSuchElementException("Event not found"));
-        List<Skill> eventSkills  = findEvent.getRelatedSkills();
-
-        return getEventDto(event, userOwnerSkills, eventSkills);
+    public EventDto create(EventDto eventDto) {
+        eventValidation.validateEventDto(eventDto, userService);
+        Event event = eventRepository.save(eventMapper.dtoToEvent(eventDto));
+        return eventMapper.eventToDto(event);
     }
 
-    private EventDto getEventDto(EventDto event, List<Skill> userOwnerSkills, List<Skill> eventSkills) {
-        boolean check = userOwnerSkills.stream().allMatch(eventSkills::contains);
+    private Event findEventById(long eventId) {
+        return eventRepository.findById(eventId).orElseThrow(() -> new DataValidationException("Event id not found"));
+    }
 
-        if (!check) {
-            throw new NoSuchElementException();
-        } else  {
-            Event eventEntity = eventMapper.dtoToEvent(event);
-            Event savedEvent = eventRepository.save(eventEntity);
-            return eventMapper.eventToDto(savedEvent);
-        }
+    public EventDto getEvent(long eventId) {
+        Event findEvent = findEventById(eventId);
+        return eventMapper.eventToDto(findEvent);
+    }
+
+    public List<EventDto> getEventsByFilter(EventFilterDto filter) {
+        List<Event> events = eventRepository.findAll();
+        List<Event> filteredEvents = eventFilter.filterEvents(events, filter);
+        return filteredEvents.stream()
+                .map(eventMapper::eventToDto)
+                .collect(Collectors.toList());
+    }
+
+    public void deleteEvent(long evenId) {
+        eventRepository.deleteById(evenId);
+    }
+
+    public EventDto updateEvent(EventDto eventDto) {
+        Event event = findEventById(eventDto.getId());
+        eventValidation.validateEventDto(eventDto, userService);
+        Event updatedEvent = eventMapper.dtoToEvent(eventDto);
+        updatedEvent.setId(event.getId());
+        Event savedEvent = eventRepository.save(updatedEvent);
+        return eventMapper.eventToDto(savedEvent);
+    }
+
+    public void getOwnedEvents(long userId) {
+        eventRepository.findAllByUserId(userId);
+    }
+
+    public void getParticipatedEvents(long userId) {
+        eventRepository.findParticipatedEventsByUserId(userId);
     }
 }

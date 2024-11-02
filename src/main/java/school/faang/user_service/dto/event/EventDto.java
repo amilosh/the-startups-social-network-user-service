@@ -2,7 +2,7 @@ package school.faang.user_service.dto.event;
 
 import lombok.Builder;
 import lombok.Data;
-import school.faang.user_service.dto.event.skill.SkillDto;
+import school.faang.user_service.dto.skill.SkillDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
