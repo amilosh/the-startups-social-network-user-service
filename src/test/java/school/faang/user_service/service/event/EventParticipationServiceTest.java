@@ -123,19 +123,23 @@ public class EventParticipationServiceTest {
 
         assertEquals(participants, result);
 
-        verify(eventParticipationRepository, times(1)).findAllParticipantsByEventId(eventId);
+        verify(eventParticipationRepository, times(1))
+                .findAllParticipantsByEventId(eventId);
     }
 
     @Test
     @DisplayName("Проверка getParticipantsCount")
     public void testGetParticipantsCount_ShouldReturnCount() {
         int expectedCount = 5;
-        when(eventParticipationRepository.countParticipants(eventId)).thenReturn(expectedCount);
+        when(eventParticipationRepository
+                .countParticipants(eventId))
+                .thenReturn(expectedCount);
 
         int result = eventParticipationService.getParticipantsCount(eventId);
 
         assertEquals(expectedCount, result);
 
-        verify(eventParticipationRepository, times(1)).countParticipants(eventId);
+        verify(eventParticipationRepository, times(1))
+                .countParticipants(eventId);
     }
 }
