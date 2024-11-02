@@ -35,8 +35,8 @@ public class RecommendationService {
         validator.validateDate(recommendationDto);
         validator.validateSkills(recommendationDto);
 
-        Recommendation savedRecommendation = recommendationRepository.save(mapper.toRecommendation(recommendationDto));
         saveSkills(recommendationDto, author, user);
+        Recommendation savedRecommendation = recommendationRepository.save(mapper.toRecommendation(recommendationDto));
         return mapper.toRecommendationDto(savedRecommendation);
     }
 
@@ -46,7 +46,6 @@ public class RecommendationService {
             return;
         }
         for (SkillOfferDto offer : recommendationDto.getSkillOffers()) {
-            boolean exists = false;
             for (Skill skill : skills) {
                 if (skill.getId() == offer.getSkillId()){
                     UserSkillGuarantee skillGuarantee = UserSkillGuarantee.builder()
@@ -55,11 +54,7 @@ public class RecommendationService {
                             .user(user)
                             .build();
                     userSkillGuaranteeRepository.save(skillGuarantee);
-                    exists = true;
                 }
-            }
-            if (!exists) {
-                skillOfferRepository.save(mapper.toSkillOffer(offer));
             }
         }
     }
