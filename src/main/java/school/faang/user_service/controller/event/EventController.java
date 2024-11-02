@@ -52,4 +52,10 @@ public class EventController {
     public EventDto updateEvent(@RequestBody EventDto event) {
         return eventService.updateEvent(event);
     }
+
+    @GetMapping("/user-events/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<EventDto> getOwnedEvents(@PathVariable long userId) {
+        return eventService.getOwnedEvents(userId);
+    }
 }
