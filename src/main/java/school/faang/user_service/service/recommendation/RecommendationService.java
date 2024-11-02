@@ -13,6 +13,8 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -50,7 +52,7 @@ public class RecommendationService {
         addSkillOffersAndGuarantee(requestRecommendationDto);
         log.info("Recommendation with id {} successfully saved", recommendationId);
 
-        return recommendationMapper.toDto(getRecommendation(requestRecommendationDto.getId()));
+        return recommendationMapper.toDto(getRecommendation(recommendationId));
     }
 
     @Transactional
@@ -69,7 +71,7 @@ public class RecommendationService {
         addSkillOffersAndGuarantee(requestRecommendationDto);
         log.info("Recommendation with id {} successfully updated", id);
 
-        return recommendationMapper.toDto(getRecommendation(requestRecommendationDto.getId()));
+        return recommendationMapper.toDto(getRecommendation(id));
     }
 
     @Transactional
@@ -106,7 +108,7 @@ public class RecommendationService {
         List<RequestSkillOfferDto> requestSkillOfferDtoList = requestRecommendationDto.getSkillOffers();
         if (requestSkillOfferDtoList == null || requestSkillOfferDtoList.isEmpty()) {
             log.debug("No skill offers to process for recommendation with id {}", requestRecommendationDto.getId());
-            return;
+            throw new DataValidationException(ErrorMessage.NO_SKILL_OFFERS);
         }
 
         for (RequestSkillOfferDto requestSkillOfferDto : requestSkillOfferDtoList) {
