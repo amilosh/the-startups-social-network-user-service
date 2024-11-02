@@ -2,10 +2,10 @@ package school.faang.user_service.dto.event;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
+import reactor.util.annotation.Nullable;
 import school.faang.user_service.dto.skill.SkillDto;
 
 import java.time.LocalDateTime;
@@ -36,7 +36,7 @@ public class EventDto {
 
     private List<SkillDto> relatedSkills;
 
-    @Null
+    @Nullable
     @Size(max = 128, message = "location length more than 128 symbol")
     private String location;
 
