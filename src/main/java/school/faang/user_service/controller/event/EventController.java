@@ -40,7 +40,7 @@ public class EventController {
         return eventService.getEventsByFilters(filters);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteEvent(@PathVariable long id) {
         eventService.deleteEvent(id);
