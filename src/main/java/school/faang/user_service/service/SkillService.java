@@ -35,10 +35,8 @@ public class SkillService {
     private int minOffersRequired;
 
     public SkillDto acquireSkillFromOffers(Long skillId, Long userId) {
-        if(skillId == null|| userId == null){
-            log.warn("Skill ID or User ID is null. Validation failed.");
-            throw new DataValidationException("Skill ID and User ID cannot be null.");
-        }
+        validateSkillAndUserId(skillId,userId);
+
         log.info("Attempting to acquire skill with ID {} for user ID {} ", skillId, userId);
         skillRepository.findUserSkill(skillId, userId)
                 .ifPresent(skill -> {
@@ -48,8 +46,9 @@ public class SkillService {
 
         List<SkillOffer> skillOffers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
         log.info("Found {} offers for skill ID {} for user ID {} ", skillOffers.size(), skillId, userId);
+
         if (skillOffers.size() < minOffersRequired) {
-            log.warn("Not enought offers to acquire skill. Required: {}, Found: {}", minOffersRequired, skillOffers.size());
+            log.warn("Not enough offers to acquire skill. Required: {}, Found: {}", minOffersRequired, skillOffers.size());
             throw new DataValidationException("Not enough offers to acquire the skill.");
         }
 
@@ -108,5 +107,11 @@ public class SkillService {
         return skillRepository.findAll().stream()
                 .map(skillMapper::toDto)
                 .collect(Collectors.toList());
+    }
+    private void validateSkillAndUserId(Long skillId,Long userId){
+        if (skillId == null || userId == null) {
+            log.warn("Skill ID or User ID is null. Validation failed.");
+            throw new DataValidationException("Skill ID and User ID cannot be null.");
+        }
     }
 }
