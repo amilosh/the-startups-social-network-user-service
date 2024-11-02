@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.MentorshipRequestMapper;
 import school.faang.user_service.dto.RequestFilterDto;
@@ -27,7 +26,7 @@ public class MentorshipRequestService {
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final UserRepository userRepository;
     private final MentorshipRequestMapper mentorshipRequestMapper;
-    @Transactional
+
     public void requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
         long idRequester = mentorshipRequestDto.requesterId();
         long idReceiver = mentorshipRequestDto.receiverId();
@@ -40,11 +39,10 @@ public class MentorshipRequestService {
                     .isBefore(LocalDateTime.now().minusMonths(3))) {
                 mentorshipRequestRepository.save(mentorshipRequestMapper.toEntity(mentorshipRequestDto));
             }
-
         }
     }
-    @Transactional
-    public List<MentorshipRequestDto> getRequest(RequestFilterDto filter) {
+
+     public List<MentorshipRequestDto> getRequest(RequestFilterDto filter) {
         List<MentorshipRequest> allMentorshipRequest = mentorshipRequestRepository.findAll();
         return allMentorshipRequest.stream()
                 .filter(request ->
@@ -84,6 +82,7 @@ public class MentorshipRequestService {
                         }
                 );
     }
+
     @Transactional
     public void rejectRequest(long id, String rejection) {
         mentorshipRequestRepository.findById(id)
