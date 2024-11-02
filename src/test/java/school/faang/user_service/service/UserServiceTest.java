@@ -9,18 +9,37 @@ import school.faang.user_service.repository.UserRepository;
 
 import java.util.Optional;
 
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
 
     @InjectMocks
     private UserService userService;
+
+    @Test
+    void checkUserExistenceReturnTrue() {
+        long userId = 1L;
+        when(userRepository.existsById(userId)).thenReturn(true);
+
+        boolean result = userService.checkUserExistence(userId);
+
+        assertTrue(result);
+    }
+
+    @Test
+    void checkUserExistenceReturnFalse() {
+        long userId = 1L;
+        when(userRepository.existsById(userId)).thenReturn(false);
+
+        boolean result = userService.checkUserExistence(userId);
+
+        assertFalse(result);
+    }
 
     @Test
     void testUserNotFound() {
