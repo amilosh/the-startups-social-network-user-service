@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -177,9 +178,10 @@ public class MentorshipServiceTest {
         when(mentorshipRepository.findById(mentor.getId()))
                 .thenReturn(Optional.of(mentor));
 
-        mentorshipService.deleteMentee(mentee.getId(), mentor.getId());
+        boolean resultAfterDelete = mentorshipService.deleteMentee(mentee.getId(), mentor.getId());
         List<User> mentees = mentor.getMentees();
 
+        assertTrue(resultAfterDelete);
         assertEquals(0, mentees.size());
         verify(mentorshipRepository, times(1)).save(mentor);
     }
@@ -192,9 +194,10 @@ public class MentorshipServiceTest {
         when(mentorshipRepository.findById(mentor.getId()))
                 .thenReturn(Optional.of(mentor));
 
-        mentorshipService.deleteMentee(firstMentee.getId(), mentor.getId());
+        boolean resultAfterDelete = mentorshipService.deleteMentee(firstMentee.getId(), mentor.getId());
         List<User> mentees = mentor.getMentees();
 
+        assertTrue(resultAfterDelete);
         assertEquals(1, mentees.size());
         verify(mentorshipRepository, times(1)).save(mentor);
     }
@@ -232,9 +235,10 @@ public class MentorshipServiceTest {
         when(mentorshipRepository.findById(mentee.getId()))
                 .thenReturn(Optional.of(mentee));
 
-        mentorshipService.deleteMentor(mentee.getId(), mentor.getId());
+        boolean resultAfterDelete = mentorshipService.deleteMentor(mentee.getId(), mentor.getId());
         List<User> mentors = mentee.getMentors();
 
+        assertTrue(resultAfterDelete);
         assertEquals(0, mentors.size());
         verify(mentorshipRepository, times(1)).save(mentee);
     }
@@ -247,9 +251,10 @@ public class MentorshipServiceTest {
         when(mentorshipRepository.findById(mentee.getId()))
                 .thenReturn(Optional.of(mentee));
 
-        mentorshipService.deleteMentor(mentee.getId(), secondMentor.getId());
+        boolean resultAfterDelete = mentorshipService.deleteMentor(mentee.getId(), secondMentor.getId());
         List<User> mentors = mentee.getMentors();
 
+        assertTrue(resultAfterDelete);
         assertEquals(1, mentors.size());
         verify(mentorshipRepository, times(1)).save(mentee);
     }
