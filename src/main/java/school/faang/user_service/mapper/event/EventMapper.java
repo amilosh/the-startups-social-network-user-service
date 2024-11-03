@@ -16,6 +16,4 @@ public interface EventMapper {
     EventDto toDto(Event event);
 
     List<EventDto> toDto(List<Event> events);
-
-    void update(@MappingTarget Event event, EventDto eventDto);
 }

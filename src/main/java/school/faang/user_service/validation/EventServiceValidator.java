@@ -25,14 +25,14 @@ public class EventServiceValidator {
 
     public Event validateEventId(long eventId) {
         return eventRepository.findById(eventId).orElseThrow(() -> {
-            log.warn("Event with id: " + eventId + " has not been found");
+            log.warn("Event with id: {} has not been found", eventId);
             return new EntityNotFoundException("Event with id: " + eventId + " was not found");
         });
     }
 
     public User validateUserId(long userId) {
         return userRepository.findById(userId).orElseThrow(() -> {
-            log.warn("User with id: " + userId + " has not been found");
+            log.warn("User with id: {} has not been found", userId);
             return new EntityNotFoundException("UserId " + userId + " was not found");
         });
     }

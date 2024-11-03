@@ -36,7 +36,7 @@ public class EventService {
 
     public EventDto get(long eventId) {
         Event event = eventServiceValidator.validateEventId(eventId);
-        log.info("Event with " + eventId + " has been retrieved from the database");
+        log.info("Event with {} has been retrieved from the database", eventId);
         return eventMapper.toDto(event);
     }
 
@@ -45,13 +45,13 @@ public class EventService {
         eventFilters.stream()
                 .filter(filter -> filter.isApplicable(filters))
                 .forEach(filter -> filter.apply(events, filters));
-        log.info("A filtered list of events has been retrieved. Filters are: " + filters);
+        log.info("A filtered list of events has been retrieved. Filters are: {}", filters);
         return eventMapper.toDto(events.toList());
     }
 
     public void delete(long eventId) {
         eventRepository.deleteById(eventId);
-        log.info("An event with id " + eventId + " has been deleted from the database.");
+        log.info("An event with id {} has been deleted from the database.", eventId);
     }
 
     public EventDto update(EventDto eventDto) {
@@ -60,19 +60,19 @@ public class EventService {
         eventServiceValidator.validateOwnerSkills(eventOwner, eventDto);
 
         eventRepository.save(eventMapper.toEntity(eventDto));
-        log.info("An updated event with id " + eventToUpdate.getId() + " has been saved to the database");
+        log.info("An updated event with id {} has been saved to the database", eventToUpdate.getId());
         return eventMapper.toDto(eventToUpdate);
     }
 
     public List<EventDto> getOwnedEvents(long userId) {
         List<Event> events = eventRepository.findAllByUserId(userId);
-        log.info("A list of events owned by user with id " + userId + " had been retrieved");
+        log.info("A list of events owned by user with id {} had been retrieved", userId);
         return eventMapper.toDto(events);
     }
 
     public List<EventDto> getParticipatedEvents(long userId) {
         List<Event> events = eventRepository.findParticipatedEventsByUserId(userId);
-        log.info("A list of events where user with id " + userId + " participates has been retrieved");
+        log.info("A list of events where user with id {} participates has been retrieved", userId);
         return eventMapper.toDto(events);
     }
 }
