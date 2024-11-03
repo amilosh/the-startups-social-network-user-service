@@ -26,6 +26,8 @@ public interface RecommendationMapper {
     @Mapping(target = "request", ignore = true)
     Recommendation toEntity(RequestRecommendationDto recommendationDto);
 
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "request", ignore = true)
     void updateFromDto(RequestRecommendationDto recommendationDto, @MappingTarget Recommendation recommendation);
 
     List<ResponseRecommendationDto> toDtoList(List<Recommendation> recommendations);

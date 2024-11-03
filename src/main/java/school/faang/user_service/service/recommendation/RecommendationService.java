@@ -18,7 +18,6 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validator.recommendation.RecommendationDtoValidator;
@@ -33,7 +32,6 @@ public class RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final SkillRepository skillRepository;
-    private final UserRepository userRepository;
     private final RecommendationMapper recommendationMapper;
     private final RecommendationDtoValidator recommendationDtoValidator;
 
@@ -146,19 +144,8 @@ public class RecommendationService {
     }
 
     private void addGuaranteeToSkill(RequestRecommendationDto requestRecommendationDto, Skill skill) {
-        User receiver = userRepository.findById(requestRecommendationDto.getReceiverId())
-                .orElseThrow(() -> {
-                    log.error("Receiver with id {} not found", requestRecommendationDto.getReceiverId());
-                    return new NoSuchElementException(String.format("There isn't receiver with id = %d",
-                            requestRecommendationDto.getReceiverId()));
-                });
-
-        User author = userRepository.findById(requestRecommendationDto.getAuthorId())
-                .orElseThrow(() -> {
-                    log.error("Author with id {} not found", requestRecommendationDto.getAuthorId());
-                    return new NoSuchElementException(String.format("There isn't author of recommendation with id = %d",
-                            requestRecommendationDto.getAuthorId()));
-                });
+        User receiver = recommendationDtoValidator.validateUser(requestRecommendationDto.getReceiverId());
+        User author = recommendationDtoValidator.validateUser(requestRecommendationDto.getAuthorId());
 
         UserSkillGuarantee guarantee = UserSkillGuarantee.builder()
                 .user(receiver)

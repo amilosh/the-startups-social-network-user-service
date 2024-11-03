@@ -5,13 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RequestRecommendationDto;
 import school.faang.user_service.dto.recommendation.RequestSkillOfferDto;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Component
@@ -20,10 +23,18 @@ public class RecommendationDtoValidator {
     private static final int NUMBER_OF_MONTHS_AFTER_PREVIOUS_RECOMMENDATION = 6;
     private final RecommendationRepository recommendationRepository;
     private final SkillRepository skillRepository;
+    private final UserRepository userRepository;
 
     public void validateRecommendation(RequestRecommendationDto recommendation) {
         checkIfAcceptableTimeForRecommendation(recommendation);
         checkIfOfferedSkillsExist(recommendation);
+    }
+
+    public User validateUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> {
+            log.error("Receiver with id {} not found", userId);
+            return new NoSuchElementException(String.format("There isn't user with id = %d", userId));
+        });
     }
 
     private void checkIfAcceptableTimeForRecommendation(RequestRecommendationDto requestRecommendationDto) {
