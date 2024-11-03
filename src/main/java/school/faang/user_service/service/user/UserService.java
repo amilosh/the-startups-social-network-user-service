@@ -12,6 +12,7 @@ import java.util.ArrayList;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
     private final UserValidator uservalidator;
 
@@ -21,7 +22,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateMentorsAndMentees(Long menteeId, Long mentorId) {
+    public void updateMentorsAndMentees(long menteeId, long mentorId) {
         User mentee = uservalidator.userAlreadyExists(menteeId);
         User mentor = uservalidator.userAlreadyExists(mentorId);
 
