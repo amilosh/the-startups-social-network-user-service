@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.RequestRecommendationDto;
 import school.faang.user_service.dto.recommendation.RequestSkillOfferDto;
@@ -16,6 +17,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.mapper.recommendation.RecommendationMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -63,8 +65,8 @@ public class RecommendationServiceTest {
     @Mock
     private RecommendationDtoValidator recommendationDtoValidator;
 
-    @Mock
-    private RecommendationMapperImpl recommendationMapper;
+    @Spy
+    private RecommendationMapper recommendationMapper;
 
     private SkillOffer skillOffer;
     private RequestSkillOfferDto requestSkillOfferDto;
