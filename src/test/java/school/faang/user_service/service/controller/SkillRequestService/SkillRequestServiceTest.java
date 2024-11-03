@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.service.SkillRequestService.SkillRequestService;
@@ -17,6 +18,8 @@ import school.faang.user_service.service.SkillRequestService.SkillRequestService
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,31 +35,39 @@ public class SkillRequestServiceTest {
     @Mock
     private SkillRepository skillRepository;
 
+    private RecommendationRequest recommendationRequest;
+    private Skill skill1;
+    private Skill skill2;
+    private List<Long> skillIds;
+    private List<SkillRequest> expectedSkillRequests;
+
     @BeforeEach
     void setUp() {
+
+        recommendationRequest = RecommendationRequest.builder()
+                .id(1L)
+                .build();
+
+        skill1 = Skill.builder()
+                .id(1L)
+                .build();
+
+        skill2 = Skill.builder()
+                .id(2L)
+                .build();
+
+        skillIds = List.of(1L, 2L);
+
+        expectedSkillRequests = List.of(
+                new SkillRequest(0, recommendationRequest, skill1),
+                new SkillRequest(0, recommendationRequest, skill2)
+        );
 
     }
 
     @Test
     @DisplayName("Checking the saving of skill requests")
-    void saveSkillRequestsTest() {
-        RecommendationRequest recommendationRequest = RecommendationRequest.builder()
-                .id(1L)
-                .build();
-
-        Skill skill1 = Skill.builder()
-                .id(1L)
-                .build();
-
-        Skill skill2 = Skill.builder()
-                .id(2L)
-                .build();
-
-        List<Long> skillIds = List.of(1L, 2L);
-        List<SkillRequest> expectedSkillRequests = List.of(
-                new SkillRequest(0, recommendationRequest, skill1),
-                new SkillRequest(0, recommendationRequest, skill2)
-        );
+    public void saveSkillRequestsTest() {
 
         when(skillRepository.findById(1L)).thenReturn(Optional.of(skill1));
         when(skillRepository.findById(2L)).thenReturn(Optional.of(skill2));
@@ -66,5 +77,20 @@ public class SkillRequestServiceTest {
         verify(skillRequestRepository).saveAll(expectedSkillRequests);
         verify(skillRepository).findById(1L);
         verify(skillRepository).findById(2L);
+    }
+
+    @Test
+    @DisplayName("Check For Lack Of Skills")
+    public void checkForLackOfSkillsTest() {
+        long missingSkillId = 1L;
+        List<Long> skillId = List.of(missingSkillId);
+
+        when(skillRepository.findById(1L)).thenReturn(Optional.empty());
+
+        DataValidationException dataValidationException = assertThrows(DataValidationException.class,
+                () -> skillRequestService.saveSkillRequests(recommendationRequest, skillId));
+
+        assertEquals("Skill with ID " + missingSkillId + " not found" + missingSkillId,
+                dataValidationException.getMessage());
     }
 }

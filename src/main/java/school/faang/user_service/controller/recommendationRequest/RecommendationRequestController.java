@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RecommendationRequestController {
 
-    public final RecommendationRequestService recommendationRequestService;
+    private final RecommendationRequestService recommendationRequestService;
 
     public RecommendationRequestDto requestRecommendation(@Valid RecommendationRequestDto recommendationRequest) {
         log.info("Requesting recommendation: {}", recommendationRequest);

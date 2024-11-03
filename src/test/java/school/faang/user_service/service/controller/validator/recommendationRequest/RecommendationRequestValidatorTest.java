@@ -50,11 +50,9 @@ public class RecommendationRequestValidatorTest {
         recommendationRequestDto = RecommendationRequestDto.builder()
                 .requesterId(1L)
                 .receiverId(2L)
-                .skillList(List.of(1L, 2L, 3L))
+                .skillsId(List.of(1L, 2L, 3L))
                 .createdAt(LocalDateTime.now())
                 .build();
-
-
     }
 
     @Test
@@ -78,7 +76,7 @@ public class RecommendationRequestValidatorTest {
                 .thenReturn(Optional.of(existingRequest));
         when(skillRepository.findAllById(anyList())).thenReturn(List.of(skill1, skill2, skill3));
 
-        recommendationRequestValidator.validateCreate(recommendationRequestDto, recommendationRequestRepository, userRepository, skillRepository);
+        recommendationRequestValidator.validateCreate(recommendationRequestDto);
     }
 
 
@@ -88,14 +86,15 @@ public class RecommendationRequestValidatorTest {
         when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         assertThrows(DataValidationException.class, () ->
-                recommendationRequestValidator.validateCreate(recommendationRequestDto, recommendationRequestRepository, userRepository, skillRepository));
+                recommendationRequestValidator.validateCreate(recommendationRequestDto));
     }
 
     @Test
     @DisplayName("Validate no recent request")
     public void validateNoRecentRequestTest() {
+        final int MONTHS_AGO_7 = 7;
         RecommendationRequest request = new RecommendationRequest();
-        request.setCreatedAt(LocalDateTime.now().minusMonths(7));
+        request.setCreatedAt(LocalDateTime.now().minusMonths(MONTHS_AGO_7));
         when(recommendationRequestRepository.findLatestPendingRequest(anyLong(), anyLong()))
                 .thenReturn(Optional.of(request));
 
@@ -105,8 +104,9 @@ public class RecommendationRequestValidatorTest {
     @Test
     @DisplayName("Validate recent request exists")
     public void validateRecentRequestExistsTest() {
+        final int MONTHS_AGO_5 = 5;
         RecommendationRequest request = new RecommendationRequest();
-        request.setCreatedAt(LocalDateTime.now().minusMonths(5));
+        request.setCreatedAt(LocalDateTime.now().minusMonths(MONTHS_AGO_5));
         when(recommendationRequestRepository.findLatestPendingRequest(anyLong(), anyLong()))
                 .thenReturn(Optional.of(request));
 
@@ -116,7 +116,7 @@ public class RecommendationRequestValidatorTest {
 
     @Test
     @DisplayName("Validate skills with valid data")
-    public void vValidateSkillsWithValidDataTest() {
+    public void validateSkillsWithValidDataTest() {
         Skill skill1 = Skill.builder()
                 .id(1L)
                 .build();
@@ -129,7 +129,7 @@ public class RecommendationRequestValidatorTest {
 
         when(skillRepository.findAllById(anyList())).thenReturn(List.of(skill1, skill2, skill3));
 
-        recommendationRequestValidator.validateSkills(recommendationRequestDto.getSkillList(), skillRepository);
+        recommendationRequestValidator.validateSkills(recommendationRequestDto.getSkillsId(), skillRepository);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class RecommendationRequestValidatorTest {
         when(skillRepository.findAllById(anyList())).thenReturn(Collections.emptyList());
 
         assertThrows(DataValidationException.class, () ->
-                recommendationRequestValidator.validateSkills(recommendationRequestDto.getSkillList(), skillRepository));
+                recommendationRequestValidator.validateSkills(recommendationRequestDto.getSkillsId(), skillRepository));
     }
 
     @Test

@@ -16,10 +16,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.filter.recommendationRequest.RecommendationRequestFilter;
 import school.faang.user_service.mapper.recommendationRequest.RecommendationRequestMapperImpl;
-import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.recommendationRequest.RecommendationRequestService;
 import school.faang.user_service.service.SkillRequestService.SkillRequestService;
@@ -55,15 +52,6 @@ public class RecommendationRequestServiceTest {
     @Spy
     private RecommendationRequestMapperImpl recommendationRequestMapper;
 
-    @Mock
-    private List<RecommendationRequestFilter> recommendationRequestFilter;
-
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private SkillRepository skillRepository;
-
     private RecommendationRequest recommendationRequest;
     private RecommendationRequestDto recommendationRequestDto;
     private User requester;
@@ -76,12 +64,13 @@ public class RecommendationRequestServiceTest {
                 .requesterId(1L)
                 .receiverId(2L)
                 .status(RequestStatus.REJECTED)
-                .skillList(List.of(1L, 2L))
+                .skillsId(List.of(1L, 2L))
                 .build();
 
         requester = User.builder()
                 .id(1L)
                 .build();
+
         receiver = User.builder()
                 .id(2L)
                 .build();
@@ -109,43 +98,21 @@ public class RecommendationRequestServiceTest {
 
         assertNotNull(result);
 
-        verify(recommendationRequestValidator, times(1)).validateCreate(
-                recommendationRequestDto,
-                recommendationRequestRepository,
-                userRepository,
-                skillRepository);
+        verify(recommendationRequestValidator, times(1)).validateCreate(recommendationRequestDto);
         verify(recommendationRequestRepository, times(1)).save(recommendationRequest);
         verify(saveSkillRequests, times(1)).saveSkillRequests(
                 recommendationRequest,
-                recommendationRequestDto.getSkillList());
+                recommendationRequestDto.getSkillsId());
     }
 
     @Test
     @DisplayName("Receive recommendation requests with filters")
     public void requestRecommendationsWithFiltersTest() {
         List<RecommendationRequest> recommendationRequestsList = new ArrayList<>();
-        recommendationRequestsList.add(RecommendationRequest.builder()
-                .id(1L)
-                .requester(requester)
-                .receiver(receiver)
-                .skills(List.of(new SkillRequest(), new SkillRequest()))
-                .build()
-        );
-        recommendationRequestsList.add(RecommendationRequest.builder()
-                .id(1L)
-                .requester(requester)
-                .receiver(receiver)
-                .skills(List.of(new SkillRequest(), new SkillRequest()))
-                .build()
-        );
-        recommendationRequestsList.add(RecommendationRequest.builder()
-                .id(1L)
-                .requester(requester)
-                .receiver(receiver)
-                .skills(List.of(new SkillRequest(), new SkillRequest()))
-                .status(RequestStatus.PENDING)
-                .build()
-        );
+        recommendationRequestsList.add(createRecommendationRequest(1L, requester, receiver));
+        recommendationRequestsList.add(createRecommendationRequest(2L, requester, receiver));
+        recommendationRequestsList.add(createRecommendationRequest(3L, requester, receiver));
+
         RecommendationRequestFilterDto recommendationRequestFilterDto = RecommendationRequestFilterDto.builder()
                 .requesterId(1L)
                 .receiverId(2L)
@@ -213,5 +180,15 @@ public class RecommendationRequestServiceTest {
         verify(recommendationRequestValidator, times(1)).validateRequestExists(
                 recommendationRequest.getId(),
                 recommendationRequestRepository);
+    }
+
+    private RecommendationRequest createRecommendationRequest(Long id, User requester, User receiver) {
+        return RecommendationRequest.builder()
+                .id(id)
+                .requester(requester)
+                .receiver(receiver)
+                .skills(List.of(new SkillRequest(), new SkillRequest()))
+                .status(RequestStatus.PENDING)
+                .build();
     }
 }

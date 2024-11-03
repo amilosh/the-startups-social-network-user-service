@@ -10,8 +10,6 @@ import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.recommendationRequest.RecommendationRequestFilter;
 import school.faang.user_service.mapper.recommendationRequest.RecommendationRequestMapper;
-import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.SkillRequestService.SkillRequestService;
 import school.faang.user_service.validator.recommendationRequest.RecommendationRequestValidator;
@@ -27,8 +25,6 @@ public class RecommendationRequestService {
 
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final RecommendationRequestMapper recommendationRequestMapper;
-    private final UserRepository userRepository;
-    private final SkillRepository skillRepository;
     private final List<RecommendationRequestFilter> recommendationRequestFilters;
     private final RecommendationRequestValidator recommendationRequestValidator;
     private final SkillRequestService skillRequestService;
@@ -37,16 +33,13 @@ public class RecommendationRequestService {
         log.info("Creating a recommendation request for requester ID: {} and recipient ID: {}",
                 recommendationRequestDto.getRequesterId(), recommendationRequestDto.getReceiverId());
 
-        recommendationRequestValidator.validateCreate(recommendationRequestDto,
-                recommendationRequestRepository,
-                userRepository,
-                skillRepository);
+        recommendationRequestValidator.validateCreate(recommendationRequestDto);
 
         RecommendationRequest recommendationRequestEntity = recommendationRequestMapper.toEntity(recommendationRequestDto);
         recommendationRequestRepository.save(recommendationRequestEntity);
         log.info("Recommendation request saved with ID: {}", recommendationRequestEntity.getId());
 
-        skillRequestService.saveSkillRequests(recommendationRequestEntity, recommendationRequestDto.getSkillList());
+        skillRequestService.saveSkillRequests(recommendationRequestEntity, recommendationRequestDto.getSkillsId());
 
         log.info("Recommendation request successfully created with ID: {}", recommendationRequestEntity.getId());
         return recommendationRequestMapper.toDto(recommendationRequestEntity);

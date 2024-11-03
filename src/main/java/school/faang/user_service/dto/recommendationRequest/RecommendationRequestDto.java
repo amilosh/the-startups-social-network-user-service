@@ -15,7 +15,7 @@ public class RecommendationRequestDto {
     private Long id;
     private String message;
     private RequestStatus status;
-    private List<Long> skillList;
+    private List<Long> skillsId;
     private Long requesterId;
     private Long receiverId;
     private LocalDateTime createdAt;

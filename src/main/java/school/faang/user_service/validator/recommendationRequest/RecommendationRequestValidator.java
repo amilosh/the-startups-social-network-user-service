@@ -1,5 +1,6 @@
 package school.faang.user_service.validator.recommendationRequest;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendationRequest.RecommendationRequestDto;
@@ -19,17 +20,20 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class RecommendationRequestValidator {
-    private static final int SIX_MONTHS_AGO = 6;
 
-    public void validateCreate(RecommendationRequestDto recommendationRequestDto,
-                               RecommendationRequestRepository recommendationRequestRepository,
-                               UserRepository userRepository,
-                               SkillRepository skillRepository) {
+    private static final int SIX_MONTHS_AGO = 6;
+    private final RecommendationRequestRepository recommendationRequestRepository;
+    private final UserRepository userRepository;
+    private final SkillRepository skillRepository;
+
+
+    public void validateCreate(RecommendationRequestDto recommendationRequestDto) {
         validateUserExists(recommendationRequestDto.getRequesterId(), userRepository);
         validateUserExists(recommendationRequestDto.getReceiverId(), userRepository);
         validateNoRecentRequest(recommendationRequestDto, recommendationRequestRepository);
-        validateSkills(recommendationRequestDto.getSkillList(), skillRepository);
+        validateSkills(recommendationRequestDto.getSkillsId(), skillRepository);
     }
 
     public void validateNoRecentRequest(RecommendationRequestDto recommendationRequestDto,
