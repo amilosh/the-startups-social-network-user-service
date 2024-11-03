@@ -1,14 +1,13 @@
-package school.faang.user_service.validation.mentorship;
+package school.faang.user_service.validator.mentorship;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.mentorship.MentorshipRequestCreationDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
+import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -19,7 +18,7 @@ import java.util.Optional;
 public class MentorshipRequestDtoValidator {
     public static final int MIN_REQUEST_INTERVAL = 3;
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final MentorshipRequestRepository requestRepository;
 
     public void validateCreationRequest(MentorshipRequestCreationDto creationRequestDto) {
@@ -50,7 +49,7 @@ public class MentorshipRequestDtoValidator {
     private void validateUserExistence(Long... userIds) {
         Arrays.stream(userIds)
                 .forEach(userId -> {
-                    if (!userRepository.existsById(userId)) {
+                    if (!userService.existsById(userId)) {
                         throw new DataValidationException("User with ID %d does not exist in the database!".formatted(userId));
                     }
                 });

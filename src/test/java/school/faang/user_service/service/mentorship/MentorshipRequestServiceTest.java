@@ -25,7 +25,7 @@ import school.faang.user_service.filter.mentorship.RequestFilter;
 import school.faang.user_service.filter.mentorship.RequestReceiverFilter;
 import school.faang.user_service.filter.mentorship.RequestRequesterFilter;
 import school.faang.user_service.filter.mentorship.RequestStatusFilter;
-import school.faang.user_service.validation.mentorship.MentorshipRequestDtoValidator;
+import school.faang.user_service.validator.mentorship.MentorshipRequestDtoValidator;
 
 import java.time.LocalDateTime;
 import java.util.Collections;

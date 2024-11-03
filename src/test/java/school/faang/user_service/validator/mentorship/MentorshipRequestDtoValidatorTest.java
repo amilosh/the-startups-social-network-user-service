@@ -1,4 +1,4 @@
-package school.faang.user_service.validation.mentorship;
+package school.faang.user_service.validator.mentorship;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,8 +12,8 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
+import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -32,7 +32,7 @@ class MentorshipRequestDtoValidatorTest {
     private MentorshipRequestRepository requestRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @InjectMocks
     private MentorshipRequestDtoValidator validator;
@@ -72,14 +72,14 @@ class MentorshipRequestDtoValidatorTest {
 
     @Test
     void validateCreationRequestNotExistingUserTest() {
-        when(userRepository.existsById(baseRequesterId)).thenReturn(false);
+        when(userService.existsById(baseRequesterId)).thenReturn(false);
 
         DataValidationException exception = assertThrows(
                 DataValidationException.class,
                 () -> validator.validateCreationRequest(requestCreationDto)
         );
 
-        verify(userRepository, times(1)).existsById(baseRequesterId);
+        verify(userService, times(1)).existsById(baseRequesterId);
         assertEquals("User with ID 1 does not exist in the database!", exception.getMessage());
     }
 
@@ -88,7 +88,7 @@ class MentorshipRequestDtoValidatorTest {
         requestCreationDto = requestCreationDto.toBuilder()
                 .receiverId(baseRequesterId)
                 .build();
-        when(userRepository.existsById(baseRequesterId)).thenReturn(true);
+        when(userService.existsById(baseRequesterId)).thenReturn(true);
 
         DataValidationException exception = assertThrows(
                 DataValidationException.class,
@@ -98,20 +98,20 @@ class MentorshipRequestDtoValidatorTest {
                 "The requester and receiver of a mentorship request cannot have the same ID. User ID: %d".formatted(baseRequesterId),
                 exception.getMessage()
         );
-        verify(userRepository, times(2)).existsById(baseRequesterId);
+        verify(userService, times(2)).existsById(baseRequesterId);
     }
 
     @Test
     void validateCreationRequestInvalidDateTest() {
         baseRequest.setCreatedAt(LocalDateTime.now().minusMonths(MentorshipRequestDtoValidator.MIN_REQUEST_INTERVAL + 1));
 
-        when(userRepository.existsById(baseRequesterId)).thenReturn(true);
-        when(userRepository.existsById(baseReceiverId)).thenReturn(true);
+        when(userService.existsById(baseRequesterId)).thenReturn(true);
+        when(userService.existsById(baseReceiverId)).thenReturn(true);
         when(requestRepository.findLatestRequest(baseRequesterId, baseReceiverId)).thenReturn(Optional.of(baseRequest));
 
         assertThrows(DataValidationException.class, () -> validator.validateCreationRequest(requestCreationDto));
-        verify(userRepository, times(1)).existsById(baseRequesterId);
-        verify(userRepository, times(1)).existsById(baseReceiverId);
+        verify(userService, times(1)).existsById(baseRequesterId);
+        verify(userService, times(1)).existsById(baseReceiverId);
         verify(requestRepository, times(1)).findLatestRequest(baseRequesterId, baseReceiverId);
     }
 
@@ -119,13 +119,13 @@ class MentorshipRequestDtoValidatorTest {
     void validateCreationRequestValidTest() {
         baseRequest.setCreatedAt(LocalDateTime.now().minusMonths(MentorshipRequestDtoValidator.MIN_REQUEST_INTERVAL - 1));
 
-        when(userRepository.existsById(baseRequesterId)).thenReturn(true);
-        when(userRepository.existsById(baseReceiverId)).thenReturn(true);
+        when(userService.existsById(baseRequesterId)).thenReturn(true);
+        when(userService.existsById(baseReceiverId)).thenReturn(true);
         when(requestRepository.findLatestRequest(baseRequesterId, baseReceiverId)).thenReturn(Optional.of(baseRequest));
 
         assertDoesNotThrow(() -> validator.validateCreationRequest(requestCreationDto));
-        verify(userRepository, times(1)).existsById(baseRequesterId);
-        verify(userRepository, times(1)).existsById(baseReceiverId);
+        verify(userService, times(1)).existsById(baseRequesterId);
+        verify(userService, times(1)).existsById(baseReceiverId);
         verify(requestRepository, times(1)).findLatestRequest(baseRequesterId, baseReceiverId);
     }
 
