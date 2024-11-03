@@ -95,4 +95,11 @@ class SubscriptionServiceTest {
         verify(userMapper, times(2)).toDto(any());
     }
 
+    @Test
+    void testGetFollowersCount() {
+        Mockito.when(subscriptionRepository.findFollowersAmountByFolloweeId(followeeId)).thenReturn(200);
+
+        assertEquals(200, subscriptionService.getFollowersCount(followeeId));
+    }
+
 }
