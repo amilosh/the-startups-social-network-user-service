@@ -19,6 +19,7 @@ import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.utilities.UrlUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -77,19 +78,18 @@ public class MentorshipRequestControllerTest {
     public void testRequestMentorship_Success() throws Exception {
         MentorshipRequestDto requestDto = generateMentorshipRequestDto();
 
-        mockMvc.perform(post("/api/user-service/request/{id}/create-request", 1L)
+        mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.REQUEST + UrlUtils.CREATE, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk());
 
-        verify(mentorshipRequestService, times(1)).requestMentorship(requestDto);
+        verify(mentorshipRequestService).requestMentorship(requestDto);
     }
 
     @Test
     public void testRequestMentorship_BadRequest() throws Exception {
         MentorshipRequestDto requestDto = generateMentorshipRequestDto();
-
-        mockMvc.perform(post("/api/user-service/request/{id}/create-request", 1L)
+        mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.REQUEST + UrlUtils.CREATE, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isBadRequest());
@@ -102,22 +102,20 @@ public class MentorshipRequestControllerTest {
         List<MentorshipRequestDto> responseList = List.of(generateMentorshipRequestDto());
         when(mentorshipRequestService.getRequest(filter)).thenReturn(responseList);
 
-        mockMvc.perform(get("/api/user-service/request/requests-filter")
+        mockMvc.perform(get(UrlUtils.MAIN_URL + UrlUtils.REQUEST + UrlUtils.REQUESTS_FILTER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filter)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(responseList)));
-
-        verify(mentorshipRequestService, times(1)).getRequest(filter);
+        verify(mentorshipRequestService).getRequest(filter);
     }
 
     @Test
     public void testAcceptRequest() throws Exception {
         long requestId = 1L;
 
-        mockMvc.perform(put("/api/user-service/request/{id}/accept", requestId))
+        mockMvc.perform(put(UrlUtils.MAIN_URL + UrlUtils.REQUEST + UrlUtils.ID + UrlUtils.ACCEPT, requestId))
                 .andExpect(status().isOk());
-
         verify(mentorshipRequestService, times(1)).acceptRequest(requestId);
     }
 
@@ -132,6 +130,6 @@ public class MentorshipRequestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andExpect(status().isOk());
-        verify(mentorshipRequestService).rejectRequest(eq(requestId), eq(rejectionDto.reason()));
+        verify(mentorshipRequestService).rejectRequest(requestId, rejectionDto.reason());
     }
 }

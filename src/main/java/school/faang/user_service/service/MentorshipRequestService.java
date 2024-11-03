@@ -35,14 +35,24 @@ public class MentorshipRequestService {
         if (userRepository.existsById(idRequester)
                 && userRepository.existsById(idReceiver)
                 && (idRequester != idReceiver)) {
-            if (lastRequest.isPresent() && lastRequest.get().getCreatedAt()
-                    .isBefore(LocalDateTime.now().minusMonths(3))) {
+            if (lastRequest.isPresent()) {
+                if (lastRequest.get().getCreatedAt()
+                        .isBefore(LocalDateTime.now().minusMonths(3))) {
+                    mentorshipRequestRepository.save(mentorshipRequestMapper.toEntity(mentorshipRequestDto));
+                } else {
+                    log.error("Last request has date: " + lastRequest.get().getCreatedAt());
+                    throw new IllegalArgumentException(String.format("User with id: %s already registered for the event: %s", lastRequest.get().getCreatedAt()));
+                }
+            } else {
                 mentorshipRequestRepository.save(mentorshipRequestMapper.toEntity(mentorshipRequestDto));
             }
+        } else {
+            log.error("Requester or Receiver not found or the both is the same person: idReq - " + idRequester + "idRec - " + idReceiver);
+            throw new IllegalArgumentException(String.format("Requester or Receiver not found or the both is the same person", idRequester, idReceiver));
         }
     }
 
-     public List<MentorshipRequestDto> getRequest(RequestFilterDto filter) {
+    public List<MentorshipRequestDto> getRequest(RequestFilterDto filter) {
         List<MentorshipRequest> allMentorshipRequest = mentorshipRequestRepository.findAll();
         return allMentorshipRequest.stream()
                 .filter(request ->
@@ -77,8 +87,8 @@ public class MentorshipRequestService {
                         },
                         () ->
                         {
-                            log.error("Event with id: %s does not exist" + id);
-                            throw new IllegalArgumentException(String.format("Event with id: %s does not exist", id));
+                            log.error("Request with id: %s does not exist" + id);
+                            throw new IllegalArgumentException(String.format("Request with id: %s does not exist", id));
                         }
                 );
     }
@@ -93,8 +103,8 @@ public class MentorshipRequestService {
                         },
                         () ->
                         {
-                            log.error("Event with id: %s does not exist");
-                            throw new IllegalArgumentException(String.format("Event with id: %s does not exist", id));
+                            log.error("Request with id: %s does not exist");
+                            throw new IllegalArgumentException(String.format("Request with id: %s does not exist", id));
                         }
                 );
     }

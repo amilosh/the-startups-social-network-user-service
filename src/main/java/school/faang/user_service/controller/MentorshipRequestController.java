@@ -19,7 +19,7 @@ public class MentorshipRequestController {
 
     private final MentorshipRequestService mentorshipRequestService;
 
-    @PostMapping(UrlUtils.ID + UrlUtils.CREATE_REQUEST)
+    @PostMapping(UrlUtils.CREATE)
     public ResponseEntity<Void> requestMentorship(@RequestBody MentorshipRequestDto mentorshipRequestDto) {
         if (mentorshipRequestDto.description().length() > 100) {
             mentorshipRequestService.requestMentorship(mentorshipRequestDto);
@@ -28,7 +28,7 @@ public class MentorshipRequestController {
         return ResponseEntity.badRequest().build();
     }
 
-    @GetMapping(UrlUtils.REQUESTS_FILTER)
+    @GetMapping( UrlUtils.REQUESTS_FILTER)
     public ResponseEntity<List<MentorshipRequestDto>> getRequests(@RequestBody RequestFilterDto filter) {
         return ResponseEntity.ok(mentorshipRequestService.getRequest(filter));
     }
