@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.dto.SkillOfferDto;
 import school.faang.user_service.service.RecommendationService;
-import school.faang.user_service.validation.recommendation.RecommendationControllerValidator;
+import school.faang.user_service.validation.recommendation.RecommendationValidator;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ class RecommendationControllerTest {
     private RecommendationService recommendationService;
 
     @Mock
-    private RecommendationControllerValidator recommendationControllerValidator;
+    private RecommendationValidator recommendationValidator;
 
     @InjectMocks
     private RecommendationController recommendationController;
@@ -33,6 +33,7 @@ class RecommendationControllerTest {
     @BeforeEach
     void setUp() {
         dto = RecommendationDto.builder()
+                .id(1L)
                 .authorId(1L)
                 .receiverId(2L)
                 .content("text")
@@ -50,7 +51,7 @@ class RecommendationControllerTest {
 
         RecommendationDto result = recommendationController.giveRecommendation(dto);
 
-        verify(recommendationControllerValidator, times(1)).validateDto(dto);
+        verify(recommendationValidator, times(1)).validateDto(dto);
         verify(recommendationService, times(1)).create(dto);
 
         assertNotNull(result);
@@ -66,33 +67,16 @@ class RecommendationControllerTest {
         assertNotNull(result);
         assertEquals(dto, result);
 
-        verify(recommendationControllerValidator, times(1)).validateDto(dto);
+        verify(recommendationValidator, times(1)).validateDto(dto);
         verify(recommendationService, times(1)).update(dto);
     }
 
     @Test
     void testDeleteRecommendationSuccess() {
-        dto.setId(1L);
-        when(recommendationService.delete(dto.getId())).thenReturn(true);
 
-        boolean result = recommendationController.deleteRecommendation(dto.getId());
+        recommendationController.deleteRecommendation(dto.getId());
 
-        assertTrue(result);
-
-        verify(recommendationControllerValidator, times(1)).validateId(dto.getId());
-        verify(recommendationService, times(1)).delete(dto.getId());
-    }
-
-    @Test
-    void testDeleteRecommendationInvalidId() {
-        dto.setId(1L);
-        when(recommendationService.delete(dto.getId())).thenReturn(false);
-
-        boolean result = recommendationController.deleteRecommendation(dto.getId());
-
-        assertFalse(result);
-
-        verify(recommendationControllerValidator, times(1)).validateId(dto.getId());
+        verify(recommendationValidator, times(1)).validateId(dto.getId());
         verify(recommendationService, times(1)).delete(dto.getId());
     }
 
@@ -107,7 +91,7 @@ class RecommendationControllerTest {
         assertEquals(1, result.size());
         assertEquals(dto, result.get(0));
 
-        verify(recommendationControllerValidator, times(1)).validateId(dto.getReceiverId());
+        verify(recommendationValidator, times(1)).validateId(dto.getReceiverId());
         verify(recommendationService, times(1)).getAllUserRecommendations(dto.getReceiverId());
     }
 
@@ -122,7 +106,7 @@ class RecommendationControllerTest {
         assertEquals(1, result.size());
         assertEquals(dto, result.get(0));
 
-        verify(recommendationControllerValidator, times(1)).validateId(dto.getAuthorId());
+        verify(recommendationValidator, times(1)).validateId(dto.getAuthorId());
         verify(recommendationService, times(1)).getAllGivenRecommendations(dto.getAuthorId());
     }
 }

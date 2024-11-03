@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.service.RecommendationService;
-import school.faang.user_service.validation.recommendation.RecommendationControllerValidator;
+import school.faang.user_service.validation.recommendation.RecommendationValidator;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RecommendationController {
     private final RecommendationService recommendationService;
-    private final RecommendationControllerValidator recommendationControllerValidator;
+    private final RecommendationValidator recommendationControllerValidator;
 
     public RecommendationDto giveRecommendation(RecommendationDto recommendationDto) {
         recommendationControllerValidator.validateDto(recommendationDto);
@@ -24,9 +24,9 @@ public class RecommendationController {
         return recommendationService.update(recommendationDto);
     }
 
-    public boolean deleteRecommendation(Long recommendationId) {
+    public void deleteRecommendation(Long recommendationId) {
         recommendationControllerValidator.validateId(recommendationId);
-        return recommendationService.delete(recommendationId);
+        recommendationService.delete(recommendationId);
     }
 
     public List<RecommendationDto> getAllUserRecommendations(long receiverId) {

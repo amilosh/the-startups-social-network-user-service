@@ -8,8 +8,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.dto.SkillOfferDto;
-import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validation.recommendation.RecommendationServiceValidator;
@@ -74,19 +72,5 @@ class SkillOfferServiceTest {
 
         assertEquals(1, result.size());
         verify(skillOfferRepository, times(1)).findAllByUserId(anyLong());
-    }
-
-    @Test
-    void testSaveSkillOffersSuccessful() {
-        Recommendation recommendation = Recommendation.builder()
-                .id(1L)
-                .skillOffers(List.of(SkillOffer.builder()
-                        .skill(Skill.builder().id(1L).build())
-                        .build()))
-                .build();
-
-        skillOfferService.saveSkillOffers(recommendation);
-        verify(skillOfferRepository, times(1)).create(anyLong(), anyLong());
-        verify(recommendationServiceValidator, times(1)).validateRecommendationExistsById(recommendation.getId());
     }
 }

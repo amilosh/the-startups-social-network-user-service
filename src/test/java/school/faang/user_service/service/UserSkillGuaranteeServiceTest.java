@@ -12,7 +12,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
-import school.faang.user_service.validation.recommendation.RecommendationServiceValidator;
+import school.faang.user_service.validation.recommendation.RecommendationValidator;
 import school.faang.user_service.validation.skill.SkillValidation;
 
 import static org.mockito.Mockito.*;
@@ -30,7 +30,7 @@ class UserSkillGuaranteeServiceTest {
     private UserService userService;
 
     @Mock
-    private RecommendationServiceValidator recommendationServiceValidator;
+    private RecommendationValidator recommendationValidator;
 
     @InjectMocks
     private UserSkillGuaranteeService userSkillGuaranteeService;
@@ -51,11 +51,11 @@ class UserSkillGuaranteeServiceTest {
 
     @Test
     void testAddSkillGuarantee() {
-        when(userService.findUserById(recommendation.getReceiver().getId())).thenReturn(user);
+        when(userService.findUser(recommendation.getReceiver().getId())).thenReturn(user);
 
         userSkillGuaranteeService.addSkillGuarantee(skill, recommendation);
 
-        verify(recommendationServiceValidator, times(1)).validateRecommendationExistsById(recommendation.getId());
+        verify(recommendationValidator, times(1)).validateRecommendationExistsById(recommendation.getId());
         verify(skillValidation, times(1)).validateSkillExists(skill.getId());
         verify(userSkillGuaranteeRepository, times(1)).save(any(UserSkillGuarantee.class));
     }

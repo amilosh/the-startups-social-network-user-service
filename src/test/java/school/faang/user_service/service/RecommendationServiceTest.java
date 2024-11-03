@@ -9,7 +9,6 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.dto.SkillOfferDto;
@@ -20,7 +19,7 @@ import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.validation.recommendation.RecommendationServiceValidator;
+import school.faang.user_service.validation.recommendation.RecommendationValidator;
 import school.faang.user_service.validation.user.UserValidator;
 
 import java.util.List;
@@ -39,7 +38,7 @@ class RecommendationServiceTest {
     private RecommendationMapperImpl recommendationMapper;
 
     @Mock
-    private RecommendationServiceValidator recommendationServiceValidator;
+    private RecommendationValidator recommendationValidator;
 
     @Mock
     private UserValidator userValidator;
@@ -52,6 +51,9 @@ class RecommendationServiceTest {
 
     @Mock
     private SkillService skillService;
+
+    @Mock
+    private RecommendationService recommendationServiceMock;
 
     @InjectMocks
     private RecommendationService recommendationService;
@@ -73,12 +75,13 @@ class RecommendationServiceTest {
                 .build();
 
         recommendation = recommendationMapper.toEntity(dto);
+        recommendation.setSkillOffers(List.of(SkillOffer.builder().id(1L).skill(Skill.builder().id(1L).build()).build()));
     }
 
     @Test
     void createRecommendationFromDto() {
-        when(userService.findUserById(dto.getAuthorId())).thenReturn(User.builder().id(1L).build());
-        when(userService.findUserById(dto.getReceiverId())).thenReturn(User.builder().id(2L).build());
+        when(userService.findUser(dto.getAuthorId())).thenReturn(User.builder().id(1L).build());
+        when(userService.findUser(dto.getReceiverId())).thenReturn(User.builder().id(2L).build());
         when(skillOfferService.findAllByUserId(dto.getReceiverId())).thenReturn(List.of(SkillOffer.builder().
                 id(1L)
                 .skill(Skill.builder().id(1L).build())
@@ -96,32 +99,33 @@ class RecommendationServiceTest {
     @Test
     void testCreateSuccessful() {
         recommendation.setId(10L);
-        when(userService.findUserById(dto.getAuthorId())).thenReturn(User.builder().id(1L).build());
-        when(userService.findUserById(dto.getReceiverId())).thenReturn(User.builder().id(2L).build());
+        when(userService.findUser(dto.getAuthorId())).thenReturn(User.builder().id(1L).build());
+        when(userService.findUser(dto.getReceiverId())).thenReturn(User.builder().id(2L).build());
         when(skillOfferService.findAllByUserId(dto.getReceiverId())).thenReturn(List.of(SkillOffer.builder().
                 id(1L)
                 .skill(Skill.builder().id(1L).build())
                 .build()));
-
+        when(skillOfferService.create(1L, 10L)).thenReturn(1L);
         when(recommendationRepository.save(any(Recommendation.class))).thenReturn(recommendation);
 
         RecommendationDto result = recommendationService.create(dto);
 
         assertEquals(10L, result.getId());
 
-        verify(recommendationServiceValidator, times(1)).validateSkillAndTimeRequirementsForGuarantee(dto);
-        verify(skillOfferService, times(1)).saveSkillOffers(recommendation);
-        verify(skillService, times(1)).addGuarantee(dto);
-        verify(userService, times(1)).findUserById(dto.getAuthorId());
-        verify(userService, times(1)).findUserById(dto.getReceiverId());
+        verify(recommendationValidator, times(1)).validateSkillAndTimeRequirementsForGuarantee(dto);
+        verify(recommendationValidator, times(1)).validateRecommendationExistsById(recommendation.getId());
+        verify(userService, times(1)).findUser(dto.getAuthorId());
+        verify(userService, times(1)).findUser(dto.getReceiverId());
         verify(skillOfferService, times(1)).findAllByUserId(dto.getReceiverId());
+        verify(skillOfferService, times(1)).create(1L, recommendation.getId());
+        verify(skillService, times(1)).addGuarantee(recommendation);
     }
 
     @Test
     void testUpdateSuccessful() {
         dto.setId(10L);
         recommendation.setId(10L);
-        when(recommendationRepository.findById(10L)).thenReturn(Optional.of(recommendation));
+        when(recommendationRepository.findById(dto.getId())).thenReturn(Optional.of(recommendation));
 
         RecommendationDto result = recommendationService.update(dto);
         result.setContent("Updated content");
@@ -130,32 +134,29 @@ class RecommendationServiceTest {
         assertEquals(10L, result.getId());
         assertEquals("Updated content", result.getContent());
 
-        verify(recommendationServiceValidator, times(1)).validateSkillAndTimeRequirementsForGuarantee(dto);
+        verify(recommendationValidator, times(1)).validateSkillAndTimeRequirementsForGuarantee(dto);
         verify(recommendationRepository, times(1))
-                .update(dto.getAuthorId(), dto.getReceiverId(), dto.getContent());
+                .update(anyLong(), anyLong(), anyString());
         verify(skillOfferService, times(1)).deleteAllByRecommendationId(dto.getId());
-        verify(skillOfferService, times(1)).saveSkillOffers(recommendation);
-        verify(skillService, times(1)).addGuarantee(dto);
+        verify(recommendationValidator, times(1)).validateRecommendationExistsById(dto.getId());
+        verify(skillOfferService, times(1)).create(dto.getSkillOffers().get(0).getSkillId(), recommendation.getId());
+        verify(skillService, times(1)).addGuarantee(any(Recommendation.class));
 
     }
 
     @Test
     void testDeleteSuccessful() {
         recommendation.setId(10L);
-        when(recommendationRepository.existsById(recommendation.getId())).thenReturn(false);
 
-        boolean result = recommendationService.delete(recommendation.getId());
+        recommendationService.delete(recommendation.getId());
 
-        assertTrue(result);
-        verify(recommendationServiceValidator, times(1)).validateRecommendationExistsById(recommendation.getId());
-        verify(recommendationRepository, times(1)).existsById(recommendation.getId());
+        verify(recommendationRepository, times(1)).deleteById(recommendation.getId());
     }
 
     @Test
     void getAllUserRecommendationsRecommendationFound() {
         Page<Recommendation> page = new PageImpl<>(List.of(recommendation));
-        Pageable pageable = PageRequest.of(0, 10);
-        when(recommendationRepository.findAllByReceiverId(dto.getReceiverId(), pageable))
+        when(recommendationRepository.findAllByReceiverId(dto.getReceiverId(), Pageable.unpaged()))
                 .thenReturn(page);
         List<RecommendationDto> result = recommendationService.getAllUserRecommendations(dto.getReceiverId());
 
@@ -169,8 +170,7 @@ class RecommendationServiceTest {
     @Test
     void getAllUserRecommendationsRecommendationNotFound() {
         Page<Recommendation> page = new PageImpl<>(List.of());
-        Pageable pageable = PageRequest.of(0, 10);
-        when(recommendationRepository.findAllByReceiverId(dto.getReceiverId(), pageable))
+        when(recommendationRepository.findAllByReceiverId(dto.getReceiverId(), Pageable.unpaged()))
                 .thenReturn(page);
         List<RecommendationDto> result = recommendationService.getAllUserRecommendations(dto.getReceiverId());
 
@@ -183,8 +183,7 @@ class RecommendationServiceTest {
     @Test
     void getAllAuthorRecommendationsRecommendationFound() {
         Page<Recommendation> page = new PageImpl<>(List.of(recommendation));
-        Pageable pageable = PageRequest.of(0, 10);
-        when(recommendationRepository.findAllByReceiverId(dto.getAuthorId(), pageable))
+        when(recommendationRepository.findAllByReceiverId(dto.getAuthorId(), Pageable.unpaged()))
                 .thenReturn(page);
         List<RecommendationDto> result = recommendationService.getAllUserRecommendations(dto.getAuthorId());
 
@@ -198,8 +197,7 @@ class RecommendationServiceTest {
     @Test
     void getAllAuthorRecommendationsRecommendationNotFound() {
         Page<Recommendation> page = new PageImpl<>(List.of());
-        Pageable pageable = PageRequest.of(0, 10);
-        when(recommendationRepository.findAllByReceiverId(dto.getAuthorId(), pageable))
+        when(recommendationRepository.findAllByReceiverId(dto.getAuthorId(), Pageable.unpaged()))
                 .thenReturn(page);
         List<RecommendationDto> result = recommendationService.getAllUserRecommendations(dto.getAuthorId());
 

@@ -2,62 +2,58 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.validation.recommendation.RecommendationServiceValidator;
+import school.faang.user_service.validation.recommendation.RecommendationValidator;
 import school.faang.user_service.validation.user.UserValidator;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 public class RecommendationService {
-    private static final int PAGE_SIZE = 10;
     private final RecommendationRepository recommendationRepository;
     private final RecommendationMapper recommendationMapper;
-    private final RecommendationServiceValidator recommendationServiceValidator;
+    private final RecommendationValidator recommendationValidator;
     private final UserValidator userValidator;
     private final UserService userService;
     private final SkillOfferService skillOfferService;
     private final SkillService skillService;
 
     public RecommendationDto create(RecommendationDto recommendationDto) {
-        recommendationServiceValidator.validateSkillAndTimeRequirementsForGuarantee(recommendationDto);
+        recommendationValidator.validateSkillAndTimeRequirementsForGuarantee(recommendationDto);
 
         Recommendation recommendation = recommendationRepository.save(createRecommendationFromDto(recommendationDto));
 
-        skillOfferService.saveSkillOffers(recommendation);
-        skillService.addGuarantee(recommendationDto);
+        saveNewSkillOffers(recommendation);
+        skillService.addGuarantee(recommendation);
 
         return recommendationMapper.toDto(recommendation);
     }
 
     public RecommendationDto update(RecommendationDto recommendationDto) {
-        recommendationServiceValidator.validateSkillAndTimeRequirementsForGuarantee(recommendationDto);
+        recommendationValidator.validateSkillAndTimeRequirementsForGuarantee(recommendationDto);
 
         recommendationRepository.update(
                 recommendationDto.getAuthorId(),
                 recommendationDto.getReceiverId(),
                 recommendationDto.getContent()
         );
-        Recommendation recommendation = getRecommendationById(recommendationDto.getId());
-        skillOfferService.deleteAllByRecommendationId(recommendation.getId());
-        skillOfferService.saveSkillOffers(recommendation);
-        skillService.addGuarantee(recommendationDto);
+        skillOfferService.deleteAllByRecommendationId(recommendationDto.getId());
+        updateSkillOffers(recommendationDto);
+        skillService.addGuarantee(getRecommendationById(recommendationDto.getId()));
 
-        return recommendationMapper.toDto(getRecommendationById(recommendationDto.getId()));
+        return recommendationDto;
     }
 
-    public boolean delete(long id) {
-        recommendationServiceValidator.validateRecommendationExistsById(id);
+    public void delete(long id) {
+        recommendationValidator.validateRecommendationExistsById(id);
         recommendationRepository.deleteById(id);
-        return !recommendationRepository.existsById(id);
     }
 
     public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
@@ -79,8 +75,8 @@ public class RecommendationService {
 
     public Recommendation createRecommendationFromDto(RecommendationDto recommendationDto) {
         Recommendation recommendation = recommendationMapper.toEntity(recommendationDto);
-        recommendation.setAuthor(userService.findUserById(recommendationDto.getAuthorId()));
-        recommendation.setReceiver(userService.findUserById(recommendationDto.getReceiverId()));
+        recommendation.setAuthor(userService.findUser(recommendationDto.getAuthorId()));
+        recommendation.setReceiver(userService.findUser(recommendationDto.getReceiverId()));
         recommendation.setSkillOffers(skillOfferService.findAllByUserId(recommendationDto.getReceiverId()));
         return recommendation;
     }
@@ -90,32 +86,26 @@ public class RecommendationService {
     }
 
     private List<Recommendation> getAllRecommendationsByReceiverId(long receiverId) {
-        int startPage = 0;
-        List<Recommendation> allRecommendations = new ArrayList<>();
-        Page<Recommendation> page;
-
-        do {
-            page = recommendationRepository.findAllByReceiverId(receiverId, PageRequest.of(startPage, PAGE_SIZE));
-            allRecommendations.addAll(page.getContent());
-            startPage++;
-        } while (page.hasNext());
-
-        return allRecommendations;
+        Page<Recommendation> recommendations = recommendationRepository.findAllByReceiverId(receiverId, Pageable.unpaged());
+        return recommendations.getContent();
     }
 
     private List<Recommendation> getAllRecommendationsByAuthorId(long authorId) {
-        int startPage = 0;
-        List<Recommendation> allRecommendations = new ArrayList<>();
-        Page<Recommendation> page;
-
-        do {
-            page = recommendationRepository.findAllByAuthorId(authorId, PageRequest.of(startPage, PAGE_SIZE));
-            allRecommendations.addAll(page.getContent());
-            startPage++;
-        } while (page.hasNext());
-
-        return allRecommendations;
+        Page<Recommendation> recommendations = recommendationRepository.findAllByReceiverId(authorId, Pageable.unpaged());
+        return recommendations.getContent();
     }
 
+    private void saveNewSkillOffers(Recommendation recommendation) {
+        recommendationValidator.validateRecommendationExistsById(recommendation.getId());
+        recommendation.getSkillOffers().forEach(skillOffer ->
+                skillOfferService.create(skillOffer.getSkill().getId(), recommendation.getId())
+        );
+    }
 
+    private void updateSkillOffers(RecommendationDto recommendationDto) {
+        recommendationValidator.validateRecommendationExistsById(recommendationDto.getId());
+        recommendationDto.getSkillOffers().forEach(skillOffer ->
+                skillOfferService.create(skillOffer.getSkillId(), recommendationDto.getId())
+        );
+    }
 }

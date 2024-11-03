@@ -100,35 +100,16 @@ class SkillServiceTest {
     }
 
     @Test
-    void testAddGuaranteeExistingRecommendation() {
+    void testAddGuarantee() {
         recommendation.setReceiver(User.builder().id(1L).skills(List.of()).build());
         recommendation.setAuthor(User.builder().id(2L).build());
         recommendation.setSkillOffers(List.of(SkillOffer.builder().id(1L).build()));
-        when(recommendationService.checkIfRecommendationExistsById(dto.getId())).thenReturn(true);
-        when(recommendationService.getRecommendationById(dto.getId())).thenReturn(recommendation);
-        when(userService.findUserById(recommendation.getReceiver().getId())).thenReturn(userMock);
+        when(userService.findUser(recommendation.getReceiver().getId())).thenReturn(userMock);
         when(userMock.getSkills()).thenReturn(List.of(skill));
 
-        skillService.addGuarantee(dto);
+        skillService.addGuarantee(recommendation);
 
         verify(userSkillGuaranteeService, times(1)).addSkillGuarantee(skill, recommendation);
         verify(skillRepository, times(1)).save(skill);
     }
-
-    @Test
-    void testAddGuaranteeNewRecommendation() {
-        recommendation.setReceiver(User.builder().id(1L).skills(List.of()).build());
-        recommendation.setAuthor(User.builder().id(2L).build());
-        recommendation.setSkillOffers(List.of(SkillOffer.builder().id(1L).build()));
-        when(recommendationService.checkIfRecommendationExistsById(dto.getId())).thenReturn(false);
-        when(recommendationService.createRecommendationFromDto(dto)).thenReturn(recommendation);
-        when(userService.findUserById(recommendation.getReceiver().getId())).thenReturn(userMock);
-        when(userMock.getSkills()).thenReturn(List.of(skill));
-
-        skillService.addGuarantee(dto);
-
-        verify(userSkillGuaranteeService, times(1)).addSkillGuarantee(skill, recommendation);
-        verify(skillRepository, times(1)).save(skill);
-    }
-
 }
