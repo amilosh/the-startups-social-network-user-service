@@ -43,6 +43,7 @@ public class SubscriptionServiceTest {
     private List<User> users;
     private List<UserDto> userDtos;
     private UserFilterDto filterDto;
+    private UserFilter mockFilter;
 
     @BeforeEach
     public void setUp() {
@@ -62,6 +63,8 @@ public class SubscriptionServiceTest {
                 UserDto.builder().id(1L).username("user1").email("user1@example.com").build(),
                 UserDto.builder().id(2L).username("user2").email("user2@example.com").build()
         );
+        mockFilter = mock(UserFilter.class);
+        subscriptionService = new SubscriptionService(subscriptionRepository, userMapper, List.of(mockFilter));
     }
 
     @Test
@@ -125,11 +128,8 @@ public class SubscriptionServiceTest {
         // Arrange
         when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(users.stream());
         when(userMapper.toDto(anyList())).thenReturn(userDtos);
-
-        UserFilter mockFilter = mock(UserFilter.class);
         when(mockFilter.isApplicable(filterDto)).thenReturn(true);
         when(mockFilter.apply(any(User.class))).thenReturn(true);
-        subscriptionService = new SubscriptionService(subscriptionRepository, userMapper, List.of(mockFilter));
 
         // Act
         List<UserDto> result = subscriptionService.getFollowers(followeeId, filterDto);
@@ -158,11 +158,8 @@ public class SubscriptionServiceTest {
         // Arrange
         when(subscriptionRepository.findByFollowerId(followerId)).thenReturn(users.stream());
         when(userMapper.toDto(anyList())).thenReturn(userDtos);
-
-        UserFilter mockFilter = mock(UserFilter.class);
         when(mockFilter.isApplicable(filterDto)).thenReturn(true);
         when(mockFilter.apply(any(User.class))).thenReturn(true);
-        subscriptionService = new SubscriptionService(subscriptionRepository, userMapper, List.of(mockFilter));
 
         // Act
         List<UserDto> result = subscriptionService.getFollowing(followerId, filterDto);
