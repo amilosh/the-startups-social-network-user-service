@@ -1,5 +1,6 @@
 package school.faang.user_service.controller;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -7,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.service.event.EventService;
+
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
@@ -52,15 +55,23 @@ public class EventControllerTest {
 
     @Test
     public void testOwnedEvents() {
-        long userId = 1L;
-        eventService.getOwnedEvents(userId);
-        verify(eventService, times(1)).getOwnedEvents(userId);
+        EventDto eventDto = EventDto.builder().build();
+        when(eventService.getOwnedEvents(1L)).thenReturn(List.of(eventDto));
+
+        List<EventDto> result = eventController.getOwnedEvents(1L);
+
+        verify(eventService, times(1)).getOwnedEvents(1L);
+        Assertions.assertEquals(List.of(eventDto), result);
     }
 
     @Test
     public void testParticipatedEvents() {
-        long userId = 1L;
-        eventService.getParticipatedEvents(userId);
-        verify(eventService, times(1)).getParticipatedEvents(userId);
+        EventDto eventDto = EventDto.builder().build();
+        when(eventService.getParticipatedEvents(1L)).thenReturn(List.of(eventDto));
+
+        List<EventDto> result = eventController.getParticipatedEvents(1L);
+
+        verify(eventService, times(1)).getParticipatedEvents(1L);
+        Assertions.assertEquals(List.of(eventDto), result);
     }
 }

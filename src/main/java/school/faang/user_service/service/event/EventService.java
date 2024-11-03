@@ -60,11 +60,13 @@ public class EventService {
         return eventMapper.eventToDto(savedEvent);
     }
 
-    public void getOwnedEvents(long userId) {
-        eventRepository.findAllByUserId(userId);
+    public List<EventDto> getOwnedEvents(long userId) {
+       List<Event> events =  eventRepository.findAllByUserId(userId);
+       return eventMapper.toDtoList(events);
     }
 
-    public void getParticipatedEvents(long userId) {
-        eventRepository.findParticipatedEventsByUserId(userId);
+    public List<EventDto> getParticipatedEvents(long userId) {
+        List<Event> participatedEvents = eventRepository.findParticipatedEventsByUserId(userId);
+        return eventMapper.toDtoList(participatedEvents);
     }
 }

@@ -3,9 +3,9 @@ package school.faang.user_service.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.EventService;
 
@@ -38,11 +38,11 @@ public class EventController {
         return eventService.updateEvent(eventDto);
     }
 
-    public void getOwnedEvents(long userId) {
-        eventService.getOwnedEvents(userId);
+    public List<EventDto> getOwnedEvents(long userId) {
+        return eventService.getOwnedEvents(userId);
     }
 
-    public void getParticipatedEvents(long userId) {
-        eventService.getParticipatedEvents(userId);
+    public List<EventDto> getParticipatedEvents(long userId) {
+        return eventService.getParticipatedEvents(userId);
     }
 }
