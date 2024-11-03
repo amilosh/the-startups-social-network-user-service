@@ -3,6 +3,8 @@ package school.faang.user_service.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
@@ -33,6 +35,19 @@ public class RecommendationService {
     private static UserRepository userRepository;
     private static RecommendationMapper recMapper;
 
+
+    public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
+        Page<Recommendation> recommendations = recRepository.findAllByReceiverId(receiverId, Pageable.unpaged());
+        log.info("Found " + recommendations.getTotalElements() + " recommendations for user with id - " + receiverId);
+        return recMapper.toDtoList(recommendations.getContent());
+    }
+
+    public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
+        Page<Recommendation> recommendations = recRepository.findAllByAuthorId(authorId, Pageable.unpaged());
+        log.info("User with id - " + authorId + " created " + recommendations.getTotalElements() + " recommendations");
+        return recMapper.toDtoList(recommendations.getContent());
+    }
+
     @Transactional
     public RecommendationDto create(RecommendationDto recDto) {
         isDateTimeRecommendationOlderSixMonth(recDto);
@@ -56,6 +71,12 @@ public class RecommendationService {
         Recommendation result = recRepository.save(recMapper.toEntity(requestRecDto));
 
         return recMapper.toDto(result);
+    }
+
+    @Transactional
+    public void delete(long id) {
+        recRepository.deleteById(id);
+        log.info("Recommendation successfully deleted - " + id);
     }
 
     private void addSkillOffersAndGuarantee(RecommendationDto recDto) {
@@ -122,6 +143,4 @@ public class RecommendationService {
             }
         });
     }
-
-
 }

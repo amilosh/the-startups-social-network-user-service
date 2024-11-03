@@ -18,6 +18,8 @@ public interface RecommendationMapper {
 
     Recommendation toEntity(RecommendationDto recommendationDto);
 
+    List<RecommendationDto> toDtoList(List<Recommendation> recommendations);
+
     default List<Long> map(List<SkillOffer> skillOffers) {
         return skillOffers.stream().map(SkillOffer::getId).toList();
     }
