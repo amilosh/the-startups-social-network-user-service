@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface UserMapper {
     @Mapping(source = "username", target = "name")
     UserDto toDto(User user);
