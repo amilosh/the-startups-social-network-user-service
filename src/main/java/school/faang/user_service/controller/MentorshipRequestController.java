@@ -1,25 +1,32 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.MentorshipRequestFilterDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.service.MentorshipRequestService;
 
 import java.util.List;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/mentorship-request")
 public class MentorshipRequestController {
     private final MentorshipRequestService mentorshipRequestService;
+    private final Validator mentorshipRequestValidator;
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.setValidator(mentorshipRequestValidator);
+    }
 
     @GetMapping
     public List<MentorshipRequestDto> getRequests(MentorshipRequestFilterDto filter) {
@@ -27,8 +34,18 @@ public class MentorshipRequestController {
     }
 
     @PostMapping
-    public MentorshipRequestDto createRequestMentorship(@RequestBody MentorshipRequestDto mentorshipRequestDto) {
-        return mentorshipRequestService.createRequestMentorship(mentorshipRequestDto);
+    public ResponseEntity<Object> createRequestMentorship(
+            @Valid @RequestBody MentorshipRequestDto mentorshipRequestDto,
+            BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(
+                    bindingResult.getFieldErrors().stream()
+                            .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                            .toList());
+        }
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(mentorshipRequestService.createRequestMentorship(mentorshipRequestDto));
     }
 
     @PutMapping("/{id}/accept")

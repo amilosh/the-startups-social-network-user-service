@@ -2,7 +2,6 @@ package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.MentorshipRequestFilterDto;
@@ -13,11 +12,8 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import school.faang.user_service.validator.MentorshipRequestValidator;
-import school.faang.user_service.validator.ValidationContext;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
@@ -26,8 +22,6 @@ public class MentorshipRequestService {
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final MentorshipRequestMapper mentorshipRequestMapper;
     private final List<MentorshipRequestFilter> mentorshipRequestFilters;
-    private final List<MentorshipRequestValidator> requestValidators;
-    private final UserService userService;
 
     public List<MentorshipRequestDto> getRequests(MentorshipRequestFilterDto requestFilterDto) {
 
@@ -40,10 +34,7 @@ public class MentorshipRequestService {
         return mentorshipRequestStream.map(mentorshipRequestMapper::toDto).toList();
     }
 
-    public MentorshipRequestDto createRequestMentorship(@NotNull MentorshipRequestDto mentorshipRequestDto) {
-        ValidationContext context = new ValidationContext(this, userService);
-
-        requestValidators.forEach(validator -> validator.validate(mentorshipRequestDto, context));
+    public MentorshipRequestDto createRequestMentorship(MentorshipRequestDto mentorshipRequestDto) {
 
         mentorshipRequestRepository.create(
                 mentorshipRequestDto.getRequesterUserId(),
@@ -70,7 +61,7 @@ public class MentorshipRequestService {
         return mentorshipRequestMapper.toDto(mentorshipRequest);
     }
 
-    public MentorshipRequestDto rejectRequest(long id, @NotNull RejectionDto rejection) {
+    public MentorshipRequestDto rejectRequest(long id, RejectionDto rejection) {
         MentorshipRequest mentorshipRequest = findMentorshipRequestById(id);
 
         mentorshipRequest.setStatus(RequestStatus.REJECTED);
