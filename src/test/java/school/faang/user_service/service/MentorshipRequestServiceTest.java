@@ -119,16 +119,30 @@ public class MentorshipRequestServiceTest {
 
     @Test
     public void testAcceptMentorship_Success() {
+        mentorshipRequest.setDescription("Sample description");
         when(mentorshipRequestRepository.findById(1L)).thenReturn(Optional.of(mentorshipRequest));
         when(userRepository.save(requester)).thenReturn(requester);
 
-        Long result = mentorshipRequestService.acceptMentorship(1L);
+        MentorshipRequestDto dto = new MentorshipRequestDto(
+                1L,
+                mentorshipRequest.getRequester().getId(),
+                mentorshipRequest.getReceiver().getId(),
+                mentorshipRequest.getDescription(),
+                RequestStatus.ACCEPTED,
+                null
+        );
+
+        when(mentorshipRequestMapper.mapToDto(mentorshipRequest)).thenReturn(dto);
+
+        MentorshipRequestDto result = mentorshipRequestService.acceptMentorship(1L);
 
         assertNotNull(result);
-        assertEquals(1L, result);
-        assertEquals(RequestStatus.ACCEPTED, mentorshipRequest.getStatus());
+        assertEquals(1L, result.getId());
+        assertEquals(RequestStatus.ACCEPTED, result.getStatus());
         assertTrue(requester.getMentors().contains(receiver));
     }
+
+
 
     @Test
     public void testAcceptMentorship_AlreadyMentor_ThrowsException() {

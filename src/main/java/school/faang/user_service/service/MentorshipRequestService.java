@@ -102,13 +102,21 @@ public class MentorshipRequestService {
     }
 
     @Transactional
-    public Long acceptMentorship(Long id) {
+    public MentorshipRequestDto acceptMentorship(Long id) {
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Mentorship request not found" + id));
+
+        if (mentorshipRequest.getStatus() == RequestStatus.ACCEPTED) {
+            throw new IllegalStateException("This mentorship request has already been accepted.");
+        }
+        if (mentorshipRequest.getStatus() == RequestStatus.REJECTED) {
+            throw new IllegalStateException("This mentorship request has already been rejected.");
+        }
+
         User requester = mentorshipRequest.getRequester();
         User receiver = mentorshipRequest.getReceiver();
 
-        if (requester.getMentors().contains(receiver)) {
+        if (requester.getMentors().contains(receiver) ) {
             throw new IllegalArgumentException("User is already a mentor");
         }
 
@@ -119,14 +127,19 @@ public class MentorshipRequestService {
         requester.getMentors().add(receiver);
         userRepository.save(requester);
 
-        return mentorshipRequest.getId();
+        return mentorshipRequestMapper.mapToDto(mentorshipRequest);
     }
 
     @Transactional
     public MentorshipRequestDto rejectRequest(long id, RejectionDto rejection) {
         MentorshipRequest mentorshipRequest = mentorshipRequestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("MentorshipRequest not found"));
-
+        if (mentorshipRequest.getStatus() == RequestStatus.REJECTED) {
+            throw new IllegalStateException("This mentorship request has already been rejected.");
+        }
+        if (mentorshipRequest.getStatus() == RequestStatus.ACCEPTED) {
+            throw new IllegalStateException("This mentorship request has already been accepted.");
+        }
         mentorshipRequest.setStatus(RequestStatus.REJECTED);
         mentorshipRequest.setRejectionReason(rejection.getReason());
         mentorshipRequest.setUpdatedAt(LocalDateTime.now());

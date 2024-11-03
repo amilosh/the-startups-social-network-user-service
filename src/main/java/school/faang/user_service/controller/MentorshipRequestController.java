@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.service.MentorshipRequestService;
 
 import java.util.List;
@@ -22,11 +23,8 @@ public class MentorshipRequestController {
 
     @PostMapping()
     public ResponseEntity<MentorshipRequestDto> requestMentorship(@Valid @RequestBody MentorshipRequestDto mentorshipRequestDto) {
-        if (mentorshipRequestDto.getDescription().isEmpty()) {
-            throw new IllegalArgumentException("Description is required");
-        }
-        mentorshipRequestService.requestMentorship(mentorshipRequestDto);
-        return ResponseEntity.ok().build();
+        MentorshipRequestDto result = mentorshipRequestService.requestMentorship(mentorshipRequestDto);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping()
@@ -36,14 +34,14 @@ public class MentorshipRequestController {
     }
 
     @PostMapping("/{id}/accept")
-    public ResponseEntity<Long> acceptMentorship(@PathVariable Long id) {
-        mentorshipRequestService.acceptMentorship(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<MentorshipRequestDto> acceptMentorship(@PathVariable Long id) {
+        MentorshipRequestDto result = mentorshipRequestService.acceptMentorship(id);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/{id}/reject")
     public ResponseEntity<MentorshipRequestDto> rejectRequest(@Valid @PathVariable long id, @RequestBody RejectionDto rejection) {
-        mentorshipRequestService.rejectRequest(id, rejection);
-        return ResponseEntity.ok().build();
+        MentorshipRequestDto result = mentorshipRequestService.rejectRequest(id, rejection);
+        return ResponseEntity.ok(result);
     }
 }
