@@ -37,4 +37,17 @@ public class SubscriptionController {
         @RequestBody(required = false) UserFilterDTO filter) {
         return subscriptionService.getFollowers(userId, filter);
     }
+    @GetMapping("/followers/count")
+    @ResponseStatus(HttpStatus.OK)
+    public long getFollowersCount(@RequestParam Long userId) {
+        return subscriptionService.countFollowers(userId);
+    }
+
+    @GetMapping("/following")
+    @ResponseStatus(HttpStatus.OK)
+    public List<UserDTO> getFollowing(
+        @RequestParam Long followeeId,
+        @RequestBody(required = false) UserFilterDTO filter) {
+        return subscriptionService.getFollowing(followeeId, filter);
+    }
 }

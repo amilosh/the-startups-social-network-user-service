@@ -60,11 +60,15 @@ public class SubscriptionService {
         return filterUsers(subscriptionRepository.findByFolloweeId(userId).collect(Collectors.toList()), filter);
     }
 
-    public boolean subscriptionExists(Long followerId, Long followeeId) {
-        log.info("Проверка существования подписки между пользователями {} и {}", followerId, followeeId);
-        boolean exists = subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId);
-        log.info("Подписка между пользователями {} и {} {}", followerId, followeeId, exists ? "существует." : "не существует.");
-        return exists;
+    public long countFollowers(Long userId) {
+        log.info("Получение количества подписчиков для пользователя {}", userId);
+        return subscriptionRepository.findFollowersAmountByFolloweeId(userId);
+    }
+
+    public List<UserDTO> getFollowing(Long followeeId, UserFilterDTO filter) {
+        log.info("Получение подписчиков для пользователя {}", followeeId);
+        List<User> users = subscriptionRepository.findByFolloweeId(followeeId).collect(Collectors.toList());
+        return filterUsers(users, filter);
     }
 
     public List<UserDTO> filterUsers(List<User> users, UserFilterDTO filter) {
@@ -88,7 +92,6 @@ public class SubscriptionService {
                 return matches;
             })
             .map(user -> new UserDTO(user.getId(), user.getUsername(), user.getEmail()))
-            .peek(filteredUser -> log.info("Добавлен пользователь: {}", filteredUser.getUsername()))
             .collect(Collectors.toList());
     }
 
