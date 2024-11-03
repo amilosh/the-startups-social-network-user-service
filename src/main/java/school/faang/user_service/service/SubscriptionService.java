@@ -8,6 +8,7 @@ import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.dto.UserFilterDTO;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.InvalidUserIdException;
+import school.faang.user_service.exception.SubscriptionNotFoundException;
 import school.faang.user_service.filter.ExperienceFilter;
 import school.faang.user_service.filter.NameFilter;
 import school.faang.user_service.repository.SubscriptionRepository;
@@ -22,13 +23,12 @@ public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
 
-    @Transactional
     public void followUser(Long followerId, Long followeeId) {
         log.info("Пользователь {} пытается подписаться на пользователя {}", followerId, followeeId);
         validateUserIds(followerId, followeeId);
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             log.warn("Подписка между пользователями {} и {} уже существует.", followerId, followeeId);
-            throw new IllegalArgumentException("Подписка уже существует.");
+            throw new StringIndexOutOfBoundsException("Подписка уже существует.");
         }
         subscriptionRepository.followUser(followerId, followeeId);
         log.info("Пользователь {} успешно подписался на пользователя {}.", followerId, followeeId);
@@ -39,7 +39,7 @@ public class SubscriptionService {
         validateUserIds(followerId, followeeId);
         if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             log.warn("Подписка между пользователями {} и {} не существует.", followerId, followeeId);
-            throw new IllegalArgumentException("Подписка не существует.");
+            throw new SubscriptionNotFoundException("Подписка не существует.");
         }
 
         try {

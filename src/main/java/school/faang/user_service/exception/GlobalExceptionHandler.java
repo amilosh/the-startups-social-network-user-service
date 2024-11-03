@@ -34,4 +34,16 @@ public class GlobalExceptionHandler {
         log.warn("Произошло исключение InvalidUserIdException: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+
+    @ExceptionHandler(SubscriptionAlreadyExistsException.class)
+    public ResponseEntity<String> handleSubscriptionAlreadyExistsException(SubscriptionAlreadyExistsException ex) {
+        log.warn("Произошло исключение SubscriptionAlreadyExistsException: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(SubscriptionNotFoundException.class)
+    public ResponseEntity<String> handleSubscriptionNotFoundException(SubscriptionNotFoundException ex) {
+        log.warn("Произошло исключение SubscriptionNotFoundException: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }
