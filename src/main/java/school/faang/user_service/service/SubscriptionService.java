@@ -51,4 +51,12 @@ public class SubscriptionService {
         return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
     }
 
+    public List<UserDto> getFollowing(long followerId, UserFilterDto filterDto) {
+        Stream<User> users = subscriptionRepository.findByFollowerId(followerId);
+
+        return users.filter(user -> UserFilter.applyAllFilters(userFilters, user, filterDto))
+                .map(userMapper::toDto)
+                .toList();
+    }
+
 }
