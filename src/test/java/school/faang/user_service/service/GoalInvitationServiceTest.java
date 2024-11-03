@@ -79,6 +79,7 @@ public class GoalInvitationServiceTest {
 
         GoalInvitationValidationException goalInvitationValidationException = assertThrows(GoalInvitationValidationException.class, () ->
                 goalInvitationService.createInvitation(goalInvitationDto));
+
         assertEquals(USERS_ARE_EQUAL_MESSAGE, goalInvitationValidationException.getMessage());
     }
 
@@ -90,10 +91,11 @@ public class GoalInvitationServiceTest {
 
         EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class, () ->
                 goalInvitationService.createInvitation(goalInvitationDto));
-        assertEquals(USER_NOT_FOUND_MESSAGE + goalInvitationDto.getInviterId(), entityNotFoundException.getMessage());
 
         verify(userRepository, times(1)).findById(goalInvitationDto.getInviterId());
         verifyNoMoreInteractions(userRepository);
+
+        assertEquals(USER_NOT_FOUND_MESSAGE + goalInvitationDto.getInviterId(), entityNotFoundException.getMessage());
     }
 
     @Test
@@ -106,11 +108,12 @@ public class GoalInvitationServiceTest {
 
         EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class, () ->
                 goalInvitationService.createInvitation(goalInvitationDto));
-        assertEquals(USER_NOT_FOUND_MESSAGE + goalInvitationDto.getInvitedUserId(), entityNotFoundException.getMessage());
 
         verify(userRepository, times(1)).findById(goalInvitationDto.getInviterId());
         verify(userRepository, times(1)).findById(goalInvitationDto.getInvitedUserId());
         verifyNoMoreInteractions(userRepository);
+
+        assertEquals(USER_NOT_FOUND_MESSAGE + goalInvitationDto.getInvitedUserId(), entityNotFoundException.getMessage());
     }
 
     @Test
@@ -125,12 +128,13 @@ public class GoalInvitationServiceTest {
 
         EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class, () ->
                 goalInvitationService.createInvitation(goalInvitationDto));
-        assertEquals(GOAL_NOT_FOUND_MESSAGE + goalInvitationDto.getGoalId(), entityNotFoundException.getMessage());
 
         verify(userRepository, times(1)).findById(goalInvitationDto.getInviterId());
         verify(userRepository, times(1)).findById(goalInvitationDto.getInvitedUserId());
         verify(goalRepository, times(1)).findById(goalInvitationDto.getGoalId());
         verifyNoMoreInteractions(userRepository, goalRepository);
+
+        assertEquals(GOAL_NOT_FOUND_MESSAGE + goalInvitationDto.getGoalId(), entityNotFoundException.getMessage());
     }
 
     @Test
@@ -151,17 +155,18 @@ public class GoalInvitationServiceTest {
         when(goalInvitationRepository.save(any(GoalInvitation.class))).thenReturn(goalInvitation);
 
         GoalInvitationDto result = goalInvitationService.createInvitation(goalInvitationDto);
-        assertNotNull(result);
-        assertEquals(goalInvitation.getInviter().getId(), result.getInviterId());
-        assertEquals(goalInvitation.getInvited().getId(), result.getInvitedUserId());
-        assertEquals(goalInvitation.getGoal().getId(), result.getGoalId());
-        assertEquals(goalInvitation.getStatus(), result.getStatus());
 
         verify(userRepository, times(1)).findById(goalInvitationDto.getInviterId());
         verify(userRepository, times(1)).findById(goalInvitationDto.getInvitedUserId());
         verify(goalRepository, times(1)).findById(goalInvitationDto.getGoalId());
         verify(goalInvitationRepository, times(1)).save(any(GoalInvitation.class));
         verifyNoMoreInteractions(userRepository, goalRepository, goalInvitationRepository);
+
+        assertNotNull(result);
+        assertEquals(goalInvitation.getInviter().getId(), result.getInviterId());
+        assertEquals(goalInvitation.getInvited().getId(), result.getInvitedUserId());
+        assertEquals(goalInvitation.getGoal().getId(), result.getGoalId());
+        assertEquals(goalInvitation.getStatus(), result.getStatus());
     }
 
     @Test
@@ -172,10 +177,11 @@ public class GoalInvitationServiceTest {
 
         EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class, () ->
                 goalInvitationService.acceptGoalInvitation(goalInvitationId));
-        assertEquals(GOAL_INVITATION_NOT_FOUND_MESSAGE + goalInvitationId, entityNotFoundException.getMessage());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitationId);
         verifyNoMoreInteractions(goalInvitationRepository);
+
+        assertEquals(GOAL_INVITATION_NOT_FOUND_MESSAGE + goalInvitationId, entityNotFoundException.getMessage());
     }
 
     @Test
@@ -188,10 +194,11 @@ public class GoalInvitationServiceTest {
 
         GoalInvitationStatusException goalInvitationStatusException = assertThrows(GoalInvitationStatusException.class, () ->
                 goalInvitationService.acceptGoalInvitation(goalInvitation.getId()));
-        assertEquals(GOAL_INVITATION_STATUS_MESSAGE + goalInvitation.getStatus(), goalInvitationStatusException.getMessage());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitation.getId());
         verifyNoMoreInteractions(goalInvitationRepository);
+
+        assertEquals(GOAL_INVITATION_STATUS_MESSAGE + goalInvitation.getStatus(), goalInvitationStatusException.getMessage());
     }
 
     @Test
@@ -204,10 +211,11 @@ public class GoalInvitationServiceTest {
 
         GoalInvitationStatusException goalInvitationStatusException = assertThrows(GoalInvitationStatusException.class, () ->
                 goalInvitationService.acceptGoalInvitation(goalInvitation.getId()));
-        assertEquals(GOAL_INVITATION_STATUS_MESSAGE + goalInvitation.getStatus(), goalInvitationStatusException.getMessage());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitation.getId());
         verifyNoMoreInteractions(goalInvitationRepository);
+
+        assertEquals(GOAL_INVITATION_STATUS_MESSAGE + goalInvitation.getStatus(), goalInvitationStatusException.getMessage());
     }
 
     @Test
@@ -223,11 +231,12 @@ public class GoalInvitationServiceTest {
 
         EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class, () ->
                 goalInvitationService.acceptGoalInvitation(goalInvitation.getId()));
-        assertEquals(GOAL_NOT_FOUND_MESSAGE + goal.getId(), entityNotFoundException.getMessage());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitation.getId());
         verify(goalRepository, times(1)).findById(goal.getId());
         verifyNoMoreInteractions(goalInvitationRepository, goalRepository);
+
+        assertEquals(GOAL_NOT_FOUND_MESSAGE + goal.getId(), entityNotFoundException.getMessage());
     }
 
     @Test
@@ -246,12 +255,13 @@ public class GoalInvitationServiceTest {
 
         EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class, () ->
                 goalInvitationService.acceptGoalInvitation(goalInvitation.getId()));
-        assertEquals(USER_NOT_FOUND_MESSAGE + inviter.getId(), entityNotFoundException.getMessage());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitation.getId());
         verify(goalRepository, times(1)).findById(goal.getId());
         verify(userRepository, times(1)).findById(inviter.getId());
         verifyNoMoreInteractions(goalInvitationRepository, goalRepository, userRepository);
+
+        assertEquals(USER_NOT_FOUND_MESSAGE + inviter.getId(), entityNotFoundException.getMessage());
     }
 
     @Test
@@ -273,13 +283,14 @@ public class GoalInvitationServiceTest {
 
         EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class, () ->
                 goalInvitationService.acceptGoalInvitation(goalInvitation.getId()));
-        assertEquals(USER_NOT_FOUND_MESSAGE + invited.getId(), entityNotFoundException.getMessage());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitation.getId());
         verify(goalRepository, times(1)).findById(goal.getId());
         verify(userRepository, times(1)).findById(inviter.getId());
         verify(userRepository, times(1)).findById(invited.getId());
         verifyNoMoreInteractions(goalInvitationRepository, goalRepository, userRepository);
+
+        assertEquals(USER_NOT_FOUND_MESSAGE + invited.getId(), entityNotFoundException.getMessage());
     }
 
     @Test
@@ -302,13 +313,14 @@ public class GoalInvitationServiceTest {
 
         DuplicateObjectException duplicateObjectException = assertThrows(DuplicateObjectException.class, () ->
                 goalInvitationService.acceptGoalInvitation(goalInvitation.getId()));
-        assertEquals(String.format(DUPLICATE_GOAL_MESSAGE, invited.getId(), goal.getId()), duplicateObjectException.getMessage());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitation.getId());
         verify(goalRepository, times(1)).findById(goal.getId());
         verify(userRepository, times(1)).findById(inviter.getId());
         verify(userRepository, times(1)).findById(invited.getId());
         verifyNoMoreInteractions(goalInvitationRepository, goalRepository, userRepository);
+
+        assertEquals(String.format(DUPLICATE_GOAL_MESSAGE, invited.getId(), goal.getId()), duplicateObjectException.getMessage());
     }
 
     @Test
@@ -335,13 +347,15 @@ public class GoalInvitationServiceTest {
 
         ValueExceededException valueExceededException = assertThrows(ValueExceededException.class, () ->
                 goalInvitationService.acceptGoalInvitation(goalInvitation.getId()));
-        assertEquals(String.format(MAX_ACTIVE_GOALS_EXCEEDED_MESSAGE, maxActiveGoalsCount, invited.getId()), valueExceededException.getMessage());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitation.getId());
         verify(goalRepository, times(1)).findById(goal.getId());
         verify(userRepository, times(1)).findById(inviter.getId());
         verify(userRepository, times(1)).findById(invited.getId());
         verifyNoMoreInteractions(goalInvitationRepository, goalRepository, userRepository);
+
+        assertEquals(String.format(MAX_ACTIVE_GOALS_EXCEEDED_MESSAGE, maxActiveGoalsCount, invited.getId()),
+                valueExceededException.getMessage());
     }
 
     @Test
@@ -364,12 +378,6 @@ public class GoalInvitationServiceTest {
         when(goalInvitationRepository.save(any(GoalInvitation.class))).thenReturn(goalInvitation);
 
         GoalInvitationDto result = goalInvitationService.acceptGoalInvitation(goalInvitation.getId());
-        assertNotNull(result);
-        assertEquals(goalInvitation.getId(), result.getId());
-        assertEquals(goalInvitation.getInviter().getId(), result.getInviterId());
-        assertEquals(goalInvitation.getInvited().getId(), result.getInvitedUserId());
-        assertEquals(goalInvitation.getGoal().getId(), result.getGoalId());
-        assertEquals(RequestStatus.ACCEPTED, result.getStatus());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitation.getId());
         verify(goalInvitationRepository, times(1)).save(goalInvitation);
@@ -378,6 +386,13 @@ public class GoalInvitationServiceTest {
         verify(userRepository, times(1)).findById(invited.getId());
         verify(userRepository, times(1)).save(invited);
         verifyNoMoreInteractions(goalInvitationRepository, goalRepository, userRepository);
+
+        assertNotNull(result);
+        assertEquals(goalInvitation.getId(), result.getId());
+        assertEquals(goalInvitation.getInviter().getId(), result.getInviterId());
+        assertEquals(goalInvitation.getInvited().getId(), result.getInvitedUserId());
+        assertEquals(goalInvitation.getGoal().getId(), result.getGoalId());
+        assertEquals(RequestStatus.ACCEPTED, result.getStatus());
     }
 
     @Test
@@ -388,10 +403,11 @@ public class GoalInvitationServiceTest {
 
         EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class, () ->
                 goalInvitationService.rejectGoalInvitation(goalInvitationId));
-        assertEquals(GOAL_INVITATION_NOT_FOUND_MESSAGE + goalInvitationId, entityNotFoundException.getMessage());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitationId);
         verifyNoMoreInteractions(goalInvitationRepository);
+
+        assertEquals(GOAL_INVITATION_NOT_FOUND_MESSAGE + goalInvitationId, entityNotFoundException.getMessage());
     }
 
     @Test
@@ -404,10 +420,11 @@ public class GoalInvitationServiceTest {
 
         GoalInvitationStatusException goalInvitationStatusException = assertThrows(GoalInvitationStatusException.class, () ->
                 goalInvitationService.rejectGoalInvitation(goalInvitation.getId()));
-        assertEquals(GOAL_INVITATION_STATUS_MESSAGE + goalInvitation.getStatus(), goalInvitationStatusException.getMessage());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitation.getId());
         verifyNoMoreInteractions(goalInvitationRepository);
+
+        assertEquals(GOAL_INVITATION_STATUS_MESSAGE + goalInvitation.getStatus(), goalInvitationStatusException.getMessage());
     }
 
     @Test
@@ -420,10 +437,11 @@ public class GoalInvitationServiceTest {
 
         GoalInvitationStatusException goalInvitationStatusException = assertThrows(GoalInvitationStatusException.class, () ->
                 goalInvitationService.rejectGoalInvitation(goalInvitation.getId()));
-        assertEquals(GOAL_INVITATION_STATUS_MESSAGE + goalInvitation.getStatus(), goalInvitationStatusException.getMessage());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitation.getId());
         verifyNoMoreInteractions(goalInvitationRepository);
+
+        assertEquals(GOAL_INVITATION_STATUS_MESSAGE + goalInvitation.getStatus(), goalInvitationStatusException.getMessage());
     }
 
     @Test
@@ -439,11 +457,12 @@ public class GoalInvitationServiceTest {
 
         EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class, () ->
                 goalInvitationService.rejectGoalInvitation(goalInvitation.getId()));
-        assertEquals(GOAL_NOT_FOUND_MESSAGE + goal.getId(), entityNotFoundException.getMessage());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitation.getId());
         verify(goalRepository, times(1)).findById(goal.getId());
         verifyNoMoreInteractions(goalInvitationRepository, goalRepository);
+
+        assertEquals(GOAL_NOT_FOUND_MESSAGE + goal.getId(), entityNotFoundException.getMessage());
     }
 
     @Test
@@ -462,12 +481,13 @@ public class GoalInvitationServiceTest {
 
         EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class, () ->
                 goalInvitationService.rejectGoalInvitation(goalInvitation.getId()));
-        assertEquals(USER_NOT_FOUND_MESSAGE + inviter.getId(), entityNotFoundException.getMessage());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitation.getId());
         verify(goalRepository, times(1)).findById(goal.getId());
         verify(userRepository, times(1)).findById(inviter.getId());
         verifyNoMoreInteractions(goalInvitationRepository, goalRepository, userRepository);
+
+        assertEquals(USER_NOT_FOUND_MESSAGE + inviter.getId(), entityNotFoundException.getMessage());
     }
 
     @Test
@@ -489,13 +509,14 @@ public class GoalInvitationServiceTest {
 
         EntityNotFoundException entityNotFoundException = assertThrows(EntityNotFoundException.class, () ->
                 goalInvitationService.rejectGoalInvitation(goalInvitation.getId()));
-        assertEquals(USER_NOT_FOUND_MESSAGE + invited.getId(), entityNotFoundException.getMessage());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitation.getId());
         verify(goalRepository, times(1)).findById(goal.getId());
         verify(userRepository, times(1)).findById(inviter.getId());
         verify(userRepository, times(1)).findById(invited.getId());
         verifyNoMoreInteractions(goalInvitationRepository, goalRepository, userRepository);
+
+        assertEquals(USER_NOT_FOUND_MESSAGE + invited.getId(), entityNotFoundException.getMessage());
     }
 
     @Test
@@ -519,11 +540,6 @@ public class GoalInvitationServiceTest {
 
         GoalInvitationDto result = goalInvitationService.rejectGoalInvitation(goalInvitation.getId());
         assertNotNull(result);
-        assertEquals(goalInvitation.getId(), result.getId());
-        assertEquals(goalInvitation.getInviter().getId(), result.getInviterId());
-        assertEquals(goalInvitation.getInvited().getId(), result.getInvitedUserId());
-        assertEquals(goalInvitation.getGoal().getId(), result.getGoalId());
-        assertEquals(RequestStatus.REJECTED, result.getStatus());
 
         verify(goalInvitationRepository, times(1)).findById(goalInvitation.getId());
         verify(goalInvitationRepository, times(1)).save(goalInvitation);
@@ -531,6 +547,12 @@ public class GoalInvitationServiceTest {
         verify(userRepository, times(1)).findById(inviter.getId());
         verify(userRepository, times(1)).findById(invited.getId());
         verifyNoMoreInteractions(goalInvitationRepository, goalRepository, userRepository);
+
+        assertEquals(goalInvitation.getId(), result.getId());
+        assertEquals(goalInvitation.getInviter().getId(), result.getInviterId());
+        assertEquals(goalInvitation.getInvited().getId(), result.getInvitedUserId());
+        assertEquals(goalInvitation.getGoal().getId(), result.getGoalId());
+        assertEquals(RequestStatus.REJECTED, result.getStatus());
     }
 
     @Test
@@ -541,10 +563,11 @@ public class GoalInvitationServiceTest {
         when(goalInvitationRepository.findAll()).thenReturn(goalInvitations);
 
         List<GoalInvitationDto> result = goalInvitationService.getInvitations(filters);
-        assertEquals(goalInvitations.size(), result.size());
 
         verify(goalInvitationRepository, times(1)).findAll();
         verifyNoMoreInteractions(goalInvitationRepository);
+
+        assertEquals(goalInvitations.size(), result.size());
     }
 
     @Test
@@ -561,13 +584,13 @@ public class GoalInvitationServiceTest {
 
         List<GoalInvitationDto> result = goalInvitationService.getInvitations(filters);
 
+        verify(goalInvitationRepository, times(1)).findAll();
+        verifyNoMoreInteractions(goalInvitationRepository);
+
         assertEquals(1, result.size());
         assertEquals(filters.getInviterId(), result.get(0).getInviterId());
         assertEquals(filters.getInvitedId(), result.get(0).getInvitedUserId());
         assertEquals(RequestStatus.ACCEPTED, result.get(0).getStatus());
-
-        verify(goalInvitationRepository, times(1)).findAll();
-        verifyNoMoreInteractions(goalInvitationRepository);
     }
 
     @Test
@@ -581,12 +604,12 @@ public class GoalInvitationServiceTest {
 
         List<GoalInvitationDto> result = goalInvitationService.getInvitations(filters);
 
+        verify(goalInvitationRepository, times(1)).findAll();
+        verifyNoMoreInteractions(goalInvitationRepository);
+
         assertEquals(1, result.size());
         assertEquals(filters.getInviterId(), result.get(0).getInviterId());
         assertEquals(RequestStatus.REJECTED, result.get(0).getStatus());
-
-        verify(goalInvitationRepository, times(1)).findAll();
-        verifyNoMoreInteractions(goalInvitationRepository);
     }
 
     private GoalInvitationDto createGoalInvitationDto(Long inviterId, Long invitedId, Long goalId) {
