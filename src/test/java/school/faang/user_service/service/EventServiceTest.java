@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.Skill;
@@ -16,7 +17,13 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.EventService;
+import school.faang.user_service.service.event.event_filters.EventDateRangeFilter;
 import school.faang.user_service.service.event.event_filters.EventFilter;
+import school.faang.user_service.service.event.event_filters.EventLocationFilter;
+import school.faang.user_service.service.event.event_filters.EventMaxAttendeesFilter;
+import school.faang.user_service.service.event.event_filters.EventOwnerNameFilter;
+import school.faang.user_service.service.event.event_filters.EventSkillsFilter;
+import school.faang.user_service.service.event.event_filters.EventTitleFilter;
 import school.faang.user_service.validation.EventServiceValidator;
 
 import java.util.ArrayList;
@@ -35,8 +42,6 @@ public class EventServiceTest {
     private EventRepository eventRepository;
     @Mock
     private EventServiceValidator eventServiceValidator;
-    @Mock
-    private List<EventFilter> eventFilters;
     @Spy
     private EventMapperImpl eventMapper;
 
@@ -49,6 +54,11 @@ public class EventServiceTest {
 
     @BeforeEach
     public void init() {
+        List<EventFilter> eventFilters = List.of(new EventTitleFilter(), new EventDateRangeFilter(),
+                new EventMaxAttendeesFilter(), new EventOwnerNameFilter(),
+                new EventSkillsFilter(), new EventLocationFilter());
+        ReflectionTestUtils.setField(eventService, "eventFilters", eventFilters);
+
         Skill bakingSkill = new Skill();
         bakingSkill.setId(1L);
         bakingSkill.setTitle("Baking Skill");
@@ -72,8 +82,10 @@ public class EventServiceTest {
         eventBaking.setRelatedSkills(new ArrayList<>(Set.of(bakingSkill, decoratingSkill)));
         eventBaking.setOwner(userJohn);
         eventBaking.setAttendees(new ArrayList<>(Set.of(userJane)));
+        eventBaking.setMaxAttendees(30);
         eventCarFixing = new Event();
         eventCarFixing.setTitle("Car Fixing");
+        eventCarFixing.setMaxAttendees(100);
     }
 
     @Test
@@ -117,12 +129,29 @@ public class EventServiceTest {
 
     @Test
     public void testGetByFilter_withTitleFilter() {
-        EventFilterDto eventFilterDtoByTitle = new EventFilterDto();
-        eventFilterDtoByTitle.setTitlePattern("Baking");
+        EventFilterDto eventFilterDto = new EventFilterDto();
+        eventFilterDto.setTitlePattern("Baking");
 
         when(eventRepository.findAll()).thenReturn(List.of(eventBaking, eventCarFixing));
 
-        List<EventDto> eventDtos = eventService.getByFilter(eventFilterDtoByTitle);
+        List<EventDto> eventDtos = eventService.getByFilter(eventFilterDto);
+
+        assertEquals(1, eventDtos.size());
+        assertEquals(eventDtos.get(0).getTitle(), "Baking Event");
+        verify(eventRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void testGetByFilter_withMaxAttendeesFilter() {
+        EventFilterDto eventFilterDto = new EventFilterDto();
+        eventFilterDto.setMaxAttendees(50);
+
+        when(eventRepository.findAll()).thenReturn(List.of(eventBaking, eventCarFixing));
+
+        eventBaking.setMaxAttendees(30);
+        eventCarFixing.setMaxAttendees(100);
+
+        List<EventDto> eventDtos = eventService.getByFilter(eventFilterDto);
 
         assertEquals(1, eventDtos.size());
         assertEquals(eventDtos.get(0).getTitle(), "Baking Event");

@@ -4,18 +4,18 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
 
-import java.util.stream.Stream;
+import java.util.List;
 
 @Component
 public class EventMaxAttendeesFilter implements EventFilter {
     @Override
     public boolean isApplicable(EventFilterDto filters) {
-        return true;
+        return filters.getMaxAttendees() != null;
     }
 
     @Override
-    public Stream<Event> apply(Stream<Event> events, EventFilterDto filters) {
+    public List<Event> apply(List<Event> events, EventFilterDto filters) {
         int maxAttendees = filters.getMaxAttendees();
-        return events.filter(event -> event.getMaxAttendees() < maxAttendees);
+        return events.stream().filter(event -> event.getMaxAttendees() < maxAttendees).toList();
     }
 }

@@ -13,7 +13,6 @@ import school.faang.user_service.service.event.event_filters.EventFilter;
 import school.faang.user_service.validation.EventServiceValidator;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -41,12 +40,15 @@ public class EventService {
     }
 
     public List<EventDto> getByFilter(EventFilterDto filters) {
-        Stream<Event> events = eventRepository.findAll().stream();
-        eventFilters.stream()
-                .filter(filter -> filter.isApplicable(filters))
-                .forEach(filter -> filter.apply(events, filters));
+        List<Event> events = eventRepository.findAll();
+        log.info(eventFilters.toString());
+        for (EventFilter filter : eventFilters) {
+            if (filter != null && filter.isApplicable(filters)) {
+                events = filter.apply(events, filters);
+            }
+        }
         log.info("A filtered list of events has been retrieved. Filters are: {}", filters);
-        return eventMapper.toDto(events.toList());
+        return eventMapper.toDto(events);
     }
 
     public void delete(long eventId) {

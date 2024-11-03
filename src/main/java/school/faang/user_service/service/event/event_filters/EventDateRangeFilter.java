@@ -5,7 +5,7 @@ import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
 
 import java.time.LocalDateTime;
-import java.util.stream.Stream;
+import java.util.List;
 
 @Component
 public class EventDateRangeFilter implements EventFilter {
@@ -15,11 +15,11 @@ public class EventDateRangeFilter implements EventFilter {
     }
 
     @Override
-    public Stream<Event> apply(Stream<Event> events, EventFilterDto filters) {
+    public List<Event> apply(List<Event> events, EventFilterDto filters) {
         LocalDateTime startDateFromFilter = filters.getStartDate();
         LocalDateTime endDateFromFilter = filters.getEndDate();
-        return events.filter(event -> event.getEndDate() != null &&
+        return events.stream().filter(event -> event.getEndDate() != null &&
                 (event.getEndDate().isEqual(startDateFromFilter) || event.getEndDate().isEqual(endDateFromFilter) ||
-                        (event.getEndDate().isAfter(startDateFromFilter) && event.getEndDate().isBefore(endDateFromFilter))));
+                        (event.getEndDate().isAfter(startDateFromFilter) && event.getEndDate().isBefore(endDateFromFilter)))).toList();
     }
 }

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
 
-import java.util.stream.Stream;
+import java.util.List;
 
 @Component
 public class EventOwnerNameFilter implements EventFilter {
@@ -15,10 +15,10 @@ public class EventOwnerNameFilter implements EventFilter {
     }
 
     @Override
-    public Stream<Event> apply(Stream<Event> events, EventFilterDto filters) {
+    public List<Event> apply(List<Event> events, EventFilterDto filters) {
         String ownerNamePattern = filters.getOwnerName();
-        return events.filter(event -> event.getOwner() != null
+        return events.stream().filter(event -> event.getOwner() != null
                 && event.getOwner().getUsername() != null
-                && event.getOwner().getUsername().contains(ownerNamePattern));
+                && event.getOwner().getUsername().contains(ownerNamePattern)).toList();
     }
 }
