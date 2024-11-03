@@ -104,12 +104,46 @@ public class RecommendationDtoValidatorTest {
         when(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(
                 requestRecommendationDto.getAuthorId(), requestRecommendationDto.getReceiverId()))
                 .thenReturn(Optional.of(recommendation));
+        when(skillRepository.existsByTitle(EXISTING_SKILL_TITLE)).thenReturn(true);
+        when(skillRepository.existsByTitle(NON_EXISTING_SKILL_TITLE)).thenReturn(true);
 
         recommendationDtoValidator.validateRecommendation(requestRecommendationDto);
 
         verify(recommendationRepository)
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(requestRecommendationDto.getAuthorId(),
                         requestRecommendationDto.getReceiverId());
+    }
+
+    @Test
+    @DisplayName("Throws exception if skill offers list is null")
+    public void whenSkillOffersListIsNullThenThrowException() {
+        requestRecommendationDto.setSkillOffers(null);
+
+        assertThrows(NoSuchElementException.class,
+                () -> recommendationDtoValidator.validateRecommendation(requestRecommendationDto));
+    }
+
+    @Test
+    @DisplayName("Throws exception if skill offers list is empty")
+    public void whenSkillOffersListIsEmptyThenThrowException() {
+        requestRecommendationDto.setSkillOffers(List.of());
+
+        assertThrows(NoSuchElementException.class,
+                () -> recommendationDtoValidator.validateRecommendation(requestRecommendationDto));
+    }
+
+    @Test
+    @DisplayName("No exception thrown if skill offers list is not empty")
+    public void whenSkillOffersListIsNotEmptyThenNoException() {
+        requestRecommendationDto.setSkillOffers(List.of(
+                RequestSkillOfferDto.builder().skillTitle(EXISTING_SKILL_TITLE).build()
+        ));
+
+        when(skillRepository.existsByTitle(EXISTING_SKILL_TITLE)).thenReturn(true);
+
+        recommendationDtoValidator.validateRecommendation(requestRecommendationDto);
+
+        verify(skillRepository).existsByTitle(EXISTING_SKILL_TITLE);
     }
 
     @Test

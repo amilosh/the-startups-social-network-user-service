@@ -61,7 +61,7 @@ public class RecommendationDtoValidator {
         List<RequestSkillOfferDto> requestSkillOfferDtoList = requestRecommendationDto.getSkillOffers();
         if (requestSkillOfferDtoList == null || requestSkillOfferDtoList.isEmpty()) {
             log.warn("No skill offers found for recommendation creation.");
-            return;
+            throw new NoSuchElementException("No skill offers found for recommendation creation.");
         }
 
         List<String> skillTitlesList = requestSkillOfferDtoList.stream()
