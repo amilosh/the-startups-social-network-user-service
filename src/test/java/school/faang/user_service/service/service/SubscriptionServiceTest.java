@@ -97,9 +97,9 @@ class SubscriptionServiceTest {
 
     @Test
     void testGetFollowersCount() {
-        Mockito.when(subscriptionRepository.findFollowersAmountByFolloweeId(followeeId)).thenReturn(200);
+        Mockito.when(subscriptionRepository.findFolloweesAmountByFollowerId(followerId)).thenReturn(200);
 
-        assertEquals(200, subscriptionService.getFollowersCount(followeeId));
+        assertEquals(200, subscriptionService.getFollowersCount(followerId));
     }
 
     @Test
@@ -113,6 +113,13 @@ class SubscriptionServiceTest {
         assertEquals(2, followers.size());
         verify(subscriptionRepository, times(1)).findByFollowerId(followerId);
         verify(userMapper, times(2)).toDto(any());
+    }
+
+    @Test
+    void testGetFollowingCount() {
+        Mockito.when(subscriptionRepository.findFollowersAmountByFolloweeId(followeeId)).thenReturn(100);
+
+        assertEquals(100, subscriptionService.getFollowingCount(followeeId));
     }
 
 }
