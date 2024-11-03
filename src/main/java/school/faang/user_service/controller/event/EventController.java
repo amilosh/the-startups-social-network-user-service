@@ -55,22 +55,4 @@ public class EventController {
     public List<EventDto> getParticipatedEvents(long userId) {
         return eventService.getParticipatedEvents(userId);
     }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<List<DataValidationException>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        List<DataValidationException> errors = new ArrayList<>();
-
-        e.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName;
-            try {
-                fieldName = ((FieldError) error).getField();
-            } catch (ClassCastException ex) {
-                fieldName = error.getObjectName();
-            }
-            String message = error.getDefaultMessage();
-            errors.add(new DataValidationException(fieldName + " : " + message));
-        });
-        log.info(errors.toString());
-        return ResponseEntity.badRequest().body(errors);
-    }
 }
