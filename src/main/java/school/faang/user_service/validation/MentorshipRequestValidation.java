@@ -49,4 +49,12 @@ public class MentorshipRequestValidation {
         }
         return mentorshipRequestRepository.getReferenceById(requesterId);
     }
+
+    public void validateOfBeingInMentorship(User receiver, User requester) {
+        long requesterId = requester.getId();
+        long receiverId = receiver.getId();
+        if (receiver.getMentees().contains(requester)) {
+            throw new IllegalArgumentException("Id " + requesterId + " is already on the mentis list " + receiverId);
+        }
+    }
 }
