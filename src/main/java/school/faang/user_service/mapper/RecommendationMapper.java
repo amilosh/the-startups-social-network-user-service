@@ -5,7 +5,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.entity.recommendation.SkillOffer;
 
 import java.util.List;
 
@@ -19,8 +18,4 @@ public interface RecommendationMapper {
     Recommendation toEntity(RecommendationDto recommendationDto);
 
     List<RecommendationDto> toDtoList(List<Recommendation> recommendations);
-
-    default List<Long> map(List<SkillOffer> skillOffers) {
-        return skillOffers.stream().map(SkillOffer::getId).toList();
-    }
 }

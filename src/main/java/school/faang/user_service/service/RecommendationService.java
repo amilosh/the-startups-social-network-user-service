@@ -84,9 +84,7 @@ public class RecommendationService {
             for (SkillOfferDto skillOfferDto : recDto.getSkillOffers()) {
                 skillOfferRepository.create(skillOfferDto.getSkillId(), recDto.getId());
                 skillRepository.findUserSkill(skillOfferDto.getSkillId(), recDto.getReceiverId())
-                        .ifPresent(skill -> {
-                            addGuaranteeToSkill(recDto, skill);
-                        });
+                        .ifPresent(skill -> addGuaranteeToSkill(recDto, skill));
             }
         }
     }
