@@ -27,10 +27,10 @@ public class MentorshipControllerTest {
     @Mock
     private UserValidator userValidator;
 
-    long validMentorId;
-    long invalidMentorId;
-    long validMenteeId;
-    long invalidMenteeId;
+    private long validMentorId;
+    private long invalidMentorId;
+    private long validMenteeId;
+    private long invalidMenteeId;
 
     @BeforeEach
     public void setUp() {

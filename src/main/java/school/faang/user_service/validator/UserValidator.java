@@ -1,5 +1,8 @@
 package school.faang.user_service.validator;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class UserValidator {
 
     public void validateUserId(long userId) {

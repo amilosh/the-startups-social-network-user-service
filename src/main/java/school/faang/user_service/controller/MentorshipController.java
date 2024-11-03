@@ -17,23 +17,23 @@ public class MentorshipController {
     private final MentorshipService mentorshipService;
     private final UserValidator userValidator;
 
-    public List<UserDto> getMentees(@Positive long userId) {
+    public List<UserDto> getMentees(long userId) {
         userValidator.validateUserId(userId);
         return mentorshipService.getMentees(userId);
     }
 
-    public List<UserDto> getMentors(@Positive long userId) {
+    public List<UserDto> getMentors(long userId) {
         userValidator.validateUserId(userId);
         return mentorshipService.getMentors(userId);
     }
 
-    public void deleteMentee(@Positive long menteeId, @Positive long mentorId) {
+    public void deleteMentee(long menteeId, long mentorId) {
         userValidator.validateUserId(menteeId);
         userValidator.validateUserId(mentorId);
         mentorshipService.deleteMentee(menteeId, mentorId);
     }
 
-    public void deleteMentor(@Positive long menteeId, @Positive long mentorId) {
+    public void deleteMentor(long menteeId, long mentorId) {
         userValidator.validateUserId(menteeId);
         userValidator.validateUserId(mentorId);
         mentorshipService.deleteMentor(menteeId, mentorId);
