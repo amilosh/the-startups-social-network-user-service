@@ -16,7 +16,7 @@ public class UserValidation {
                 () -> new EntityNotFoundException("User with id " + userId + " not found"));
     }
 
-    public void isUserExists(long firstUserId, long secondUserId) {
+    public void areUsersExist(long firstUserId, long secondUserId) {
         isUserExists(firstUserId);
         isUserExists(secondUserId);
     }

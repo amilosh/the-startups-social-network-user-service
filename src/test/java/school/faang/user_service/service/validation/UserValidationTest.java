@@ -2,7 +2,6 @@ package school.faang.user_service.service.validation;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,19 +25,14 @@ class UserValidationTest {
     UserValidation userValidation;
 
     private long userId;
-    private long secondUserId;
     private User user;
-
-    @BeforeEach
-    void setUp() {
-        userId = 101L;
-        secondUserId = 102L;
-        user = new User();
-    }
 
     @Test
     public void isUserExistsTest() {
-        initialiseUser(userId);
+        userId = 101L;
+        user = new User();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         userValidation.isUserExists(userId);
 
@@ -47,28 +41,26 @@ class UserValidationTest {
 
     @Test
     public void entityNotFoundTest() {
-        initialiseEmptyUser(userId);
+        userId = 101L;
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(EntityNotFoundException.class,
                 () -> userValidation.isUserExists(userId));
     }
 
     @Test
-    public void isUserExistsTwoParametersTest() {
-        initialiseUser(userId);
-        initialiseUser(secondUserId);
+    public void areUsersExistTest() {
+        userId = 101L;
+        long secondUserId = 102L;
+        user = new User();
 
-        userValidation.isUserExists(userId, secondUserId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findById(secondUserId)).thenReturn(Optional.of(user));
+
+        userValidation.areUsersExist(userId, secondUserId);
 
         verify(userRepository).findById(userId);
         verify(userRepository).findById(secondUserId);
-    }
-
-    private void initialiseUser(long userId) {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-    }
-
-    private void initialiseEmptyUser(long userId) {
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
     }
 }

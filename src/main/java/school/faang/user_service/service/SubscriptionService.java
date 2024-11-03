@@ -6,9 +6,9 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.filter.user_filter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
-import school.faang.user_service.filter.user_filter.UserFilter;
 import school.faang.user_service.service.validation.SubscriptionValidation;
 import school.faang.user_service.service.validation.UserValidation;
 
@@ -27,7 +27,7 @@ public class SubscriptionService {
     private final UserValidation userValidation;
 
     public void followUser(long followerId, long followeeId) {
-        userValidation.isUserExists(followerId, followeeId);
+        userValidation.areUsersExist(followerId, followeeId);
         subscriptionValidation.isFollowingExistsValidate(followerId, followeeId);
 
         subscriptionRepository.followUser(followerId, followeeId);
@@ -35,7 +35,7 @@ public class SubscriptionService {
     }
 
     public void unfollowUser(long followerId, long followeeId) {
-        userValidation.isUserExists(followerId, followeeId);
+        userValidation.areUsersExist(followerId, followeeId);
         subscriptionValidation.isFollowingNotExistsValidate(followerId, followeeId);
 
         subscriptionRepository.unfollowUser(followerId, followeeId);
@@ -57,8 +57,7 @@ public class SubscriptionService {
                         .filter(userFilter -> userFilter.isApplicable(filter))
                         .reduce(usersStream,
                                 (users, userFilter) -> userFilter.apply(users, filter),
-                                (a, b) -> b)
-        );
+                                (a, b) -> b));
     }
 
     public int getFollowersCount(long followeeId) {
