@@ -105,11 +105,11 @@ public class MentorshipRequestService {
     }
 
     private MentorshipRequest validateRequestId(long requesterId) {
-        MentorshipRequest mentorshipRequest = mentorshipRequestRepository.getReferenceById(requesterId);
-        if (mentorshipRequest == null) {
+        boolean exists = mentorshipRequestRepository.existsById(requesterId);
+        if (!exists) {
             throw new IllegalArgumentException("Id " + requesterId + " is not found");
         }
-        return mentorshipRequest;
+        return mentorshipRequestRepository.getReferenceById(requesterId);
     }
 
 }
