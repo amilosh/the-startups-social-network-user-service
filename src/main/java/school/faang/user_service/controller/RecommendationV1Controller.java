@@ -1,5 +1,6 @@
 package school.faang.user_service.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,18 +24,19 @@ import school.faang.user_service.service.RecommendationService;
 
 
 @RestController
-@RequestMapping("/api/recommendations")
+@RequestMapping("/api/v1/recommendations")
 @RequiredArgsConstructor
 @Validated
-public class RecommendationController {
+public class RecommendationV1Controller {
+    private static final int DEFAULT_PAGE_SIZE = 20;
+    private static final String DEFAULT_SORT_FIELD = "createdAt";
 
     private final RecommendationService recommendationService;
 
     @PostMapping
     public ResponseEntity<RecommendationDto> giveRecommendation(
-            @RequestBody
-            @Validated
-            RecommendationDto recommendationDto) {
+            @Parameter(description = "New recommendation data")
+            @RequestBody @Validated RecommendationDto recommendationDto) {
 
         RecommendationDto createdRecommendation = recommendationService.create(recommendationDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdRecommendation);
@@ -42,9 +44,8 @@ public class RecommendationController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteRecommendation(
-            @PathVariable
-            @Positive
-            long id) {
+            @Parameter(description = "Recommendation id")
+            @PathVariable @Positive long id) {
 
         recommendationService.delete(id);
         return ResponseEntity.noContent().build();
@@ -52,13 +53,11 @@ public class RecommendationController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<RecommendationDto> updateRecommendation(
-            @Positive
-            @PathVariable
-            long id,
+            @Parameter(description = "Recommendation id")
+            @Positive @PathVariable long id,
 
-            @RequestBody
-            @Validated
-            RecommendationDto recommendationDto) {
+            @Parameter(description = "Updated recommendation data")
+            @RequestBody @Validated RecommendationDto recommendationDto) {
 
         RecommendationDto updatedRecommendation = recommendationService.update(id, recommendationDto);
         return ResponseEntity.ok(updatedRecommendation);
@@ -66,21 +65,18 @@ public class RecommendationController {
 
     @GetMapping
     public ResponseEntity<Page<RecommendationDto>> getAllUserRecommendations(
-            @Positive
-            @RequestParam(required = false)
-            Long receiverId,
+            @Parameter(description = "Receiver id")
+            @Positive @RequestParam(required = false) Long receiverId,
 
-            @Positive
-            @RequestParam(required = false)
-            Long authorId,
+            @Parameter(description = "Author id")
+            @Positive @RequestParam(required = false) Long authorId,
 
             @PageableDefault(
-                    size = 20,
+                    size = DEFAULT_PAGE_SIZE,
                     page = 0,
-                    sort = "createdAt",
+                    sort = DEFAULT_SORT_FIELD,
                     direction = Sort.Direction.DESC
-            )
-            Pageable pageable) {
+            ) Pageable pageable) {
 
         Page<RecommendationDto> recommendations;
         if (receiverId != null) {
