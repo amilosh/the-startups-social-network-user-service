@@ -33,11 +33,7 @@ public class EventParticipationService {
     }
 
     public List<UserDto> getParticipants(EventDto eventDto) {
-        List<User> participants = eventParticipationRepository.findAllParticipantsByEventId(eventDto.id());
-
-        return participants.stream()
-                .map(userMapper::toUserDto)
-                .toList();
+        return userMapper.toUserDtoList(eventParticipationRepository.findAllParticipantsByEventId(eventDto.id()));
     }
 
     public int getParticipantsCount(EventDto eventDto) {
