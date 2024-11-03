@@ -2,7 +2,6 @@ package school.faang.user_service.validation;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.User;
@@ -14,7 +13,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
-@Slf4j
 @RequiredArgsConstructor
 public class MentorshipRequestValidation {
 
