@@ -44,13 +44,11 @@ public class GoalService {
         assignSkillsToUsers(goalDto.getSkillIds(), existingGoal.getId());
 
         updateGoalSkills(existingGoal.getId(), goalDto.getSkillIds());
+        Goal updatedGoal = goalMapper.toEntity(goalDto);
 
-        existingGoal.setTitle(goalDto.getTitle());
-        existingGoal.setDescription(goalDto.getDescription());
-        existingGoal.setStatus(goalDto.getStatus());
-        goalRepository.save(existingGoal);
+        goalRepository.save(updatedGoal);
 
-        return goalMapper.toDto(existingGoal);
+        return goalMapper.toDto(updatedGoal);
     }
 
     @Transactional

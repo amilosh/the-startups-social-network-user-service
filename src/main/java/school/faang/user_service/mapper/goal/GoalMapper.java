@@ -18,12 +18,27 @@ public interface GoalMapper {
     @Mapping(target = "skillIds", source = "skillsToAchieve", qualifiedByName = "skillsToSkillIds")
     GoalDto toDto(Goal goal);
 
+    @Mapping(target = "parent", ignore = true)
+    @Mapping(target = "skillsToAchieve", source = "skillIds", qualifiedByName = "skillIdsToSkills")
+    Goal toEntity(GoalDto goalDto);
+
     List<GoalDto> toDto(List<Goal> goals);
 
     @Named("skillsToSkillIds")
     default List<Long> skillsToSkillIds(List<Skill> skills) {
         return skills.stream()
                 .map(Skill::getId)
+                .collect(Collectors.toList());
+    }
+
+    @Named("skillIdsToSkills")
+    default List<Skill> skillIdsToSkills(List<Long> skillIds) {
+        return skillIds.stream()
+                .map(id -> {
+                    Skill skill = new Skill();
+                    skill.setId(id);
+                    return skill;
+                })
                 .collect(Collectors.toList());
     }
 }
