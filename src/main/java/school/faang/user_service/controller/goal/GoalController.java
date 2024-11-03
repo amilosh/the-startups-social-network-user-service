@@ -14,7 +14,6 @@ import school.faang.user_service.dto.request.GetGoalsByFilterRequest;
 import school.faang.user_service.dto.response.GoalResponse;
 import school.faang.user_service.dto.request.CreateGoalRequest;
 import school.faang.user_service.dto.response.GoalsResponse;
-import school.faang.user_service.exception.BadRequestException;
 import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.service.skill.SkillService;
 
@@ -37,7 +36,7 @@ public class GoalController {
         GoalResponse response = goalService.createGoal(request.getUserId(), request.getGoal());
 
         if (response.getCode() == 400) {
-            throw new BadRequestException(response.getErrors());
+            return ResponseEntity.badRequest().body(response);
         }
 
         return ResponseEntity.status(201).body(response);
@@ -55,7 +54,7 @@ public class GoalController {
         GoalResponse response = goalService.updateGoal(request.getUserId(), request.getGoal());
 
         if (response.getCode() == 400) {
-            throw new BadRequestException(response.getErrors());
+            return ResponseEntity.badRequest().body(response);
         }
 
         return ResponseEntity.status(201).body(response);
@@ -73,7 +72,7 @@ public class GoalController {
         GoalResponse response = goalService.deleteGoal(goalId);
 
         if (response.getCode() == 400) {
-            throw new BadRequestException(response.getErrors());
+            return ResponseEntity.badRequest().body(response);
         }
 
         return ResponseEntity.status(204).body(response);
@@ -92,7 +91,7 @@ public class GoalController {
         GoalsResponse response = goalService.getGoalsByUser(userId, filters.getFilters());
 
         if (response.getCode() == 400) {
-            throw new BadRequestException(response.getErrors());
+            return ResponseEntity.badRequest().body(response);
         }
 
         return ResponseEntity.ok(response);

@@ -98,6 +98,7 @@ class GoalServiceTest {
         when(goalValidation.validateGoalRequest(userId, goalDTO, true)).thenReturn(validationResponse);
 
         GoalResponse response = goalService.createGoal(userId, goalDTO);
+        System.out.println(response);
 
         assertThat(response.getMessage()).isEqualTo("Validation failed");
         assertThat(response.getCode()).isEqualTo(400);

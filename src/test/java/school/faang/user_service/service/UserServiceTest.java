@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.user.UserService;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,21 +21,21 @@ public class UserServiceTest {
     private UserService userService;
 
     @Test
-    void checkUserExistenceReturnTrue() {
+    void checkIfUserExistsByIdReturnTrue() {
         long userId = 1L;
         when(userRepository.existsById(userId)).thenReturn(true);
 
-        boolean result = userService.checkUserExistence(userId);
+        boolean result = userService.checkIfUserExistsById(userId);
 
         assertTrue(result);
     }
 
     @Test
-    void checkUserExistenceReturnFalse() {
+    void checkIfUserExistsByIdReturnFalse() {
         long userId = 1L;
         when(userRepository.existsById(userId)).thenReturn(false);
 
-        boolean result = userService.checkUserExistence(userId);
+        boolean result = userService.checkIfUserExistsById(userId);
 
         assertFalse(result);
     }

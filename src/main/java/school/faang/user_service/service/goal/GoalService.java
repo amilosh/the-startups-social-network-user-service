@@ -8,7 +8,6 @@ import school.faang.user_service.dto.response.GoalResponse;
 import school.faang.user_service.dto.response.GoalsResponse;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
-import school.faang.user_service.exception.InvalidException;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skill.SkillService;
@@ -44,7 +43,12 @@ public class GoalService {
         ValidationResponse validationResponse = goalValidation.validateGoalRequest(userId, goal, true);
 
         if (!validationResponse.isValid()) {
-            throw new InvalidException(validationResponse.getErrors());
+            var response = new GoalResponse(
+                    "Validation failed",
+                    400
+            );
+            response.setErrors(validationResponse.getErrors());
+            return response;
         }
 
         goal.setStatus(GoalStatus.ACTIVE);
@@ -84,11 +88,21 @@ public class GoalService {
         ValidationResponse validationResponse = goalValidation.validateGoalRequest(userId, goal, false);
 
         if (!validationResponse.isValid()) {
-            throw new InvalidException(validationResponse.getErrors());
+            var response = new GoalResponse(
+                    "Validation failed",
+                    400
+            );
+            response.setErrors(validationResponse.getErrors());
+            return response;
         }
 
         if (!goalRepository.existsById(goal.getId())) {
-            throw new InvalidException(List.of("Goal does not exist"));
+            var response = new GoalResponse(
+                    "Validation failed",
+                    400
+            );
+            response.setErrors(List.of("Goal does not exist"));
+            return response;
         }
 
         Goal entity = goalRepository.findGoalById(goal.getId());
@@ -139,7 +153,12 @@ public class GoalService {
      */
     public GoalResponse deleteGoal(long goalId) {
         if (!goalRepository.existsById(goalId)) {
-            throw new InvalidException(List.of("Goal does not exist"));
+            var response = new GoalResponse(
+                    "Validation failed",
+                    400
+            );
+            response.setErrors(List.of("Goal does not exist"));
+            return response;
         }
 
         goalRepository.delete(goalRepository.findGoalById(goalId));
@@ -163,7 +182,12 @@ public class GoalService {
      */
     public GoalsResponse getGoalsByUser(long userId, GoalFilterDto filters) {
         if (!userService.checkIfUserExistsById(userId)) {
-            throw new InvalidException(List.of("User does not exist"));
+            var response = new GoalsResponse(
+                    "Validation failed",
+                    400
+            );
+            response.setErrors(List.of("Goal does not exist"));
+            return response;
         }
 
         Stream<Goal> goals = goalRepository.findAll().stream();
