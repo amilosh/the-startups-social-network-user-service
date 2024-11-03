@@ -29,7 +29,6 @@ import java.util.stream.Stream;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
 public class GoalInvitationService {
 
     private final GoalInvitationRepository goalInvitationRepository;
@@ -117,7 +116,6 @@ public class GoalInvitationService {
         return goalInvitationMapper.toDto(rejectedGoalInvitation);
     }
 
-    @Transactional(readOnly = true)
     public List<GoalInvitationDto> getInvitations(InvitationFilterDto filters) {
         Stream<GoalInvitation> goalInvitationsStream = goalInvitationRepository.findAll().stream();
         goalInvitationsStream = goalInvitationFilters.stream()
