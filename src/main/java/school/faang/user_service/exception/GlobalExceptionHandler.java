@@ -28,4 +28,10 @@ public class GlobalExceptionHandler {
         log.error("Произошла ошибка: ", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Произошла ошибка.");
     }
+
+    @ExceptionHandler(InvalidUserIdException.class)
+    public ResponseEntity<String> handleInvalidUserIdException(InvalidUserIdException ex) {
+        log.warn("Произошло исключение InvalidUserIdException: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }
