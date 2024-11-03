@@ -18,13 +18,13 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapper;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapperImpl;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.filter.mentorship.RequestDescriptionFilter;
 import school.faang.user_service.filter.mentorship.RequestFilter;
 import school.faang.user_service.filter.mentorship.RequestReceiverFilter;
 import school.faang.user_service.filter.mentorship.RequestRequesterFilter;
 import school.faang.user_service.filter.mentorship.RequestStatusFilter;
+import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.mentorship.MentorshipRequestDtoValidator;
 
 import java.time.LocalDateTime;
@@ -46,7 +46,7 @@ class MentorshipRequestServiceTest {
     private MentorshipRequestRepository requestRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Mock
     private MentorshipRequestDtoValidator requestValidator;
@@ -85,7 +85,7 @@ class MentorshipRequestServiceTest {
 
         requestMapper = Mockito.spy(new MentorshipRequestMapperImpl());
         requestService = new MentorshipRequestService(
-                requestRepository, userRepository, requestValidator, requestMapper, requestFilters
+                requestRepository, userService, requestValidator, requestMapper, requestFilters
         );
 
         Long requesterId = 1L;

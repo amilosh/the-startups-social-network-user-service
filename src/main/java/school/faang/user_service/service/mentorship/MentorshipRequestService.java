@@ -10,14 +10,12 @@ import school.faang.user_service.dto.mentorship.RejectionDto;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapper;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.filter.mentorship.RequestFilter;
+import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.mentorship.MentorshipRequestDtoValidator;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -27,7 +25,7 @@ import java.util.stream.Stream;
 public class MentorshipRequestService {
 
     private final MentorshipRequestRepository requestRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final MentorshipRequestDtoValidator requestValidator;
     private final MentorshipRequestMapper requestMapper;
     private final List<RequestFilter> requestFilters;
@@ -79,20 +77,12 @@ public class MentorshipRequestService {
         log.info("Accepting mentorship request with ID: {}", requestId);
         MentorshipRequest request = requestValidator.validateAcceptRequest(requestId);
 
-        User requester = request.getRequester();
-        User receiver = request.getReceiver();
-        initializeLists(requester);
-        initializeLists(receiver);
-        requester.getMentors().add(receiver);
-        receiver.getMentees().add(requester);
-
-        userRepository.save(requester);
-        userRepository.save(receiver);
+        userService.updateMentorsAndMentees(request.getRequester().getId(), request.getReceiver().getId());
 
         request.setStatus(RequestStatus.ACCEPTED);
-
         MentorshipRequest savedRequest = requestRepository.save(request);
         log.info("Successfully accepted request ID: {}", requestId);
+
         return requestMapper.toMentorshipRequestDto(savedRequest);
     }
 
@@ -107,14 +97,5 @@ public class MentorshipRequestService {
         MentorshipRequest savedRequest = requestRepository.save(request);
         log.info("Successfully rejected request ID: {}", requestId);
         return requestMapper.toMentorshipRequestDto(savedRequest);
-    }
-
-    private void initializeLists(User user) {
-        if (user.getMentors() == null) {
-            user.setMentors(new ArrayList<>());
-        }
-        if (user.getMentees() == null) {
-            user.setMentees(new ArrayList<>());
-        }
     }
 }
