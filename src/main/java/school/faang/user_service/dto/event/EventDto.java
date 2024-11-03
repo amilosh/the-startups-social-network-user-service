@@ -50,5 +50,6 @@ public class EventDto {
     @Size(max = 128, message = "location length more than 128 symbol")
     private String location;
 
-    private int maxAttendees = 0;
+    @JsonProperty(defaultValue = "1")
+    private Integer maxAttendees;
 }
