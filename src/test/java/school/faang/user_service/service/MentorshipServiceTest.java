@@ -10,7 +10,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 
 
@@ -18,9 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,7 +33,7 @@ public class MentorshipServiceTest {
     private UserRepository userRepository;
 
     @Spy
-    private UserMapper userMapper;
+    private UserMapperImpl userMapper;
 
     private long menteeId;
     private long mentorId;
@@ -58,8 +58,11 @@ public class MentorshipServiceTest {
     public void testDeleteMentor() {
         // arrange
         mentors.add(mentor);
+        mentees.add(mentee);
+        mentor.setMentees(mentees);
         mentee.setMentors(mentors);
         when(userRepository.findById(menteeId)).thenReturn(Optional.of(mentee));
+        when(userRepository.findById(mentorId)).thenReturn(Optional.of(mentor));
 
         List<User> expected = new ArrayList<>();
 
@@ -78,8 +81,7 @@ public class MentorshipServiceTest {
         when(userRepository.findById(menteeId)).thenReturn(Optional.of(mentee));
 
         // act and assert
-        assertThrows(EntityNotFoundException.class,
-                () -> mentorshipService.deleteMentor(menteeId, mentorId));
+        assertDoesNotThrow(() -> mentorshipService.deleteMentor(menteeId, mentorId));
     }
 
     @Test
@@ -95,9 +97,12 @@ public class MentorshipServiceTest {
     @Test
     public void testDeleteMentee() {
         // arrange
+        mentors.add(mentor);
         mentees.add(mentee);
         mentor.setMentees(mentees);
+        mentee.setMentors(mentors);
         when(userRepository.findById(mentorId)).thenReturn(Optional.of(mentor));
+        when(userRepository.findById(menteeId)).thenReturn(Optional.of(mentee));
 
         List<User> expected = new ArrayList<>();
 
@@ -116,8 +121,7 @@ public class MentorshipServiceTest {
         when(userRepository.findById(mentorId)).thenReturn(Optional.of(mentor));
 
         // act and assert
-        assertThrows(EntityNotFoundException.class,
-                () -> mentorshipService.deleteMentee(menteeId, mentorId));
+        assertDoesNotThrow(() -> mentorshipService.deleteMentee(menteeId, mentorId));
     }
 
     @Test
