@@ -1,14 +1,21 @@
 package school.faang.user_service.filter.userFilter;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 
-@RequiredArgsConstructor
+@Component
 public class CountryPatternFilter implements UserFilter {
-    private final String pattern;
+    private String pattern;
+
+    @Override
+    public boolean isApplicable(UserFilterDto filters) {
+        this.pattern = filters.countryPattern();
+        return pattern != null;
+    }
 
     @Override
     public boolean apply(User user) {
-        return user.getCountry() != null && user.getCountry().getResidents().contains(pattern);
+        return user.getCountry() != null && user.getCountry().getTitle().contains(pattern);
     }
 }

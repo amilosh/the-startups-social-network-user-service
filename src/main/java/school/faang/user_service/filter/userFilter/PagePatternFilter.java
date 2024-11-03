@@ -1,10 +1,19 @@
 package school.faang.user_service.filter.userFilter;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 
-@RequiredArgsConstructor
+@Component
 public class PagePatternFilter implements UserFilter {
+    private int pattern;
+
+    @Override
+    public boolean isApplicable(UserFilterDto filters) {
+        this.pattern = filters.page();
+        return pattern > 0;
+    }
+
     @Override
     public boolean apply(User user) {
         return true;

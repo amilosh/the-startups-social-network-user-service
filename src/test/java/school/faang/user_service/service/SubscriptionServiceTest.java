@@ -10,6 +10,7 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 
@@ -17,7 +18,9 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -123,6 +126,11 @@ public class SubscriptionServiceTest {
         when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(users.stream());
         when(userMapper.toDto(anyList())).thenReturn(userDtos);
 
+        UserFilter mockFilter = mock(UserFilter.class);
+        when(mockFilter.isApplicable(filterDto)).thenReturn(true);
+        when(mockFilter.apply(any(User.class))).thenReturn(true);
+        subscriptionService = new SubscriptionService(subscriptionRepository, userMapper, List.of(mockFilter));
+
         // Act
         List<UserDto> result = subscriptionService.getFollowers(followeeId, filterDto);
 
@@ -147,11 +155,19 @@ public class SubscriptionServiceTest {
 
     @Test
     public void testGetFollowing() {
+        // Arrange
         when(subscriptionRepository.findByFollowerId(followerId)).thenReturn(users.stream());
         when(userMapper.toDto(anyList())).thenReturn(userDtos);
 
+        UserFilter mockFilter = mock(UserFilter.class);
+        when(mockFilter.isApplicable(filterDto)).thenReturn(true);
+        when(mockFilter.apply(any(User.class))).thenReturn(true);
+        subscriptionService = new SubscriptionService(subscriptionRepository, userMapper, List.of(mockFilter));
+
+        // Act
         List<UserDto> result = subscriptionService.getFollowing(followerId, filterDto);
 
+        // Assert
         assertEquals(userDtos, result);
         verify(subscriptionRepository).findByFollowerId(followerId);
         verify(userMapper).toDto(anyList());

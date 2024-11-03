@@ -7,7 +7,6 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.userFilter.UserFilter;
-import school.faang.user_service.filter.userFilter.UserFilterFactory;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 
@@ -19,6 +18,7 @@ import java.util.stream.Stream;
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final UserMapper userMapper;
+    private final List<UserFilter> filters;
 
     public void followUser(long followerId, long followeeId) {
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
@@ -56,12 +56,11 @@ public class SubscriptionService {
     }
 
     private List<UserDto> filterUsers(Stream<User> users, UserFilterDto filterDto) {
-        List<UserFilter> filters = UserFilterFactory.createFilters(filterDto);
-
-        List<User> filteredUsers = users
-                .filter(user -> filters.stream().allMatch(filter -> filter.apply(user)))
+        List<User> filtered_users = users
+                .filter(user -> filters.stream()
+                        .filter(filter -> filter.isApplicable(filterDto))
+                        .allMatch(filter -> filter.apply(user)))
                 .toList();
-
-        return userMapper.toDto(filteredUsers);
+        return userMapper.toDto(filtered_users);
     }
 }
