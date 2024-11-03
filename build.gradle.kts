@@ -65,7 +65,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0")
-    implementation ("net.coobird:thumbnailator:0.4.1")
+    implementation("net.coobird:thumbnailator:0.4.1")
 
     /**
      * Test containers
@@ -74,6 +74,9 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("com.redis.testcontainers:testcontainers-redis-junit-jupiter:1.4.6")
+    testImplementation("org.mockito:mockito-core:3.+")
+
+    testImplementation ("com.github.javafaker:javafaker:1.0.2")
 
     /**
      * Tests
@@ -105,10 +108,10 @@ tasks.bootJar {
  * JaCoCo settings
  */
 val jacocoInclude = listOf(
-    "**/controller/**",
-    "**/service/**",
-    "**/validator/**",
-    "**/mapper/**"
+        "**/controller/**",
+        "**/service/**",
+        "**/validator/**",
+        "**/mapper/**"
 )
 jacoco {
     toolVersion = "0.8.9"
@@ -127,9 +130,9 @@ tasks.jacocoTestReport {
     }
 
     classDirectories.setFrom(
-        sourceSets.main.get().output.asFileTree.matching {
-            include(jacocoInclude)
-        }
+            sourceSets.main.get().output.asFileTree.matching {
+                include(jacocoInclude)
+            }
     )
 }
 tasks.jacocoTestCoverageVerification {
@@ -137,9 +140,9 @@ tasks.jacocoTestCoverageVerification {
         rule {
             element = "CLASS"
             classDirectories.setFrom(
-                sourceSets.main.get().output.asFileTree.matching {
-                    include(jacocoInclude)
-                }
+                    sourceSets.main.get().output.asFileTree.matching {
+                        include(jacocoInclude)
+                    }
             )
             enabled = true
             limit {
