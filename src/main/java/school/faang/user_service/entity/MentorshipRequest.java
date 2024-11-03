@@ -33,7 +33,7 @@ public class MentorshipRequest {
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.ORDINAL)
-    private RequestStatus status;
+    private RequestStatusDto status;
 
     @Column(name = "rejection_reason", length = 4096)
     private String rejectionReason;

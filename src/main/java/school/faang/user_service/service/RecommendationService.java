@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +33,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RecommendationService {
     private static final long REQUIRED_DURATION_IN_DAYS = 6 * 30;
 
@@ -48,6 +50,7 @@ public class RecommendationService {
 
     @Transactional
     public RecommendationDto create(RecommendationDto recommendationDto) {
+        log.info("Creating new recommendation for receiverId: {}", recommendationDto.receiverId());
         Recommendation recommendation = mapToFullRecommendation(recommendationDto);
         validateRecommendation(recommendation);
 
@@ -57,11 +60,13 @@ public class RecommendationService {
         addGuaranteeToReceiverSkillIfAbsent(recommendation, recommendationSkills);
 
         recommendation = recommendationRepo.save(recommendation);
+        log.info("Recommendation created successfully with id: {}", recommendation.getId());
         return recommendationMapper.toDto(recommendation);
     }
 
     @Transactional
     public void delete(long recommendationId) {
+        log.info("Deleting recommendation with id: {}", recommendationId);
         Recommendation recommendation = recommendationRepo.findById(recommendationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Recommendation", "id", recommendationId));
         User receiver = recommendation.getReceiver();
@@ -73,10 +78,12 @@ public class RecommendationService {
         receiver.removeReceivedRecommendation(recommendation);
         author.removeGivenRecommendation(recommendation);
         recommendationRepo.delete(recommendation);
+        log.info("Recommendation with id: {} deleted successfully", recommendationId);
     }
 
     @Transactional
     public RecommendationDto update(long recommendationId, RecommendationDto recommendationDto) {
+        log.info("Updating recommendation with id: {}", recommendationId);
         Recommendation recommendation = recommendationRepo.findById(recommendationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Recommendation", "id", recommendationId));
         validateRecommendation(recommendation);
@@ -98,6 +105,7 @@ public class RecommendationService {
         addGuaranteeToReceiverSkillIfAbsent(recommendation, newSkills);
 
         Recommendation updatedRecommendation = recommendationRepo.save(recommendation);
+        log.info("Recommendation with id: {} updated successfully", recommendationId);
         return recommendationMapper.toDto(updatedRecommendation);
     }
 
@@ -149,12 +157,14 @@ public class RecommendationService {
     private static void addSkillToReceiverIfAbsent(Recommendation recommendation, List<Skill> addedSkills) {
         User receiver = recommendation.getReceiver();
         Set<Skill> receiverSkills = new HashSet<>(receiver.getSkills());
+        log.debug("Adding skills to receiver if absent, receiverId: {}", receiver.getId());
 
         addedSkills.stream()
                 .filter(skill -> !receiverSkills.contains(skill))
                 .forEach(skill -> {
                     receiver.addSkill(skill);
                     skill.addUser(receiver);
+                    log.info("Added skill '{}' to receiver '{}'", skill.getTitle(), receiver.getId());
                 });
     }
 
@@ -176,10 +186,13 @@ public class RecommendationService {
     }
 
     private void validateRecommendation(Recommendation newRecommendation) {
+        log.debug("Validating recommendation for receiver: {}, author: {}", newRecommendation.getReceiver().getId(), newRecommendation.getAuthor().getId());
         if (!recommendationValidator.isPeriodElapsedSinceLastRecommendation(
                 getLastReceiverRecommendationFromAuthor(newRecommendation),
                 newRecommendation,
                 Duration.ofDays(REQUIRED_DURATION_IN_DAYS))) {
+            log.warn("Validation failed: Less than 6 months since last referral for receiver: {}",
+                    newRecommendation.getReceiver().getId());
             throw new DataValidationException("Less than 6 months since last referral");
         }
     }
