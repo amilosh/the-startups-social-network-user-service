@@ -14,6 +14,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
+import school.faang.user_service.validator.MentorshipRequestValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,12 @@ public class MentorshipRequestServiceTest {
     @Mock
     private List<MentorshipRequestFilter> mentorshipRequestFilters;
 
+    @Mock
+    private MentorshipRequestValidator validator;
+
+    @Mock
+    private UserService userService;
+
     @Test
     public void testGetMentorshipRequest() {
         mentorshipRequestService.getRequests(new MentorshipRequestFilterDto());
@@ -48,6 +55,9 @@ public class MentorshipRequestServiceTest {
     @Test
     public void testCreateRequest() {
         MentorshipRequestDto dto = prepareMentorshipRequestDto(1L, 2L, "description");
+
+        when(mentorshipRequestRepository.findLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId()))
+                .thenReturn(Optional.of(new MentorshipRequest()));
 
         mentorshipRequestService.createRequestMentorship(dto);
         verify(mentorshipRequestRepository).create(

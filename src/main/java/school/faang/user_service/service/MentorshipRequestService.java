@@ -12,6 +12,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
+import school.faang.user_service.validator.MentorshipRequestValidator;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -22,6 +23,8 @@ public class MentorshipRequestService {
     private final MentorshipRequestRepository mentorshipRequestRepository;
     private final MentorshipRequestMapper mentorshipRequestMapper;
     private final List<MentorshipRequestFilter> mentorshipRequestFilters;
+    private final MentorshipRequestValidator validator;
+    private final UserService userService;
 
     public List<MentorshipRequestDto> getRequests(MentorshipRequestFilterDto requestFilterDto) {
 
@@ -36,9 +39,19 @@ public class MentorshipRequestService {
 
     public MentorshipRequestDto createRequestMentorship(MentorshipRequestDto mentorshipRequestDto) {
 
+        long requesterUserId = mentorshipRequestDto.getRequesterUserId();
+        long receiverUserId = mentorshipRequestDto.getReceiverUserId();
+
+        validator.validate(
+                mentorshipRequestDto,
+                userService.existsById(requesterUserId),
+                userService.existsById(receiverUserId),
+                findLatestRequest(requesterUserId, receiverUserId).getCreatedAt()
+        );
+
         mentorshipRequestRepository.create(
-                mentorshipRequestDto.getRequesterUserId(),
-                mentorshipRequestDto.getReceiverUserId(),
+                requesterUserId,
+                receiverUserId,
                 mentorshipRequestDto.getDescription()
         );
 
