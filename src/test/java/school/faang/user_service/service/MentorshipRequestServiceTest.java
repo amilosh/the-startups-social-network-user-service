@@ -91,8 +91,6 @@ public class MentorshipRequestServiceTest {
         verify(mentorshipRequestRepository, times(1)).save(any(MentorshipRequest.class));
     }
 
-
-
     @Test
     public void testRequestMentorship_SelfRequest_ThrowsException() {
         mentorshipRequestDto.setReceiverId(1L);
@@ -141,8 +139,6 @@ public class MentorshipRequestServiceTest {
         assertEquals(RequestStatus.ACCEPTED, result.getStatus());
         assertTrue(requester.getMentors().contains(receiver));
     }
-
-
 
     @Test
     public void testAcceptMentorship_AlreadyMentor_ThrowsException() {
