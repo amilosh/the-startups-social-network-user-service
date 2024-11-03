@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
@@ -11,6 +12,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     public User getUserById(long id) {
-        return userRepository.findById(id).orElse(null);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с id:%s не найден".formatted(id)));
     }
 }

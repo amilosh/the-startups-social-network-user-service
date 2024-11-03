@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
-import school.faang.user_service.validator.EventValidator;
 
 import java.util.List;
 
@@ -17,14 +17,19 @@ public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
     private final UserService userService;
     private final UserMapper userMapper;
-    private final EventValidator eventValidator;
 
     public void registerParticipant(UserDto userDto, EventDto eventDto) {
-        participantProcess(userDto, eventDto, true);
+        if (isParticipantRegistered(userDto, eventDto)) {
+            throw new DataValidationException("Пользователь уже зарегистрирован на событие");
+        }
+        eventParticipationRepository.register(userDto.id(), eventDto.id());
     }
 
     public void unregisterParticipant(UserDto userDto, EventDto eventDto) {
-        participantProcess(userDto, eventDto, false);
+        if (!isParticipantRegistered(userDto, eventDto)) {
+            throw new DataValidationException("Пользователь не был зарегистрирован на событие");
+        }
+        eventParticipationRepository.unregister(userDto.id(), eventDto.id());
     }
 
     public List<UserDto> getParticipants(EventDto eventDto) {
@@ -39,17 +44,11 @@ public class EventParticipationService {
         return eventParticipationRepository.countParticipants(eventDto.id());
     }
 
-    private void participantProcess(UserDto userDto, EventDto eventDto, boolean shouldBeRegistered) {
+    private boolean isParticipantRegistered(UserDto userDto, EventDto eventDto) {
         User user = userService.getUserById(userDto.id());
-        List<User> participants = eventParticipationRepository.findAllParticipantsByEventId(eventDto.id());
-        boolean isRegistered = participants.contains(user);
-
-        eventValidator.validateRegistration(isRegistered, shouldBeRegistered);
-
-        if (shouldBeRegistered) {
-            eventParticipationRepository.register(user.getId(), eventDto.id());
-        } else {
-            eventParticipationRepository.unregister(user.getId(), eventDto.id());
-        }
+        List<Long> participantsId = eventParticipationRepository.findAllParticipantsByEventId(eventDto.id()).stream()
+                .map(User::getId)
+                .toList();
+        return participantsId.contains(user.getId());
     }
 }
