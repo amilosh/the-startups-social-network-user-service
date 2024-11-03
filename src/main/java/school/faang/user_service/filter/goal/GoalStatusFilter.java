@@ -16,6 +16,6 @@ class GoalStatusFilter implements GoalFilter {
 
     @Override
     public Stream<Goal> apply(Stream<Goal> goals, GoalFilterDto filter) {
-        return goals.filter(goal -> goal.getStatus() == filter.getStatus());
+        return goals.filter(goal -> goal.getStatus().equals(filter.getStatus()));
     }
 }
