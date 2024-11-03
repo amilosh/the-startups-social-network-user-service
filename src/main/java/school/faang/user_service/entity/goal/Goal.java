@@ -58,7 +58,7 @@ public class Goal {
     @JoinColumn(name = "mentor_id")
     private User mentor;
 
-    @OneToMany(mappedBy = "goal")
+    @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GoalInvitation> invitations;
 
     @ManyToMany

@@ -91,4 +91,12 @@ public class Skill {
         return guarantees.stream()
                 .anyMatch(guarantee -> guarantee.isGuarantor(user));
     }
+
+    public void addGoal(Goal goal) {
+        goals.add(goal);
+    }
+
+    public void removeGoal(Goal goal) {
+        goals.remove(goal);
+    }
 }

@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.RequestStatusDto;
 import school.faang.user_service.entity.User;
 
 import java.time.LocalDateTime;
@@ -36,7 +36,7 @@ public class GoalInvitation {
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.ORDINAL)
-    private RequestStatus status;
+    private RequestStatusDto status;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
