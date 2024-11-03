@@ -18,7 +18,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -48,7 +49,7 @@ public class MentorshipServiceTest {
     @Test
     public void testGetMenteesWithNonExistentId() {
         User user = prepareData(1212, new ArrayList<>(), new ArrayList<>());
-        UserDto userDto = getUserDto(user);
+        UserDto userDto = userMapper.toDto(user);
         String expectedMessage = "User not found";
         when(mentorshipRepository.findById(userDto.getId()))
                 .thenReturn(Optional.empty());
@@ -57,11 +58,6 @@ public class MentorshipServiceTest {
                 () -> mentorshipService.getMentees(userDto.getId()));
 
         assertEquals(expectedMessage, exception.getMessage());
-    }
-
-    private UserDto getUserDto(User user) {
-        UserDto userDto = userMapper.toDto(user);
-        return userDto;
     }
 
     @Test
@@ -181,11 +177,11 @@ public class MentorshipServiceTest {
         when(mentorshipRepository.findById(mentor.getId()))
                 .thenReturn(Optional.of(mentor));
 
-        boolean resultAfterDelete = mentorshipService.deleteMentee(mentee.getId(), mentor.getId());
+        mentorshipService.deleteMentee(mentee.getId(), mentor.getId());
         List<User> mentees = mentor.getMentees();
 
-        assertTrue(resultAfterDelete);
         assertEquals(0, mentees.size());
+        verify(mentorshipRepository, times(1)).save(mentor);
     }
 
     @Test
@@ -196,11 +192,11 @@ public class MentorshipServiceTest {
         when(mentorshipRepository.findById(mentor.getId()))
                 .thenReturn(Optional.of(mentor));
 
-        boolean resultAfterDelete = mentorshipService.deleteMentee(firstMentee.getId(), mentor.getId());
+        mentorshipService.deleteMentee(firstMentee.getId(), mentor.getId());
         List<User> mentees = mentor.getMentees();
 
-        assertTrue(resultAfterDelete);
         assertEquals(1, mentees.size());
+        verify(mentorshipRepository, times(1)).save(mentor);
     }
 
     @Test
@@ -236,11 +232,11 @@ public class MentorshipServiceTest {
         when(mentorshipRepository.findById(mentee.getId()))
                 .thenReturn(Optional.of(mentee));
 
-        boolean resultAfterDelete = mentorshipService.deleteMentor(mentee.getId(), mentor.getId());
+        mentorshipService.deleteMentor(mentee.getId(), mentor.getId());
         List<User> mentors = mentee.getMentors();
 
-        assertTrue(resultAfterDelete);
         assertEquals(0, mentors.size());
+        verify(mentorshipRepository, times(1)).save(mentee);
     }
 
     @Test
@@ -251,11 +247,11 @@ public class MentorshipServiceTest {
         when(mentorshipRepository.findById(mentee.getId()))
                 .thenReturn(Optional.of(mentee));
 
-        boolean resultAfterDelete = mentorshipService.deleteMentor(mentee.getId(), secondMentor.getId());
+        mentorshipService.deleteMentor(mentee.getId(), secondMentor.getId());
         List<User> mentors = mentee.getMentors();
 
-        assertTrue(resultAfterDelete);
         assertEquals(1, mentors.size());
+        verify(mentorshipRepository, times(1)).save(mentee);
     }
 
     private User prepareData(long userId, List<User> mentees, List<User> mentors) {

@@ -44,16 +44,18 @@ public class MentorshipService {
                 .toList();
     }
 
-    public boolean deleteMentee(long menteeId, long mentorId) {
+    public void deleteMentee(long menteeId, long mentorId) {
         User mentor = getUser(mentorId);
         List<User> mentees = mentor.getMentees();
-        return mentees.removeIf(mentee -> mentee.getId() == menteeId);
+        mentees.removeIf(mentee -> mentee.getId() == menteeId);
+        mentorshipRepository.save(mentor);
     }
 
-    public boolean deleteMentor(long menteeId, long mentorId) {
+    public void deleteMentor(long menteeId, long mentorId) {
         User mentee = getUser(menteeId);
         List<User> mentors = mentee.getMentors();
-        return mentors.removeIf(mentor -> mentor.getId() == mentorId);
+        mentors.removeIf(mentor -> mentor.getId() == mentorId);
+        mentorshipRepository.save(mentee);
     }
 
     private User getUser(long userId) {
