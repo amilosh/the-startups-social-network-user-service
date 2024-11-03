@@ -181,7 +181,7 @@ public class GoalService {
      * status and an error message.
      */
     public GoalsResponse getGoalsByUser(long userId, GoalFilterDto filters) {
-        if (!userService.checkIfUserExistsById(userId)) {
+        if (!userService.checkUserExistence(userId)) {
             var response = new GoalsResponse(
                     "Validation failed",
                     400

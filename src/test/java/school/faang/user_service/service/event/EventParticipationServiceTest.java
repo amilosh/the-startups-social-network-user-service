@@ -91,7 +91,7 @@ public class EventParticipationServiceTest {
     @Test
     void testRegisterParticipantThrowExceptionIfUserDoesNotExit() {
         when(eventService.checkEventExistence(eventId)).thenReturn(true);
-        when(userService.checkIfUserExistsById(userId)).thenReturn(false);
+        when(userService.checkUserExistence(userId)).thenReturn(false);
 
         assertThrows(EntityNotFoundException.class, () -> eventParticipationService.registerParticipant(eventId, userId),
                 "User with id " + userId + " does not exist");
@@ -100,7 +100,7 @@ public class EventParticipationServiceTest {
     @Test
     void testRegisterParticipantThrowExceptionIfUserAlreadyRegistered() {
         when(eventService.checkEventExistence(eventId)).thenReturn(true);
-        when(userService.checkIfUserExistsById(userId)).thenReturn(true);
+        when(userService.checkUserExistence(userId)).thenReturn(true);
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(List.of(setUpUser()));
 
         assertThrows(IllegalStateException.class, () -> eventParticipationService.registerParticipant(eventId, userId),
@@ -111,13 +111,13 @@ public class EventParticipationServiceTest {
     @Test
     void testRegisterParticipantRegisterUserSuccessfully() {
         when(eventService.checkEventExistence(eventId)).thenReturn(true);
-        when(userService.checkIfUserExistsById(userId)).thenReturn(true);
+        when(userService.checkUserExistence(userId)).thenReturn(true);
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(List.of());
 
         eventParticipationService.registerParticipant(eventId, userId);
 
         verify(eventService, times(1)).checkEventExistence(eventId);
-        verify(userService, times(1)).checkIfUserExistsById(userId);
+        verify(userService, times(1)).checkUserExistence(userId);
         verify(eventParticipationRepository, times(1)).findAllParticipantsByEventId(eventId);
         verify(eventParticipationRepository, times(1)).register(eventId, userId);
     }
@@ -133,7 +133,7 @@ public class EventParticipationServiceTest {
     @Test
     void testUnregisterParticipantThrowExceptionIfUserDoesNotExit() {
         when(eventService.checkEventExistence(eventId)).thenReturn(true);
-        when(userService.checkIfUserExistsById(userId)).thenReturn(false);
+        when(userService.checkUserExistence(userId)).thenReturn(false);
 
         assertThrows(EntityNotFoundException.class, () -> eventParticipationService.unregisterParticipant(eventId, userId),
                 "User with id " + userId + " does not exist");
@@ -142,7 +142,7 @@ public class EventParticipationServiceTest {
     @Test
     void testUnregisterParticipantThrowExceptionIfUserNotRegistered() {
         when(eventService.checkEventExistence(eventId)).thenReturn(true);
-        when(userService.checkIfUserExistsById(userId)).thenReturn(true);
+        when(userService.checkUserExistence(userId)).thenReturn(true);
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(List.of());
 
         assertThrows(IllegalStateException.class, () -> eventParticipationService.unregisterParticipant(eventId, userId),
@@ -152,13 +152,13 @@ public class EventParticipationServiceTest {
     @Test
     void testUnregisterParticipantUnregisterUserSuccessfully() {
         when(eventService.checkEventExistence(eventId)).thenReturn(true);
-        when(userService.checkIfUserExistsById(userId)).thenReturn(true);
+        when(userService.checkUserExistence(userId)).thenReturn(true);
         when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(List.of(setUpUser()));
 
         eventParticipationService.unregisterParticipant(eventId, userId);
 
         verify(eventService, times(1)).checkEventExistence(eventId);
-        verify(userService, times(1)).checkIfUserExistsById(userId);
+        verify(userService, times(1)).checkUserExistence(userId);
         verify(eventParticipationRepository, times(1)).findAllParticipantsByEventId(eventId);
         verify(eventParticipationRepository, times(1)).unregister(eventId, userId);
     }

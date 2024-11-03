@@ -1,18 +1,14 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.mentorship;
 
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.user.UserService;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 @Slf4j
 @Component

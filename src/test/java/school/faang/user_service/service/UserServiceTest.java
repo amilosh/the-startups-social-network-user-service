@@ -34,7 +34,7 @@ public class UserServiceTest {
         long userId = 1L;
         when(userRepository.existsById(userId)).thenReturn(true);
 
-        boolean result = userService.checkIfUserExistsById(userId);
+        boolean result = userService.checkUserExistence(userId);
 
         assertTrue(result);
     }
@@ -44,7 +44,7 @@ public class UserServiceTest {
         long userId = 1L;
         when(userRepository.existsById(userId)).thenReturn(false);
 
-        boolean result = userService.checkIfUserExistsById(userId);
+        boolean result = userService.checkUserExistence(userId);
 
         assertFalse(result);
     }

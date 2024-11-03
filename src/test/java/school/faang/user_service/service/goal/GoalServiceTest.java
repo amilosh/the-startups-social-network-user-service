@@ -256,7 +256,7 @@ class GoalServiceTest {
     @Test
     public void testGetGoalsByUser_UserNotFound() {
         long userId = 1L;
-        when(userService.checkIfUserExistsById(userId)).thenReturn(false);
+        when(userService.checkUserExistence(userId)).thenReturn(false);
 
         GoalsResponse response = goalService.getGoalsByUser(userId, new GoalFilterDto());
 
@@ -274,7 +274,7 @@ class GoalServiceTest {
 
         GoalFilter filters = new GoalTitleFilter();
 
-        when(userService.checkIfUserExistsById(userId)).thenReturn(true);
+        when(userService.checkUserExistence(userId)).thenReturn(true);
 
         goalFilters.add(filters);
 

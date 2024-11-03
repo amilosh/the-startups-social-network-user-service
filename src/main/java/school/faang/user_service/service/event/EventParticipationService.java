@@ -63,7 +63,7 @@ public class EventParticipationService {
     }
 
     private void userExistsOrThrow(long userId) {
-        if (!userService.checkIfUserExistsById(userId)) {
+        if (!userService.checkUserExistence(userId)) {
             throw new EntityNotFoundException("User with id " + userId + " does not exist");
         }
     }
