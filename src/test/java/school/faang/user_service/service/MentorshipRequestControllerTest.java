@@ -1,6 +1,5 @@
 package school.faang.user_service.service;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.javafaker.Faker;
@@ -88,11 +87,14 @@ public class MentorshipRequestControllerTest {
 
     @Test
     public void testRequestMentorship_BadRequest() throws Exception {
-        MentorshipRequestDto requestDto = generateMentorshipRequestDto();
+        MentorshipRequestDto requestDto = new MentorshipRequestDto(1L, "sdfsd", 1L, 1L,
+                RequestStatus.PENDING, null, LocalDateTime.now().minusDays(1), null);
+
         mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.REQUEST + UrlUtils.CREATE, 1L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isBadRequest());
+
         verify(mentorshipRequestService, never()).requestMentorship(requestDto);
     }
 
@@ -107,6 +109,7 @@ public class MentorshipRequestControllerTest {
                         .content(objectMapper.writeValueAsString(filter)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(responseList)));
+
         verify(mentorshipRequestService).getRequest(filter);
     }
 
@@ -116,20 +119,23 @@ public class MentorshipRequestControllerTest {
 
         mockMvc.perform(put(UrlUtils.MAIN_URL + UrlUtils.REQUEST + UrlUtils.ID + UrlUtils.ACCEPT, requestId))
                 .andExpect(status().isOk());
-        verify(mentorshipRequestService, times(1)).acceptRequest(requestId);
+
+        verify(mentorshipRequestService).acceptRequest(requestId);
     }
 
     @Test
     public void testRejectRequest() throws Exception {
-        Long requestId = 1L;
+        long requestId = 1L;
         RejectionDto rejectionDto = new RejectionDto("Reason for rejection");
         doNothing().when(mentorshipRequestService).rejectRequest(anyLong(), anyString());
         String request = objectMapper.writeValueAsString(rejectionDto);
-        mockMvc.perform(put("/api/user-service/request/{id}/reject", requestId)
+
+        mockMvc.perform(put(UrlUtils.MAIN_URL + UrlUtils.REQUEST + UrlUtils.ID + UrlUtils.REJECT, requestId)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(request))
                 .andExpect(status().isOk());
+
         verify(mentorshipRequestService).rejectRequest(requestId, rejectionDto.reason());
     }
 }
