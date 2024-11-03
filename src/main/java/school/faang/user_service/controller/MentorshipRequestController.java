@@ -19,7 +19,7 @@ import java.util.List;
 
 @Tag(name = "MentorshipRequests", description = "API for managing mentorship requests.")
 @RestController
-@RequestMapping("/api/mentorship/requests")
+@RequestMapping("/mentorship/requests")
 @RequiredArgsConstructor
 public class MentorshipRequestController {
     private final MentorshipRequestService mentorshipRequestService;
