@@ -21,7 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,14 +54,14 @@ public class EventParticipationControllerTest {
 
     @Test
     void registerParticipantStatusOkTest() throws Exception {
-        mockMvc.perform(put(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/1" + UrlUtils.REGISTER)
+        mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/1" + UrlUtils.PARTICIPANTS)
                         .param("userId", "2"))
                 .andExpect(status().isOk());
     }
 
     @Test
     void registerParticipantStatus400Test() throws Exception {
-        mockMvc.perform(put(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/100" + UrlUtils.REGISTER)
+        mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/100" + UrlUtils.PARTICIPANTS)
                         .param("userId", "2"))
                 .andExpect(status().is4xxClientError())
                 .andDo(mvcResult -> {
@@ -71,14 +72,14 @@ public class EventParticipationControllerTest {
 
     @Test
     void unregisterParticipantStatusOkTest() throws Exception {
-        mockMvc.perform(put(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/5" + UrlUtils.UNREGISTER)
+        mockMvc.perform(delete(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/5" + UrlUtils.PARTICIPANTS)
                         .param("userId", "7"))
                 .andExpect(status().isOk());
     }
 
     @Test
     void unregisterParticipantStatus400Test() throws Exception {
-        mockMvc.perform(put(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/100" + UrlUtils.UNREGISTER)
+        mockMvc.perform(delete(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/100" + UrlUtils.PARTICIPANTS)
                         .param("userId", "2"))
                 .andExpect(status().is4xxClientError())
                 .andDo(mvcResult -> {
