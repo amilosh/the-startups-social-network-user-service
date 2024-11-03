@@ -1,8 +1,10 @@
-package school.faang.user_service.controller;
+package school.faang.user_service.controller.mentorship;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,22 +27,26 @@ public class MentorshipRequestController {
     private final MentorshipRequestService mentorshipRequestService;
 
     @PostMapping
-    public MentorshipRequestDto requestMentorship(@Valid @RequestBody MentorshipRequestCreationDto creationRequestDto) {
-        return mentorshipRequestService.requestMentorship(creationRequestDto);
+    public ResponseEntity<MentorshipRequestDto> requestMentorship(@Valid @RequestBody MentorshipRequestCreationDto creationRequestDto) {
+        MentorshipRequestDto responseDto = mentorshipRequestService.requestMentorship(creationRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
     @PostMapping("/filter")
-    public List<MentorshipRequestDto> getRequests(@RequestBody RequestFilterDto filterDto) {
-        return mentorshipRequestService.getRequests(filterDto);
+    public ResponseEntity<List<MentorshipRequestDto>> getRequests(@RequestBody RequestFilterDto filterDto) {
+        List<MentorshipRequestDto> responseDtos = mentorshipRequestService.getRequests(filterDto);
+        return ResponseEntity.ok(responseDtos);
     }
 
     @PatchMapping("/{requestId}/accept")
-    public MentorshipRequestDto acceptRequest(@PathVariable Long requestId) {
-        return mentorshipRequestService.acceptRequest(requestId);
+    public ResponseEntity<MentorshipRequestDto> acceptRequest(@PathVariable Long requestId) {
+        MentorshipRequestDto responseDto = mentorshipRequestService.acceptRequest(requestId);
+        return ResponseEntity.ok(responseDto);
     }
 
     @PatchMapping("/{requestId}/reject")
-    public MentorshipRequestDto rejectRequest(@PathVariable Long requestId, @Valid @RequestBody RejectionDto rejectionDto) {
-        return mentorshipRequestService.rejectRequest(requestId, rejectionDto);
+    public ResponseEntity<MentorshipRequestDto> rejectRequest(@PathVariable Long requestId, @Valid @RequestBody RejectionDto rejectionDto) {
+        MentorshipRequestDto responseDto = mentorshipRequestService.rejectRequest(requestId, rejectionDto);
+        return ResponseEntity.ok(responseDto);
     }
 }
