@@ -12,7 +12,9 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.exception.MaxActiveGoalsReachedException;
 import school.faang.user_service.exception.MentorNotFoundException;
+import school.faang.user_service.exception.ResourceNotFoundException;
 import school.faang.user_service.filter.goal.GoalFilter;
 import school.faang.user_service.mapper.goal.GoalMapper;
 import school.faang.user_service.repository.SkillRepository;
@@ -61,7 +63,10 @@ public class GoalService {
     @Transactional
     public GoalDto updateGoal(Long goalId, GoalDto goalDto) {
         Goal goalToUpdate = goalRepository.findById(goalId)
-                .orElseThrow(() -> new EntityNotFoundException("Goal not found by Id: " + goalId));
+                .orElseThrow(() -> {
+                    log.error("Goal with ID {} not found", goalId);
+                    return new ResourceNotFoundException("Goal not found by Id: " + goalId);
+                });
 
         if (goalDto.getStatus() == GoalStatus.COMPLETED && goalToUpdate.getStatus() == GoalStatus.COMPLETED) {
             throw new IllegalStateException("Goal is already completed and cannot be updated further.");
@@ -81,7 +86,10 @@ public class GoalService {
     @Transactional
     public void deleteGoal(long goalId) {
         Goal goalToDelete = goalRepository.findById(goalId)
-                .orElseThrow(() -> new EntityNotFoundException("Goal not found by Id: " + goalId));
+                .orElseThrow(() -> {
+                    log.error("Goal with ID {} not found", goalId);
+                    return new ResourceNotFoundException("Goal not found by Id: " + goalId);
+                });
         if (goalToDelete.getStatus() == GoalStatus.COMPLETED) {
             throw new IllegalStateException("Cannot delete a completed goal. Please unmark it before deletion.");
         }
@@ -110,20 +118,26 @@ public class GoalService {
 
     private User findUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found by Id: " + userId));
+                .orElseThrow(() -> {
+                    log.error("User with ID {} not found", userId);
+                    return new ResourceNotFoundException("User not found by Id: " + userId);
+                });
     }
 
     private void checkMaxActiveGoals(Long userId) {
         int activeGoalsCount = goalRepository.countActiveGoalsPerUser(userId);
         if (activeGoalsCount >= maxActiveGoalsCount) {
-            throw new IllegalStateException("User has reached the maximum number of active goals (" + maxActiveGoalsCount + ").");
+            throw new MaxActiveGoalsReachedException("User has reached the maximum number of active goals (" + maxActiveGoalsCount + ").");
         }
     }
 
     private void setParentGoalIfPresent(GoalDto goalDto, Goal goalToSave) {
         if (goalDto.getParentId() != null) {
             Goal parentGoal = goalRepository.findById(goalDto.getParentId())
-                    .orElseThrow(() -> new EntityNotFoundException("Goal not found by Id: " + goalDto.getParentId()));
+                    .orElseThrow(() -> {
+                        log.error("Parent goal with ID {} not found", goalDto.getParentId());
+                        return new ResourceNotFoundException("Goal not found by Id: " + goalDto.getParentId());
+                    });
             goalToSave.setParent(parentGoal);
         }
     }
@@ -134,7 +148,8 @@ public class GoalService {
             if (foundSkills.size() != goalDto.getSkillIds().size()) {
                 List<Long> missingSkillIds = new ArrayList<>(goalDto.getSkillIds());
                 missingSkillIds.removeAll(foundSkills.stream().map(Skill::getId).toList());
-                throw new EntityNotFoundException("Skills not found by IDs: " + missingSkillIds);
+                log.error("Skills not found by IDs: {}", missingSkillIds);
+                throw new ResourceNotFoundException("Skills not found by IDs: " + missingSkillIds);
             }
             goal.setSkillsToAchieve(new ArrayList<>(foundSkills));
         }
@@ -143,8 +158,12 @@ public class GoalService {
     private void setMentorIfPresent(GoalDto goalDto, User user, Goal goalToSave) {
         if (goalDto.getMentorId() != null) {
             User mentor = userRepository.findById(goalDto.getMentorId())
-                    .orElseThrow(() -> new EntityNotFoundException("User not found by Id: " + goalDto.getMentorId()));
+                    .orElseThrow(() -> {
+                        log.error("Mentor with ID {} not found", goalDto.getMentorId());
+                        return new ResourceNotFoundException("User not found by Id: " + goalDto.getMentorId());
+                    });
             if (!user.getMentors().contains(mentor)) {
+                log.error("Mentor with ID {} is not associated with user ID {}", goalDto.getMentorId(), user.getId());
                 throw new MentorNotFoundException("Mentor with ID " + goalDto.getMentorId() +
                         " is not associated with user ID " + user.getId());
             }
