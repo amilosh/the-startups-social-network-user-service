@@ -1,6 +1,5 @@
 package school.faang.user_service.validator.goal;
 
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import lombok.Data;
 import org.springframework.stereotype.Component;
@@ -11,7 +10,6 @@ import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
-import school.faang.user_service.service.SkillService.SkillService;
 
 import java.util.List;
 
@@ -25,9 +23,19 @@ public class GoalValidator {
     private final GoalRepository goalRepository;
     private final SkillRepository skillRepository;
 
-    public void validateGoal(long userId, GoalDto goal) {
+    public void validateCreationGoal(Long userId, GoalDto goal) {
         if (goalRepository.countActiveGoalsPerUser(userId) == MAX_USER_GOALS_LIMIT) {
             throw new DataValidationException("Reached maximum quantity of goals");
+        }
+        List<Skill> skills = skillRepository.findAllById(goal.getSkillIds());
+        if (skills.size() != goal.getSkillIds().size()) {
+            throw new DataValidationException("Some skills do not exist in the database.");
+        }
+    }
+
+    public void validateUpdatingGoal(Long goalId, GoalDto goal) {
+        if (goal.getStatus() == GoalStatus.COMPLETED) {
+            throw new IllegalArgumentException("Cannot update a completed goal");
         }
         List<Skill> skills = skillRepository.findAllById(goal.getSkillIds());
         if (skills.size() != goal.getSkillIds().size()) {

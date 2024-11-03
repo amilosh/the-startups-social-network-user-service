@@ -55,4 +55,14 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             VALUES (?1, ?2, NOW(), NOW())
             """)
     void addSkillToGoal(long goalId, long skillId);
+
+    @Query(nativeQuery = true, value = """
+            DELETE FROM goal_skill WHERE goal_id = ?1
+            """)
+    void removeSkillsFromGoal(long goalId);
+
+    @Query(nativeQuery = true, value = """
+            DELETE FROM goal WHERE goal_id = ?1
+            """)
+    void deleteById(long goalId);
 }
