@@ -3,8 +3,10 @@ package school.faang.user_service.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RejectionDto;
@@ -28,14 +30,14 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class MentorshipRequestServiceTest {
 
+    @Spy
+    private MentorshipRequestMapper mentorshipRequestMapper = Mappers.getMapper(MentorshipRequestMapper.class);
+
     @Mock
     private MentorshipRequestRepository mentorshipRequestRepository;
 
     @Mock
     private UserRepository userRepository;
-
-    @Mock
-    private MentorshipRequestMapper mentorshipRequestMapper;
 
     @InjectMocks
     private MentorshipRequestService mentorshipRequestService;
@@ -57,6 +59,7 @@ public class MentorshipRequestServiceTest {
 
         mentorshipRequest = new MentorshipRequest();
         mentorshipRequest.setId(1L);
+        mentorshipRequest.setDescription("Test Description");
         mentorshipRequest.setRequester(requester);
         mentorshipRequest.setReceiver(receiver);
         mentorshipRequest.setStatus(RequestStatus.PENDING);
@@ -84,6 +87,8 @@ public class MentorshipRequestServiceTest {
         when(mentorshipRequestRepository.save(any(MentorshipRequest.class))).thenReturn(mentorshipRequest);
         when(mentorshipRequestMapper.mapToDto(mentorshipRequest)).thenReturn(mentorshipRequestDto);
 
+        when(mentorshipRequestMapper.mapToEntity(mentorshipRequestDto)).thenReturn(mentorshipRequest);
+
         MentorshipRequestDto result = mentorshipRequestService.requestMentorship(mentorshipRequestDto);
 
         assertNotNull(result);
@@ -102,6 +107,8 @@ public class MentorshipRequestServiceTest {
 
     @Test
     public void testGetRequests_ByStatus() {
+
+
         RequestFilterDto filterDto = new RequestFilterDto();
         filterDto.setStatus(RequestStatus.PENDING);
 

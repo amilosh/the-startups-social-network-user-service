@@ -53,15 +53,14 @@ public class MentorshipRequestService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found by Id: " + mentorshipRequestDto.getReceiverId()));
 
         MentorshipRequest mappedMentorshipRequest = mentorshipRequestMapper.mapToEntity(mentorshipRequestDto);
-        MentorshipRequest mentorshipRequest = mappedMentorshipRequest != null ? mappedMentorshipRequest : new MentorshipRequest();
 
-        mentorshipRequest.setRequester(requester);
-        mentorshipRequest.setReceiver(receiver);
-        mentorshipRequest.setStatus(RequestStatus.PENDING);
-        mentorshipRequest.setDescription(mentorshipRequestDto.getDescription());
-        mentorshipRequest.setCreatedAt(LocalDateTime.now());
+        mappedMentorshipRequest.setRequester(requester);
+        mappedMentorshipRequest.setReceiver(receiver);
+        mappedMentorshipRequest.setStatus(RequestStatus.PENDING);
+        mappedMentorshipRequest.setDescription(mentorshipRequestDto.getDescription());
+        mappedMentorshipRequest.setCreatedAt(LocalDateTime.now());
 
-        MentorshipRequest savedMentorshipRequest = mentorshipRequestRepository.save(mentorshipRequest);
+        MentorshipRequest savedMentorshipRequest = mentorshipRequestRepository.save(mappedMentorshipRequest);
         return mentorshipRequestMapper.mapToDto(savedMentorshipRequest);
     }
 
