@@ -2,7 +2,8 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventParticipationService {
     private final EventParticipationRepository repository;
+    private final UserMapper userMapper;
 
     public void registerParticipant(long eventId, long userId) {
         if (checkRegistration(eventId, userId)) {
@@ -26,17 +28,14 @@ public class EventParticipationService {
         repository.unregister(eventId, userId);
     }
 
-    private boolean checkRegistration(long eventId, long userId) {
-        return repository.findAllParticipantsByEventId(eventId).stream()
-                .anyMatch(user -> user.getId() == userId);
-    }
-
-    public List<User> getParticipant(long eventId) {
+    public List<UserDto> getParticipant(long eventId) {
         checkEventById(eventId);
-        return repository.findAllParticipantsByEventId(eventId);
+        return repository.findAllParticipantsByEventId(eventId).stream()
+                .map(userMapper::toDto)
+                .toList();
     }
 
-    public int getParticipantsCount(long eventId) {
+    public Integer getParticipantsCount(long eventId) {
         checkEventById(eventId);
         return repository.countParticipants(eventId);
     }
@@ -45,6 +44,11 @@ public class EventParticipationService {
         if (repository.findAllParticipantsByEventId(eventId) == null) {
             throw new IllegalStateException("There is no event with this id");
         }
+    }
+
+    private boolean checkRegistration(long eventId, long userId) {
+        return repository.findAllParticipantsByEventId(eventId).stream()
+                .anyMatch(user -> user.getId() == userId);
     }
 
 }
