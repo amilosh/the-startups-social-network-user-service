@@ -21,7 +21,6 @@ public class EventFilterConfig {
         List<EventFilter> filters = new ArrayList<>();
         filters.add(eventTitleFilter);
         filters.add(eventUserIdFilter);
-        eventService.setEventFilters(filters);
         return filters;
     }
 }
