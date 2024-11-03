@@ -16,6 +16,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.redis.aspect.PublishProfileViewEvent;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.filters.UserFilter;
@@ -63,6 +64,7 @@ public class UserService {
                 .toList();
     }
 
+    @PublishProfileViewEvent
     public UserDto getUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new IllegalArgumentException("User does not exist"));
