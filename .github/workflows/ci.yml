@@ -3,11 +3,9 @@ name: User-Service CI
 on:
   push:
     branches:
-      - dev
       - Dragon-master-stream7
   pull_request:
     branches:
-      - dev
       - Dragon-master-stream7
 
 jobs:
