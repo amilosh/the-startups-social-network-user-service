@@ -28,7 +28,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(nativeQuery = true, value = """
             SELECT u.* FROM users u
-            WHERE u.id = ?1
+            WHERE u.id = :userId
             """)
     User getUserById(long userId);
 

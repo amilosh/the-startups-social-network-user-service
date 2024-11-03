@@ -1,15 +1,11 @@
 package school.faang.user_service.repository.goal;
 
-import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.entity.goal.GoalStatus;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -21,7 +17,7 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             JOIN user_goal ug ON g.id = ug.goal_id
             WHERE ug.user_id = ?1
             """)
-    Stream<Goal> findGoalsByUserId(long userId);
+    List<Goal> findGoalsByUserId(long userId);
 
     @Query(nativeQuery = true, value = """
             INSERT INTO goal (title, description, parent_goal_id, status, created_at, updated_at)
@@ -60,21 +56,4 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             """
     )
     Goal findGoalById(long goalId);
-
-    @Transactional
-    @Modifying
-    @Query(nativeQuery = true, value = """
-            UPDATE goal SET title = :title, description = :description, updated_at = NOW(),
-            status = :status, deadline = :deadline, parent_goal_id = :parent, mentor_id = :mentorId
-            WHERE id = :goalId
-            """)
-    void updateGoal(
-            long goalId,
-            String title,
-            String description,
-            int status,
-            LocalDateTime deadline,
-            Goal parent,
-            Long mentorId
-    );
 }

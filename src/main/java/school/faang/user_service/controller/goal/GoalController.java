@@ -2,7 +2,6 @@ package school.faang.user_service.controller.goal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,90 +9,65 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.request.GetGoalsByFilterRequest;
-import school.faang.user_service.dto.response.GoalResponse;
+import school.faang.user_service.dto.GoalDTO;
+import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.dto.request.CreateGoalRequest;
-import school.faang.user_service.dto.response.GoalsResponse;
 import school.faang.user_service.service.goal.GoalService;
-import school.faang.user_service.service.skill.SkillService;
 
-@RestController()
-@RequestMapping("/api/goals")
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/goals")
 @RequiredArgsConstructor
 public class GoalController {
     private final GoalService goalService;
-    private final SkillService skillService;
 
     /**
-     * Endpoint to create a new goal.
+     * Endpoint to create a new goal for a given user.
      *
      * @param request the request payload containing user ID and goal details
-     * @return a ResponseEntity containing the result of the goal creation process
-     *         with status 201 if successful or 400 if validation fails
+     * @return the newly created goal
      */
-    @PostMapping(consumes = "application/json", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createGoal(@RequestBody CreateGoalRequest request) {
-        GoalResponse response = goalService.createGoal(request.getUserId(), request.getGoal());
-
-        if (response.getCode() == 400) {
-            return ResponseEntity.badRequest().body(response);
-        }
-
-        return ResponseEntity.status(201).body(response);
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public GoalDTO createGoal(@RequestBody CreateGoalRequest request) {
+        return goalService.createGoal(request.getUserId(), request.getGoal());
     }
 
     /**
-     * Endpoint to update an existing goal.
+     * Endpoint to update an existing goal. The request body should contain the user ID of the user updating the goal
+     * and the updated goal details.
      *
-     * @param request the request payload containing user ID and goal details
-     * @return a ResponseEntity containing the result of the goal update process
-     *         with status 201 if successful or 400 if validation fails
+     * @param request the request payload containing user ID and updated goal details
+     * @return a response containing the updated goal
+     *
+     * The update will fail if the goal does not exist.
      */
-    @PutMapping(consumes = "application/json", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GoalResponse> updateGoal(@RequestBody CreateGoalRequest request) {
-        GoalResponse response = goalService.updateGoal(request.getUserId(), request.getGoal());
-
-        if (response.getCode() == 400) {
-            return ResponseEntity.badRequest().body(response);
-        }
-
-        return ResponseEntity.status(201).body(response);
+    @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public GoalDTO updateGoal(@RequestBody CreateGoalRequest request) {
+        return goalService.updateGoal(request.getUserId(), request.getGoal());
     }
 
     /**
-     * Endpoint to delete an existing goal.
+     * Endpoint to delete a goal by its ID.
      *
      * @param goalId the ID of the goal to be deleted
-     * @return a ResponseEntity containing the result of the goal deletion process
-     *         with status 204 if successful
+     *
+     * The deletion will fail if the goal does not exist.
      */
-    @DeleteMapping(value = "/{goalId}", consumes = "application/json", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GoalResponse> deleteGoal(@PathVariable Long goalId) {
-        GoalResponse response = goalService.deleteGoal(goalId);
-
-        if (response.getCode() == 400) {
-            return ResponseEntity.badRequest().body(response);
-        }
-
-        return ResponseEntity.status(204).body(response);
+    @DeleteMapping(value = "/{goalId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public void deleteGoal(@PathVariable Long goalId) {
+        goalService.deleteGoal(goalId);
     }
 
     /**
-     * Endpoint to get all goals for a given user, filtered by a set of filters.
+     * Endpoint to retrieve a list of goals for a given user ID, filtered by the provided goal filter.
      *
-     * @param userId the ID of the user to get goals for
-     * @param filters the filters to apply
-     * @return a ResponseEntity containing the goals matching the given filters
-     *         with status 200 if successful or 400 if filters are invalid
+     * @param userId the ID of the user whose goals are to be retrieved
+     * @param filters the goal filter to apply on the retrieved goals
+     * @return a list of goals for the given user ID, filtered by the provided goal filter
      */
-    @PostMapping(value = "/{userId}", consumes = "application/json", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GoalsResponse> getGoalsByUser(@PathVariable long userId, @RequestBody GetGoalsByFilterRequest filters) {
-        GoalsResponse response = goalService.getGoalsByUser(userId, filters.getFilters());
-
-        if (response.getCode() == 400) {
-            return ResponseEntity.badRequest().body(response);
-        }
-
-        return ResponseEntity.ok(response);
+    @PostMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<GoalDTO> getGoalsByUser(@PathVariable long userId, @RequestBody GoalFilterDto filters) {
+        return goalService.getGoalsByUser(userId, filters);
     }
 }
