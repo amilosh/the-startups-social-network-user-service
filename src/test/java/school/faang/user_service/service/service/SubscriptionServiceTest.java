@@ -102,4 +102,17 @@ class SubscriptionServiceTest {
         assertEquals(200, subscriptionService.getFollowersCount(followeeId));
     }
 
+    @Test
+    void testGetFollowing() {
+        Mockito.when(subscriptionRepository.findByFollowerId(followerId)).thenReturn(Stream.of(new User(), new User()));
+        Mockito.when(userMapper.toDto(any())).thenReturn(new UserDto(1L, "", ""));
+        Mockito.when(userFilters.iterator()).thenReturn(Collections.emptyIterator());
+
+        List<UserDto> followers = subscriptionService.getFollowing(followerId, new UserFilterDto());
+
+        assertEquals(2, followers.size());
+        verify(subscriptionRepository, times(1)).findByFollowerId(followerId);
+        verify(userMapper, times(2)).toDto(any());
+    }
+
 }
