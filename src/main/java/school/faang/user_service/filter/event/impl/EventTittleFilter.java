@@ -1,8 +1,9 @@
-package school.faang.user_service.filter.event;
+package school.faang.user_service.filter.event.impl;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.filter.event.EventFilter;
 
 import java.util.stream.Stream;
 
@@ -14,8 +15,8 @@ public class EventTittleFilter implements EventFilter {
     }
 
     @Override
-    public void apply(Stream<Event> allEvents, EventFilterDto filters) {
-       allEvents.filter(event -> event.getTitle().equals(filters.title()));
+    public Stream<Event> apply(Stream<Event> allEvents, EventFilterDto filters) {
+        return allEvents.filter(event -> event.isSameTitle(filters.title()));
     }
 }
 

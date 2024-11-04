@@ -20,5 +20,7 @@ public record EventDto(
         @NotBlank String location,
         int maxAttendees
 ) {
-
+    public String toLogString() {
+        return String.format(("EventDto(id=%d, title=%s)"), id, title);
+    }
 }

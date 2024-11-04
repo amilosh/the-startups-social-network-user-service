@@ -76,4 +76,15 @@ public class Event {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public boolean isSameOwnerById(Long id){
+        return owner.getId().equals(id);
+    }
+    public boolean isSameTitle(String sameTitle){
+        return title.equals(sameTitle);
+    }
+
+    public boolean isSameLocation(String sameLocation){
+        return location.equals(sameLocation);
+    }
 }

@@ -9,5 +9,5 @@ import java.util.stream.Stream;
 public interface EventFilter {
     boolean isApplicable(EventFilterDto filters);
 
-    void apply(Stream<Event> allEvents, EventFilterDto filters);
+    Stream<Event>  apply(Stream<Event> allEvents, EventFilterDto filters);
 }

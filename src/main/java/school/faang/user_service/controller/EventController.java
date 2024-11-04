@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.dto.EventFilterDto;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.EventService;
 
 import java.util.List;
@@ -29,32 +31,29 @@ public class EventController {
 
     @PostMapping
     public EventDto create(@RequestBody @Valid EventDto eventDto) {
-        log.info("Creating event: {}", eventDto);
-        EventDto createdEvent = eventService.create(eventDto);
-        log.info("Event created successfully: {}", createdEvent);
-        return createdEvent;
+        return eventService.create(eventDto);
     }
 
-    @GetMapping("/event/{eventId}")
+    @GetMapping("{eventId}")
     public EventDto getEvent(@PathVariable @NotNull @Positive long eventId) {
-        log.info("Fetching event with ID: {}", eventId);
         return eventService.getEvent(eventId);
     }
 
-    @GetMapping("/filteredEvents")
-    public List<EventDto> getEventsByFilter(@RequestBody @NotNull EventFilterDto filters) {
-        log.info("Fetching event's list with filters: {}", filters);
-        return eventService.getEventsByFilter(filters);
+    @PostMapping("/filteredEvents")
+    public List<EventDto> getEventsByFilter(@RequestBody @NotNull EventFilterDto filter) {
+        return eventService.getEventsByFilter(filter);
     }
 
-    @DeleteMapping("/event/delete/{eventId}")
+    @DeleteMapping("{eventId}")
     public void deleteEvent(@PathVariable @NotNull long eventId) {
-        log.info("Deleting event with ID: {}", eventId);
         eventService.deleteEvent(eventId);
     }
 
-    @PostMapping("/update")
+    @PatchMapping
     public EventDto updateEvent(@RequestBody @Valid EventDto eventDto) {
+       if(eventDto.id() == null){
+           throw new DataValidationException("Do not update non-existent event");
+       }
         return eventService.updateEvent(eventDto);
     }
 
