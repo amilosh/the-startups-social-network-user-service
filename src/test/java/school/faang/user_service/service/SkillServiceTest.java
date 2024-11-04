@@ -51,11 +51,13 @@ class SkillServiceTest {
     void acquireSkillFromOffers_WhenUserAlreadyHasSkill_ShouldThrowSkillAlreadyAcquiredException() {
         when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.of(new Skill()));
 
+        verify(skillRepository, never()).assignSkillToUser(anyLong(), anyLong());
+        verify(userSkillGuaranteeRepository, never()).save(any(UserSkillGuarantee.class));
+
         assertThrows(SkillAlreadyAcquiredException.class, () -> skillService.acquireSkillFromOffers(SKILL_ID, USER_ID),
                 "Expected SkillAlreadyAcquiredException to be thrown when the user already has the skill.");
 
-        verify(skillRepository, never()).assignSkillToUser(anyLong(), anyLong());
-        verify(userSkillGuaranteeRepository, never()).save(any(UserSkillGuarantee.class));
+
     }
 
     @Test
@@ -71,7 +73,10 @@ class SkillServiceTest {
                 .build();
 
         when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.empty());
-        when(skillOfferRepository.findAllOffersOfSkill(SKILL_ID, USER_ID)).thenReturn(List.of(offer1, offer1)); // Only 2 offers
+        when(skillOfferRepository.findAllOffersOfSkill(SKILL_ID, USER_ID)).thenReturn(List.of(offer1, offer1));
+
+        verify(skillRepository, never()).assignSkillToUser(anyLong(), anyLong());
+        verify(userSkillGuaranteeRepository, never()).save(any(UserSkillGuarantee.class));
 
         assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(SKILL_ID, USER_ID),
                 "Should throw DataValidationException when there are fewer than MIN_SKILL_OFFERS.");
@@ -130,13 +135,13 @@ class SkillServiceTest {
         when(skillRepository.findById(SKILL_ID)).thenReturn(Optional.of(skill));
         when(skillMapper.toDto(skill)).thenReturn(new SkillDto(SKILL_ID, "Java"));
 
+        verify(skillRepository).assignSkillToUser(SKILL_ID, USER_ID);
+        verify(userSkillGuaranteeRepository, times(3)).save(any(UserSkillGuarantee.class));
+
         SkillDto result = skillService.acquireSkillFromOffers(SKILL_ID, USER_ID);
 
         assertNotNull(result, "SkillDto should not be null if the skill acquisition is successful.");
         assertEquals("Java", result.getTitle());
-
-        verify(skillRepository).assignSkillToUser(SKILL_ID, USER_ID);
-        verify(userSkillGuaranteeRepository, times(3)).save(any(UserSkillGuarantee.class));
     }
 
     @Test
