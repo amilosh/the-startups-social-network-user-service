@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.filter.RecommendationRequestFilter;
@@ -84,7 +85,7 @@ public class RecommendationRequestService {
 
     public RejectionDto rejectRequest(long id, RejectionDto rejectionRequest) {
         RecommendationRequest recommendationRequest = null;
-        if (rejectionRequest.getStatus().equals("PENDING")) {
+        if (rejectionRequest.getStatus().equals(RequestStatus.PENDING)) {
             RecommendationRequest request = rejectionRequestMapper.toEntity(rejectionRequest);
             request.setRejectionReason(rejectionRequest.getReason());
             recommendationRequest = recommendationRequestRepository.save(request);

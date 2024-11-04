@@ -1,8 +1,10 @@
 package school.faang.user_service.controller.recommendation;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
@@ -12,25 +14,40 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/recommendation-requests")
+@Validated
+@Slf4j
 public class RecommendationRequestController {
     private final RecommendationRequestService recommendationRequestService;
 
-    public RecommendationRequestDto requestRecommendation(RecommendationRequestDto recommendationRequest) {
+    @PostMapping()
+    @ResponseStatus(HttpStatus.CREATED)
+    public RecommendationRequestDto requestRecommendation(@Validated(RecommendationRequestDto.Before.class) @RequestBody RecommendationRequestDto recommendationRequest) {
+        log.info("A request has been received to create a recommendation request");
         if (!recommendationRequestService.isMessageEmpty(recommendationRequest)) {
             recommendationRequestService.create(recommendationRequest);
         }
         return recommendationRequest;
     }
 
-    public List<RecommendationRequestDto> getRecommendationRequests(RequestFilterDto filter) {
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public List<RecommendationRequestDto> getRecommendationRequests(@RequestBody RequestFilterDto filter) {
+        log.info("A request has been received to get the list of recommendation requests");
         return recommendationRequestService.getRequests(filter);
     }
 
-    public RecommendationRequestDto getRecommendationRequest(RequestFilterDto filter) {
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public RecommendationRequestDto getRecommendationRequest(@RequestBody RequestFilterDto filter) {
+        log.info("A request has been received to get the recommendation request with ID: {}", filter.getId());
         return recommendationRequestService.getRequest(filter);
     }
 
+    @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public RejectionDto rejectRequest(long id, RejectionDto rejection) {
+        log.info("A request has been received to reject the recommendation request with ID: {}", id);
         return recommendationRequestService.rejectRequest(id, rejection);
     }
 }
