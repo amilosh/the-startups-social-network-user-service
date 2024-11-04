@@ -2,6 +2,7 @@ package school.faang.user_service.validation;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.User;
