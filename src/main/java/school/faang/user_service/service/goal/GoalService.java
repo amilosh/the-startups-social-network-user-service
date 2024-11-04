@@ -7,6 +7,7 @@ import school.faang.user_service.dto.GoalDTO;
 import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skill.SkillService;
@@ -104,6 +105,9 @@ public class GoalService {
      * The deletion will fail if the goal does not exist.
      */
     public void deleteGoal(long goalId) {
+        if (!goalRepository.existsById(goalId)) {
+            throw new EntityNotFoundException("Goal with id " + goalId + " does not exist");
+        }
         goalRepository.delete(goalRepository.findGoalById(goalId));
     }
 
