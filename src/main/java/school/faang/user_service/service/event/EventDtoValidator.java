@@ -25,13 +25,13 @@ public class EventDtoValidator {
         validateOwnerOfEvent(eventDto);
     }
 
-    private void validateTitle(String title) {
+    public void validateTitle(String title) {
         if (title == null || title.isBlank()) {
             throw new DataValidationException("Please set title of the event");
         }
     }
 
-    private void validateStartDate(LocalDateTime startDate) {
+    public void validateStartDate(LocalDateTime startDate) {
         if (startDate == null) {
             throw new DataValidationException("Please set start date of the event");
         }
@@ -41,7 +41,7 @@ public class EventDtoValidator {
         }
     }
 
-    private void validateOwnerOfEvent(EventDto eventDto) {
+    public void validateOwnerOfEvent(EventDto eventDto) {
         User user = userService.findById(eventDto.getOwnerId());
         HashSet<Skill> userSkills = new HashSet<>(user.getSkills());
         List<Skill> eventSkills = skillMapper.toListEntity(eventDto.getRelatedSkills());
