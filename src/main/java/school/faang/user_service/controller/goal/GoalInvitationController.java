@@ -28,28 +28,24 @@ public class GoalInvitationController {
     private final GoalInvitationService goalInvitationService;
 
     @PostMapping()
-    @ResponseStatus(HttpStatus.CREATED)
     public GoalInvitationDto createInvitation(@Validated(GoalInvitationDto.Before.class) @RequestBody GoalInvitationDto goalInvitationDto) {
         log.info("Received request to create a goal invitation for the goal with ID: {}", goalInvitationDto.getGoalId());
         return goalInvitationService.createInvitation(goalInvitationDto);
     }
 
     @PatchMapping("/{id}/accept")
-    @ResponseStatus(HttpStatus.ACCEPTED)
     public GoalInvitationDto acceptGoalInvitation(@PathVariable("id") long id) {
         log.info("Received request to accept the goal invitation with ID: {}", id);
         return goalInvitationService.acceptGoalInvitation(id);
     }
 
     @PatchMapping("/{id}/reject")
-    @ResponseStatus(HttpStatus.OK)
-    public GoalInvitationDto rejectGoalInvitation(@PathVariable("/id") long id) {
+    public GoalInvitationDto rejectGoalInvitation(@PathVariable("id") long id) {
         log.info("Received request to reject the goal invitation with ID: {}", id);
         return goalInvitationService.rejectGoalInvitation(id);
     }
 
     @GetMapping()
-    @ResponseStatus(HttpStatus.OK)
     public List<GoalInvitationDto> getInvitations(@RequestBody InvitationFilterDto filters) {
         return goalInvitationService.getInvitations(filters);
     }
