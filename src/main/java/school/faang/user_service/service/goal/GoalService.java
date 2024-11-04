@@ -32,11 +32,15 @@ public class GoalService {
 
 
     /**
-     * Creates a new goal and saves it to the database.
+     * Creates a new goal with the given details for the given user ID.
      *
-     * @param userId the ID of the user who is creating the goal
-     * @param goal   the goal to create
-     * @return a response containing the created goal
+     * @param userId the ID of the user to create the goal for
+     * @param goal the goal details
+     * @return the newly created goal
+     *
+     * The validation of the goal request will fail if the request is invalid or
+     * if the user does not exist. The goal will be created with the given details
+     * and saved in the database.
      */
     public GoalDTO createGoal(Long userId, GoalDTO goal) {
         goalValidation.validateGoalRequest(userId, goal, true);
@@ -59,14 +63,15 @@ public class GoalService {
     }
 
     /**
-     * Updates an existing goal with the provided details.
+     * Updates an existing goal with the given details for the given user ID.
      *
-     * @param userId the ID of the user updating the goal
-     * @param goal   the updated goal details
-     * @return the updated GoalDTO
-     * <p>
-     * The update will fail if the validation of the goal request fails or if the goal does not exist.
-     * Updates the goal's title, description, status, deadline, users, skills to achieve, mentor, and parent goal.
+     * @param userId the ID of the user to update the goal for
+     * @param goal the goal details
+     * @return the updated goal
+     *
+     * The validation of the goal request will fail if the request is invalid or
+     * if the user does not exist. The goal will be updated with the given details
+     * and saved in the database.
      */
     public GoalDTO updateGoal(Long userId, GoalDTO goal) {
         goalValidation.validateGoalRequest(userId, goal, false);
@@ -92,22 +97,22 @@ public class GoalService {
     }
 
     /**
-     * Deletes a goal with the given ID.
+     * Deletes a goal by its ID.
      *
-     * @param goalId the ID of the goal to delete
-     *               <p>
-     *               The deletion will fail if the goal does not exist.
+     * @param goalId the ID of the goal to be deleted
+     *
+     * The deletion will fail if the goal does not exist.
      */
     public void deleteGoal(long goalId) {
         goalRepository.delete(goalRepository.findGoalById(goalId));
     }
 
     /**
-     * Gets a list of goals for a given user ID, with optional filters.
+     * Retrieves a list of goals for a given user ID, filtered by the provided goal filter.
      *
-     * @param userId  the ID of the user to get goals for
-     * @param filters a DTO containing optional filters to apply
-     * @return a list of GoalDTOs matching the filter criteria
+     * @param userId the ID of the user whose goals are to be retrieved
+     * @param filters the goal filter to apply on the retrieved goals
+     * @return a list of goals for the given user ID, filtered by the provided goal filter
      */
     public List<GoalDTO> getGoalsByUser(long userId, GoalFilterDto filters) {
         Stream<Goal> goals = goalRepository.findGoalsByUserId(userId).stream();
