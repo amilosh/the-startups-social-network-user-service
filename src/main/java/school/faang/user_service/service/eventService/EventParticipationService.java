@@ -27,7 +27,7 @@ public class EventParticipationService {
 
     public void unregisterParticipation(Long eventId, Long userId) {
         validator.validateParticipation(eventId, userId); // Проверяем, существует ли событие и пользователь
-        validator.validateRegisterParticipation(eventId, userId);
+        validator.validateUserRegistration(eventId, userId);
         eventParticipationRepository.unregister(eventId, userId);
     }
 
@@ -42,12 +42,7 @@ public class EventParticipationService {
 
     // Возвращаем количество зарегистрированных участников
     public int getParticipantsCount(long eventId) {
+        validator.validateEventId(eventId);
         return eventParticipationRepository.countParticipants(eventId);
     }
-    public void unregisterParticipation(long eventId, Long userId) {
-        validator.validateParticipation(eventId, userId);
-        validator.validateUserRegistration(eventId, userId);
-        eventParticipationRepository.unregister(eventId, userId);
-    }
-
 }
