@@ -74,7 +74,7 @@ public class GoalInvitationServiceTest {
     private static final String MAX_ACTIVE_GOALS_EXCEEDED_MESSAGE = "The maximum number: %d of active goals has been exceeded for user with ID: %d";
 
     @Test
-    public void testCreateInvitationEqualInviterIdAndInvitedId() {
+    void testCreateInvitationEqualInviterIdAndInvitedId() {
         GoalInvitationDto goalInvitationDto = createGoalInvitationDto(1L, 1L, 1L);
 
         GoalInvitationValidationException goalInvitationValidationException = assertThrows(GoalInvitationValidationException.class, () ->
@@ -84,7 +84,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testCreateInvitationInviterNotFound() {
+    void testCreateInvitationInviterNotFound() {
         GoalInvitationDto goalInvitationDto = createGoalInvitationDto(1L, 2L, 1L);
 
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
@@ -99,7 +99,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testCreateInvitationInvitedNotFound() {
+    void testCreateInvitationInvitedNotFound() {
         GoalInvitationDto goalInvitationDto = createGoalInvitationDto(1L, 2L, 1L);
         User inviter = createUser(1L);
 
@@ -117,7 +117,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testCreateInvitationGoalNotFound() {
+    void testCreateInvitationGoalNotFound() {
         GoalInvitationDto goalInvitationDto = createGoalInvitationDto(1L, 2L, 1L);
         User inviter = createUser(1L);
         User invited = createUser(2L);
@@ -138,7 +138,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testCreateInvitationSuccessful() {
+    void testCreateInvitationSuccessful() {
         GoalInvitationDto goalInvitationDto = createGoalInvitationDto(1L, 2L, 1L);
         User inviter = createUser(1L);
         User invited = createUser(2L);
@@ -170,7 +170,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testAcceptGoalInvitationNotFound() {
+    void testAcceptGoalInvitationNotFound() {
         long goalInvitationId = 1L;
 
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.empty());
@@ -185,7 +185,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testAcceptGoalInvitationStatusAlreadyAccepted() {
+    void testAcceptGoalInvitationStatusAlreadyAccepted() {
         GoalInvitation goalInvitation = new GoalInvitation();
         goalInvitation.setId(1L);
         goalInvitation.setStatus(RequestStatus.ACCEPTED);
@@ -202,7 +202,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testAcceptGoalInvitationStatusAlreadyRejected() {
+    void testAcceptGoalInvitationStatusAlreadyRejected() {
         GoalInvitation goalInvitation = new GoalInvitation();
         goalInvitation.setId(1L);
         goalInvitation.setStatus(RequestStatus.REJECTED);
@@ -219,7 +219,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testAcceptGoalInvitationGoalNotFound() {
+    void testAcceptGoalInvitationGoalNotFound() {
         Goal goal = createGoal(1L);
         GoalInvitation goalInvitation = new GoalInvitation();
         goalInvitation.setId(1L);
@@ -240,7 +240,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testAcceptGoalInvitationInviterNotFound() {
+    void testAcceptGoalInvitationInviterNotFound() {
         Goal goal = createGoal(1L);
         User inviter = createUser(1L);
         GoalInvitation goalInvitation = new GoalInvitation();
@@ -265,7 +265,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testAcceptGoalInvitationInvitedNotFound() {
+    void testAcceptGoalInvitationInvitedNotFound() {
         Goal goal = createGoal(1L);
         User inviter = createUser(1L);
         User invited = createUser(2L);
@@ -294,7 +294,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testAcceptGoalInvitationInvitedHasGoal() {
+    void testAcceptGoalInvitationInvitedHasGoal() {
         Goal goal = createGoal(1L);
         User inviter = createUser(1L);
         User invited = createUser(2L);
@@ -324,7 +324,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testAcceptGoalInvitationMaxActiveGoalsExceeded() {
+    void testAcceptGoalInvitationMaxActiveGoalsExceeded() {
         Goal goal = createGoal(1L);
         User inviter = createUser(1L);
         User invited = createUser(2L);
@@ -359,7 +359,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testAcceptGoalInvitationSuccessful() {
+    void testAcceptGoalInvitationSuccessful() {
         Goal goal = createGoal(1L);
         User inviter = createUser(1L);
         User invited = createUser(2L);
@@ -396,7 +396,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testRejectGoalInvitationNotFound() {
+    void testRejectGoalInvitationNotFound() {
         long goalInvitationId = 1L;
 
         when(goalInvitationRepository.findById(1L)).thenReturn(Optional.empty());
@@ -411,7 +411,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testRejectGoalInvitationStatusAlreadyAccepted() {
+    void testRejectGoalInvitationStatusAlreadyAccepted() {
         GoalInvitation goalInvitation = new GoalInvitation();
         goalInvitation.setId(1L);
         goalInvitation.setStatus(RequestStatus.ACCEPTED);
@@ -428,7 +428,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testRejectGoalInvitationStatusAlreadyRejected() {
+    void testRejectGoalInvitationStatusAlreadyRejected() {
         GoalInvitation goalInvitation = new GoalInvitation();
         goalInvitation.setId(1L);
         goalInvitation.setStatus(RequestStatus.REJECTED);
@@ -445,7 +445,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testRejectGoalInvitationGoalNotFound() {
+    void testRejectGoalInvitationGoalNotFound() {
         Goal goal = createGoal(1L);
         GoalInvitation goalInvitation = new GoalInvitation();
         goalInvitation.setId(1L);
@@ -466,7 +466,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testRejectGoalInvitationInviterNotFound() {
+    void testRejectGoalInvitationInviterNotFound() {
         Goal goal = createGoal(1L);
         User inviter = createUser(1L);
         GoalInvitation goalInvitation = new GoalInvitation();
@@ -491,7 +491,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testRejectGoalInvitationInvitedNotFound() {
+    void testRejectGoalInvitationInvitedNotFound() {
         Goal goal = createGoal(1L);
         User inviter = createUser(1L);
         User invited = createUser(2L);
@@ -520,7 +520,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testRejectGoalInvitationSuccessful() {
+    void testRejectGoalInvitationSuccessful() {
         Goal goal = createGoal(1L);
         User inviter = createUser(1L);
         User invited = createUser(2L);
@@ -556,7 +556,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testGetInvitationsAllFiltersNull() {
+    void testGetInvitationsAllFiltersNull() {
         InvitationFilterDto filters = new InvitationFilterDto();
         List<GoalInvitation> goalInvitations = getGoalInvitations();
 
@@ -571,7 +571,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testGetInvitationsAllFiltersNotNull() {
+    void testGetInvitationsAllFiltersNotNull() {
         InvitationFilterDto filters = new InvitationFilterDto();
         filters.setInviterNamePattern("John Doe");
         filters.setInvitedNamePattern("Ben Smith");
@@ -594,7 +594,7 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testGetInvitationsSomeFiltersNullSomeFiltersNotNull() {
+    void testGetInvitationsSomeFiltersNullSomeFiltersNotNull() {
         InvitationFilterDto filters = new InvitationFilterDto();
         filters.setInviterNamePattern("Ben Smith");
         filters.setInviterId(2L);
