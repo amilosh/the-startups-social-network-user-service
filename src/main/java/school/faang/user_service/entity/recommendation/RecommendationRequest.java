@@ -1,13 +1,27 @@
 package school.faang.user_service.entity.recommendation;
 
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import school.faang.user_service.entity.RequestStatusDto;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 
 import java.time.LocalDateTime;
@@ -38,7 +52,7 @@ public class RecommendationRequest {
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.ORDINAL)
-    private RequestStatusDto status;
+    private RequestStatus status;
 
     @Column(name = "rejection_reason", length = 4096)
     private String rejectionReason;
@@ -59,8 +73,4 @@ public class RecommendationRequest {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-
-    public void addSkillRequest(SkillRequest skillRequest) {
-        skills.add(skillRequest);
-    }
 }
