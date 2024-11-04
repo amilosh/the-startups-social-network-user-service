@@ -32,6 +32,7 @@ public class EventServiceImplementation implements EventService {
         eventValidators.forEach(validator -> System.out.println("Validator: " + validator.getClass().getSimpleName()));
     }
 
+    @Override
     public EventDto create(EventDto eventDto) {
         validateEvent(eventDto);
 
@@ -41,12 +42,16 @@ public class EventServiceImplementation implements EventService {
         event.setRelatedSkills(skills);
         event.setOwner(owner);
 
-        eventRepository.save(event);
+        return eventMapper.toDto(eventRepository.save(event));
+    }
 
+    @Override
+    public EventDto getEvent(Long id) {
+        Event event = eventRepository.findById(id).orElse(null);
         return eventMapper.toDto(event);
     }
 
-    public void validateEvent(EventDto eventDto) {
+    private void validateEvent(EventDto eventDto) {
         for (EventValidator validator : eventValidators) {
             if (!validator.isValid(eventDto)) {
                 throw new DataValidationException(validator.getMessage());
