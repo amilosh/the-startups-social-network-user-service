@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class RequestSkillOfferDto {
+public class SkillOfferDto {
     private Long id;
     private Long skillId;
     private String skillTitle;

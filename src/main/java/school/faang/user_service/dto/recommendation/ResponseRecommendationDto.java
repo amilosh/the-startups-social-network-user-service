@@ -13,7 +13,7 @@ public class ResponseRecommendationDto {
     private Long authorId;
     private Long receiverId;
     private String content;
-    private List<ResponseSkillOfferDto> skillOffers;
+    private List<SkillOfferDto> skillOffers;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

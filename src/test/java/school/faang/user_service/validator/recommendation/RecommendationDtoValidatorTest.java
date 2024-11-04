@@ -8,7 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.RequestRecommendationDto;
-import school.faang.user_service.dto.recommendation.RequestSkillOfferDto;
+import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
@@ -57,10 +57,9 @@ public class RecommendationDtoValidatorTest {
                 .content(CONTENT)
                 .authorId(USER_ID)
                 .receiverId(USER_ID)
-                .createdAt(LocalDateTime.now())
                 .skillOffers(List.of(
-                        RequestSkillOfferDto.builder().skillTitle(EXISTING_SKILL_TITLE).build(),
-                        RequestSkillOfferDto.builder().skillTitle(NON_EXISTING_SKILL_TITLE).build()
+                        SkillOfferDto.builder().skillTitle(EXISTING_SKILL_TITLE).build(),
+                        SkillOfferDto.builder().skillTitle(NON_EXISTING_SKILL_TITLE).build()
                 ))
                 .build();
         recommendation = new Recommendation();
@@ -136,7 +135,7 @@ public class RecommendationDtoValidatorTest {
     @DisplayName("No exception thrown if skill offers list is not empty")
     public void whenSkillOffersListIsNotEmptyThenNoException() {
         requestRecommendationDto.setSkillOffers(List.of(
-                RequestSkillOfferDto.builder().skillTitle(EXISTING_SKILL_TITLE).build()
+                SkillOfferDto.builder().skillTitle(EXISTING_SKILL_TITLE).build()
         ));
 
         when(skillRepository.existsByTitle(EXISTING_SKILL_TITLE)).thenReturn(true);

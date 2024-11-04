@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RequestRecommendationDto;
-import school.faang.user_service.dto.recommendation.RequestSkillOfferDto;
+import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessage;
@@ -58,14 +58,14 @@ public class RecommendationDtoValidator {
     }
 
     private void checkIfOfferedSkillsExist(RequestRecommendationDto requestRecommendationDto) {
-        List<RequestSkillOfferDto> requestSkillOfferDtoList = requestRecommendationDto.getSkillOffers();
-        if (requestSkillOfferDtoList == null || requestSkillOfferDtoList.isEmpty()) {
+        List<SkillOfferDto> skillOfferDtoList = requestRecommendationDto.getSkillOffers();
+        if (skillOfferDtoList == null || skillOfferDtoList.isEmpty()) {
             log.warn("No skill offers found for recommendation creation.");
             throw new NoSuchElementException("No skill offers found for recommendation creation.");
         }
 
-        List<String> skillTitlesList = requestSkillOfferDtoList.stream()
-                .map(RequestSkillOfferDto::getSkillTitle)
+        List<String> skillTitlesList = skillOfferDtoList.stream()
+                .map(SkillOfferDto::getSkillTitle)
                 .toList();
 
         for (String skillTitle : skillTitlesList) {

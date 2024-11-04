@@ -7,19 +7,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.recommendation.RequestRecommendationDto;
-import school.faang.user_service.dto.recommendation.RequestSkillOfferDto;
+import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.dto.recommendation.ResponseRecommendationDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validator.recommendation.RecommendationDtoValidator;
 
 import java.util.List;
@@ -30,7 +28,6 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class RecommendationService {
     private final RecommendationRepository recommendationRepository;
-    private final SkillOfferRepository skillOfferRepository;
     private final SkillRepository skillRepository;
     private final RecommendationMapper recommendationMapper;
     private final RecommendationDtoValidator recommendationDtoValidator;
@@ -42,12 +39,11 @@ public class RecommendationService {
 
         recommendationDtoValidator.validateRecommendation(requestRecommendationDto);
 
-        Recommendation recommendation = recommendationRepository
-                .save(recommendationMapper.toEntity(requestRecommendationDto));
-        log.info("Recommendation with id {} successfully saved", recommendation.getId());
+        Recommendation recommendation = recommendationMapper.toEntity(requestRecommendationDto);
+        addGuarantees(requestRecommendationDto);
+        recommendation = recommendationRepository.save(recommendation);
 
-        requestRecommendationDto.setId(recommendation.getId());
-        addSkillOffersAndGuarantee(requestRecommendationDto);
+        log.info("Recommendation with id {} successfully saved", recommendation.getId());
 
         return recommendationMapper.toDto(recommendation);
     }
@@ -56,15 +52,13 @@ public class RecommendationService {
     public ResponseRecommendationDto update(Long id, RequestRecommendationDto requestRecommendationDto) {
         log.info("Updating recommendation with id {}", id);
 
-        Recommendation existingRecommendation = getRecommendation(id);
         recommendationDtoValidator.validateRecommendation(requestRecommendationDto);
+        Recommendation existingRecommendation = getRecommendation(id);
         recommendationMapper.updateFromDto(requestRecommendationDto, existingRecommendation);
+        addGuarantees(requestRecommendationDto);
+
         existingRecommendation = recommendationRepository.save(existingRecommendation);
-
         log.info("Recommendation with id {} successfully updated", id);
-
-        skillOfferRepository.deleteAllByRecommendationId(requestRecommendationDto.getId());
-        addSkillOffersAndGuarantee(requestRecommendationDto);
 
         return recommendationMapper.toDto(existingRecommendation);
     }
@@ -108,29 +102,23 @@ public class RecommendationService {
                 });
     }
 
-    private void addSkillOffersAndGuarantee(RequestRecommendationDto requestRecommendationDto) {
-        List<RequestSkillOfferDto> requestSkillOfferDtoList = requestRecommendationDto.getSkillOffers();
-        if (requestSkillOfferDtoList == null || requestSkillOfferDtoList.isEmpty()) {
+    private void addGuarantees(RequestRecommendationDto requestRecommendationDto) {
+        List<SkillOfferDto> skillOfferDtoList = requestRecommendationDto.getSkillOffers();
+
+        if (skillOfferDtoList == null || skillOfferDtoList.isEmpty()) {
             log.warn("No skill offers to process for recommendation with id {}", requestRecommendationDto.getId());
             throw new DataValidationException(ErrorMessage.NO_SKILL_OFFERS);
         }
 
-        Recommendation recommendation = getRecommendation(requestRecommendationDto.getId());
+        for (SkillOfferDto skillOfferDto : skillOfferDtoList) {
+            Skill skill = getSkill(skillOfferDto.getSkillId());
 
-        for (RequestSkillOfferDto requestSkillOfferDto : requestSkillOfferDtoList) {
-            Skill skill = getSkill(requestSkillOfferDto.getSkillId());
-            SkillOffer skillOffer = SkillOffer.builder()
-                    .skill(skill)
-                    .recommendation(recommendation)
-                    .build();
-
-            skillOfferRepository.save(skillOffer);
-
-            skillRepository.findUserSkill(requestSkillOfferDto.getSkillId(), requestRecommendationDto.getReceiverId())
+            skillRepository.findUserSkill(skillOfferDto.getSkillId(), requestRecommendationDto.getReceiverId())
                     .ifPresent(existingSkill -> {
                         if (!isAuthorAlreadyGuarantor(requestRecommendationDto, existingSkill)) {
                             addGuaranteeToSkill(requestRecommendationDto, existingSkill);
-                            log.debug("Added guarantee for skill '{}' to user '{}'", skill.getTitle(), requestRecommendationDto.getReceiverId());
+                            log.debug("Added guarantee for skill '{}' to user '{}'",
+                                    skill.getTitle(), requestRecommendationDto.getReceiverId());
                         }
                     });
         }
