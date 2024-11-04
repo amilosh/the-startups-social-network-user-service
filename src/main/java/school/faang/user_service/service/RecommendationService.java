@@ -60,10 +60,10 @@ public class RecommendationService {
 
     @Transactional
     public RecommendationDto update(RecommendationDto requestRecDto) {
-        log.info("Updating recommendation with id - " + requestRecDto.getId());
         isDateTimeRecommendationOlderSixMonth(requestRecDto);
         isSkillOfferExists(requestRecDto);
         addSkillOffersAndGuarantee(requestRecDto);
+        log.info("Updating recommendation with id - " + requestRecDto.getId());
 
         skillOfferRepository.deleteAllByRecommendationId(requestRecDto.getId());
         Recommendation result = recRepository.save(recMapper.toEntity(requestRecDto));
