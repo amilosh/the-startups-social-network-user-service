@@ -40,8 +40,8 @@ public class MentorshipRequestService {
                         .isBefore(LocalDateTime.now().minusMonths(3))) {
                     mentorshipRequestRepository.save(mentorshipRequestMapper.toEntity(mentorshipRequestDto));
                 } else {
-                    log.error("Last request has date: " + lastRequest.get().getCreatedAt());
-                    throw new IllegalArgumentException(String.format("User with id: %s already registered for the event: %s", lastRequest.get().getCreatedAt()));
+                    log.error("Last request has date less 3 months: " + lastRequest.get().getCreatedAt());
+                    throw new IllegalArgumentException(String.format("Last request has date less 3 months", lastRequest.get().getCreatedAt()));
                 }
             } else {
                 mentorshipRequestRepository.save(mentorshipRequestMapper.toEntity(mentorshipRequestDto));
