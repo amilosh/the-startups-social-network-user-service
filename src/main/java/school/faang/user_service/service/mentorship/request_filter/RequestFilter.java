@@ -4,11 +4,12 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 
+import java.util.List;
 import java.util.stream.Stream;
 @Component
 public interface RequestFilter {
 
     boolean isApplicable(RequestFilterDto filters);
 
-    void apply(Stream<MentorshipRequest> mentorshipRequests, RequestFilterDto filters);
+    List<MentorshipRequest> apply(Stream<MentorshipRequest> mentorshipRequests, RequestFilterDto filters);
 }

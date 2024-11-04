@@ -37,7 +37,8 @@ public class MentorshipRequestValidation {
         LocalDateTime currentDate = LocalDateTime.now();
         long monthsBetween = ChronoUnit.MONTHS.between(lastRequest.getCreatedAt(), currentDate);
         if (monthsBetween < 3) {
-            throw new IllegalArgumentException("For the user with the " + requester.getId() + ", 3 months have not passed since the last attempt to request a mentorship");
+            throw new IllegalArgumentException("For the user with the " + requester.getId() +
+                    ", 3 months have not passed since the last attempt to request a mentorship");
         }
     }
 

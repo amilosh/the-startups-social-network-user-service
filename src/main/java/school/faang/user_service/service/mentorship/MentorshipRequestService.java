@@ -54,7 +54,9 @@ public class MentorshipRequestService {
 
     public List<MentorshipRequestDto> getRequests(RequestFilterDto requestFilter) {
         Stream<MentorshipRequest> mentorshipRequests = mentorshipRequestRepository.findAll().stream();
-        requestFilters.stream().filter(filter -> filter.isApplicable(requestFilter)).forEach(filter -> filter.apply(mentorshipRequests, requestFilter));
+        requestFilters.stream()
+                .filter(filter -> filter.isApplicable(requestFilter))
+                .forEach(filter -> filter.apply(mentorshipRequests, requestFilter));
         log.info("Getting a list of mentoring requests after filtering");
         return mentorshipRequestMapper.toMentorshipRequestDtoList(mentorshipRequests.toList());
     }

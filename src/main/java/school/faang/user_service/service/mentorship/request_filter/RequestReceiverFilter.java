@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 
+import java.util.List;
 import java.util.stream.Stream;
 @Component
 public class RequestReceiverFilter implements RequestFilter {
@@ -14,7 +15,8 @@ public class RequestReceiverFilter implements RequestFilter {
     }
 
     @Override
-    public void apply(Stream<MentorshipRequest> mentorshipRequests, RequestFilterDto filters) {
-        mentorshipRequests.filter(request -> request.getReceiver().getId().equals(filters.getReceiverId()));
+    public List<MentorshipRequest> apply(Stream<MentorshipRequest> mentorshipRequests, RequestFilterDto filters) {
+       return mentorshipRequests.filter(request -> request.getReceiver().getId().equals(filters.getReceiverId()))
+               .toList();
     }
 }
