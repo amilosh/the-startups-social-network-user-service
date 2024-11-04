@@ -6,11 +6,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.exception.GlobalExceptionHandler;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -20,6 +22,7 @@ import school.faang.user_service.repository.recommendation.SkillRequestRepositor
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -304,4 +307,160 @@ class RecommendationRequestServiceTest {
 
         verify(recommendationRequestRepository, times(1)).findAll();
     }
+
+    @Test
+    void getRequest_Success() {
+        Long id = 1L;
+        User requester = new User();
+        requester.setId(1L);
+        User receiver = new User();
+        receiver.setId(2L);
+
+        RecommendationRequest request = new RecommendationRequest();
+        request.setId(id);
+        request.setStatus(RequestStatus.PENDING);
+        request.setCreatedAt(LocalDateTime.now());
+        request.setRequester(requester);
+        request.setReceiver(receiver);
+
+        RecommendationRequestDto dto = new RecommendationRequestDto();
+        dto.setId(id);
+        dto.setMessage("Пожалуйста дай мне рекомендацию");
+        dto.setRequesterId(1L);
+        dto.setReceiverId(2L);
+        dto.setStatus(RequestStatus.PENDING);
+        dto.setCreatedAt(request.getCreatedAt());
+        dto.setSkills(Arrays.asList(1L, 2L));
+
+        when(recommendationRequestRepository.findById(id)).thenReturn(Optional.of(request));
+        when(recommendationRequestMapper.toDto(request)).thenReturn(dto);
+
+        RecommendationRequestDto result = recommendationRequestService.getRequest(id);
+
+        assertNotNull(result);
+        assertEquals(dto.getId(), result.getId());
+        assertEquals(dto.getRequesterId(), result.getRequesterId());
+        assertEquals(dto.getReceiverId(), result.getReceiverId());
+
+        verify(recommendationRequestRepository, times(1)).findById(id);
+        verify(recommendationRequestMapper, times(1)).toDto(request);
+    }
+
+    @Test
+    void getRequest_NotFound() {
+        Long id = 99L;
+
+        when(recommendationRequestRepository.findById(id)).thenReturn(Optional.empty());
+
+        GlobalExceptionHandler.RecommendationRequestNotFoundException exception =
+                assertThrows(GlobalExceptionHandler.RecommendationRequestNotFoundException.class, () -> {
+                    recommendationRequestService.getRequest(id);
+                });
+
+        assertEquals("Запрос на рекомендацию с таким id не найден", exception.getMessage());
+
+        verify(recommendationRequestRepository, times(1)).findById(id);
+        verify(recommendationRequestMapper, never()).toDto(any());
+    }
+
+    @Test
+    void rejectRequest_Success() {
+        Long id = 1L;
+        RejectionDto rejection = new RejectionDto();
+        rejection.setReason("Просто не хочу. Ты мне неприятен.");
+
+        User requester = new User();
+        requester.setId(1L);
+        User receiver = new User();
+        receiver.setId(2L);
+
+        RecommendationRequest request = new RecommendationRequest();
+        request.setId(id);
+        request.setMessage("PПожалуйста, дай мне рекомендацию");
+        request.setStatus(RequestStatus.PENDING);
+        request.setCreatedAt(LocalDateTime.now());
+        request.setRequester(requester);
+        request.setReceiver(receiver);
+        request.setRejectionReason(null);
+
+        RecommendationRequestDto dto = new RecommendationRequestDto();
+        dto.setId(id);
+        dto.setMessage("Пожалуйста, дай мне рекомендацию");
+        dto.setRequesterId(1L);
+        dto.setReceiverId(2L);
+        dto.setStatus(RequestStatus.REJECTED);
+        dto.setCreatedAt(request.getCreatedAt());
+        dto.setRejectionReason("Просто не хочу. Ты мне неприятен.");
+
+        when(recommendationRequestRepository.findById(id)).thenReturn(java.util.Optional.of(request));
+        when(recommendationRequestRepository.save(request)).thenReturn(request);
+        when(recommendationRequestMapper.toDto(request)).thenReturn(dto);
+
+        RecommendationRequestDto result = recommendationRequestService.rejectRequest(id, rejection);
+
+        assertNotNull(result);
+        assertEquals(dto.getId(), result.getId());
+        assertEquals(dto.getStatus(), RequestStatus.REJECTED);
+        assertEquals(dto.getRejectionReason(), "Просто не хочу. Ты мне неприятен.");
+
+        verify(recommendationRequestRepository, times(1)).findById(id);
+        verify(recommendationRequestRepository, times(1)).save(request);
+        verify(recommendationRequestMapper, times(1)).toDto(request);
+    }
+
+    @Test
+    void rejectRequest_AlreadyRejected() {
+        Long id = 1L;
+        RejectionDto rejection = new RejectionDto();
+        rejection.setReason("Duplicate request");
+
+        User requester = new User();
+        requester.setId(1L);
+        User receiver = new User();
+        receiver.setId(2L);
+
+        RecommendationRequest request = new RecommendationRequest();
+        request.setId(id);
+        request.setMessage("Пожалуйста, дай мне рекомендацию");
+        request.setStatus(RequestStatus.REJECTED);
+        request.setCreatedAt(LocalDateTime.now());
+        request.setRequester(requester);
+        request.setReceiver(receiver);
+        request.setRejectionReason("Просто не хочу. Ты мне неприятен.");
+
+        when(recommendationRequestRepository.findById(id)).thenReturn(java.util.Optional.of(request));
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+            recommendationRequestService.rejectRequest(id, rejection);
+        });
+
+        assertEquals("Невозможно отклонить запрос на рекомендацию, поскольку он уже имеет статус REJECTED",
+                exception.getMessage());
+
+        verify(recommendationRequestRepository, times(1)).findById(id);
+        verify(recommendationRequestRepository, never()).save(any());
+        verify(recommendationRequestMapper, never()).toDto(any());
+    }
+
+    @Test
+    void rejectRequest_NotFound() {
+        Long id = 99L;
+        RejectionDto rejection = new RejectionDto();
+        rejection.setReason("Invalid request");
+
+        when(recommendationRequestRepository.findById(id)).thenReturn(java.util.Optional.empty());
+
+        GlobalExceptionHandler.RecommendationRequestNotFoundException exception
+                = assertThrows(GlobalExceptionHandler.RecommendationRequestNotFoundException.class, () -> {
+            recommendationRequestService.rejectRequest(id, rejection);
+        });
+
+        assertEquals("Запрос на рекомендацию с таким id не найден", exception.getMessage());
+
+        verify(recommendationRequestRepository, times(1)).findById(id);
+        verify(recommendationRequestRepository, never()).save(any());
+        verify(recommendationRequestMapper, never()).toDto(any());
+    }
 }
+
+

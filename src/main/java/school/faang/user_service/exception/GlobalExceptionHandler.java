@@ -18,4 +18,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleAllExceptions(Exception exception) {
         return ResponseEntity.badRequest().body(exception.getMessage());
     }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<String> handleIllegalStateException(IllegalStateException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
+    public static class RecommendationRequestNotFoundException extends RuntimeException {
+        public RecommendationRequestNotFoundException(String message) {
+            super(message);
+        }
+    }
+
+    @ExceptionHandler(RecommendationRequestNotFoundException.class)
+    public ResponseEntity<String> handleRecommendationRequestNotFoundException(
+            RecommendationRequestNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    }
 }

@@ -1,14 +1,17 @@
 package school.faang.user_service.service;
 
+import feign.Request;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.exception.GlobalExceptionHandler;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -102,5 +105,30 @@ public class RecommendationRequestService {
                         .isAfter(filter.getEndDate()))
                 .map(recommendationRequestMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    public RecommendationRequestDto getRequest(Long id) {
+        RecommendationRequest request = recommendationRequestRepository.findById(id)
+                .orElseThrow(() -> new GlobalExceptionHandler.RecommendationRequestNotFoundException(
+                        "Запрос на рекомендацию с таким id не найден"));
+        return recommendationRequestMapper.toDto(request);
+    }
+
+    public RecommendationRequestDto rejectRequest(Long id, RejectionDto rejection) {
+        RecommendationRequest request = recommendationRequestRepository.findById(id)
+                .orElseThrow(() -> new GlobalExceptionHandler.RecommendationRequestNotFoundException(
+                        "Запрос на рекомендацию с таким id не найден"));
+
+        if (request.getStatus() == RequestStatus.ACCEPTED || request.getStatus() == RequestStatus.REJECTED) {
+            throw new IllegalStateException(
+                    "Невозможно отклонить запрос на рекомендацию, поскольку он уже имеет статус " + request.getStatus());
+        }
+
+        request.setStatus(RequestStatus.REJECTED);
+        request.setRejectionReason(rejection.getReason());
+
+        recommendationRequestRepository.save(request);
+
+        return recommendationRequestMapper.toDto(request);
     }
 }
