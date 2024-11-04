@@ -1,18 +1,17 @@
 package school.faang.user_service.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.recommendation.SkillOfferRepository;
+import school.faang.user_service.validator.SkillValidator;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -30,37 +29,40 @@ public class SkillServiceTest {
     private SkillRepository skillRepository;
 
     @Mock
-    SkillOfferRepository skillOfferRepository;
+    private SkillValidator skillValidator;
 
     @Spy
     private SkillMapper skillMapper;
 
-    @Captor
-    private ArgumentCaptor<Skill> skillCaptor;
+    private SkillDto skillDto;
+
+    @BeforeEach
+    void setUp() {
+        skillDto = new SkillDto();
+        skillDto.setTitle("title");
+    }
 
     @Test
-    void testCreateWithExistTitle() {
-        SkillDto skillDto = existencseCheck(true);
+    void testCreateThrowsExceptionWhenTitleExists() {
+        doThrow(DataValidationException.class).when(skillValidator).validateExistTitle(skillDto.getTitle());
 
         assertThrows(DataValidationException.class, () -> skillService.create(skillDto));
     }
 
     @Test
     void testCreateWithMissingTitle() {
-        SkillDto skillDto = existencseCheck(false);
+        doNothing().when(skillValidator).validateExistTitle(skillDto.getTitle());
 
         skillService.create(skillDto);
 
-        verify(skillRepository, times(1)).save(skillCaptor.capture());
+        verify(skillRepository, times(1)).save(skillMapper.dtoToEntity(skillDto));
     }
 
     @Test
     void testGetUserSkills() {
-        long userId = 1;
+        skillService.getUserSkills(USER_ID);
 
-        skillService.getUserSkills(userId);
-
-        verify(skillRepository, times(1)).findAllByUserId(userId);
+        verify(skillRepository, times(1)).findAllByUserId(USER_ID);
     }
 
     @Test
@@ -72,28 +74,28 @@ public class SkillServiceTest {
 
     @Test
     void testAcquireSkillFromOffersWithExistSkill() {
-        when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.of(new Skill()));
+        doThrow(DataValidationException.class).when(skillValidator).validateUserSkillExist(SKILL_ID, USER_ID);
+
+        assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(SKILL_ID, USER_ID));
+    }
+
+    @Test
+    void testAcquireSkillFromOffersNumberOffersLessThree() {
+        doThrow(DataValidationException.class).when(skillValidator).validateSkillOfferCount(SKILL_ID, USER_ID);
 
         assertThrows(DataValidationException.class, () -> skillService.acquireSkillFromOffers(SKILL_ID, USER_ID));
     }
 
     @Test
     void testAcquireSKillFromOffersSuccess() {
-        when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.empty());
-        when(skillOfferRepository.findAllOffersOfSkill(SKILL_ID, USER_ID))
-                .thenReturn(Arrays.asList(new SkillOffer(), new SkillOffer(), new SkillOffer()));
+        Skill skill = new Skill();
+        doNothing().when(skillValidator).validateUserSkillExist(SKILL_ID, USER_ID);
+        doNothing().when(skillValidator).validateSkillOfferCount(SKILL_ID, USER_ID);
         when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.of(new Skill()));
-        when(skillMapper.toDto(new Skill())).thenReturn(new SkillDto());
+        when(skillMapper.entityToDto(skill)).thenReturn(new SkillDto());
 
         skillService.acquireSkillFromOffers(SKILL_ID, USER_ID);
 
         verify(skillRepository, times(1)).assignSkillToUser(SKILL_ID, USER_ID);
-    }
-
-    private SkillDto existencseCheck(boolean isExestence) {
-        SkillDto skillDto = new SkillDto();
-        skillDto.setTitle("title");
-        when(skillRepository.existsByTitle(skillDto.getTitle())).thenReturn(isExestence);
-        return skillDto;
     }
 }

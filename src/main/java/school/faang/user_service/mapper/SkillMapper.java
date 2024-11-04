@@ -8,5 +8,5 @@ import school.faang.user_service.entity.Skill;
 public interface SkillMapper {
     Skill dtoToEntity(SkillDto skillDto);
 
-    SkillDto toDto(Skill skill);
+    SkillDto entityToDto(Skill skill);
 }

@@ -5,11 +5,10 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.recommendation.SkillOfferRepository;
+import school.faang.user_service.validator.SkillValidator;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,28 +17,24 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Component
 public class SkillService {
-    private final static int MIN_SKILL_OFFERS = 3;
-
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
-    private final SkillOfferRepository skillOfferRepository;
+    private final SkillValidator skillValidator;
 
     public SkillDto create(SkillDto skillDto) {
         Skill skill = skillMapper.dtoToEntity(skillDto);
 
-        if (skillRepository.existsByTitle(skillDto.getTitle())) {
-            throw new DataValidationException("Такой навык уже есть");
-        }
+        skillValidator.validateExistTitle(skillDto.getTitle());
 
         skillRepository.save(skill);
-        return skillMapper.toDto(skill);
+        return skillMapper.entityToDto(skill);
     }
 
     public List<SkillDto> getUserSkills(long userId) {
         List<Skill> skills = skillRepository.findAllByUserId(userId);
 
         return skills.stream()
-                .map(skill -> skillMapper.toDto(skill))
+                .map(skill -> skillMapper.entityToDto(skill))
                 .toList();
     }
 
@@ -47,26 +42,19 @@ public class SkillService {
         List<Skill> skills = skillRepository.findSkillsOfferedToUser(userId);
 
         return skills.stream()
-                .collect(Collectors.groupingBy(skill -> skillMapper.toDto(skill), Collectors.counting()))
+                .collect(Collectors.groupingBy(skill -> skillMapper.entityToDto(skill), Collectors.counting()))
                 .entrySet().stream()
                 .map(entry -> new SkillCandidateDto(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
     }
 
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
-        if (!skillRepository.findUserSkill(skillId, userId).isPresent()) {
-            throw new DataValidationException("У пользователя уже есть этот скилл");
-        }
+        skillValidator.validateUserSkillExist(skillId, userId);
+        skillValidator.validateSkillOfferCount(skillId, userId);
 
-        List<SkillOffer> offers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
-
-        if (offers.size() >= MIN_SKILL_OFFERS) {
-            skillRepository.assignSkillToUser(skillId, userId);
-            Optional<Skill> skill = skillRepository.findUserSkill(skillId, userId);
-            return skill.map(skill1 -> skillMapper.toDto(skill1))
-                    .orElseThrow(() -> new DataValidationException("Скилл не найден"));
-        } else {
-            throw new DataValidationException("Недостаточно предложений для получения скилла");
-        }
+        skillRepository.assignSkillToUser(skillId, userId);
+        Optional<Skill> skill = skillRepository.findUserSkill(skillId, userId);
+        return skill.map(skill1 -> skillMapper.entityToDto(skill1))
+                .orElseThrow(() -> new DataValidationException("Скилл не найден"));
     }
 }

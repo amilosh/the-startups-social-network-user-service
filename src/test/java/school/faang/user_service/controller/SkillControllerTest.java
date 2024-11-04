@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SkillService;
+import school.faang.user_service.validator.SkillValidator;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -22,8 +23,12 @@ public class SkillControllerTest {
     private SkillController skillController;
 
     @Mock
+    private SkillValidator skillValidator;
+
+    @Mock
     private SkillService skillService;
     private SkillDto skillDto;
+
     @BeforeEach
     void setUp() {
         skillDto = new SkillDto();
@@ -31,8 +36,8 @@ public class SkillControllerTest {
 
     @Test
     void testCreateWithNullTitle() {
-        SkillDto skillDto = new SkillDto();
         skillDto.setTitle(null);
+        doThrow(DataValidationException.class).when(skillValidator).validateSkill(skillDto);
 
         assertThrows(DataValidationException.class, () -> skillController.create(skillDto));
     }
@@ -40,13 +45,15 @@ public class SkillControllerTest {
     @Test
     void testCreateWithEmptyTitle() {
         skillDto.setTitle("");
+        doThrow(DataValidationException.class).when(skillValidator).validateSkill(skillDto);
 
-       assertThrows(DataValidationException.class, () -> skillController.create(skillDto));
+        assertThrows(DataValidationException.class, () -> skillController.create(skillDto));
     }
 
     @Test
     void testCrateWithCorrectTitle() {
         skillDto.setTitle("title");
+        doNothing().when(skillValidator).validateSkill(skillDto);
 
         skillController.create(skillDto);
 

@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SkillService;
+import school.faang.user_service.validator.SkillValidator;
 
 import java.util.List;
 
@@ -13,9 +13,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SkillController {
     private final SkillService skillService;
+    private final SkillValidator skillValidator;
 
     public SkillDto create(SkillDto skillDto) {
-        validateSkill(skillDto);
+        skillValidator.validateSkill(skillDto);
 
         return skillService.create(skillDto);
     }
@@ -30,15 +31,5 @@ public class SkillController {
 
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
         return skillService.acquireSkillFromOffers(skillId, userId);
-    }
-
-    private void validateSkill(SkillDto skillDto) {
-        if (skillDto.getTitle() == null) {
-            throw new DataValidationException("Скилл должен иметь название");
-        }
-
-        if (skillDto.getTitle().isBlank()) {
-            throw new DataValidationException("Имя скилла не может быть пустым");
-        }
     }
 }
