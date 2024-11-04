@@ -9,7 +9,6 @@ import school.faang.user_service.dto.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
@@ -137,7 +136,6 @@ public class EventService {
 
         log.debug("Checking if user has required skills: {}", relatedSkills);
 
-        System.out.println("aaaaaaaaaaaaaaaaaaaa");
         if (!collectUserSkillsDto.containsAll(relatedSkills)) {
             log.error("User {} doesn't have required skills to create event", userOwner.getId());
             throw new DataValidationException("User don't have required skills to create event");
