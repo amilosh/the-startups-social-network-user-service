@@ -1,10 +1,11 @@
-package school.faang.user_service.service.event;
+package school.faang.user_service.service.event.filter;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.service.event.filter.EventFilter;
 
-import java.util.List;
+import java.util.stream.Stream;
 
 @Component
 public class EventUserIdFilter implements EventFilter {
@@ -14,9 +15,8 @@ public class EventUserIdFilter implements EventFilter {
     }
 
     @Override
-    public List<Event> apply(List<Event> events, EventFilterDto filterDto) {
-        return events.stream()
-                .filter(event -> event.getOwner().getId().equals(filterDto.getUserId()))
-                .toList();
+    public Stream<Event> apply(Stream<Event> events, EventFilterDto filterDto) {
+        return events
+                .filter(event -> event.getOwner().getId().equals(filterDto.getUserId()));
     }
 }

@@ -10,8 +10,10 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.service.event.filter.EventFilter;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -48,18 +50,17 @@ public class EventService {
     }
 
     public List<EventDto> getEventsByFilter(EventFilterDto eventFilterDto) {
-        List<Event> events = eventRepository.findAll();
-        log.info(eventFilters.toString());
-        for (EventFilter filter : eventFilters) {
-            if (filter != null && filter.isApplicable(eventFilterDto)) {
-                events = filter.apply(events, eventFilterDto);
-            }
-        }
+        Stream<Event> events = eventRepository.findAll().stream();
+        log.info("get event filters {}", eventFilterDto.toString());
 
-        log.info("got events by filter: {}", events);
-        return events.stream()
+        List<EventDto> eventDtos = eventFilters.stream()
+                .filter(filter -> filter.isApplicable(eventFilterDto))
+                .flatMap(filter -> filter.apply(events, eventFilterDto))
                 .map(eventMapper::toDto)
                 .toList();
+
+        log.info("got events by filter: {}", eventDtos);
+        return eventDtos;
     }
 
     public EventDto updateEvent(EventDto eventDto) {
