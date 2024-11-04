@@ -102,7 +102,7 @@ public class User {
     private List<GoalInvitation> receivedGoalInvitations;
 
     @OneToMany(mappedBy = "mentor")
-    private List<Goal> setGoals;
+    private List<Goal> settingGoals;
 
     @ManyToMany(mappedBy = "users")
     private List<Goal> goals;
@@ -147,4 +147,8 @@ public class User {
         participatedEvents.remove(event);
     }
 
+    public void removeAllGoals(){
+        settingGoals.clear();
+        goals.clear();
+    }
 }
