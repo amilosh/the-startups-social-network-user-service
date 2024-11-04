@@ -4,13 +4,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class GoalInvitationExceptionTest {
+public class MaxGoalsPerUserExceptionTest {
 
     @Test
     public void testExceptionMessage() {
         String message = "exception message";
-        GoalInvitationNullObjectException goalInvitationNullObjectException = new GoalInvitationNullObjectException(message);
+        MaxGoalsPerUserException maxGoalsPerUserException = new MaxGoalsPerUserException(message);
 
-        assertEquals(message, goalInvitationNullObjectException.getMessage());
+        assertEquals(message, maxGoalsPerUserException.getMessage());
     }
 }

@@ -9,7 +9,7 @@ public class GoalInvitationEqualsExceptionTest {
     @Test
     public void testExceptionMessage() {
         String message = "exception message";
-        GoalInvitationEqualsException goalInvitationEqualsException = new GoalInvitationEqualsException(message);
+        DataValidationException goalInvitationEqualsException = new DataValidationException(message);
 
         assertEquals(message, goalInvitationEqualsException.getMessage());
     }
