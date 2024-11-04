@@ -41,7 +41,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@TestPropertySource(locations = "classpath:application.yaml")
+@TestPropertySource(locations = "classpath:application-test.yaml")
 public class GoalInvitationServiceTest {
 
     @Autowired
