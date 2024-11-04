@@ -17,9 +17,13 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.EventServiceImplementation;
+import school.faang.user_service.validator.event.EventOwnerValidator;
+import school.faang.user_service.validator.event.EventStartDateValidator;
+import school.faang.user_service.validator.event.EventTitleValidator;
 import school.faang.user_service.validator.event.EventValidator;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,15 +47,19 @@ public class EventServiceTest {
     private UserRepository userRepository;
     @Spy
     private EventMapper eventMapper;
-    @Spy
-    private List<EventValidator> eventValidators;
+    private final EventOwnerValidator eventOwnerValidator = new EventOwnerValidator();
+    private final EventStartDateValidator eventStartDateValidator = new EventStartDateValidator();
+    private final EventTitleValidator eventTitleValidator = new EventTitleValidator();
     @InjectMocks
     private EventServiceImplementation eventService;
 
+    private final List<EventValidator> eventValidators = Arrays.asList(eventOwnerValidator, eventStartDateValidator, eventTitleValidator);
+    ;
     private EventDto eventDto;
     private Event event;
-    private User user;
     private Skill skill;
+    private User user;
+
 
     @BeforeEach
     void setUp() {
@@ -62,10 +70,7 @@ public class EventServiceTest {
         user = new User();
         skill = new Skill();
 
-        when(eventMapper.toEntity(any(EventDto.class))).thenReturn(event);
-        when(eventMapper.toDto(any(Event.class))).thenReturn(eventDto);
-        when(skillRepository.findSkillsByGoalId(anyLong())).thenReturn(Collections.singletonList(skill));
-        when(userRepository.getReferenceById(anyLong())).thenReturn(user);
+        eventService.setEventValidators(eventValidators);
     }
 
     @Test
@@ -100,6 +105,12 @@ public class EventServiceTest {
     public void testCreateSaveEvent() {
         prepareDtoWithTitleAndOwnerId();
         eventDto.setStartDate(LocalDateTime.of(2024, 11, 3, 17, 0));
+
+        when(eventMapper.toEntity(any(EventDto.class))).thenReturn(event);
+        when(eventMapper.toDto(any(Event.class))).thenReturn(eventDto);
+        when(skillRepository.findSkillsByGoalId(anyLong())).thenReturn(Collections.singletonList(skill));
+        when(userRepository.getReferenceById(anyLong())).thenReturn(user);
+
         EventDto result = eventService.create(eventDto);
 
         assertNotNull(result);
@@ -112,7 +123,6 @@ public class EventServiceTest {
         assertEquals(eventDto.getId(), result.getId());
         assertEquals(eventDto.getTitle(), result.getTitle());
         assertEquals(eventDto.getStartDate(), result.getStartDate());
-        
     }
 
     private void prepareDtoWithTitleAndOwnerId() {

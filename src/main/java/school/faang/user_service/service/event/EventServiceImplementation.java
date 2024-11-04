@@ -1,7 +1,8 @@
 package school.faang.user_service.service.event;
 
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
+import jakarta.annotation.PostConstruct;
+import lombok.Data;
+import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -15,15 +16,21 @@ import school.faang.user_service.validator.event.EventValidator;
 
 import java.util.List;
 
-@Component
-@AllArgsConstructor
+@Service
+@Data
 public class EventServiceImplementation implements EventService {
 
     private final EventRepository eventRepository;
     private final SkillRepository skillRepository;
     private final UserRepository userRepository;
     private final EventMapper eventMapper;
-    private final List<EventValidator> eventValidators;
+    private List<EventValidator> eventValidators;
+
+    @PostConstruct
+    public void init() {
+        System.out.println("Number of EventValidators injected: " + eventValidators.size());
+        eventValidators.forEach(validator -> System.out.println("Validator: " + validator.getClass().getSimpleName()));
+    }
 
     public EventDto create(EventDto eventDto) {
         validateEvent(eventDto);
