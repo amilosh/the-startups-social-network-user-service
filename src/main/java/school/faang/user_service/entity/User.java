@@ -142,4 +142,9 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private Premium premium;
+
+    public void removeParticipatedEvent(Event event){
+        participatedEvents.remove(event);
+    }
+
 }
