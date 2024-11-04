@@ -1,9 +1,11 @@
 package school.faang.user_service.service.test;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
 import school.faang.user_service.controller.event.EventParticipationController;
 import school.faang.user_service.dto.UserDto;
@@ -21,6 +23,11 @@ public class EventParticipationControllerTest {
 
     @InjectMocks
     private EventParticipationController eventParticipationController;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
 
     // Тест для получения списка участников
     @Test

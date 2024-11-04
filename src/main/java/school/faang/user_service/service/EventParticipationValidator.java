@@ -1,11 +1,8 @@
 package school.faang.user_service.service;
 
 import org.springframework.stereotype.Component;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.repository.event.EventRepository;
-
-import java.util.List;
 
 @Component
 public class EventParticipationValidator {
@@ -19,33 +16,42 @@ public class EventParticipationValidator {
     }
 
     public void validateParticipation(Long eventId, Long userId) {
-        if (eventId == null || userId == null) {
-            throw new IllegalArgumentException("Event ID и User ID не могут быть null");
-        }
-        if (!eventRepository.existsById(eventId)) {
-            throw new IllegalArgumentException("Событие с id " + eventId + " не существует");
-        }
+        checkNull(eventId, userId);
+        checkEventExists(eventId);
     }
 
     public void validateRegisterParticipation(Long eventId, Long userId) {
-        boolean isAlreadyRegistered = eventParticipationRepository.findAllParticipantsByEventId(eventId)
-                .stream()
-                .anyMatch(user -> user.getId().equals(userId));
-        if (isAlreadyRegistered) {
+        checkNull(eventId, userId);
+        checkEventExists(eventId);
+
+        if (eventParticipationRepository.existsByEventIdAndUserId(eventId, userId)) {
             throw new IllegalArgumentException("Пользователь уже зарегистрирован на это событие");
         }
     }
 
     public void validateEventId(Long eventId) {
-        if (eventId == null) {
-            throw new IllegalArgumentException("Event ID не может быть null");
+        checkNull(eventId);
+        checkEventExists(eventId);
+    }
+
+    public void validateUserRegistration(Long eventId, Long userId) {
+        checkNull(eventId, userId);
+        if (!eventParticipationRepository.existsByEventIdAndUserId(eventId, userId)) {
+            throw new IllegalArgumentException("Пользователь не зарегистрирован на это событие.");
         }
     }
-        public void validateUserRegistration (Long eventId, Long userId){
-            List<User> participants = eventParticipationRepository.findAllParticipantsByEventId(eventId);
-            boolean userExists = participants.stream().anyMatch(user -> user.getId().equals(userId));
-            if (!userExists) {
-                throw new IllegalArgumentException("Пользователь не зарегистрирован на это событие.");
+
+    private void checkNull(Long... ids) {
+        for (Long id : ids) {
+            if (id == null) {
+                throw new IllegalArgumentException("Event ID и User ID не могут быть null");
             }
         }
     }
+
+    private void checkEventExists(Long eventId) {
+        if (!eventRepository.existsById(eventId)) {
+            throw new IllegalArgumentException("Событие с id " + eventId + " не существует");
+        }
+    }
+}
