@@ -8,8 +8,6 @@ import school.faang.user_service.dto.UserFilterDTO;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.InvalidUserIdException;
 import school.faang.user_service.exception.SubscriptionNotFoundException;
-import school.faang.user_service.filter.ExperienceFilter;
-import school.faang.user_service.filter.NameFilter;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.util.List;
@@ -72,22 +70,41 @@ public class SubscriptionService {
 
     public List<UserDTO> filterUsers(List<User> users, UserFilterDTO filter) {
         log.info("Применение фильтров к пользователям. Количество пользователей: {}", users.size());
-
         return users.stream()
             .filter(user -> {
                 boolean matches = true;
+
                 if (filter.getNamePattern() != null) {
-                    matches = matches && new NameFilter(filter.getNamePattern()).filter(user);
-                    log.info("Фильтр по имени с паттерном: {}", filter.getNamePattern());
+                    matches = matches && user.getUsername() != null
+                        && user.getUsername().contains(filter.getNamePattern());
+                    log.debug("Фильтр по имени с паттерном: {}", filter.getNamePattern());
                 }
-                if (filter.getExperienceMin() != null && filter.getExperienceMax() != null) {
-                    matches = matches && new ExperienceFilter(filter.getExperienceMin(), filter.getExperienceMax()).filter(user);
-                    log.info("Фильтр по опыту: min={}, max={}", filter.getExperienceMin(), filter.getExperienceMax());
-                } else if (filter.getExperienceMin() != null) {
-                    matches = matches && user.getExperience() >= filter.getExperienceMin();
-                } else if (filter.getExperienceMax() != null) {
-                    matches = matches && user.getExperience() <= filter.getExperienceMax();
+
+                if (filter.getExperienceMin() != null) {
+                    matches = matches && user.getExperience() != null
+                        && user.getExperience() >= filter.getExperienceMin();
+                    log.debug("Фильтр по минимальному опыту: {}", filter.getExperienceMin());
                 }
+
+                if (filter.getExperienceMax() != null) {
+                    matches = matches && user.getExperience() != null
+                        && user.getExperience() <= filter.getExperienceMax();
+                    log.debug("Фильтр по максимальному опыту: {}", filter.getExperienceMax());
+                }
+
+                if (filter.getSkillPattern() != null) {
+                    matches = matches && user.getSkills() != null
+                        && user.getSkills().stream()
+                        .anyMatch(skill -> skill.getTitle().contains(filter.getSkillPattern()));
+                    log.debug("Фильтр по навыкам с паттерном: {}", filter.getSkillPattern());
+                }
+
+                if (filter.getCountryPattern() != null) {
+                    matches = matches && user.getCountry() != null
+                        && user.getCountry().getTitle().contains(filter.getCountryPattern());
+                    log.debug("Фильтр по стране с паттерном: {}", filter.getCountryPattern());
+                }
+
                 return matches;
             })
             .map(user -> new UserDTO(user.getId(), user.getUsername(), user.getEmail()))

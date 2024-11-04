@@ -43,8 +43,8 @@ public class SubscriptionController {
 
     @GetMapping("/following")
     public List<UserDTO> getFollowing(
-        @RequestParam Long followeeId,
+        @RequestParam Long userId,
         @RequestBody(required = false) UserFilterDTO filter) {
-        return subscriptionService.getFollowing(followeeId, filter);
+        return subscriptionService.getFollowing(userId, filter);
     }
 }
