@@ -22,12 +22,12 @@ public class ProfileViewEventPublisher {
 
     public void publish(ProfileViewEvent event) {
         if (Objects.isNull(event) || Objects.isNull(event.requestingId()) || Objects.isNull(event.requestedId())) {
-            throw new IllegalStateException("Can't publish profile view event: neither event nor it's content can be null");
+            throw new IllegalArgumentException("Can't publish profile view event: neither event nor it's content can be null");
         }
         try {
             String data = mapper.writeValueAsString(event);
             redisTemplate.convertAndSend(properties.getProfileViewChannelName(), data);
-            log.info("Published profile view event: requesting - {}, requested - {}", event.requestingId(), event.requestedId() );
+            log.info("Published profile view event: (requestingId - {}, requestedId - {})", event.requestingId(), event.requestedId() );
         } catch(JsonProcessingException e) {
             log.error("Faced issues during serialization of ProfileViewEvent");
             throw new RuntimeException("Faced ProfileViewEvent serialization issue");
