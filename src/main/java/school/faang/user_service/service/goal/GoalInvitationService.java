@@ -62,6 +62,7 @@ public class GoalInvitationService {
         return goalInvitationMapper.toDto(savedGoalInvitation);
     }
 
+    @Transactional
     public GoalInvitationDto acceptGoalInvitation(long id) {
         GoalInvitation goalInvitation = goalInvitationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Goal invitation not found by ID: " + id));
