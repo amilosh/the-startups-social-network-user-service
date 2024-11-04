@@ -76,4 +76,14 @@ public class Goal {
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
     private List<Skill> skillsToAchieve;
+
+    public void updateUsers(List<User> newUsers) {
+        users.clear();
+        users.addAll(newUsers);
+    }
+
+    public void updateSkills(List<Skill> newSkills) {
+        skillsToAchieve.clear();
+        skillsToAchieve.addAll(newSkills);
+    }
 }

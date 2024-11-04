@@ -94,7 +94,8 @@ public class RecommendationService {
         List<Skill> newSkills = CollectionUtils.findMissingElements(updatedSkills, oldSkills);
 
         recommendation.setContent(recommendationDto.content());
-        recommendation.updateSkillOffers(recommendationDto.skillOffers().stream()
+        recommendation.updateSkillOffers(
+                recommendationDto.skillOffers().stream()
                 .map(skillOfferDto -> mapToFullSkillOffer(skillOfferDto, recommendation))
                 .toList()
         );

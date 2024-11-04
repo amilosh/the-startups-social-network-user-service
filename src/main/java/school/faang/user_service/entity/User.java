@@ -168,6 +168,6 @@ public class User {
     }
 
     public boolean hasMaxNumOfGoals(int maxNumOfGoals) {
-        return goals.size() >= maxNumOfGoals;
+        return goals.size() > maxNumOfGoals;
     }
 }
