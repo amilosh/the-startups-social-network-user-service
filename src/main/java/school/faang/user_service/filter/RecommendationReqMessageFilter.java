@@ -1,18 +1,20 @@
-package school.faang.user_service.service;
+package school.faang.user_service.filter;
 
+import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 
 import java.util.stream.Stream;
 
-public class RecommendationRecRequesterFilter implements RecommendationRequestFilter {
+@Component
+public class RecommendationReqMessageFilter implements RecommendationRequestFilter{
     @Override
     public boolean isApplicable(RequestFilterDto filter) {
-        return filter.getRequesterId() != null;
+        return filter.getMessagePattern() != null;
     }
 
     @Override
     public void apply(Stream<RecommendationRequest> requests, RequestFilterDto filter) {
-        requests.filter(request -> request.getRequester().getId().equals(filter.getRequesterId()));
+        requests.filter(recRequest -> recRequest.getMessage().contains(filter.getMessagePattern()));
     }
 }

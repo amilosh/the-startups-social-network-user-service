@@ -1,20 +1,20 @@
 package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.filter.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.mapper.RejectionRequestMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class RecommendationRequestService {
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final RecommendationRequestMapper recommendationRequestMapper;
@@ -30,16 +31,6 @@ public class RecommendationRequestService {
     private final RejectionRequestMapper rejectionRequestMapper;
     private SkillRepository skillRepository;
     private SkillRequestRepository skillRequestRepository;
-
-    @Autowired
-    public RecommendationRequestService(RecommendationRequestRepository recommendationRequestRepository,
-                                        RecommendationRequestMapper recommendationRequestMapper,
-                                        List<RecommendationRequestFilter> recRequestFilters, RejectionRequestMapper rejectionRequestMapper) {
-        this.recommendationRequestRepository = recommendationRequestRepository;
-        this.recommendationRequestMapper = recommendationRequestMapper;
-        this.recRequestFilters = recRequestFilters;
-        this.rejectionRequestMapper = rejectionRequestMapper;
-    }
 
     public boolean canSendRecommendationRequest(Long requesterId, Long receiverId) {
         Optional<RecommendationRequest> pendingRecommendationRequest =  recommendationRequestRepository.findLatestPendingRequest(requesterId, receiverId);

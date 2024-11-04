@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.recommendation;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.RecommendationRequestDto;
@@ -10,13 +11,9 @@ import school.faang.user_service.service.RecommendationRequestService;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 public class RecommendationRequestController {
     private final RecommendationRequestService recommendationRequestService;
-
-    @Autowired
-    public RecommendationRequestController(RecommendationRequestService recommendationRequestService) {
-        this.recommendationRequestService = recommendationRequestService;
-    }
 
     public RecommendationRequestDto requestRecommendation(RecommendationRequestDto recommendationRequest) {
         if (!recommendationRequestService.isMessageEmpty(recommendationRequest)) {

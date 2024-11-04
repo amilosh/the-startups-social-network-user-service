@@ -1,18 +1,18 @@
-package school.faang.user_service.service;
+package school.faang.user_service.filter;
 
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 
 import java.util.stream.Stream;
 
-public class RecommendationRecReceiverFilter implements RecommendationRequestFilter {
+public class RecommendationReqCreatedDateFilter implements RecommendationRequestFilter {
     @Override
     public boolean isApplicable(RequestFilterDto filter) {
-        return filter.getReceiverId() != null;
+        return filter.getCreatedAt() != null;
     }
 
     @Override
     public void apply(Stream<RecommendationRequest> requests, RequestFilterDto filter) {
-        requests.filter(request -> request.getReceiver().getId().equals(filter.getReceiverId()));
+        requests.filter(request -> request.getCreatedAt() == filter.getCreatedAt());
     }
 }
