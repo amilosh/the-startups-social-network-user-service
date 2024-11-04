@@ -42,23 +42,20 @@ public class GoalService {
 
     @Transactional
     public void delete(long goalId) {
-        Goal persistantGoal = goalRepo.findById(goalId)
-                .orElseThrow(() -> new ResourceNotFoundException("Goal", "id", goalId));
-
-        persistantGoal.getSkillsToAchieve().forEach(skill -> skill.removeGoal(persistantGoal));
-        persistantGoal.getUsers().forEach(user -> user.removeGoal(persistantGoal));
         deleteGoalWithChildren(goalId);
     }
 
     private void deleteGoalWithChildren(Long goalId) {
-        Goal goal = goalRepo.findById(goalId)
+        Goal persistantGoal = goalRepo.findById(goalId)
                 .orElseThrow(() -> new ResourceNotFoundException("Goal", "id", goalId));
 
         List<Goal> children = goalRepo.findAllByParentId(goalId);
         for (Goal child : children) {
             deleteGoalWithChildren(child.getId());
         }
-        goalRepo.delete(goal);
+        persistantGoal.getSkillsToAchieve().forEach(skill -> skill.removeGoal(persistantGoal));
+        persistantGoal.getUsers().forEach(user -> user.removeGoal(persistantGoal));
+        goalRepo.delete(persistantGoal);
 
         log.info("Successfully deleted goal with id {} and all its children", goalId);
     }

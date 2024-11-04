@@ -37,9 +37,9 @@ public class GoalV1Controller {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteGoal(
             @Parameter(description = "Goal id")
-            @PathVariable @Positive long goalId) {
+            @PathVariable @Positive long id) {
 
-        goalService.delete(goalId);
+        goalService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }
