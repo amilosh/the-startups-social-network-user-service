@@ -2,9 +2,7 @@ package school.faang.user_service.validation.event;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventDto;
-import school.faang.user_service.entity.Skill;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.user.UserService;
 
 import java.util.List;
 
@@ -20,11 +18,7 @@ public class EventValidation {
         }
     }
 
-    public void validateEventDto(EventDto event, UserService userService) {
-        validateEvent(event);
-        List<Long> skillsId = userService.findOwnerById(event).getSkills().stream()
-                .map(Skill::getId).toList();
-
+    public void validateEventDto(EventDto event, List<Long> skillsId) {
         if (!event.getRelatedSkills().stream().allMatch(ev -> skillsId.contains(ev.getId()))) {
             throw new DataValidationException("User does not have required skills");
         }

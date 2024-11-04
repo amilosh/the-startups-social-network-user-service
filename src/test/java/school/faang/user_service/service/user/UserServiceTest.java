@@ -34,7 +34,7 @@ public class UserServiceTest {
 
         when(userRepository.findById(ownerId)).thenReturn(Optional.of(expectedUser));
 
-        User result = userService.findOwnerById(eventDto);
+        User result = userService.findById(eventDto.getId());
 
         assertEquals(expectedUser, result);
 

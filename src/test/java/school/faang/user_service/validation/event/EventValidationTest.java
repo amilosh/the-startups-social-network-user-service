@@ -8,28 +8,20 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.skill.SkillDto;
-import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.user.UserService;
 
-import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
 
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
 public class EventValidationTest {
     @InjectMocks
-    EventValidation eventValidation;
+    private EventValidation eventValidation;
 
     @Mock
     private EventDto eventDto;
-
-    @Mock
-    private UserService userService;
 
     @BeforeEach
     void setUp() {
@@ -51,41 +43,41 @@ public class EventValidationTest {
     }
 
     @Test
-    public void testValidateEventDtoUserHasRequiredSkills() {
-        Skill skill = new Skill();
-        skill.setId(1L);
+    public void testValidateEventDto_Success() {
+        SkillDto skill1 = SkillDto.builder().id(1L).title("Skill1").build();
+        SkillDto skill2 = SkillDto.builder().id(2L).title("Skill2").build();
 
-        User user = new User();
-        user.setSkills(List.of(skill));
+        EventDto event = EventDto.builder().build();
+        event.setRelatedSkills(Arrays.asList(skill1, skill2));
 
-        eventDto.setStartDate(LocalDateTime.now());
-        eventDto.setOwnerId(1L);
-        eventDto.setRelatedSkills(List.of(new SkillDto()));
+        List<Long> userSkills = Arrays.asList(1L, 2L, 3L);
 
-        when(userService.findOwnerById(eventDto)).thenReturn(user);
-
-        DataValidationException exception = assertThrows(DataValidationException.class, () ->
-                eventValidation.validateEventDto(eventDto, userService));
-        assertEquals("User does not have required skills", exception.getMessage());
-
+        eventValidation.validateEventDto(event, userSkills);
     }
 
     @Test
-    public void testValidateEventDtoUserDoesNotHaveRequiredSkills() {
-        Skill skill = new Skill();
-        skill.setId(1L);
+    public void testValidateEventDto_Failure_MissingSkill() {
+        SkillDto skill1 = SkillDto.builder().id(1L).title("Skill1").build();
+        SkillDto skill2 = SkillDto.builder().id(2L).title("Skill2").build();
 
-        User user = new User();
-        user.setSkills(List.of());
+        EventDto event = EventDto.builder().build();
+        event.setRelatedSkills(Arrays.asList(skill1, skill2));
 
-        eventDto.setStartDate(LocalDateTime.now());
-        eventDto.setOwnerId(1L);
-        eventDto.setRelatedSkills(List.of(new SkillDto()));
+        List<Long> userSkills = List.of(1L);
 
-        when(userService.findOwnerById(eventDto)).thenReturn(user);
+        assertThrows(DataValidationException.class, () -> {
+            eventValidation.validateEventDto(event, userSkills);
+        }, "User does not have required skills");
+    }
 
-        DataValidationException exception = assertThrows(DataValidationException.class, () ->
-                eventValidation.validateEventDto(eventDto, userService));
-        assertEquals("User does not have required skills", exception.getMessage());
+    @Test
+    public void testValidateEventDto_Failure_NoSkills() {
+        EventDto event = EventDto.builder().build();
+        event.setRelatedSkills(List.of());
+        List<Long> userSkills = Arrays.asList(1L, 2L);
+
+        eventValidation.validateEventDto(event, userSkills);
     }
 }
+
+

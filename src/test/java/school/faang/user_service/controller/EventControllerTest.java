@@ -11,6 +11,8 @@ import school.faang.user_service.service.event.EventService;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,9 +29,14 @@ public class EventControllerTest {
     @Test
     public void testCreate() {
         EventDto eventDto = EventDto.builder().build();
+        EventDto expectedEventDto = EventDto.builder().build();
 
-        when(eventService.create(eventDto)).thenReturn(eventDto);
-        eventController.create(eventDto);
+        when(eventService.create(eventDto)).thenReturn(expectedEventDto);
+
+        EventDto result = eventController.create(eventDto);
+
+        assertEquals(expectedEventDto, result);
+        assertNotNull(result);
 
         verify(eventService, times(1)).create(eventDto);
     }
@@ -39,7 +46,12 @@ public class EventControllerTest {
         EventDto eventDto = EventDto.builder().build();
 
         when(eventService.getEvent(anyLong())).thenReturn(eventDto);
-        eventController.getEvent(1L);
+
+        EventDto result = eventController.getEvent(1L);
+
+        assertEquals(eventDto, result);
+        assertNotNull(result);
+
         verify(eventService, times(1)).getEvent(anyLong());
     }
 
@@ -61,7 +73,7 @@ public class EventControllerTest {
         List<EventDto> result = eventController.getOwnedEvents(1L);
 
         verify(eventService, times(1)).getOwnedEvents(1L);
-        Assertions.assertEquals(List.of(eventDto), result);
+        assertEquals(List.of(eventDto), result);
     }
 
     @Test
@@ -72,6 +84,6 @@ public class EventControllerTest {
         List<EventDto> result = eventController.getParticipatedEvents(1L);
 
         verify(eventService, times(1)).getParticipatedEvents(1L);
-        Assertions.assertEquals(List.of(eventDto), result);
+        assertEquals(List.of(eventDto), result);
     }
 }

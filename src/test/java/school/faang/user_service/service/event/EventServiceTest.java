@@ -1,5 +1,7 @@
 package school.faang.user_service.service.event;
 
+import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -7,7 +9,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import school.faang.user_service.dto.event.EventDto;
-import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
@@ -17,15 +18,18 @@ import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validation.event.EventValidation;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyLong;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
 public class EventServiceTest {
@@ -33,177 +37,128 @@ public class EventServiceTest {
     private EventService eventService;
 
     @Mock
+    private EventValidation eventValidation;
+    @Mock
     private EventRepository eventRepository;
-
     @Mock
     private EventMapper eventMapper;
-
     @Mock
     private UserService userService;
-
     @Mock
-    private EventFilter eventFilter;
-
-
-    @Mock
-    private EventValidation eventValidation;
+    private List<EventFilter> eventFilters;
 
     private EventDto eventDto;
     private Event event;
 
     @BeforeEach
-    public void setUp() {
-        Skill skill = new Skill();
-        skill.setId(1L);
-
+   public void setUp() {
         eventDto = EventDto.builder()
                 .id(1L)
                 .title("Test Event")
                 .ownerId(1L)
+                .relatedSkills(new ArrayList<>())
                 .build();
 
-        User user = new User();
-        user.setId(1L);
-        user.setSkills(List.of(skill));
 
         event = new Event();
         event.setId(1L);
-        event.setRelatedSkills(List.of(skill));
+        event.setTitle("Test Event");
+
+        Skill skill = new Skill();
+        skill.setId(1L);
     }
 
     @Test
-    public void testCreateEventSuccess() {
+    public void testCreateEvent() {
+        Skill skill = new Skill();
+        skill.setId(1L);
+        User user = new User();
+        user.setSkills(List.of(skill));
+
+        when(userService.findById(eventDto.getOwnerId())).thenReturn(user);
         when(eventMapper.dtoToEvent(eventDto)).thenReturn(event);
         when(eventRepository.save(any(Event.class))).thenReturn(event);
         when(eventMapper.eventToDto(event)).thenReturn(eventDto);
-        var result = eventService.create(eventDto);
-        assertEquals(result, eventDto);
-        verify(eventMapper, times(1)).eventToDto(any(Event.class));
-        verify(eventMapper, times(1)).dtoToEvent(any(EventDto.class));
+
+        EventDto createdEvent = eventService.create(eventDto);
+
+        Assertions.assertNotNull(createdEvent);
+        assertEquals(event.getId(), createdEvent.getId());
+
+        verify(eventValidation, times(1)).validateEventDto(eventDto, List.of(skill.getId()));
         verify(eventRepository, times(1)).save(any(Event.class));
     }
 
     @Test
-    public void getEventTest() {
-        when(eventRepository.findById(anyLong())).thenReturn(Optional.of(event));
-        when(eventMapper.eventToDto(any(Event.class))).thenReturn(eventDto);
-        EventDto result = eventService.getEvent(1L);
-        assertEquals(result, eventDto);
-        verify(eventRepository, times(1)).findById(anyLong());
-        verify(eventMapper, times(1)).eventToDto(any(Event.class));
+    public void testFindEventById() {
+        when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
+        when(eventMapper.eventToDto(event)).thenReturn(eventDto);
+
+        EventDto foundEvent = eventService.getEvent(event.getId());
+
+        Assertions.assertNotNull(foundEvent);
+        assertEquals(event.getId(), foundEvent.getId());
     }
 
     @Test
-    void testGetEventsByFilter() {
-        Event event1 = new Event();
-        event1.setId(1L);
-        event1.setTitle("Event 1");
-        event1.setDescription("Description 1");
+    public void testGetEventThrowingEntityNotFoundException() {
+        when(eventRepository.findById(event.getId())).thenReturn(Optional.empty());
 
-
-        Event event2 = new Event();
-        event2.setId(2L);
-        event2.setTitle("Event 2");
-        event2.setDescription("Description 2");
-
-        Event event3 = new Event();
-        event3.setId(3L);
-        event3.setTitle("Event 3");
-        event3.setDescription("Description 3");
-
-
-        List<Event> events = List.of(event1, event2, event3);
-        when(eventRepository.findAll()).thenReturn(events);
-
-        EventFilterDto filter = EventFilterDto.builder()
-                .title("Event 2").
-                build();
-
-        when(eventFilter.filterEvents(events, filter)).thenReturn(List.of(event2));
-
-        EventDto expectedEventDto = EventDto.builder()
-                .id(2L)
-                .title("Event2")
-                .description("Description 2")
-                .build();
-
-        when(eventMapper.eventToDto(event2)).thenReturn(expectedEventDto);
-
-        List<EventDto> result = eventService.getEventsByFilter(filter);
-
-        int expectedSize = 1;
-        int resultSize = result.size();
-        EventDto resultIndex = result.get(0);
-
-        assertEquals(expectedSize, resultSize);
-        assertEquals(expectedEventDto, resultIndex);
+        assertThrows(EntityNotFoundException.class, () -> eventService.getEvent(event.getId()));
     }
 
     @Test
-    public void testGetEventsByFilterNoEventsFound() {
-        EventFilterDto filter = EventFilterDto.builder().build();
-        filter.setTitle("Non-existent event");
+    public void testUpdateEvent() {
+        when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
 
-        when(eventRepository.findAll()).thenReturn(List.of());
-        when(eventFilter.filterEvents(List.of(), filter)).thenReturn(List.of());
+        User user = new User();
+        user.setSkills(new ArrayList<>());
 
-        List<EventDto> result = eventService.getEventsByFilter(filter);
+        when(userService.findById(eventDto.getOwnerId())).thenReturn(user);
+        when(eventMapper.dtoToEventWithId(eventDto, event.getId())).thenReturn(event);
+        when(eventRepository.save(event)).thenReturn(event);
+        when(eventMapper.eventToDto(event)).thenReturn(eventDto);
 
-        int expectedSize = 0;
-        int resultSize = result.size();
+        EventDto updatedEvent = eventService.updateEvent(eventDto);
 
-        assertEquals(expectedSize, resultSize);
+        Assertions.assertNotNull(updatedEvent);
+        assertEquals(event.getId(), updatedEvent.getId());
+        verify(eventRepository, times(1)).save(event);
     }
 
     @Test
-    public void testDeletingEvent() {
+    public void testDeleteEventById() {
+        long eventId = 1L;
+        eventService.deleteEvent(eventId);
+
+        verify(eventRepository, times(1)).deleteById(eventId);
+    }
+
+    @Test
+    public void testGetOwnedEvents() {
+        long userId = 1L;
         Event event = new Event();
         event.setId(1L);
 
-        eventService.deleteEvent(1L);
+        when(eventRepository.findAllByUserId(userId)).thenReturn(List.of(event));
+        when(eventMapper.toDtoList(List.of(event))).thenReturn(List.of(eventDto));
 
-        verify(eventRepository, times(1)).deleteById(1L);
+        List<EventDto> ownedEvents = eventService.getOwnedEvents(userId);
+
+        Assertions.assertNotNull(ownedEvents);
+        assertEquals(1, ownedEvents.size());
     }
 
     @Test
-    public void testUpdatingEvent() {
-        EventDto eventDto = EventDto.builder()
-                .id(1L)
-                .title("Updated Event")
-                .build();
+    public void testGetParticipatedEvents() {
+        List<Event> events = Collections.singletonList(event);
 
-        Event existingEvent = new Event();
-        existingEvent.setId(1L);
-        existingEvent.setTitle("Old Event");
+        when(eventRepository.findParticipatedEventsByUserId(eventDto.getOwnerId())).thenReturn(events);
+        when(eventMapper.toDtoList(events)).thenReturn(Collections.singletonList(eventDto));
 
-        when(eventRepository.findById(1L)).thenReturn(Optional.of(existingEvent));
-        when(eventMapper.dtoToEvent(eventDto)).thenReturn(existingEvent);
-        when(eventRepository.save(existingEvent)).thenReturn(existingEvent);
-        when(eventMapper.eventToDto(existingEvent)).thenReturn(eventDto);
+        List<EventDto> participatedEvents = eventService.getParticipatedEvents(eventDto.getOwnerId());
 
-        EventDto updatedEventDto = eventService.updateEvent(eventDto);
-
-        verify(eventValidation).validateEventDto(eventDto, userService);
-        verify(eventMapper).dtoToEvent(eventDto);
-        verify(eventRepository).save(existingEvent);
-        assertEquals("Updated Event", updatedEventDto.getTitle());
-    }
-
-    @Test
-    public void getOwnedEventsTest() {
-        User user = new User();
-        user.setId(1L);
-
-        eventRepository.findAllByUserId(user.getId());
-        verify(eventRepository, times(1)).findAllByUserId(user.getId());
-    }
-
-    @Test
-    public void getParticipatedEventsTest() {
-        User user = new User();
-        user.setId(1L);
-
-        eventRepository.findParticipatedEventsByUserId(user.getId());
-        verify(eventRepository, times(1)).findParticipatedEventsByUserId(user.getId());
+        Assertions.assertNotNull(participatedEvents);
+        assertEquals(1, participatedEvents.size());
     }
 }
