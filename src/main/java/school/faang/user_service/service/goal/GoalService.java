@@ -5,15 +5,20 @@ import lombok.Data;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.goal.GoalMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
+import school.faang.user_service.service.goal.filter.GoalFilter;
 import school.faang.user_service.validator.goal.GoalValidator;
 
 import java.util.List;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 @Data
@@ -23,6 +28,7 @@ public class GoalService {
     private final GoalValidator goalValidator;
     private final GoalMapper goalMapper;
     private final SkillRepository skillRepository;
+    private final List<GoalFilter> goalFilters;
 
     @Transactional
     public GoalDto createGoal(Long userId, GoalDto goalDto) {
@@ -54,6 +60,26 @@ public class GoalService {
     @Transactional
     public void deleteGoal(Long goalId) {
         goalRepository.deleteById(goalId);
+    }
+
+    public List<GoalDto> findSubtasksByGoalId(Long goalId, GoalFilterDto filters) {
+        Stream<Goal> subtasks = goalRepository.findByParent(goalId);
+
+        return goalFilters.stream()
+                .filter(filter -> filter.isApplicable(filters))
+                .flatMap(filter -> filter.apply(subtasks, filters))
+                .map(goalMapper::toDto)
+                .toList();
+    }
+
+    public List<GoalDto> getGoalsByUser(Long userId, GoalFilterDto filters) {
+        Stream<Goal> goals = goalRepository.findGoalsByUserId(userId);
+
+        return goalFilters.stream()
+                .filter(filter -> filter.isApplicable(filters))
+                .flatMap(filter -> filter.apply(goals, filters))
+                .map(goalMapper::toDto)
+                .toList();
     }
 
     private void assignSkillsToUsers(List<Long> skillIds, Long goalId) {

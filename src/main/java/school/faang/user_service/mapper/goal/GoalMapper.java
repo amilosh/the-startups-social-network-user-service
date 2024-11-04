@@ -14,12 +14,12 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface GoalMapper {
 
-    @Mapping(target = "parentId", source = "parent.id")
-    @Mapping(target = "skillIds", source = "skillsToAchieve", qualifiedByName = "skillsToSkillIds")
+    @Mapping(source = "parent.id",target = "parentId")
+    @Mapping(source = "skillsToAchieve", target = "skillIds", qualifiedByName = "skillsToSkillIds")
     GoalDto toDto(Goal goal);
 
     @Mapping(target = "parent", ignore = true)
-    @Mapping(target = "skillsToAchieve", source = "skillIds", qualifiedByName = "skillIdsToSkills")
+    @Mapping(source = "skillIds", target = "skillsToAchieve", qualifiedByName = "skillIdsToSkills")
     Goal toEntity(GoalDto goalDto);
 
     List<GoalDto> toDto(List<Goal> goals);
