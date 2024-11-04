@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.recommendation.RequestRecommendationDto;
 import school.faang.user_service.dto.recommendation.ResponseRecommendationDto;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.ErrorMessage;
+import school.faang.user_service.exception.recommendation.DataValidationException;
+import school.faang.user_service.exception.recommendation.ErrorMessage;
 import school.faang.user_service.service.recommendation.RecommendationService;
 
 import java.util.List;

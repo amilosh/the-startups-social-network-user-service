@@ -1,4 +1,4 @@
-package school.faang.user_service.exception;
+package school.faang.user_service.exception.recommendation;
 
 public class ErrorMessage {
     public static final String RECOMMENDATION_CONTENT = "THE TEXT OF THE RECOMMENDATION CANNOT BE EMPTY";
