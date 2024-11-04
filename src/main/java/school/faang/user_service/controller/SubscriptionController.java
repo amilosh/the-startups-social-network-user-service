@@ -25,13 +25,11 @@ public class SubscriptionController {
     }
 
     @DeleteMapping("/unfollow")
-    @ResponseStatus(HttpStatus.OK)
     public void unfollowUser(@RequestParam Long followerId, @RequestParam Long followeeId) {
         subscriptionService.unfollowUser(followerId, followeeId);
     }
 
     @GetMapping("/followers")
-    @ResponseStatus(HttpStatus.OK)
     public List<UserDTO> getFollowers(
         @RequestParam Long userId,
         @RequestBody(required = false) UserFilterDTO filter) {
@@ -39,13 +37,11 @@ public class SubscriptionController {
     }
 
     @GetMapping("/followers/count")
-    @ResponseStatus(HttpStatus.OK)
     public long getFollowersCount(@RequestParam Long userId) {
         return subscriptionService.countFollowers(userId);
     }
 
     @GetMapping("/following")
-    @ResponseStatus(HttpStatus.OK)
     public List<UserDTO> getFollowing(
         @RequestParam Long followeeId,
         @RequestBody(required = false) UserFilterDTO filter) {
