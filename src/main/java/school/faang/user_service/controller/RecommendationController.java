@@ -45,7 +45,7 @@ public class RecommendationController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<RecommendationDto> updateRecommendation(@RequestBody RecommendationDto updated) {
+    public ResponseEntity<RecommendationDto> updateRecommendation(@RequestBody @Valid RecommendationDto updated) {
         validateRecommendation(updated);
         return new ResponseEntity<>(recommendationService.update(updated), HttpStatus.OK);
     }
