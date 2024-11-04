@@ -31,15 +31,32 @@ public class UserService {
         return userRepository.existsById(userId);
     }
 
+    /**
+     * Finds a user by their ID.
+     *
+     * @param userId the ID of the user to find
+     * @return the user with the specified ID
+     * @throws EntityNotFoundException if no user with the given ID is found
+     */
     public User findUser(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User with ID " + userId + " not found"));
     }
 
+    /**
+     * Deletes a user from the database.
+     *
+     * @param user the user to delete
+     */
     public void deleteUser(User user) {
         userRepository.delete(user);
     }
 
+    /**
+     * Saves the provided user to the database.
+     *
+     * @param user the user to save
+     */
     public void saveUser(User user) {
         userRepository.save(user);
     }

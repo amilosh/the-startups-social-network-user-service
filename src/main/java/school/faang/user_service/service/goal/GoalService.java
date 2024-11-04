@@ -16,8 +16,8 @@ import school.faang.user_service.validation.goal.GoalValidator;
 import java.util.List;
 import java.util.stream.Stream;
 
-@Component
 @Service
+@Component
 @RequiredArgsConstructor
 public class GoalService {
     private final GoalRepository goalRepository;

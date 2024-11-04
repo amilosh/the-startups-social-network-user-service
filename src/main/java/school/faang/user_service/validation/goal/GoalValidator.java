@@ -7,7 +7,6 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.skill.SkillService;
-import school.faang.user_service.validation.goal.responce.ValidationResponse;
 
 @Component
 @RequiredArgsConstructor
@@ -15,8 +14,6 @@ public class GoalValidator {
     private static final int MAX_GOALS_PER_USER = 3;
     private static final int MAX_LENGTH_TITLE = 64;
     private static final int MAX_LENGTH_DESCRIPTION = 128;
-
-    private final ValidationResponse response = new ValidationResponse();
 
     private final GoalRepository goalRepository;
     private final UserRepository userRepository;
@@ -52,7 +49,11 @@ public class GoalValidator {
             throw new DataValidationException("Goal title is too long");
         }
 
-        if (goal.getDescription() == null || goal.getDescription().length() > MAX_LENGTH_DESCRIPTION) {
+        if (goal.getDescription() == null) {
+            throw new DataValidationException("Goal description is missing");
+        }
+
+        if (goal.getDescription().length() > MAX_LENGTH_DESCRIPTION) {
             throw new DataValidationException("Goal description is too long");
         }
 
@@ -63,7 +64,6 @@ public class GoalValidator {
         if (goal.getId() == null && !isCreate) {
             throw new DataValidationException("Goal ID does not exist");
         }
-
         if (!goalRepository.existsById(goal.getId())) {
             throw new DataValidationException("Goal does not exist");
         }

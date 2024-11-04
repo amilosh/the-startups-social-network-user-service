@@ -1,18 +1,15 @@
 package school.faang.user_service.service.user;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
@@ -27,51 +24,89 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-
     @Test
-    void testGetUserById_UserExists() {
+    void checkIfUserExistsByIdReturnTrue() {
         long userId = 1L;
-        Country country = new Country();
-        country.setId(1L);
-        country.setTitle("CountryName");
+        when(userRepository.existsById(userId)).thenReturn(true);
 
-        User mockUser = User.builder()
-                .id(userId)
-                .username("JohnDoe")
-                .email("john.doe@example.com")
-                .phone("+123456789")
-                .password("hashed_password")
-                .active(true)
-                .aboutMe("A brief description about John Doe")
-                .country(country)
-                .city("CityName")
-                .experience(5)
-                .build();
+        boolean result = userService.checkUserExistence(userId);
 
-        when(userRepository.getUserById(userId)).thenReturn(mockUser);
-
-        User result = userService.getUserById(userId);
-
-        assertNotNull(result);
-        assertEquals(userId, result.getId());
-        assertEquals("JohnDoe", result.getUsername());
-        assertEquals("john.doe@example.com", result.getEmail());
-        assertTrue(result.isActive());
-        assertEquals("A brief description about John Doe", result.getAboutMe());
-        assertEquals(country, result.getCountry());
-        assertEquals("CityName", result.getCity());
-        assertEquals(5, result.getExperience());
-        verify(userRepository, times(1)).getUserById(userId);
+        assertTrue(result);
     }
 
     @Test
-    void testGetUserById_UserDoesNotExist() {
+    void checkIfUserExistsByIdReturnFalse() {
         long userId = 1L;
-        when(userRepository.getUserById(userId)).thenReturn(null);
+        when(userRepository.existsById(userId)).thenReturn(false);
 
-        User result = userService.getUserById(userId);
+        boolean result = userService.checkUserExistence(userId);
 
-        assertNull(result);
-        verify(userRepository, times(1)).getUserById(userId);
+        assertFalse(result);
+    }
+
+    @Test
+    public void testFindUserWhenUserExist() {
+        long userId = 1L;
+        User user = new User();
+        user.setId(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        User foundUser = userService.findUser(userId);
+
+        assertNotNull(foundUser);
+        assertEquals(userId, foundUser.getId());
+        verify(userRepository, times(1)).findById(userId);
+    }
+
+    @Test
+    public void testFindUserWhenUserDoesNotExist() {
+        long userId = 1;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
+                userService.findUser(userId));
+
+        assertEquals("User with ID " + userId + " not found", exception.getMessage());
+        verify(userRepository, times(1)).findById(userId);
+    }
+
+    @Test
+    public void testDeleteUserWhenUserExist() {
+        User user = new User();
+
+        userService.deleteUser(user);
+
+        verify(userRepository, times(1)).delete(user);
+    }
+
+    @Test
+    public void testGetUserByIdWhenUserExist() {
+        User user = new User();
+        user.setId(1L);
+        when(userRepository.getUserById(user.getId())).thenReturn(user);
+
+        User foundUser = userService.getUserById(user.getId());
+
+        assertNotNull(foundUser);
+        assertEquals(user.getId(), foundUser.getId());
+        verify(userRepository, times(1)).getUserById(user.getId());
+    }
+
+    @Test
+    public void testGetUserByIdWhenUserDoesNotExist() {
+        User user = new User();
+        user.setId(1L);
+        when(userRepository.getUserById(user.getId())).thenReturn(null);
+
+        assertNull(userService.getUserById(user.getId()));
+        verify(userRepository, times(1)).getUserById(user.getId());
+    }
+
+    @Test
+    public void testSaveUser() {
+        User user = new User();
+        userService.saveUser(user);
+
+        verify(userRepository, times(1)).save(user);
     }
 }
