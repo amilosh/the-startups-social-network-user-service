@@ -28,12 +28,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RecommendationService {
     private static final int DIFFERENCE_BETWEEN_DATE_IN_MONTH = 6;
-    private static RecommendationRepository recRepository;
-    private static SkillOfferRepository skillOfferRepository;
-    private static SkillRepository skillRepository;
-    private static UserSkillGuaranteeRepository userSkillGuaranteeRepository;
-    private static UserRepository userRepository;
-    private static RecommendationMapper recMapper;
+    private final RecommendationRepository recRepository;
+    private final SkillOfferRepository skillOfferRepository;
+    private final SkillRepository skillRepository;
+    private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+    private final UserRepository userRepository;
+    private final RecommendationMapper recMapper;
 
 
     public List<RecommendationDto> getAllUserRecommendations(long receiverId) {

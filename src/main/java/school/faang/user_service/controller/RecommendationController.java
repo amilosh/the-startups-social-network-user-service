@@ -26,16 +26,16 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/recommendation")
 public class RecommendationController {
-    public static RecommendationService recommendationService;
+    public final RecommendationService recommendationService;
 
-    @GetMapping("/user/{receiverId}")
-    public List<RecommendationDto> getAllUserRecommendations(@PathVariable long receiverId) {
-        return recommendationService.getAllUserRecommendations(receiverId);
+    @GetMapping("/user/receiver/{receiverId}")
+    public ResponseEntity<List<RecommendationDto>> getAllUserRecommendations(@PathVariable long receiverId) {
+        return new ResponseEntity<>(recommendationService.getAllUserRecommendations(receiverId), HttpStatus.OK);
     }
 
     @GetMapping("/user/{authorId}")
-    public List<RecommendationDto> getAllGivenRecommendations(@PathVariable long authorId) {
-        return recommendationService.getAllGivenRecommendations(authorId);
+    public ResponseEntity<List<RecommendationDto>> getAllGivenRecommendations(@PathVariable long authorId) {
+        return new ResponseEntity<>(recommendationService.getAllGivenRecommendations(authorId), HttpStatus.OK);
     }
 
     @PostMapping("/give")
@@ -51,8 +51,9 @@ public class RecommendationController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteRecommendation(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteRecommendation(@PathVariable Long id) {
         recommendationService.delete(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private void validateRecommendation(RecommendationDto recommendationDto) throws DataValidationException {
