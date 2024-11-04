@@ -17,7 +17,6 @@ import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
@@ -31,7 +30,6 @@ public class RecommendationService {
     private final RecommendationRepository recRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final SkillRepository skillRepository;
-    private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final UserRepository userRepository;
     private final RecommendationMapper recMapper;
 
