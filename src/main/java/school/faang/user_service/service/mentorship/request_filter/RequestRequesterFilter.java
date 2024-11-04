@@ -11,12 +11,12 @@ public class RequestRequesterFilter implements RequestFilter {
 
     @Override
     public boolean isApplicable(RequestFilterDto filters) {
-        return filters.getReceiverId() != null;
+        return filters.getRequesterId() != null;
     }
 
     @Override
     public List<MentorshipRequest> apply(Stream<MentorshipRequest> mentorshipRequests, RequestFilterDto filters) {
-       return mentorshipRequests.filter(request -> request.getReceiver().getId().equals(filters.getReceiverId()))
+       return mentorshipRequests.filter(request -> request.getRequester().getId().equals(filters.getRequesterId()))
                .toList();
     }
 }

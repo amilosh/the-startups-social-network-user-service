@@ -14,23 +14,23 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MentorshipRequestController {
 
-    private final MentorshipRequestService mentorshipRequestServiceService;
+    private final MentorshipRequestService mentorshipRequestService;
 
     public void requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
         validation(mentorshipRequestDto);
-        requestMentorship(mentorshipRequestDto);
+        mentorshipRequestService.requestMentorship(mentorshipRequestDto);
     }
 
-    public List<MentorshipRequestDto> getRequest(RequestFilterDto filter) {
-        return getRequest(filter);
+    public List<MentorshipRequestDto> getRequests(RequestFilterDto filter) {
+        return mentorshipRequestService.getRequests(filter);
     }
 
     public void acceptRequest(long id) {
-        acceptRequest(id);
+        mentorshipRequestService.acceptRequest(id);
     }
 
     public void rejectRequest(long id, RejectionDto rejection) {
-        rejectRequest(id, rejection);
+        mentorshipRequestService.rejectRequest(id, rejection);
     }
 
     private void validation(MentorshipRequestDto recommendationDto) {
