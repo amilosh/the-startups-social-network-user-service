@@ -16,7 +16,6 @@ import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
-import school.faang.user_service.service.goal.filter.InvitationFilter;
 
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
     private final GoalInvitationMapper goalInvitationMapper;
 
     public GoalInvitationDto createInvitation(GoalInvitationDto invitation) {
-        log.info("Create invitation, inviterId: {}, invitedUserId: {}, goalId: {}", invitation.inviterId(), invitation.invitedUserId(), invitation.goalId());
+        log.info("Create invitation, inviterId: {}, invitedUserId: {}", invitation.inviterId(), invitation.invitedUserId());
         checkUsersFromMatching(invitation);
         invitationSetEntities(invitation);
         GoalInvitation goalInvitation = goalInvitationMapper.toEntity(invitation);
@@ -43,19 +42,19 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
     private void checkUsersFromMatching(GoalInvitationDto invitation) {
         log.info("Check users for matching, inviterId: {}, invitedUserId: {}", invitation.inviterId(), invitation.invitedUserId());
         if (invitation.inviterId().equals(invitation.invitedUserId())) {
-            throw new InvitationCheckException(String.format("ID приглашающего пользователя: %s и ID приглашенного пользователя: %s не должны совпадать", invitation.inviterId(), invitation.invitedUserId()));
+            throw new InvitationCheckException(String.format("The inviting user ID: %s and the invited user ID: %s must not match", invitation.inviterId(), invitation.invitedUserId()));
         }
     }
 
     private void invitationSetEntities(GoalInvitationDto invitation) {
         log.info("Установить для объектов новое приглашение");
         GoalInvitation goalInvitation = goalInvitationMapper.toEntity(invitation);
-        User inviter = findUserById(invitation.inviterId(), "ID приглашающего: %s не найден");
+        User inviter = findUserById(invitation.inviterId(), "Inviter ID: %s not found");
         goalInvitation.setInviter(inviter);
-        User invitedUser = findUserById(invitation.invitedUserId(), "ID приглашенного пользователя: %s не найден");
+        User invitedUser = findUserById(invitation.invitedUserId(), "Invited user ID: %s not found");
         goalInvitation.setInvited(invitedUser);
-        Goal goal = goalRepository.findById(invitation.goalId()).orElseThrow(() ->
-                new InvitationEntityNotFoundException(String.format("Goal с id: %s не найдена", invitation.goalId())));
+        Goal goal = goalRepository.findById(invitation.inviterId()).orElseThrow(() ->
+                new InvitationEntityNotFoundException("Goal with id: %s not found"));
         goalInvitation.setGoal(goal);
     }
 
@@ -86,7 +85,7 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
     private GoalInvitation findGoalInvitationById(long id) {
         log.info("Find invitation with id: {}", id);
         return goalInvitationRepository.findById(id).orElseThrow(() ->
-                new InvitationEntityNotFoundException("приглашение на цель с id: %s не найдено"));
+                new InvitationEntityNotFoundException("invitation to a goal with id: %s not found"));
     }
 
     private void checkUserGoals(User invitedUser, Goal goal, GoalInvitation invitation) {
@@ -94,11 +93,11 @@ public class GoalInvitationServiceImpl implements GoalInvitationService {
         List<Goal> activeGoals = getActiveGoals(invitedUser);
         if (activeGoals.contains(goal)) {
             invitation.setStatus(RequestStatus.REJECTED);
-            throw new InvitationCheckException("Пользователь с id: %s уже имеет цель с id: %s", invitedUser.getId(), goal.getId());
+            throw new InvitationCheckException("A user with id: %s already has a goal with id: %s", invitedUser.getId(), goal.getId());
         }
         if (activeGoals.size() >= userGoalsLimit) {
             invitation.setStatus(RequestStatus.REJECTED);
-            throw new InvitationCheckException("Количество целей у пользователя с id: %s превышает допустимый предел в: %s", invitedUser.getId(), userGoalsLimit);
+            throw new InvitationCheckException("The number of goals for a user with id: %s exceeds the allowed limit in: %s", invitedUser.getId(), userGoalsLimit);
         }
     }
 
