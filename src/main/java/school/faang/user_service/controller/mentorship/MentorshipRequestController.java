@@ -17,7 +17,9 @@ public class MentorshipRequestController {
     private final MentorshipRequestService mentorshipRequestService;
 
     public void requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
-        validation(mentorshipRequestDto);
+        if (mentorshipRequestDto.getDescription() == null || mentorshipRequestDto.getDescription().isBlank()) {
+            throw new DataValidationException("A request for mentorship must contain a reason");
+        }
         mentorshipRequestService.requestMentorship(mentorshipRequestDto);
     }
 
@@ -33,10 +35,10 @@ public class MentorshipRequestController {
         mentorshipRequestService.rejectRequest(id, rejection);
     }
 
-    private void validation(MentorshipRequestDto recommendationDto) {
-        if (recommendationDto.getDescription() == null || recommendationDto.getDescription().isBlank()) {
-            throw new DataValidationException("A request for mentorship must contain a reason");
-        }
-    }
+//    private void validation(MentorshipRequestDto recommendationDto) {
+//        if (recommendationDto.getDescription() == null || recommendationDto.getDescription().isBlank()) {
+//            throw new DataValidationException("A request for mentorship must contain a reason");
+//        }
+//    }
 
 }
