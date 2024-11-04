@@ -2,7 +2,6 @@ package school.faang.user_service.validation;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.User;
@@ -45,7 +44,7 @@ public class MentorshipRequestValidation {
     public MentorshipRequest validateRequestId(long requesterId) {
         boolean exists = mentorshipRequestRepository.existsById(requesterId);
         if (!exists) {
-            throw new IllegalArgumentException("Id " + requesterId + " is not found");
+            throw new EntityNotFoundException("Id " + requesterId + " is not found");
         }
         return mentorshipRequestRepository.getReferenceById(requesterId);
     }

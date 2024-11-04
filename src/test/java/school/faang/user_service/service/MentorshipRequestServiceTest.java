@@ -29,7 +29,10 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class MentorshipRequestServiceTest {
@@ -43,22 +46,18 @@ public class MentorshipRequestServiceTest {
     private MentorshipRequestMapperImpl mapper;
     @Mock
     private MentorshipRequestValidation validator;
-    @Mock
-    private RequestFilter requestFilter;
 
     @Captor
     private ArgumentCaptor<MentorshipRequest> requestCaptor;
 
     private final long CORRECT_ID_1 = 1L;
     private final long CORRECT_ID_2 = 2L;
-    private final long NON_EXIST_USER_ID = 123456L;
     private User receiver;
     private User requester;
     private MentorshipRequestDto mentorshipRequestDto;
     private MentorshipRequest mentorshipRequest;
     private RejectionDto rejection;
     private List<RequestFilter> filters;
-    private List<MentorshipRequest> mentorshipRequests;
 
     @BeforeEach
     void initData() {
