@@ -13,6 +13,7 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.mapper.SkillMapper;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
 import java.util.HashSet;
@@ -26,10 +27,12 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class EventService {
     private final EventRepository eventRepository;
+    private final UserRepository userRepository;
     private final UserService userService;
     private final EventMapper eventMapper;
     private final SkillMapper skillMapper;
     private final List<EventFilter> eventFilters;
+
 
     public EventDto create(EventDto eventDto) {
         log.info("Creating event:{}", eventDto.toLogString());
@@ -80,15 +83,19 @@ public class EventService {
 
     public void deleteEvent(Long eventId) {
         log.info("Deleting event with ID: {}", eventId);
+
+        Event event = getEventById(eventId);
+        User userOwner = event.getOwner();
+
+        userOwner.removeOwnedEvent(event);
+        userRepository.save(userOwner);
+
+        event.getAttendees().forEach(attendee -> {
+            attendee.removeParticipatedEvent(event);
+            userRepository.save(attendee);
+        });
+
         eventRepository.deleteById(eventId);
-
-        if (!eventRepository.existsById(eventId)) {
-            Event event = getEventById(eventId);
-            User userOwner = event.getOwner();
-
-            userOwner.removeOwnedEvent(event);
-            event.getAttendees().forEach(user -> user.removeParticipatedEvent(event));
-        }
 
         log.info("Event with ID: {} deleted", eventId);
     }
