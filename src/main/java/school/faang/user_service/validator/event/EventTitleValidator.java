@@ -13,6 +13,6 @@ public class EventTitleValidator implements EventValidator {
 
     @Override
     public String getMessage() {
-        return "Title cannot be blank";
+        return "Title cannot be blank or null";
     }
 }
