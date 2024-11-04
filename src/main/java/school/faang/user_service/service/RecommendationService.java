@@ -3,7 +3,8 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.EntityNotFoundException;
@@ -14,7 +15,7 @@ import school.faang.user_service.validation.user.UserValidator;
 
 import java.util.List;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class RecommendationService {
     private final RecommendationRepository recommendationRepository;
@@ -25,7 +26,9 @@ public class RecommendationService {
     private final SkillOfferService skillOfferService;
     private final SkillService skillService;
 
+    @Transactional
     public RecommendationDto create(RecommendationDto recommendationDto) {
+        recommendationValidator.validateDto(recommendationDto);
         recommendationValidator.validateSkillAndTimeRequirementsForGuarantee(recommendationDto);
 
         Recommendation recommendation = recommendationRepository.save(createRecommendationFromDto(recommendationDto));
@@ -36,7 +39,9 @@ public class RecommendationService {
         return recommendationMapper.toDto(recommendation);
     }
 
+    @Transactional
     public RecommendationDto update(RecommendationDto recommendationDto) {
+        recommendationValidator.validateDto(recommendationDto);
         recommendationValidator.validateSkillAndTimeRequirementsForGuarantee(recommendationDto);
 
         recommendationRepository.update(
@@ -91,7 +96,7 @@ public class RecommendationService {
     }
 
     private List<Recommendation> getAllRecommendationsByAuthorId(long authorId) {
-        Page<Recommendation> recommendations = recommendationRepository.findAllByReceiverId(authorId, Pageable.unpaged());
+        Page<Recommendation> recommendations = recommendationRepository.findAllByAuthorId(authorId, Pageable.unpaged());
         return recommendations.getContent();
     }
 

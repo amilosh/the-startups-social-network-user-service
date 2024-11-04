@@ -10,7 +10,7 @@ import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.dto.SkillOfferDto;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.validation.recommendation.RecommendationServiceValidator;
+import school.faang.user_service.validation.recommendation.RecommendationValidator;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ class SkillOfferServiceTest {
     private SkillOfferRepository skillOfferRepository;
 
     @Mock
-    private RecommendationServiceValidator recommendationServiceValidator;
+    private RecommendationValidator recommendationValidator;
 
     @InjectMocks
     private SkillOfferService skillOfferService;

@@ -1,13 +1,13 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.List;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class SkillOfferService {
     private final SkillOfferRepository skillOfferRepository;

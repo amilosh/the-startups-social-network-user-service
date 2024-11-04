@@ -22,20 +22,12 @@ public class RecommendationValidator {
 
     public void validateDto(RecommendationDto recommendationDto) {
 
-        if (recommendationDto.getAuthorId() == null || recommendationDto.getAuthorId() == 0) {
-            throw new DataValidationException("Author id cannot be null");
+        if (recommendationDto.getAuthorId() == null || recommendationDto.getAuthorId() <= 0) {
+            throw new DataValidationException("Author id must be a positive number");
         }
 
-        if (recommendationDto.getAuthorId() < 0) {
-            throw new DataValidationException("Author id cannot be negative");
-        }
-
-        if (recommendationDto.getReceiverId() == null || recommendationDto.getReceiverId() == 0) {
-            throw new DataValidationException("Receiver id cannot be null");
-        }
-
-        if (recommendationDto.getReceiverId() < 0) {
-            throw new DataValidationException("Receiver id cannot be negative");
+        if (recommendationDto.getReceiverId() == null || recommendationDto.getReceiverId() <= 0) {
+            throw new DataValidationException("Receiver id must be a positive number");
         }
 
         if (recommendationDto.getReceiverId().equals(recommendationDto.getAuthorId())) {
@@ -52,12 +44,8 @@ public class RecommendationValidator {
     }
 
     public void validateId(Long id) {
-        if (id == null || id == 0) {
-            throw new DataValidationException("Id cannot be null");
-        }
-
-        if (id <= 0) {
-            throw new DataValidationException("Id cannot be negative");
+        if (id == null || id <=0) {
+            throw new DataValidationException("Id must be a positive number");
         }
     }
 
@@ -78,8 +66,7 @@ public class RecommendationValidator {
 
         if (lastRecommendation.isPresent()) {
             LocalDate lastRecommendationDate = lastRecommendation.get().getCreatedAt().toLocalDate();
-            if (lastRecommendationDate != null &&
-                    lastRecommendationDate.isAfter(LocalDate.now().minusMonths(RECOMMENDATION_COOLDOWN_MONTHS))) {
+            if (lastRecommendationDate.isAfter(LocalDate.now().minusMonths(RECOMMENDATION_COOLDOWN_MONTHS))) {
                 throw new DataValidationException("Less " + RECOMMENDATION_COOLDOWN_MONTHS +
                         " months passed since last recommendation " + lastRecommendationDate);
             }

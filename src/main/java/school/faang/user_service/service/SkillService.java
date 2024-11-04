@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
@@ -51,7 +52,7 @@ public class SkillService {
                 .map(userSkillGuarantee -> userSkillGuarantee.getGuarantor().getId())
                 .toList();
     }
-
+    @Transactional
     public void addGuarantee(Recommendation recommendation) {
         List<Skill> userSkills = userService.findUser(recommendation.getReceiver().getId()).getSkills();
         List<Long> recommendedSkillsIds = recommendation.getSkillOffers().stream().map(SkillOffer::getId).toList();

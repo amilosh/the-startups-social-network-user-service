@@ -51,7 +51,6 @@ class RecommendationControllerTest {
 
         RecommendationDto result = recommendationController.giveRecommendation(dto);
 
-        verify(recommendationValidator, times(1)).validateDto(dto);
         verify(recommendationService, times(1)).create(dto);
 
         assertNotNull(result);
@@ -67,7 +66,6 @@ class RecommendationControllerTest {
         assertNotNull(result);
         assertEquals(dto, result);
 
-        verify(recommendationValidator, times(1)).validateDto(dto);
         verify(recommendationService, times(1)).update(dto);
     }
 

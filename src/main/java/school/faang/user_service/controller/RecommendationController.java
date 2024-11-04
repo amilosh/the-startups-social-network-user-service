@@ -12,30 +12,28 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RecommendationController {
     private final RecommendationService recommendationService;
-    private final RecommendationValidator recommendationControllerValidator;
+    private final RecommendationValidator recommendationValidator;
 
     public RecommendationDto giveRecommendation(RecommendationDto recommendationDto) {
-        recommendationControllerValidator.validateDto(recommendationDto);
         return recommendationService.create(recommendationDto);
     }
 
     public RecommendationDto updateRecommendation(RecommendationDto recommendationDto) {
-        recommendationControllerValidator.validateDto(recommendationDto);
         return recommendationService.update(recommendationDto);
     }
 
     public void deleteRecommendation(Long recommendationId) {
-        recommendationControllerValidator.validateId(recommendationId);
+        recommendationValidator.validateId(recommendationId);
         recommendationService.delete(recommendationId);
     }
 
     public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
-        recommendationControllerValidator.validateId(receiverId);
+        recommendationValidator.validateId(receiverId);
         return recommendationService.getAllUserRecommendations(receiverId);
     }
 
     public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
-        recommendationControllerValidator.validateId(authorId);
+        recommendationValidator.validateId(authorId);
         return recommendationService.getAllGivenRecommendations(authorId);
     }
 }
