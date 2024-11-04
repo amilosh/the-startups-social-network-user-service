@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.event;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.faang.user_service.dto.ParticipantReqParam;
 import school.faang.user_service.utilities.UrlUtils;
 
 import java.util.Objects;
@@ -36,6 +38,7 @@ public class EventParticipationControllerTest {
     private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:14-alpine");
     @Autowired
     private MockMvc mockMvc;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     static {
         postgres.withDatabaseName("test_db")
@@ -53,16 +56,18 @@ public class EventParticipationControllerTest {
     }
 
     @Test
-    void registerParticipantStatusOkTest() throws Exception {
+    void registerParticipantSuccessTest() throws Exception {
         mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/1" + UrlUtils.PARTICIPANTS)
-                        .param("userId", "2"))
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new ParticipantReqParam(2L))))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void registerParticipantStatus400Test() throws Exception {
+    void registerParticipantForNonExistentEventFailTest() throws Exception {
         mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/100" + UrlUtils.PARTICIPANTS)
-                        .param("userId", "2"))
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new ParticipantReqParam(2L))))
                 .andExpect(status().is4xxClientError())
                 .andDo(mvcResult -> {
                     String content = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
@@ -71,16 +76,54 @@ public class EventParticipationControllerTest {
     }
 
     @Test
-    void unregisterParticipantStatusOkTest() throws Exception {
+    void registerParticipantForNonExistentUserFailTest() throws Exception {
+        mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/1" + UrlUtils.PARTICIPANTS)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new ParticipantReqParam(100L))))
+                .andExpect(status().is4xxClientError())
+                .andDo(mvcResult -> {
+                    String content = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
+                    assertTrue(content.contains("User with id: 100 does not exist"));
+                });
+    }
+
+    @Test
+    void registerParticipantWithNullParticipantIdFailTest() throws Exception {
+        mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/1" + UrlUtils.PARTICIPANTS)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new ParticipantReqParam(null))))
+                .andExpect(status().is4xxClientError())
+                .andDo(mvcResult -> {
+                    String content = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
+                    assertTrue(content.contains("The given id must not be null"));
+                });
+    }
+
+    @Test
+    void registerParticipantWithNegativeParticipantIdFailTest() throws Exception {
+        mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/1" + UrlUtils.PARTICIPANTS)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new ParticipantReqParam(-2L))))
+                .andExpect(status().is4xxClientError())
+                .andDo(mvcResult -> {
+                    String content = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
+                    assertTrue(content.contains("must be greater than or equal to 1"));
+                });
+    }
+
+    @Test
+    void unregisterParticipantSuccessTest() throws Exception {
         mockMvc.perform(delete(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/5" + UrlUtils.PARTICIPANTS)
-                        .param("userId", "7"))
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new ParticipantReqParam(7L))))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void unregisterParticipantStatus400Test() throws Exception {
+    void unregisterParticipantForNonExistentEventFailTest() throws Exception {
         mockMvc.perform(delete(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/100" + UrlUtils.PARTICIPANTS)
-                        .param("userId", "2"))
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new ParticipantReqParam(2L))))
                 .andExpect(status().is4xxClientError())
                 .andDo(mvcResult -> {
                     String content = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
@@ -89,7 +132,43 @@ public class EventParticipationControllerTest {
     }
 
     @Test
-    void getParticipantWithOneElementTest() throws Exception {
+    void unregisterParticipantForNonExistentUserFailTest() throws Exception {
+        mockMvc.perform(delete(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/1" + UrlUtils.PARTICIPANTS)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new ParticipantReqParam(100L))))
+                .andExpect(status().is4xxClientError())
+                .andDo(mvcResult -> {
+                    String content = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
+                    assertTrue(content.contains("User with id: 100 does not exist"));
+                });
+    }
+
+    @Test
+    void unregisterParticipantWithNullParticipantIdFailTest() throws Exception {
+        mockMvc.perform(delete(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/1" + UrlUtils.PARTICIPANTS)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new ParticipantReqParam(null))))
+                .andExpect(status().is4xxClientError())
+                .andDo(mvcResult -> {
+                    String content = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
+                    assertTrue(content.contains("The given id must not be null"));
+                });
+    }
+
+    @Test
+    void unregisterParticipantWithNegativeParticipantIdFailTest() throws Exception {
+        mockMvc.perform(delete(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/1" + UrlUtils.PARTICIPANTS)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new ParticipantReqParam(-1L))))
+                .andExpect(status().is4xxClientError())
+                .andDo(mvcResult -> {
+                    String content = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
+                    assertTrue(content.contains("must be greater than or equal to 1"));
+                });
+    }
+
+    @Test
+    void getParticipantForEventWithOneParticipantSuccessTest() throws Exception {
         mockMvc.perform(get(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/3" + UrlUtils.PARTICIPANTS))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(APPLICATION_JSON))
@@ -100,7 +179,7 @@ public class EventParticipationControllerTest {
     }
 
     @Test
-    void getParticipantsCountOnEventWithThreeParticipantTest() throws Exception {
+    void getParticipantsCountForEventWithThreeParticipantSuccessTest() throws Exception {
         mockMvc.perform(get(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/2" + UrlUtils.PARTICIPANTS + UrlUtils.AMOUNT))
                 .andExpect(status().isOk())
                 .andDo(mvcResult -> {

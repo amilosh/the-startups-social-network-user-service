@@ -18,55 +18,47 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 @SpringBootTest
 @ActiveProfiles("test")
 public class UserMapperTest {
-    private static User john;
-    private static User alex;
-    private static User jane;
+    private final User john = User.builder()
+            .id(1L)
+            .username("JohnDoe")
+            .email("johndoe@example.com")
+            .build();
+    private final User alex = User.builder()
+            .id(2L)
+            .username("AlexSmith")
+            .email("alexsmith@example.com")
+            .build();
+    private final User jane =User.builder()
+            .username("JaneBlack")
+            .build();
     @Autowired
     private UserMapper userMapper;
 
-    @BeforeAll
-    static void setup() {
-        john = new User();
-        john.setId(1L);
-        john.setUsername("JohnDoe");
-        john.setEmail("johndoe@example.com");
-
-        alex = new User();
-        alex.setId(2L);
-        alex.setUsername("AlexSmith");
-        alex.setEmail("alexsmith@example.com");
-
-        jane = new User();
-        jane.setId(null);
-        jane.setUsername("JaneBlack");
-        jane.setEmail(null);
-    }
-
     @Test
-    public void userToUserDtoWithExpectedResultTest() {
+    public void userToUserDtoSuccessTest() {
         UserDto userDto = new UserDto(1L, "JohnDoe", "johndoe@example.com");
         assertEquals(userDto, userMapper.userToUserDto(john));
     }
 
     @Test
-    public void userToUserDtoWithWrongResultTest() {
+    public void userToUserDtoFailTest() {
         UserDto userDto = new UserDto(1L, "JohnDoe", "johndoe@example.com");
         assertNotEquals(userDto, userMapper.userToUserDto(alex));
     }
 
     @Test
-    public void userToUserDtoWithNullFieldsTest() {
+    public void userToUserDtoForNullFieldsUserSuccessTest() {
         UserDto userDto = new UserDto(null, "JaneBlack", null);
         assertEquals(userDto, userMapper.userToUserDto(jane));
     }
 
     @Test
-    public void userToUserDtoWithNullUserTest() {
+    public void userToUserDtoForNullUserSuccessTest() {
         assertNull(userMapper.userToUserDto(null));
     }
 
     @Test
-    public void userListToUserDtoListWithExpectedResultTest() {
+    public void userListToUserDtoListSuccessTest() {
         assertEquals(3, userMapper.userListToUserDtoList(List.of(john, alex, jane)).size());
     }
 }
