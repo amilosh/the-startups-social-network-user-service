@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.dto.UserFilterDTO;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.InvalidUserIdException;
-import school.faang.user_service.exception.SubscriptionNotFoundException;
+import school.faang.user_service.exceptions.InvalidUserIdException;
+import school.faang.user_service.exceptions.SubscriptionNotFoundException;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.util.List;

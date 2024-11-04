@@ -1,4 +1,4 @@
-package school.faang.user_service.exception;
+package school.faang.user_service.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
