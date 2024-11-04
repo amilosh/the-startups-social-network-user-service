@@ -64,7 +64,7 @@ class EventParticipationServiceTest {
 
     @Test
     void emptyEventTest() {
-        when(repository.findAllParticipantsByEventId(eventId)).thenReturn(null);
+        when(repository.findAllParticipantsByEventId(eventId)).thenReturn(Collections.emptyList());
         assertThrows(IllegalStateException.class, () -> service.getParticipant(eventId));
     }
 
@@ -79,6 +79,7 @@ class EventParticipationServiceTest {
 
     @Test
     void getParticipantsCountTest() {
+        when(repository.findAllParticipantsByEventId(eventId)).thenReturn(List.of(new User()));
         when(repository.countParticipants(eventId)).thenReturn(1);
         assertEquals(1, service.getParticipantsCount(eventId));
         verify(repository, times(1)).countParticipants(eventId);

@@ -41,14 +41,14 @@ public class EventParticipationService {
     }
 
     private void checkEventById(long eventId) {
-        if (repository.findAllParticipantsByEventId(eventId) == null) {
+        if (repository.findAllParticipantsByEventId(eventId).isEmpty()) {
             throw new IllegalStateException("There is no event with this id");
         }
     }
 
     private boolean checkRegistration(long eventId, long userId) {
         return repository.findAllParticipantsByEventId(eventId).stream()
-                .anyMatch(user -> user.getId() == userId);
+                .anyMatch(user -> user.getId().equals(userId));
     }
 
 }
