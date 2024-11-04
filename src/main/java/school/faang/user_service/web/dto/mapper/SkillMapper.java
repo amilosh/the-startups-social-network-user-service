@@ -3,6 +3,7 @@ package school.faang.user_service.web.dto.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.web.dto.skill.SkillCandidateDto;
@@ -11,7 +12,7 @@ import school.faang.user_service.web.dto.skill.SkillDto;
 import java.util.Collections;
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SkillMapper extends Mappable<Skill, SkillDto> {
 
     @Mapping(source = "users", target = "userIds", qualifiedByName = "map")

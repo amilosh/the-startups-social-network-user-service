@@ -2,10 +2,11 @@ package school.faang.user_service.web.dto.skill;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -18,5 +19,5 @@ public class SkillDto {
     @Max(300)
     private String title;
 
-    private int userIds;
+    private List<Long> userIds;
 }
