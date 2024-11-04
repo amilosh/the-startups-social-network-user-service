@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,24 +23,24 @@ public class EventParticipationController {
 
     @PostMapping("/{eventId}/register")
     public ResponseEntity<Void> registerParticipant(@PathVariable @Min(1) long eventId,
-                                              @RequestParam @Min(1) long userId) {
+                                                    @RequestParam @Min(1) long userId) {
         service.registerParticipant(eventId, userId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/{eventId}/unregister")
     public ResponseEntity<Void> unregisterParticipant(@PathVariable @Min(1) long eventId,
-                                      @RequestParam @Min(1) long userId) {
+                                                      @RequestParam @Min(1) long userId) {
         service.unregisterParticipant(eventId, userId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{eventId}/getAllParicipant")
+    @GetMapping("/{eventId}/getAllParicipant")
     public ResponseEntity<List<UserDto>> getParticipant(@PathVariable @Min(1) long eventId) {
         return ResponseEntity.ok(service.getParticipant(eventId));
     }
 
-    @PostMapping("/{eventId}/getParticipantsCount")
+    @GetMapping("/{eventId}/getParticipantsCount")
     public ResponseEntity<Integer> getParticipantsCount(@PathVariable @Min(1) long eventId) {
         return ResponseEntity.ok(service.getParticipantsCount(eventId));
     }
