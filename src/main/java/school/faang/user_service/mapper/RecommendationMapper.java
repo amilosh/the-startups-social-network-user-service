@@ -10,6 +10,7 @@ public interface RecommendationMapper {
 
     @Mapping(target = "author", ignore = true)
     @Mapping(target = "receiver", ignore = true)
+    @Mapping(target = "skillOffers", ignore = true)
     Recommendation toEntity(RecommendationDto recommendationDto);
 
     @Mapping(source = "author.id", target = "authorId")
