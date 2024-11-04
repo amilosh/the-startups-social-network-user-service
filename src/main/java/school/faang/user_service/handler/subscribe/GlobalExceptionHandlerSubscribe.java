@@ -1,4 +1,4 @@
-package school.faang.user_service.exceptions;
+package school.faang.user_service.handler.subscribe;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -6,10 +6,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import school.faang.user_service.exceptions.subscribe.InvalidUserIdException;
+import school.faang.user_service.exceptions.subscribe.SubscriptionAlreadyExistsException;
+import school.faang.user_service.exceptions.subscribe.SubscriptionNotFoundException;
 
 @Slf4j
 @ControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandlerSubscribe {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {

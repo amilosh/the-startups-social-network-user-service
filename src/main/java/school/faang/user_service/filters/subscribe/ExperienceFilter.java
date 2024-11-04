@@ -1,4 +1,4 @@
-package school.faang.user_service.filters;
+package school.faang.user_service.filters.subscribe;
 
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.filter.UserFilter;
