@@ -2,7 +2,6 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.goal.CreateGoalDto;
@@ -27,7 +26,6 @@ public class GoalService {
     private static final int MAX_NUM_ACTIVE_GOALS = 3;
     private static final String GOAL_COMPLETED_ERROR = "Goal is already completed";
     public static final String MAXIMUM_NUMBER_OF_GOALS_ERROR = "The user has the maximum number of goals";
-    public static final String RECOMMENDATION_DTO_MUST_NOT_BE_NULL = "RecommendationDto must not be null";
 
     private final GoalRepository goalRepo;
     private final GoalMapper goalMapper;
