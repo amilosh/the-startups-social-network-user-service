@@ -1,4 +1,4 @@
-package school.faang.user_service.service.validation;
+package school.faang.user_service.validator;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,13 +12,13 @@ import school.faang.user_service.repository.SubscriptionRepository;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class SubscriptionValidationTest {
+public class SubscriptionValidatorTest {
 
     @Mock
     SubscriptionRepository subscriptionRepository;
 
     @InjectMocks
-    SubscriptionValidation subscriptionValidation;
+    SubscriptionValidator subscriptionValidation;
 
     private long followerId;
     private long followeeId;

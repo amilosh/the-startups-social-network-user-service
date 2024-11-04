@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.subscription;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -6,17 +6,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.user.UserEmailFilter;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNameFilter;
-import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.repository.SubscriptionRepository;
-import school.faang.user_service.service.validation.SubscriptionValidation;
-import school.faang.user_service.service.validation.UserValidation;
+import school.faang.user_service.validator.SubscriptionValidator;
+import school.faang.user_service.validator.UserValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,10 +38,10 @@ public class SubscriptionServiceTest {
     private UserMapper userMapper = new UserMapperImpl();
 
     @Mock
-    private SubscriptionValidation subscriptionValidation;
+    private SubscriptionValidator subscriptionValidation;
 
     @Mock
-    private UserValidation userValidation;
+    private UserValidator userValidator;
 
     SubscriptionService subscriptionService;
 
@@ -67,19 +67,19 @@ public class SubscriptionServiceTest {
         userFilters = new ArrayList<>(List.of(MockUserNameFilter, MockUserEmailFilter));
 
         subscriptionService = new SubscriptionService(subscriptionRepository, userMapper,
-                userFilters, subscriptionValidation, userValidation);
+                userFilters, subscriptionValidation, userValidator);
     }
 
     @Test
     public void followUserTest() {
         followerId = 1L;
         followeeId = 2L;
-        doNothing().when(userValidation).areUsersExist(followerId, followeeId);
+        doNothing().when(userValidator).areUsersExist(followerId, followeeId);
         doNothing().when(subscriptionValidation).isFollowingExistsValidate(followerId, followeeId);
 
         subscriptionService.followUser(followerId, followeeId);
 
-        verify(userValidation).areUsersExist(followerId, followeeId);
+        verify(userValidator).areUsersExist(followerId, followeeId);
         verify(subscriptionValidation).isFollowingExistsValidate(followerId, followeeId);
         verify(subscriptionRepository).followUser(followerId, followeeId);
     }
@@ -88,12 +88,12 @@ public class SubscriptionServiceTest {
     public void unfollowUserTest() {
         followerId = 1L;
         followeeId = 2L;
-        doNothing().when(userValidation).areUsersExist(followerId, followeeId);
+        doNothing().when(userValidator).areUsersExist(followerId, followeeId);
         doNothing().when(subscriptionValidation).isFollowingNotExistsValidate(followerId, followeeId);
 
         subscriptionService.unfollowUser(followerId, followeeId);
 
-        verify(userValidation).areUsersExist(followerId, followeeId);
+        verify(userValidator).areUsersExist(followerId, followeeId);
         verify(subscriptionValidation).isFollowingNotExistsValidate(followerId, followeeId);
         verify(subscriptionRepository).unfollowUser(followerId, followeeId);
     }
@@ -127,7 +127,7 @@ public class SubscriptionServiceTest {
         secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com");
         expectedUsers = new ArrayList<>(List.of(firstUserDto, secondUserDto));
 
-        doNothing().when(userValidation).isUserExists(userId);
+        doNothing().when(userValidator).isUserExists(userId);
         when(subscriptionRepository.findByFolloweeId(userId)).thenReturn(users);
         when(userFilters.get(0).isApplicable(filter)).thenReturn(true);
         when(userFilters.get(0).apply(users, filter)).thenReturn(users);
@@ -135,7 +135,7 @@ public class SubscriptionServiceTest {
 
         List<UserDto> result = subscriptionService.getFollowers(userId, filter);
 
-        verify(userValidation).isUserExists(userId);
+        verify(userValidator).isUserExists(userId);
         verify(subscriptionRepository).findByFolloweeId(userId);
         verify(userMapper).entityStreamToDtoList(users);
         verify(userFilters.get(0)).isApplicable(filter);
@@ -151,12 +151,12 @@ public class SubscriptionServiceTest {
     public void getFollowersCountTest() {
         followerId = 1L;
         followingsAmount = 3;
-        doNothing().when(userValidation).isUserExists(followeeId);
+        doNothing().when(userValidator).isUserExists(followeeId);
         when(subscriptionRepository.findFollowersAmountByFolloweeId(followeeId)).thenReturn(followingsAmount);
 
         int actualResult = subscriptionService.getFollowersCount(followeeId);
 
-        verify(userValidation).isUserExists(followeeId);
+        verify(userValidator).isUserExists(followeeId);
         verify(subscriptionRepository).findFollowersAmountByFolloweeId(followeeId);
 
         assertEquals(followingsAmount, actualResult);
@@ -191,7 +191,7 @@ public class SubscriptionServiceTest {
         secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com");
         expectedUsers = new ArrayList<>(List.of(firstUserDto, secondUserDto));
 
-        doNothing().when(userValidation).isUserExists(userId);
+        doNothing().when(userValidator).isUserExists(userId);
         when(subscriptionRepository.findByFollowerId(userId)).thenReturn(users);
         when(userFilters.get(0).isApplicable(filter)).thenReturn(true);
         when(userFilters.get(0).apply(users, filter)).thenReturn(users);
@@ -200,7 +200,7 @@ public class SubscriptionServiceTest {
 
         List<UserDto> result = subscriptionService.getFollowing(userId, filter);
 
-        verify(userValidation).isUserExists(userId);
+        verify(userValidator).isUserExists(userId);
         verify(subscriptionRepository).findByFollowerId(userId);
         verify(userMapper).entityStreamToDtoList(users);
         verify(userFilters.get(0)).isApplicable(filter);
@@ -217,12 +217,12 @@ public class SubscriptionServiceTest {
     public void getFollowingCountTest() {
         followeeId = 2L;
         followingsAmount = 3;
-        doNothing().when(userValidation).isUserExists(followeeId);
+        doNothing().when(userValidator).isUserExists(followeeId);
         when(subscriptionRepository.findFolloweesAmountByFollowerId(followeeId)).thenReturn(followingsAmount);
 
         int actualResult = subscriptionService.getFollowingCount(followeeId);
 
-        verify(userValidation).isUserExists(followeeId);
+        verify(userValidator).isUserExists(followeeId);
         verify(subscriptionRepository).findFolloweesAmountByFollowerId(followeeId);
 
         assertEquals(followingsAmount, actualResult);

@@ -1,4 +1,4 @@
-package school.faang.user_service.service.validation;
+package school.faang.user_service.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -7,7 +7,7 @@ import school.faang.user_service.repository.SubscriptionRepository;
 
 @Component
 @RequiredArgsConstructor
-public class SubscriptionValidation {
+public class SubscriptionValidator {
 
     private final SubscriptionRepository subscriptionRepository;
 
