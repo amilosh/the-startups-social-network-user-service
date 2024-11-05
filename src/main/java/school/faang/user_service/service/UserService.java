@@ -18,7 +18,7 @@ public class UserService {
         return userRepository.existsById(userId);
     }
 
-    public UserDto save(User user) {
+    public UserDto saveUser(User user) {
         return userMapper.toDto(userRepository.save(user));
     }
 

@@ -56,8 +56,8 @@ public class MentorshipRequestService {
         requester.getMentors().add(receiver);
         receiver.getMentees().add(requester);
         request.setStatus(RequestStatus.ACCEPTED);
-        userService.save(requester);
-        userService.save(receiver);
+        userService.saveUser(requester);
+        userService.saveUser(receiver);
 
         log.info("Request with id #{} was accepted by UserId #{}.", id, receiver.getId());
         return requestMapper.toDto(requestRepository.save(request));
