@@ -1,11 +1,10 @@
 package school.faang.user_service.mapper;
 
-import lombok.Data;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
+
 @Component
-@Data
 public class UserMapper {
 
     public static UserDto toDto(User user) {
@@ -16,6 +15,8 @@ public class UserMapper {
         userDto.setId(user.getId());
         userDto.setUsername(user.getUsername());
         userDto.setEmail(user.getEmail());
+
+
         return userDto;
     }
 
@@ -27,6 +28,10 @@ public class UserMapper {
         user.setId(userDto.getId());
         user.setUsername(userDto.getUsername());
         user.setEmail(userDto.getEmail());
+
+
         return user;
     }
+
+
 }

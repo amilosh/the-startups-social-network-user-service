@@ -1,4 +1,4 @@
-package school.faang.user_service.service.test;
+package school.faang.user_service.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
