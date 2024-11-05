@@ -45,7 +45,6 @@ public class InvitationDtoValidatorTest {
 
     @Test
     void testValidateUserNotFound() {
-        // Подготовим недопустимый UID пользователя
         goalInvitationDto.setInvitedUserId(999L); // предполагается, что такого пользователя нет
 
         assertThrows(InvitationEntityNotFoundException.class, () -> invitationDtoValidator.validate(goalInvitationDto));

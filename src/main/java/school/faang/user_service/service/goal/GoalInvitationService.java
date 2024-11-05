@@ -17,7 +17,6 @@ import school.faang.user_service.validator.goal.InvitationDtoValidator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -28,7 +27,7 @@ public class GoalInvitationService {
     private final GoalInvitationMapper goalInvitationMapper;
     private final List<InvitationFilter> filters;
     private final InvitationDtoValidator invitationDtoValidator;
-    private final List<InvitationFilter> invitationFilters;
+    private static final int ACTIVE_GOALS = 3;
 
     public GoalInvitationDto createInvitation(GoalInvitationDto goalInvitationDto) {
         invitationDtoValidator.validate(goalInvitationDto);
@@ -37,11 +36,10 @@ public class GoalInvitationService {
     }
 
     public GoalInvitationDto acceptGoalInvitation(long id) {
-        GoalInvitation goalInvitation = goalInvitationRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("No such goal invitation with id:" + id));
+        GoalInvitation goalInvitation = findGoalInvitationById(id);
 
         User invited = goalInvitation.getInvited();
-        if (invited.getReceivedGoalInvitations().size() > 3)
+        if (invited.getReceivedGoalInvitations().size() > ACTIVE_GOALS)
             throw new IllegalArgumentException("Exception invited user can`t have more than 3 goal invitations");
 
         invited.getGoals().add(goalInvitation.getGoal());
