@@ -38,7 +38,7 @@ public class RecommendationService {
         log.info("Start of recommendation {} processing", recommendationDto);
         serviceRecommendationValidator.checkingThePeriodOfFasting(recommendationDto.getAuthorId(), recommendationDto.getReceiverId());
         serviceRecommendationValidator.checkingTheSkillsOfRecommendation(recommendationDto.getSkillOffers());
-        //checkingTheUserSkills()
+        serviceRecommendationValidator.checkingTheUserSkills(recommendationDto);
 
         log.info("A recommendation {} is being created", recommendationDto);
         recommendationRepository.create(
@@ -53,22 +53,23 @@ public class RecommendationService {
     @Transactional
     public void deleteRecommendation(RecommendationDto delRecommendationDto) {
         log.info("The recommendation {} is being deleted", delRecommendationDto);
-        //TODO написать валидацию preparing beforeDelete (userId, recommendationId)
+        serviceRecommendationValidator.preparingBeforeDelete(delRecommendationDto);
         recommendationRepository.deleteById(delRecommendationDto.getId());
+        log.info("The recommendation {} has been deleted", delRecommendationDto);
     }
 
     @Transactional(readOnly = true)
     public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Recommendation> recommendationsPage = recommendationRepository.findAllByReceiverId(receiverId, pageable);
-
-        //TODO написать маппер
-
-        return recommendationsPage.getContent().stream().collect(Collectors.toList());
+        return recommendationsPage.getContent().stream()
+                .map(recommendationMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     @Transactional
-    public void updateRecommendation(RecommendationDto updateRecommendationDto) {
+    public RecommendationDto updateRecommendation(RecommendationDto updateRecommendationDto) {
+        Recommendation recommendation = recommendationMapper.toEntity(updateRecommendationDto);
         log.info("Start of recommendation {} processing", updateRecommendationDto);
         serviceRecommendationValidator.checkingThePeriodOfFasting(
                 updateRecommendationDto.getAuthorId(),
@@ -80,6 +81,21 @@ public class RecommendationService {
                 updateRecommendationDto.getAuthorId(),
                 updateRecommendationDto.getReceiverId(),
                 updateRecommendationDto.getContent());
-        //TODO покрыть тестами и добавить гарант
+
+        skillOfferRepository.deleteAllByRecommendationId(recommendation.getId());
+
+        serviceRecommendationValidator.checkingTheUserSkills(updateRecommendationDto);
+
+        return updateRecommendationDto;
+    }
+
+    @Transactional(readOnly = true)
+    public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Recommendation> recommendationsPage = recommendationRepository.findAllByAuthorId(authorId, pageable);
+        return recommendationsPage.getContent().stream()
+                .map(recommendationMapper::toDto)
+                .collect(Collectors.toList());
     }
 }
+
