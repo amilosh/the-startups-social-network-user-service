@@ -12,6 +12,7 @@ import school.faang.user_service.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Data
 @Builder
@@ -80,4 +81,5 @@ public class Goal {
     public boolean isEmptyUsers(){
         return users.isEmpty();
     }
+
 }

@@ -6,10 +6,7 @@ import java.util.List;
 
 public record UserDto(
         Long id,
-        String username,
-        String email,
-        String phone,
-        @NotBlank String userName,
+        @NotBlank  String username,
         List<Long> idsSettingGoals,
         List<Long> idsGoals,
         List<Long> idsSkills,

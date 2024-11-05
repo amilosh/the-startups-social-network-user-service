@@ -18,6 +18,7 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Data
 @Builder
@@ -143,12 +144,14 @@ public class User {
     @OneToOne(mappedBy = "user")
     private Premium premium;
 
-    public void removeParticipatedEvent(Event event){
+    public void removeParticipatedEvent(Event event) {
         participatedEvents.remove(event);
     }
 
-    public void removeAllGoals(){
+    public void removeAllGoals() {
         settingGoals.clear();
         goals.clear();
     }
+
+
 }
