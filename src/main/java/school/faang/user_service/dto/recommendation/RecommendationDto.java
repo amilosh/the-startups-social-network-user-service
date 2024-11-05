@@ -24,7 +24,7 @@ public class RecommendationDto {
     @NotNull(message = "Skill offers must not be null")
     @NotEmpty(message = "Skill offers must not be empty")
     private List<SkillOfferDto> skillOffers;
-    @NotNull
+    @NotNull(message = "Request id must not be null")
     private Long requestId;
     private LocalDateTime createdAt;
 }
