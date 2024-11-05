@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.goal.CreateGoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalResponseDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
 import school.faang.user_service.service.GoalService;
@@ -77,6 +78,22 @@ public class GoalV1Controller {
             ) Pageable pageable) {
 
         Page<GoalResponseDto> goalResponseDtos = goalService.findSubtasksByGoalId(goalId, pageable);
+        return ResponseEntity.ok(goalResponseDtos);
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<Page<GoalResponseDto>> findGoalsByFilters(
+            @Parameter(description = "Goal filters")
+            @RequestBody @Validated GoalFilterDto filter,
+
+            @PageableDefault(
+                    size = DEFAULT_PAGE_SIZE,
+                    page = 0,
+                    sort = DEFAULT_SORT_FIELD,
+                    direction = Sort.Direction.DESC
+            ) Pageable pageable) {
+
+        Page<GoalResponseDto> goalResponseDtos = goalService.findGoalsByFilters(filter, pageable);
         return ResponseEntity.ok(goalResponseDtos);
     }
 }

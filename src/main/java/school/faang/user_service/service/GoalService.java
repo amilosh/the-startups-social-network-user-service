@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.goal.CreateGoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalResponseDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
 import school.faang.user_service.entity.Skill;
@@ -17,6 +18,7 @@ import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
+import school.faang.user_service.specification.GoalSpecification;
 import school.faang.user_service.util.CollectionUtils;
 
 import java.util.ArrayDeque;
@@ -177,6 +179,11 @@ public class GoalService {
     public Page<GoalResponseDto> findSubtasksByGoalId(Long goalId, Pageable pageable) {
         Page<Goal> goals = goalRepo.findAllByParentId(goalId, pageable);
         return goals.map(goalMapper::toResponseDto);
+    }
+
+    public Page<GoalResponseDto> findGoalsByFilters(GoalFilterDto filters, Pageable pageable) {
+        Page<Goal> goal = goalRepo.findAll(GoalSpecification.build(filters), pageable);
+        return goal.map(goalMapper::toResponseDto);
     }
 
     private void validateMaxActiveGoalsLimit(Goal goal) {

@@ -3,6 +3,7 @@ package school.faang.user_service.repository.goal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.User;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @Repository
-public interface GoalRepository extends JpaRepository<Goal, Long> {
+public interface GoalRepository extends JpaRepository<Goal, Long>, JpaSpecificationExecutor<Goal> {
 
     @Query(nativeQuery = true, value = """
             SELECT g.* FROM goal g
