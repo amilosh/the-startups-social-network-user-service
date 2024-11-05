@@ -21,9 +21,6 @@ class UserServiceTest {
     @Mock
     UserRepository userRepository;
 
-    @Mock
-    UserValidator userValidator;
-
     @InjectMocks
     UserService userService;
 
@@ -46,21 +43,10 @@ class UserServiceTest {
     }
 
     @Test
-    void updateMentorsAndMenteesExistingUsers() {
-        long menteeId = 1L;
-        long mentorId = 2L;
-        User mentee = new User();
-        mentee.setId(menteeId);
-        User mentor = new User();
-        mentor.setId(mentorId);
-        when(userValidator.userAlreadyExists(menteeId)).thenReturn(mentee);
-        when(userValidator.userAlreadyExists(mentorId)).thenReturn(mentor);
+    void saveUser() {
+        User user = new User();
+        userService.saveUser(user);
 
-        userService.updateMentorsAndMentees(menteeId, mentorId);
-
-        verify(userRepository, times(1)).save(mentee);
-        verify(userRepository, times(1)).save(mentor);
-        assertTrue(mentor.getMentees().contains(mentee));
-        assertTrue(mentee.getMentors().contains(mentor));
+        verify(userRepository, times(1)).save(user);
     }
 }

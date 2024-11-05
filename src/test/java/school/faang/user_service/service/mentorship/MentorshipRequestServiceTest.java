@@ -27,7 +27,6 @@ import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.mentorship.MentorshipRequestDtoValidator;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -161,8 +160,8 @@ class MentorshipRequestServiceTest {
 
         MentorshipRequestDto resultDto = requestService.acceptRequest(requestId);
 
-        verify(userService, times(1)).save(firstRequest.getRequester());
-        verify(userService, times(1)).save(firstRequest.getReceiver());
+        verify(userService, times(1)).saveUser(firstRequest.getRequester());
+        verify(userService, times(1)).saveUser(firstRequest.getReceiver());
         verify(requestValidator, times(1)).validateAcceptRequest(requestId);
         assertEquals(RequestStatus.ACCEPTED, resultDto.getStatus());
         assertEquals(firstRequest.getId(), resultDto.getId());

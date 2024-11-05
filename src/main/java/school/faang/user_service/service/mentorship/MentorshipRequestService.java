@@ -87,11 +87,11 @@ public class MentorshipRequestService {
 
         if (!mentee.getMentors().contains(mentor)) {
             mentee.getMentors().add(mentor);
-            userService.save(mentee);
+            userService.saveUser(mentee);
         }
         if (!mentor.getMentees().contains(mentee)) {
             mentor.getMentees().add(mentee);
-            userService.save(mentor);
+            userService.saveUser(mentor);
         }
 
         request.setStatus(RequestStatus.ACCEPTED);
