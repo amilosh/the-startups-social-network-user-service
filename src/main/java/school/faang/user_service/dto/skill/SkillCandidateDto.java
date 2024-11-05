@@ -9,4 +9,6 @@ import java.util.List;
 public class SkillCandidateDto {
     private SkillDto skill;
     private Long offersAmount;
+
+    public SkillCandidateDto() {}
 }

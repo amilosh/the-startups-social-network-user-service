@@ -1,14 +1,9 @@
 package school.faang.user_service.exception.skill;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import school.faang.user_service.exception.ValidateException;
 
-public class SkillDtoFieldConstraintValidationException extends RuntimeException{
-
-    private static final Logger logger = LoggerFactory.getLogger(SkillDtoFieldConstraintValidationException.class);
-
+public class SkillDtoFieldConstraintValidationException extends ValidateException {
     public SkillDtoFieldConstraintValidationException(String message) {
         super(message);
-        logger.error(message);
     }
 }

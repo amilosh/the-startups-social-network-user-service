@@ -35,4 +35,10 @@ public interface SkillOfferRepository extends CrudRepository<SkillOffer, Long> {
             WHERE r.receiver.id = :userId
             """)
     List<SkillOffer> findAllByUserId(long userId);
+
+    @Query(nativeQuery = true, value = """
+            SELECT COUNT(so.id) FROM skill_offer so
+            WHERE so.skill_id = :skillId
+            """)
+    int countAllOffersOfSkill(long skillId);
 }

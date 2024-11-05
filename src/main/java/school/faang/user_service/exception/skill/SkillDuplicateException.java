@@ -1,14 +1,9 @@
 package school.faang.user_service.exception.skill;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import school.faang.user_service.exception.ValidateException;
 
-public class SkillDuplicateException extends RuntimeException{
-
-    private static final Logger logger = LoggerFactory.getLogger(SkillDuplicateException.class);
-
+public class SkillDuplicateException extends ValidateException {
     public SkillDuplicateException(String message) {
         super(message);
-        logger.error(message);
     }
 }
