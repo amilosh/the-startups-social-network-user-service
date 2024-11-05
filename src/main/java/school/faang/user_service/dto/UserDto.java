@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -28,4 +30,10 @@ public class UserDto {
     private List<Long> menteesId;
     private List<Long> mentorsId;
     private List<Long> skillsId;
+//    private String phone;
+//    private String aboutMe;
+//    private String city;
+//    private Integer experience;
+//    private LocalDateTime createdAt;
+//    private LocalDateTime updatedAt;
 }

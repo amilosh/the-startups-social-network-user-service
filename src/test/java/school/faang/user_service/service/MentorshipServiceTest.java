@@ -8,7 +8,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.UserMapperImpl;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +28,7 @@ public class MentorshipServiceTest {
     @Mock
     private UserService userService;
     @Spy
-    private UserMapper userMapper;
+    private UserMapperImpl userMapper;
     @InjectMocks
     public MentorshipService mentorshipService;
 

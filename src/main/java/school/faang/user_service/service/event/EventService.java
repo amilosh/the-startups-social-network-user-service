@@ -11,7 +11,7 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filter.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.service.user.UserService;
+import school.faang.user_service.service.UserService;
 import school.faang.user_service.validation.event.EventValidation;
 
 import java.util.List;
@@ -52,7 +52,7 @@ public class EventService {
 
     public EventDto updateEvent(@NotNull EventDto eventDto) {
         Event event = findEventById(eventDto.getId());
-        List<Long> skillsId = userService.findById(eventDto.getOwnerId()).getSkills().stream()
+        List<Long> skillsId = userService.findUser(eventDto.getOwnerId()).getSkills().stream()
                 .map(Skill::getId)
                 .toList();
 
