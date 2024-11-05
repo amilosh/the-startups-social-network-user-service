@@ -7,7 +7,6 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.DataValidationException;
-import school.faang.user_service.exception.goal.MaxGoalsPerUserException;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
@@ -49,11 +48,11 @@ public class GoalInvitationValidator {
         List<Goal> goalsByInvited = invited.getGoals();
 
         if (goalsByInvited.size() >= 3) {
-            throw new MaxGoalsPerUserException("Max goals need be less 3");
+            throw new DataValidationException("Max goals need be less 3");
         }
 
         if (goalsByInvited.contains(goal)) {
-            throw new RuntimeException("User already have this goal");
+            throw new DataValidationException("User already have this goal");
         }
 
         goalService.findGoalById(goal.getId());
