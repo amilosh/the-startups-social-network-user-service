@@ -30,8 +30,6 @@ public class UserService {
         log.info("start to deactivate User by id {}", userId);
         User user = getUserById(userId);
 
-        user.setDeactivationDate(LocalDateTime.now().plusMonths(3));
-
         List<Event> ownedEvents = user.getOwnedEvents();
 
         stopScheduledGoals(user);
@@ -58,7 +56,6 @@ public class UserService {
         goalService.removeGoalsWithoutExecutingUsers(user.getSettingGoals());
 
         user.removeAllGoals();
-
         log.info("all scheduled goals is stopped");
     }
 

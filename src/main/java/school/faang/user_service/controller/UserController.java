@@ -12,7 +12,6 @@ import school.faang.user_service.service.UserService;
 @RequiredArgsConstructor
 @Validated
 public class UserController {
-
     private final UserService userService;
 
     public UserDto deactivateUser(@NotNull @Positive long userId) {

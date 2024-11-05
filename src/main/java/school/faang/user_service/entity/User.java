@@ -143,9 +143,6 @@ public class User {
     @OneToOne(mappedBy = "user")
     private Premium premium;
 
-    @Column(name = "deactivation_date")
-    private LocalDateTime deactivationDate; // Новое поле для даты деактивации
-
     public void removeParticipatedEvent(Event event) {
         participatedEvents.remove(event);
     }
