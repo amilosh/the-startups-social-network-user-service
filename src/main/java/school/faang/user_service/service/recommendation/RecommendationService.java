@@ -38,17 +38,12 @@ public class RecommendationService {
         recommendationValidation.checkSkillsUnique(recommendationDto);
         recommendationValidation.checkRequest(recommendationDto);
 
-        User receiver = userService.findById(recommendationDto.getReceiverId())
-                .orElseThrow(() -> new DataValidationException("Receiver not found"));
-        User guarantor = userService.findById(recommendationDto.getAuthorId())
-                .orElseThrow(() -> new DataValidationException("Guarantor not found"));
-
         Long recommendationId = recommendationRepository.create(
                 recommendationDto.getAuthorId(),
                 recommendationDto.getReceiverId(),
                 recommendationDto.getContent());
         skillOfferService.saveSkillOffers(recommendationDto.getSkillOffers(), recommendationId);
-        hanldeGuarantees(recommendationDto, guarantor, receiver);
+        hanldeGuarantees(recommendationDto);
         recommendationDto.setId(recommendationId);
         return recommendationDto;
     }
@@ -59,18 +54,13 @@ public class RecommendationService {
         recommendationValidation.checkSkillsExist(recommendationDto);
         recommendationValidation.checkSkillsUnique(recommendationDto);
 
-        User receiver = userService.findById(recommendationDto.getReceiverId())
-                .orElseThrow(() -> new DataValidationException("Receiver not found"));
-        User guarantor = userService.findById(recommendationDto.getAuthorId())
-                .orElseThrow(() -> new DataValidationException("Guarantor not found"));
-
         recommendationRepository.update(
                 recommendationDto.getAuthorId(),
                 recommendationDto.getReceiverId(),
                 recommendationDto.getContent());
         skillOfferService.deleteAllByRecommendationId(recommendationDto.getId());
         skillOfferService.saveSkillOffers(recommendationDto.getSkillOffers(), recommendationDto.getId());
-        hanldeGuarantees(recommendationDto, guarantor, receiver);
+        hanldeGuarantees(recommendationDto);
         return recommendationDto;
     }
 
@@ -78,9 +68,8 @@ public class RecommendationService {
         return recommendationRepository.findById(id).isPresent();
     }
 
-    public long delete(long id) {
+    public void delete(long id) {
         recommendationRepository.deleteById(id);
-        return id;
     }
 
     public List<RecommendationDto> getAllUserRecommendations(long userId, int page, int size) {
@@ -109,7 +98,12 @@ public class RecommendationService {
         }
     }
 
-    private void hanldeGuarantees(RecommendationDto recommendationDto, User guarantor, User receiver) {
+    private void hanldeGuarantees(RecommendationDto recommendationDto) {
+        User receiver = userService.findById(recommendationDto.getReceiverId())
+                .orElseThrow(() -> new DataValidationException("Receiver not found"));
+        User guarantor = userService.findById(recommendationDto.getAuthorId())
+                .orElseThrow(() -> new DataValidationException("Guarantor not found"));
+
         List<Long> recommendationSkillIds = recommendationDto.getSkillOffers().stream()
                 .mapToLong(SkillOfferDto::getSkillId).boxed().toList();
         List<Skill> userSkills = skillRepository.findAllByUserId(receiver.getId()).stream()
