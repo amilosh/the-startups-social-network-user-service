@@ -9,10 +9,15 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exceptions.DataValidationException;
+import school.faang.user_service.filter.event.EventDescriptionFilter;
+import school.faang.user_service.filter.event.EventFilter;
+import school.faang.user_service.filter.event.EventOwnerFilter;
+import school.faang.user_service.filter.event.EventTitleFilter;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -34,6 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
@@ -54,15 +60,19 @@ public class EventServiceTest {
     private final EventOwnerValidator eventOwnerValidator = new EventOwnerValidator();
     private final EventStartDateValidator eventStartDateValidator = new EventStartDateValidator();
     private final EventTitleValidator eventTitleValidator = new EventTitleValidator();
+    private final EventDescriptionFilter eventDescriptionFilter = new EventDescriptionFilter();
+    private final EventTitleFilter eventTitleFilter = new EventTitleFilter();
+    private final EventOwnerFilter eventOwnerFilter = new EventOwnerFilter();
     @InjectMocks
     private EventServiceImplementation eventService;
 
     private final List<EventValidator> eventValidators = Arrays.asList(eventOwnerValidator, eventStartDateValidator, eventTitleValidator);
-    ;
+    private final List<EventFilter> eventFilters = Arrays.asList(eventDescriptionFilter, eventTitleFilter, eventOwnerFilter);
     private EventDto eventDto;
     private Event event;
     private Skill skill;
     private User user;
+    private EventFilterDto filter;
 
 
     @BeforeEach
@@ -71,27 +81,29 @@ public class EventServiceTest {
         eventDto.setId(1L);
 
         event = new Event();
+        event.setId(1L);
         user = new User();
+        user.setId(33L);
         skill = new Skill();
 
         eventService.setEventValidators(eventValidators);
     }
 
     @Test
-    public void testCreateWithBlankTitle() {
+    void testCreateWithBlankTitle() {
         eventDto.setTitle(" ");
         assertThrows(DataValidationException.class, () -> eventService.create(eventDto));
         verify(eventRepository, never()).save(any(Event.class));
     }
 
     @Test
-    public void testCreateWithNullTitle() {
+    void testCreateWithNullTitle() {
         eventDto.setTitle(null);
         assertThrows(DataValidationException.class, () -> eventService.create(eventDto));
     }
 
     @Test
-    public void testCreateWithNullOwner() {
+    void testCreateWithNullOwner() {
         eventDto.setTitle("Title");
         eventDto.setOwnerId(null);
         assertThrows(DataValidationException.class, () -> eventService.create(eventDto));
@@ -105,7 +117,7 @@ public class EventServiceTest {
     }
 
     @Test
-    public void testCreateSaveEvent() {
+    void testCreateSaveEvent() {
         prepareDtoWithTitleAndOwnerId();
         eventDto.setStartDate(LocalDateTime.of(2024, 11, 3, 17, 0));
 
@@ -148,10 +160,68 @@ public class EventServiceTest {
         assertNotNull(eventDto);
     }
 
-    private void prepareDtoWithTitleAndOwnerId() {
-        eventDto.setTitle("Title");
-        eventDto.setOwnerId(1L);
+    @Test
+    void testGetEventsByFilterIfFilterISEmpty() {
+        prepareFiltersAndEvent();
+        filter = new EventFilterDto(null, null, null);
+        List<EventDto> eventsDto = eventService.getEventsByFilter(filter);
+        assertTrue(eventsDto.isEmpty());
     }
 
+    @Test
+    void testGetEventsByFilterIfDoesNotExistInDb() {
+        prepareFiltersAndEvent();
+        when(eventRepository.findAll()).thenReturn(new ArrayList<>());
+        List<EventDto> eventsDto = eventService.getEventsByFilter(filter);
+        assertTrue(eventsDto.isEmpty());
+    }
 
+    @Test
+    void testGetEventsByFilterIfExistsInDb() {
+        prepareDtoWithTitleAndOwnerId();
+        prepareFiltersAndEvent();
+        List<Event> events = prepareEvents();
+
+        when(eventRepository.findAll()).thenReturn(events);
+        List<EventDto> eventsDto = eventService.getEventsByFilter(filter);
+        verify(eventRepository, times(1)).findAll();
+        System.out.println(filter);
+        assertNotNull(eventsDto);
+        assertEquals(1, eventsDto.size());
+        assertEquals(eventsDto.get(0).getTitle(), filter.getTitlePattern());
+        assertTrue(eventsDto.get(0).getDescription().contains(filter.getDescriptionPattern()));
+        assertEquals(eventsDto.get(0).getOwnerId(), filter.getOwnerIdPattern());
+    }
+
+    private void prepareFiltersAndEvent() {
+        filter = new EventFilterDto("Title", "desc", 33L);
+        event.setDescription("desc");
+        event.setRelatedSkills(new ArrayList<>());
+        eventService.setEventFilters(eventFilters);
+
+    }
+
+    private void prepareDtoWithTitleAndOwnerId() {
+        eventDto.setTitle("Title");
+        eventDto.setOwnerId(33L);
+    }
+
+    private List<Event> prepareEvents() {
+        event.setDescription("desc");
+        event.setRelatedSkills(new ArrayList<>());
+        Event secondEvent = new Event();
+        secondEvent.setId(2L);
+        secondEvent.setRelatedSkills(new ArrayList<>());
+        secondEvent.setTitle("t");
+        secondEvent.setDescription("Description");
+        secondEvent.setOwner(user);
+        Event thirdEvent = new Event();
+        thirdEvent.setId(3L);
+        thirdEvent.setTitle("Title");
+        thirdEvent.setDescription("desc");
+        thirdEvent.setOwner(user);
+        thirdEvent.setRelatedSkills(new ArrayList<>());
+
+        return Arrays.asList(event, secondEvent, thirdEvent);
+    }
 }
