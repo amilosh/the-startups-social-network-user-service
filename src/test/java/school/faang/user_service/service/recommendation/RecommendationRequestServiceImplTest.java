@@ -2,13 +2,12 @@ package school.faang.user_service.service.recommendation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestRejectionDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
@@ -22,6 +21,7 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
+import school.faang.user_service.service.recommendation.filter.RecommendationRequestFilter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,25 +30,28 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 class RecommendationRequestServiceImplTest {
 
-    @Mock
+    @MockBean
     private UserRepository userRepository;
 
-    @Mock
+    @MockBean
     private RecommendationRequestRepository recommendationRequestRepository;
 
-    @Mock
+    @MockBean
     private SkillRepository skillRepository;
 
-    @Mock
+    @MockBean
     private SkillRequestRepository skillRequestRepository;
 
     @Spy
     private RecommendationRequestMapper recommendationRequestMapper = Mappers.getMapper(RecommendationRequestMapper.class);
 
-    @InjectMocks
+    @MockBean
+    private List<RecommendationRequestFilter> recommendationRequestFilters;
+
+    @Autowired
     private RecommendationRequestServiceImpl recommendationRequestService;
 
     @BeforeEach
@@ -110,6 +113,12 @@ class RecommendationRequestServiceImplTest {
     }
 
     @Test
+    public void getRequestsEmptyFilter() {
+        mockRecommendationRequestList();
+        assertEquals(List.of(), recommendationRequestService.getRequests(new RecommendationRequestFilterDto()));
+    }
+
+    @Test
     public void getRequestsStatusFilterPending() {
         mockRecommendationRequestList();
         RecommendationRequestFilterDto recommendationRequestFilterDto = new RecommendationRequestFilterDto(RequestStatus.PENDING, null, null);
@@ -132,6 +141,20 @@ class RecommendationRequestServiceImplTest {
         RecommendationRequestDto recommendationRequestDtoRejected = getRecommendationRequestDto();
         recommendationRequestDtoRejected.setStatus(RequestStatus.REJECTED);
         assertEquals(List.of(recommendationRequestDtoRejected), recommendationRequestService.getRequests(recommendationRequestFilterDto));
+    }
+
+    @Test
+    public void getRequestsStatusFilterRequester() {
+        mockRecommendationRequestList();
+        RecommendationRequestFilterDto recommendationRequestFilterDto = new RecommendationRequestFilterDto(null, 1L, null);
+        assertEquals(getRecommendationRequestDtoList(), recommendationRequestService.getRequests(recommendationRequestFilterDto));
+    }
+
+    @Test
+    public void getRequestsStatusFilterReceiver() {
+        mockRecommendationRequestList();
+        RecommendationRequestFilterDto recommendationRequestFilterDto = new RecommendationRequestFilterDto(null, null, 2L);
+        assertEquals(getRecommendationRequestDtoList(), recommendationRequestService.getRequests(recommendationRequestFilterDto));
     }
 
     @Test

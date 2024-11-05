@@ -12,10 +12,12 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
+import school.faang.user_service.service.recommendation.filter.RecommendationRequestFilter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -28,6 +30,8 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
     private final RecommendationRequestMapper recommendationRequestMapper;
 
+    private final List<RecommendationRequestFilter> recommendationRequestFilters;
+
     @Override
     public RecommendationRequestDto create(RecommendationRequestDto request) {
         validateRecommendationRequest(request);
@@ -37,21 +41,24 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         RecommendationRequest recommendationRequest = recommendationRequestMapper.toEntity(request);
         recommendationRequest.setRequester(userRepository.findById(request.getRequesterId()).orElseThrow(() -> new IllegalArgumentException("Requester id %s not exist".formatted(request.getRequesterId()))));
         recommendationRequest.setReceiver(userRepository.findById(request.getReceiverId()).orElseThrow(() -> new IllegalArgumentException("Receiver id %s not exist".formatted(request.getReceiverId()))));
+        recommendationRequest.setStatus(RequestStatus.PENDING);
         recommendationRequest.setSkills(skillRequestRepository.findByRequestId(recommendationRequest.getId()));
 
         return recommendationRequestMapper.toDto(recommendationRequestRepository.save(recommendationRequest));
     }
 
     @Override
-    public List<RecommendationRequestDto> getRequests(RecommendationRequestFilterDto filter) {
-        if (filter == null) {
+    public List<RecommendationRequestDto> getRequests(RecommendationRequestFilterDto filters) {
+        if (filters == null) {
             return recommendationRequestMapper.toDto(recommendationRequestRepository.findAll());
         }
-        return recommendationRequestMapper.toDto(recommendationRequestRepository.findAll())
-                .stream()
-                .filter(reqDto -> filter.getStatus() == null || reqDto.getStatus().equals(filter.getStatus()))
-                .filter(reqDto -> filter.getRequesterId() == null || reqDto.getRequesterId() == filter.getRequesterId())
-                .filter(reqDto -> filter.getReceiverId() == null || reqDto.getRequesterId() == filter.getReceiverId())
+
+        Stream<RecommendationRequest> requests = recommendationRequestRepository.findAll().stream();
+
+        return recommendationRequestFilters.stream()
+                .filter(filter -> filter.isApplicable(filters))
+                .flatMap(filter -> filter.apply(requests, filters))
+                .map(recommendationRequestMapper::toDto)
                 .toList();
     }
 

@@ -10,7 +10,7 @@ public interface RecommendationRequestService {
 
     RecommendationRequestDto create(RecommendationRequestDto request);
 
-    List<RecommendationRequestDto> getRequests(RecommendationRequestFilterDto filter);
+    List<RecommendationRequestDto> getRequests(RecommendationRequestFilterDto filters);
 
     RecommendationRequestDto getRequest(long id);
 
