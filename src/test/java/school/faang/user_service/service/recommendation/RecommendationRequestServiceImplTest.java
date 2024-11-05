@@ -2,12 +2,13 @@ package school.faang.user_service.service.recommendation;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestRejectionDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
@@ -22,40 +23,44 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.service.recommendation.filter.RecommendationRequestFilter;
+import school.faang.user_service.service.recommendation.filter.RecommendationRequestReceiverFilter;
+import school.faang.user_service.service.recommendation.filter.RecommendationRequestRequesterFilter;
+import school.faang.user_service.service.recommendation.filter.RecommendationRequestStatusFilter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class RecommendationRequestServiceImplTest {
 
-    @MockBean
+    @Mock
     private UserRepository userRepository;
 
-    @MockBean
+    @Mock
     private RecommendationRequestRepository recommendationRequestRepository;
 
-    @MockBean
+    @Mock
     private SkillRepository skillRepository;
 
-    @MockBean
+    @Mock
     private SkillRequestRepository skillRequestRepository;
 
     @Spy
     private RecommendationRequestMapper recommendationRequestMapper = Mappers.getMapper(RecommendationRequestMapper.class);
 
-    @MockBean
-    private List<RecommendationRequestFilter> recommendationRequestFilters;
-
-    @Autowired
+    @InjectMocks
     private RecommendationRequestServiceImpl recommendationRequestService;
 
     @BeforeEach
     public void setUp() {
+        List<RecommendationRequestFilter> filters = new ArrayList<>(List.of(new RecommendationRequestStatusFilter(), new RecommendationRequestRequesterFilter(), new RecommendationRequestReceiverFilter()));
+        recommendationRequestService = new RecommendationRequestServiceImpl(userRepository, recommendationRequestRepository, skillRepository, skillRequestRepository, recommendationRequestMapper, filters);
+
         Mockito.lenient().when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(new User()));
         Mockito.lenient().when(skillRepository.findUserSkill(Mockito.anyLong(), Mockito.anyLong())).thenReturn(Optional.of(new Skill()));
         Mockito.lenient().when(skillRepository.existsById(Mockito.anyLong())).thenReturn(true);
