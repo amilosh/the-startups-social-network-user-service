@@ -1,6 +1,8 @@
 package school.faang.user_service.service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -10,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.containers.PostgreSQLContainer;
 import school.faang.user_service.controller.SkillController;
 import school.faang.user_service.dto.skill.SkillAcquireDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
@@ -48,6 +51,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Rollback
 public class SkillControllerTest {
 
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:13")
+        .withDatabaseName("postgres")
+        .withUsername("user")
+        .withPassword("password");
+
+    @BeforeAll
+    public static void setUp() {
+        postgres.start();
+        System.setProperty("spring.datasource.url", postgres.getJdbcUrl());
+        System.setProperty("spring.datasource.username", postgres.getUsername());
+        System.setProperty("spring.datasource.password", postgres.getPassword());
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        postgres.stop();
+    }
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -71,10 +92,10 @@ public class SkillControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private SkillDto emptySkillDto = new SkillDto();;
+    private SkillDto emptySkillDto = new SkillDto();
     private SkillAcquireDto emptySkillAcquireDto = new SkillAcquireDto();
     private SkillDto skillDtoWithoutTitle = new SkillDto(null, "");
-    private SkillDto skillDtoExceedingSizeTitle = new SkillDto(null, "a".repeat(SkillDtoValidation.MAX_TITLE_LENGTH + 1));;
+    private SkillDto skillDtoExceedingSizeTitle = new SkillDto(null, "a".repeat(SkillDtoValidation.MAX_TITLE_LENGTH + 1));
     private SkillDto SkillDtoJava = new SkillDto(null, "Test");
 
     @Test
