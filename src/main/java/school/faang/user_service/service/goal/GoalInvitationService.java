@@ -22,13 +22,12 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class GoalInvitationService {
+    private static final int MAX_ACTIVE_GOALS = 3;
     private final GoalInvitationRepository goalInvitationRepository;
     private final UserRepository userRepository;
     private final GoalInvitationMapper goalInvitationMapper;
     private final List<InvitationFilter> filters;
     private final InvitationDtoValidator invitationDtoValidator;
-    private static final int ACTIVE_GOALS = 3;
-
     public GoalInvitationDto createInvitation(GoalInvitationDto goalInvitationDto) {
         invitationDtoValidator.validate(goalInvitationDto);
         GoalInvitation savedInvitation = goalInvitationRepository.save(goalInvitationMapper.toEntity(goalInvitationDto));
@@ -39,7 +38,7 @@ public class GoalInvitationService {
         GoalInvitation goalInvitation = findGoalInvitationById(id);
 
         User invited = goalInvitation.getInvited();
-        if (invited.getReceivedGoalInvitations().size() > ACTIVE_GOALS)
+        if (invited.getReceivedGoalInvitations().size() > MAX_ACTIVE_GOALS)
             throw new IllegalArgumentException("Exception invited user can`t have more than 3 goal invitations");
 
         invited.getGoals().add(goalInvitation.getGoal());
