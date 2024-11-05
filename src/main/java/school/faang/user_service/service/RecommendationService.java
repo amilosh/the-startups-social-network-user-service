@@ -10,13 +10,13 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
+import school.faang.user_service.validator.RecommendationDtoValidator;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -25,12 +25,12 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class RecommendationService {
-    private static final int DIFFERENCE_BETWEEN_DATE_IN_MONTH = 6;
     private final RecommendationRepository recRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final SkillRepository skillRepository;
     private final UserRepository userRepository;
     private final RecommendationMapper recMapper;
+    private final RecommendationDtoValidator recDtoValidator;
 
 
     public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
@@ -47,8 +47,7 @@ public class RecommendationService {
 
     @Transactional
     public RecommendationDto create(RecommendationDto recDto) {
-        checkDateTimeRecommendationOlderSixMonth(recDto);
-        checkSkillOfferExists(recDto);
+        recDtoValidator.validateExistedSkillsAndDate(recDto);
         addSkillOffersAndGuarantee(recDto);
         Recommendation result = recRepository.save(recMapper.toEntity(recDto));
         log.info("Recommendation with id - {} successfully saved", result.getId());
@@ -59,8 +58,7 @@ public class RecommendationService {
 
     @Transactional
     public RecommendationDto update(RecommendationDto requestRecDto) {
-        checkDateTimeRecommendationOlderSixMonth(requestRecDto);
-        checkSkillOfferExists(requestRecDto);
+        recDtoValidator.validateExistedSkillsAndDate(requestRecDto);
         addSkillOffersAndGuarantee(requestRecDto);
         log.info("Updating recommendation with id - {}", requestRecDto.getId());
 
@@ -113,30 +111,5 @@ public class RecommendationService {
                     .build());
             skillRepository.save(skill);
         }
-    }
-
-    private void checkSkillOfferExists(RecommendationDto recDto) {
-        if (!recDto.getSkillOffers().isEmpty()) {
-            List<String> skillTitlesList = recDto.getSkillOffers().stream()
-                    .map(SkillOfferDto::getSkillTitle)
-                    .toList();
-
-            for (String skillTitle : skillTitlesList) {
-                if (!skillRepository.existsByTitle(skillTitle)) {
-                    log.error("Skill with title - {} does not exist in the system!", skillTitle);
-                    throw new DataValidationException(String.format(ErrorMessage.SKILL_NOT_EXIST, skillTitle));
-                }
-            }
-        }
-    }
-
-    private void checkDateTimeRecommendationOlderSixMonth(RecommendationDto recDto) {
-        recRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(recDto.getAuthorId(),
-                recDto.getReceiverId()).ifPresent(recommendation -> {
-            if (recommendation.getCreatedAt().isAfter(recDto.getCreatedAt().minusMonths(DIFFERENCE_BETWEEN_DATE_IN_MONTH))) {
-                throw new DataValidationException(String.format(ErrorMessage.RECOMMENDATION_WRONG_TIME,
-                        recDto.getAuthorId(), recDto.getReceiverId(), DIFFERENCE_BETWEEN_DATE_IN_MONTH));
-            }
-        });
     }
 }
