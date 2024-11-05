@@ -1,36 +1,28 @@
 package school.faang.user_service.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 
-@Component
-public class UserMapper {
+@Mapper
+public interface UserMapper {
 
-    public UserDto toDto(User user) {
-        if (user == null) {
-            return null;
-        }
+    UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-        return UserDto.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .phone(user.getPhone())
-                .build();
-    }
+    @Mapping(target = "phone", ignore = true)
+    @Mapping(target = "aboutMe", ignore = true)
+    @Mapping(target = "city", ignore = true)
+    @Mapping(target = "experience", ignore = true)
+    @Mapping(target = "contactPreference", ignore = true)
+    User toEntity(UserDto userDto);
 
-    public User toEntity(UserDto userDto) {
-        if (userDto == null) {
-            return null;
-        }
-
-        User user = new User();
-        user.setId(userDto.getId());
-        user.setUsername(userDto.getUsername());
-        user.setEmail(userDto.getEmail());
-        user.setPhone(userDto.getPhone());
-
-        return user;
-    }
+    @Mapping(target = "phone", ignore = true)
+    @Mapping(target = "aboutMe", ignore = true)
+    @Mapping(target = "city", ignore = true)
+    @Mapping(target = "experience", ignore = true)
+    @Mapping(target = "preference", ignore = true)
+    @Mapping(target = "telegramChatId", ignore = true)
+    UserDto toDto(User user);
 }
