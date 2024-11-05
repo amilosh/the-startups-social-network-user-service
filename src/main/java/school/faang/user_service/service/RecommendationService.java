@@ -32,6 +32,7 @@ import java.util.Set;
 @Slf4j
 public class RecommendationService {
     private static final long REQUIRED_DURATION_IN_DAYS = 6 * 30;
+    public static final String THE_REQUIRED_PERIOD_HAS_NOT_PASSED = "Less than 6 months since last referral";
 
     private final RecommendationRepository recommendationRepo;
     private final UserService userService;
@@ -215,7 +216,7 @@ public class RecommendationService {
                 Duration.ofDays(REQUIRED_DURATION_IN_DAYS))) {
             log.warn("Validation failed: Less than 6 months since last referral for receiver: {}",
                     newRecommendation.getReceiver().getId());
-            throw new DataValidationException("Less than 6 months since last referral");
+            throw new DataValidationException(THE_REQUIRED_PERIOD_HAS_NOT_PASSED);
         }
     }
 
