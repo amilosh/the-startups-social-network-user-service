@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.mentorship;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,12 +15,11 @@ import school.faang.user_service.dto.mentorship.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.MentorshipRequestMapperImpl;
+import school.faang.user_service.mapper.mentorship_request.MentorshipRequestMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import school.faang.user_service.service.mentorship.MentorshipRequestService;
 import school.faang.user_service.service.mentorship.request_filter.RequestFilter;
-import school.faang.user_service.validation.MentorshipRequestValidation;
+import school.faang.user_service.validation.mentorship_request.MentorshipRequestValidation;
 
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -36,12 +35,12 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class MentorshipRequestServiceTest {
+
+    private MentorshipRequestService mentorshipRequestService;
     @Mock
     private UserRepository userRepository;
     @Mock
     private MentorshipRequestRepository mentorshipRequestRepository;
-    @Mock
-    private MentorshipRequestService mentorshipRequestService;
     @Spy
     private MentorshipRequestMapperImpl mapper;
     @Mock
@@ -112,7 +111,7 @@ public class MentorshipRequestServiceTest {
         when(validator.validateId(CORRECT_ID_1)).thenReturn(receiver);
         when(validator.validateId(CORRECT_ID_2)).thenReturn(requester);
 
-        doNothing().when(validator).validate3MonthsFromTheLastRequest(requester);
+        doNothing().when(validator).validate3MonthsFromTheLastRequest(requester,receiver);
         mentorshipRequestService.requestMentorship(mentorshipRequestDto);
 
         List<MentorshipRequest> realList = requester.getSentMentorshipRequests();
@@ -142,9 +141,8 @@ public class MentorshipRequestServiceTest {
     @Test
     public void testAcceptRequestSuccessfully() {
         when(validator.validateRequestId(1L)).thenReturn(mentorshipRequest);
-        when(validator.validateId(CORRECT_ID_1)).thenReturn(receiver);
-        when(validator.validateId(CORRECT_ID_2)).thenReturn(requester);
-        doNothing().when(validator).validateOfBeingInMentorship(receiver,requester);
+        doNothing().when(validator).validateOfBeingInMentorship(mentorshipRequest);
+        doNothing().when(validator).validateStatus(mentorshipRequest);
 
         List<User> expectedList = Collections.singletonList(receiver);
 

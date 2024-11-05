@@ -9,11 +9,11 @@ import school.faang.user_service.dto.mentorship.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.mapper.mentorship_request.MentorshipRequestMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.service.mentorship.request_filter.RequestFilter;
-import school.faang.user_service.validation.MentorshipRequestValidation;
+import school.faang.user_service.validation.mentorship_request.MentorshipRequestValidation;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -36,7 +36,7 @@ public class MentorshipRequestService {
 
         User receiver = validator.validateId(receiverId);
         User requester = validator.validateId(requesterId);
-        validator.validate3MonthsFromTheLastRequest(requester);
+        validator.validate3MonthsFromTheLastRequest(requester,receiver);
 
         MentorshipRequest mentorshipRequest = mentorshipRequestMapper.toMentorshipRequest(mentorshipRequestDto);
 
@@ -61,26 +61,25 @@ public class MentorshipRequestService {
         return mentorshipRequestMapper.toMentorshipRequestDtoList(mentorshipRequests.toList());
     }
 
-    public void acceptRequest(long id) {
-        MentorshipRequest mentorshipRequest = validator.validateRequestId(id);
-        long receiverId = mentorshipRequest.getReceiver().getId();
-        long requesterId = mentorshipRequest.getRequester().getId();
-        User receiver = validator.validateId(receiverId);
-        User requester = validator.validateId(requesterId);
-
-        validator.validateOfBeingInMentorship(receiver, requester);
-
+    public void acceptRequest(long mentorshipRequestId) {
+        MentorshipRequest mentorshipRequest = validator.validateRequestId(mentorshipRequestId);
+        validator.validateOfBeingInMentorship(mentorshipRequest);
+        validator.validateStatus(mentorshipRequest);
+        User requester = mentorshipRequest.getRequester();
+        User receiver = mentorshipRequest.getReceiver();
         requester.getMentors().add(receiver);
-        log.info("The receiver {} was successfully added to the requesters {} list of mentors", receiverId, requesterId);
+        log.info("The receiver {} was successfully added to the requesters {} list of mentors"
+                , receiver.getId()
+                , requester.getId());
         saveChangesOfUserInDB(requester);
-        log.info("The requester {} was successfully saved to DB", requesterId);
+        log.info("The requester {} was successfully saved to DB", requester.getId());
         mentorshipRequest.setStatus(RequestStatus.ACCEPTED);
         saveChangesOfMentorshipRequestsInDB(mentorshipRequest);
         log.info("Mentorship request with status ACCEPTED and requestId {} saved", mentorshipRequest.getId());
     }
 
-    public void rejectRequest(long id, RejectionDto rejection) {
-        MentorshipRequest mentorshipRequest = validator.validateRequestId(id);
+    public void rejectRequest(long mentorshipRequestId, RejectionDto rejection) {
+        MentorshipRequest mentorshipRequest = validator.validateRequestId(mentorshipRequestId);
         String reason = rejection.getReason();
 
         mentorshipRequest.setStatus(RequestStatus.REJECTED);

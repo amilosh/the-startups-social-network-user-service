@@ -25,12 +25,12 @@ public class MentorshipRequestController {
         return mentorshipRequestService.getRequests(filter);
     }
 
-    public void acceptRequest(long id) {
-        mentorshipRequestService.acceptRequest(id);
+    public void acceptRequest(long mentorshipRequestId) {
+        mentorshipRequestService.acceptRequest(mentorshipRequestId);
     }
 
-    public void rejectRequest(long id, RejectionDto rejection) {
-        mentorshipRequestService.rejectRequest(id, rejection);
+    public void rejectRequest(long mentorshipRequestId, RejectionDto rejection) {
+        mentorshipRequestService.rejectRequest(mentorshipRequestId, rejection);
     }
 
     private void validation(MentorshipRequestDto recommendationDto) {

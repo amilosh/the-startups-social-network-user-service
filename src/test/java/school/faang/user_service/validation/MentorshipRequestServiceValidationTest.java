@@ -8,17 +8,21 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
+import school.faang.user_service.validation.mentorship_request.MentorshipRequestValidation;
 
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,6 +44,7 @@ public class MentorshipRequestServiceValidationTest {
     @BeforeEach
     void initData() {
         mentorshipRequest = MentorshipRequest.builder()
+                .status(RequestStatus.ACCEPTED)
                 .createdAt(LocalDateTime.of(2024, Month.SEPTEMBER, 2, 15, 20, 13))
                 .build();
         requester = User.builder()
@@ -69,25 +74,33 @@ public class MentorshipRequestServiceValidationTest {
 
     @Test
     public void testValidate3MonthsFromTheLastRequest() {
-        assertThrows(IllegalArgumentException.class, () -> validation.validate3MonthsFromTheLastRequest(requester));
+        when(mentorshipRequestRepository.findLatestRequest(requestId, receiverId))
+                .thenReturn(Optional.ofNullable(mentorshipRequest));
+        assertThrows(IllegalArgumentException.class,
+                () -> validation.validate3MonthsFromTheLastRequest(requester, receiver));
     }
 
     @Test
     public void testValidateRequestIdWithNonExistentRequestId() {
-        when(mentorshipRequestRepository.existsById(requestId)).thenReturn(false);
+        when(mentorshipRequestRepository.getReferenceById(requestId)).thenThrow(EntityNotFoundException.class);
         assertThrows(EntityNotFoundException.class, () -> validation.validateRequestId(requestId));
     }
 
     @Test
     public void testValidateRequestIdWithExistentRequestId() {
-        when(mentorshipRequestRepository.existsById(requestId)).thenReturn(true);
         when(mentorshipRequestRepository.getReferenceById(1L)).thenReturn(mentorshipRequest);
-
         assertEquals(mentorshipRequest, validation.validateRequestId(requestId));
     }
 
     @Test
     public void testValidateOfBeingInMentorship() {
-        assertThrows(IllegalArgumentException.class, () -> validation.validateOfBeingInMentorship(receiver, requester));
+        mentorshipRequest.setRequester(requester);
+        mentorshipRequest.setReceiver(receiver);
+        assertThrows(IllegalArgumentException.class, () -> validation.validateOfBeingInMentorship(mentorshipRequest));
+    }
+
+    @Test
+    public void testValidateStatusIsAccepted() {
+        assertThrows(IllegalArgumentException.class, () -> validation.validateStatus(mentorshipRequest));
     }
 }

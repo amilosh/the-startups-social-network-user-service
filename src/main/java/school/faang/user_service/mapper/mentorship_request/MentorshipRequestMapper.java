@@ -1,4 +1,4 @@
-package school.faang.user_service.mapper;
+package school.faang.user_service.mapper.mentorship_request;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -8,7 +8,7 @@ import school.faang.user_service.entity.MentorshipRequest;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring")
 public interface MentorshipRequestMapper {
 
     @Mapping(source = "receiver.id", target = "receiverId")
@@ -17,6 +17,7 @@ public interface MentorshipRequestMapper {
 
     @Mapping(target = "receiver", ignore = true)
     @Mapping(target = "requester", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     MentorshipRequest toMentorshipRequest(MentorshipRequestDto mentorshipRequestDto);
 
     List<MentorshipRequest> toMentorshipRequest(List<MentorshipRequestDto> mentorshipRequestDtoList);
