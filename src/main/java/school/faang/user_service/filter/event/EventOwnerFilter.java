@@ -14,7 +14,7 @@ public class EventOwnerFilter implements EventFilter {
     @Override
     public boolean apply(Event event, EventFilterDto filter) {
         if (event.getOwner() != null && event.getOwner().getId() != null) {
-            return event.getOwner().getId().equals(filter.getOwnerIdPattern());;
+            return event.getOwner().getId().equals(filter.getOwnerIdPattern());
         } else {
             return false;
         }

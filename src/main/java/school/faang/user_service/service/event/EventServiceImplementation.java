@@ -71,6 +71,15 @@ public class EventServiceImplementation implements EventService {
         return filteredEvents.stream().map(eventMapper::toDto).toList();
     }
 
+    @Override
+    public List<EventDto> getOwnedEvents(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        List<Event> events = eventRepository.findAllByUserId(userId);
+        return events.stream().map(eventMapper::toDto).toList();
+    }
+
     private void validateEvent(EventDto eventDto) {
         for (EventValidator validator : eventValidators) {
             if (!validator.isValid(eventDto)) {

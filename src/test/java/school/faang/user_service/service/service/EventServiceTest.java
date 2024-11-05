@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -191,6 +192,32 @@ public class EventServiceTest {
         assertEquals(eventsDto.get(0).getTitle(), filter.getTitlePattern());
         assertTrue(eventsDto.get(0).getDescription().contains(filter.getDescriptionPattern()));
         assertEquals(eventsDto.get(0).getOwnerId(), filter.getOwnerIdPattern());
+    }
+
+    @Test
+    void testOwnedEventsWithNullUserId() {
+        List<EventDto> eventsDto = eventService.getOwnedEvents(null);
+        verify(eventRepository, times(0)).findAllByUserId(anyLong());
+        assertNull(eventsDto);
+    }
+
+    @Test
+    void testOwnedEventsWithDbEmptyResponseUserId() {
+        List<EventDto> eventsDto = eventService.getOwnedEvents(1L);
+        verify(eventRepository, times(1)).findAllByUserId(anyLong());
+        assertTrue(eventsDto.isEmpty());
+    }
+
+    @Test
+    void testOwnedEventsWithDbResponseUserId() {
+        prepareDtoWithTitleAndOwnerId();
+        prepareFiltersAndEvent();
+        List<Event> events = prepareEvents();
+        when(eventRepository.findAllByUserId(anyLong())).thenReturn(events);
+        List<EventDto> eventsDto = eventService.getOwnedEvents(1L);
+        verify(eventRepository, times(1)).findAllByUserId(anyLong());
+        assertFalse(eventsDto.isEmpty());
+        assertEquals(3, eventsDto.size());
     }
 
     private void prepareFiltersAndEvent() {
