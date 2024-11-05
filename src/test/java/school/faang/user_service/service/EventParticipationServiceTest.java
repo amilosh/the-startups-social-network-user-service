@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
@@ -16,7 +17,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,7 +31,7 @@ class EventParticipationServiceTest {
     @Mock
     private EventParticipationRepository repository;
 
-    @Mock
+    @Spy
     private UserMapper mapper;
 
     private final long eventId = 1L;
@@ -38,7 +39,9 @@ class EventParticipationServiceTest {
 
     @Test
     public void registerParticipantWithRegisteredUserTest() {
-        prepareData();
+        User user = new User();
+        user.setId(userId);
+        when(repository.findAllParticipantsByEventId(eventId)).thenReturn(List.of(user));
         assertThrows(IllegalStateException.class, () -> service.registerParticipant(eventId, userId));
     }
 
@@ -57,24 +60,28 @@ class EventParticipationServiceTest {
 
     @Test
     void unregisterParticipantTest() {
-        prepareData();
+        User user = new User();
+        user.setId(userId);
+        when(repository.findAllParticipantsByEventId(eventId)).thenReturn(List.of(user));
         service.unregisterParticipant(eventId, userId);
         verify(repository, times(1)).unregister(eventId, userId);
     }
 
     @Test
-    void emptyEventTest() {
+    void getParticipantEmptyEventTest() {
         when(repository.findAllParticipantsByEventId(eventId)).thenReturn(Collections.emptyList());
         assertThrows(IllegalStateException.class, () -> service.getParticipant(eventId));
     }
 
     @Test
     void getParticipantsTest() {
-        User mockUser = mock(User.class);
-        UserDto mockUserDto = mock(UserDto.class);
-        when(repository.findAllParticipantsByEventId(eventId)).thenReturn(List.of(mockUser));
-        when(mapper.toDto(mockUser)).thenReturn(mockUserDto);
-        assertEquals(List.of(mockUserDto), service.getParticipant(eventId));
+        User user = new User();
+        UserDto userDto = new UserDto();
+        when(repository.findAllParticipantsByEventId(eventId)).thenReturn(List.of(user));
+        doReturn(userDto).when(mapper).toDto(user);
+        assertEquals(List.of(userDto), service.getParticipant(eventId));
+        verify(repository, times(2)).findAllParticipantsByEventId(eventId);
+        verify(mapper, times(1)).toDto(user);
     }
 
     @Test
@@ -85,9 +92,4 @@ class EventParticipationServiceTest {
         verify(repository, times(1)).countParticipants(eventId);
     }
 
-    private void prepareData() {
-        User user = new User();
-        user.setId(userId);
-        when(repository.findAllParticipantsByEventId(eventId)).thenReturn(List.of(user));
-    }
 }

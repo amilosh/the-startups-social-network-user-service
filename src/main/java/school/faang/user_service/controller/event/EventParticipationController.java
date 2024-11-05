@@ -35,12 +35,12 @@ public class EventParticipationController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{eventId}/getAllParicipant")
+    @GetMapping("/{eventId}/participants")
     public ResponseEntity<List<UserDto>> getParticipant(@PathVariable @Min(1) long eventId) {
         return ResponseEntity.ok(service.getParticipant(eventId));
     }
 
-    @GetMapping("/{eventId}/getParticipantsCount")
+    @GetMapping("/{eventId}/participants/count")
     public ResponseEntity<Integer> getParticipantsCount(@PathVariable @Min(1) long eventId) {
         return ResponseEntity.ok(service.getParticipantsCount(eventId));
     }
