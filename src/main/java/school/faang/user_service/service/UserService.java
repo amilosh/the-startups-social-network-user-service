@@ -1,28 +1,36 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.entity.event.EventStatus;
-import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
-    private final GoalRepository goalRepository;
+    private final GoalService goalService;
 
     public boolean isDeactivatedUser(long userId) {
-        User user = getUserById(userId);
+        log.info("start to deactivate User by id {}", userId);
+        User user;
+
+        try {
+            user = getUserById(userId);
+        } catch (DataValidationException e) {
+            log.error(e.getMessage());
+            return false;
+        }
+
         List<Event> ownedEvents = user.getOwnedEvents();
 
         stopScheduledGoals(user);
@@ -32,6 +40,7 @@ public class UserService {
         user.setActive(false);
         userRepository.save(user);
 
+        log.info("User successfully deactivated by id {}", userId);
         return true;
     }
 
@@ -41,14 +50,15 @@ public class UserService {
     }
 
     private void stopScheduledGoals(User user) {
+        goalService.removeGoalsWithoutUsers(user.getGoals());
+        goalService.removeGoalsWithoutUsers(user.getSettingGoals());
+
         user.removeAllGoals();
-
-        user.getGoals().stream()
-                .filter(Goal::isEmptyUsers)
-                .forEach(goal -> userRepository.deleteById(goal.getId()));
-
         userRepository.save(user);
+
+        log.info("all scheduled goals is stopped");
     }
+
 
     private void stopScheduledEvents(List<Event> ownedEvents) {
         for (Event event : ownedEvents) {
@@ -58,7 +68,7 @@ public class UserService {
                 attendee.removeParticipatedEvent(event);
                 userRepository.save(attendee);
             });
-            event.setStatus(EventStatus.CANCELED);
+
             eventRepository.deleteById(event.getId());
         }
     }

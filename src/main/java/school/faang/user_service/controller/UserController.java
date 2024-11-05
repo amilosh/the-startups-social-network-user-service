@@ -20,7 +20,7 @@ public class UserController {
         if(isDeactivate){
             return "User successfully deactivated";
         } else {
-            return "User not found.";
+            return "User not found";
         }
     }
 }
