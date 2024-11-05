@@ -1,36 +1,20 @@
-name: start test
+name: Java CI check with Gradle
+
 on:
-  pull_request:
-    branches:
-      - feature/pipeline-test-BC-BJS2-4077
+  [push, pull_request]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up Java
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '11'  # Adjust the version if needed
-
-      - name: Install dependencies
-        run: |
-          ./gradlew clean build --no-daemon
-
-      - name: Run tests
-        run: |
-          ./gradlew test --no-daemon
-        continue-on-error: ${{ github.event.pull_request.head.ref == 'feature/pipeline-test-BC-BJS2-40777' }}
-
-  # Optional step: Notifies if any tests failed
-  notifications:
-    needs: test
-    runs-on: ubuntu-latest
-    if: failure()
-    steps:
-      - name: Notify on Failure
-        run: echo "Tests failed in feature/pipeline-test-BC-BJS2-40777"
+          java-version: '17'
+          distribution: 'corretto'
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
+        with:
+          arguments: build
