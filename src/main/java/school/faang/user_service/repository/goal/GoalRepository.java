@@ -1,5 +1,7 @@
 package school.faang.user_service.repository.goal;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -51,4 +53,6 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
     List<User> findUsersByGoalId(long goalId);
 
     List<Goal> findAllByParentId(long parentId);
+
+    Page<Goal> findAllByParentId(long parentId, Pageable pageable);
 }

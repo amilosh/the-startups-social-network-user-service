@@ -2,6 +2,8 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.goal.CreateGoalDto;
@@ -17,6 +19,8 @@ import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.util.CollectionUtils;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 
 @Service
@@ -73,18 +77,30 @@ public class GoalService {
     }
 
     private void deleteGoalWithChildren(Long goalId) {
-        Goal persistantGoal = goalRepo.findById(goalId)
+        Deque<Goal> goalsToDelete = new ArrayDeque<>();
+        Goal rootGoal = goalRepo.findById(goalId)
                 .orElseThrow(() -> new ResourceNotFoundException("Goal", "id", goalId));
+        goalsToDelete.push(rootGoal);
 
-        List<Goal> children = goalRepo.findAllByParentId(goalId);
-        for (Goal child : children) {
-            deleteGoalWithChildren(child.getId());
+        while (!goalsToDelete.isEmpty()) {
+            Goal currentGoal = goalsToDelete.peek();
+            List<Goal> children = goalRepo.findAllByParentId(currentGoal.getId());
+
+            if (children.isEmpty()) {
+                Goal goalToDelete = goalsToDelete.pop();
+                removeGoalReferences(goalToDelete);
+                goalRepo.delete(goalToDelete);
+            } else {
+                goalsToDelete.addAll(children);
+            }
         }
-        persistantGoal.getSkillsToAchieve().forEach(skill -> skill.removeGoal(persistantGoal));
-        persistantGoal.getUsers().forEach(user -> user.removeGoal(persistantGoal));
-        goalRepo.delete(persistantGoal);
 
         log.info("Successfully deleted goal with id {} and all its children", goalId);
+    }
+
+    private void removeGoalReferences(Goal goal) {
+        goal.getSkillsToAchieve().forEach(skill -> skill.removeGoal(goal));
+        goal.getUsers().forEach(user -> user.removeGoal(goal));
     }
 
     @Transactional
@@ -156,6 +172,11 @@ public class GoalService {
             User user = userService.getUserById(mentorId);
             goal.setMentor(user);
         }
+    }
+
+    public Page<GoalResponseDto> findSubtasksByGoalId(Long goalId, Pageable pageable) {
+        Page<Goal> goals = goalRepo.findAllByParentId(goalId, pageable);
+        return goals.map(goalMapper::toResponseDto);
     }
 
     private void validateMaxActiveGoalsLimit(Goal goal) {

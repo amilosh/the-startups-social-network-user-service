@@ -4,10 +4,15 @@ package school.faang.user_service.controller;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +29,8 @@ import school.faang.user_service.service.GoalService;
 @RequiredArgsConstructor
 @Validated
 public class GoalV1Controller {
+    private static final int DEFAULT_PAGE_SIZE = 20;
+    private static final String DEFAULT_SORT_FIELD = "createdAt";
 
     private final GoalService goalService;
 
@@ -55,5 +62,21 @@ public class GoalV1Controller {
 
         GoalResponseDto goalResponseDto = goalService.update(id, updateGoalDto);
         return ResponseEntity.ok(goalResponseDto);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Page<GoalResponseDto>> findSubtasksByGoalId(
+            @Parameter(description = "Parent goal id")
+            @PathVariable @Positive long goalId,
+
+            @PageableDefault(
+                    size = DEFAULT_PAGE_SIZE,
+                    page = 0,
+                    sort = DEFAULT_SORT_FIELD,
+                    direction = Sort.Direction.DESC
+            ) Pageable pageable) {
+
+        Page<GoalResponseDto> goalResponseDtos = goalService.findSubtasksByGoalId(goalId, pageable);
+        return ResponseEntity.ok(goalResponseDtos);
     }
 }
