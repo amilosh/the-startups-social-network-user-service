@@ -35,7 +35,11 @@ public class EventParticipationService {
     }
 
     public List<UserDto> getParticipant (long eventId) {
-        return eventParticipationRepository.findAllParticipantsByEventId(eventId).stream().map(userMapper::toDto).toList();
+        return eventParticipationRepository
+                .findAllParticipantsByEventId(eventId)
+                .stream()
+                .map(userMapper::toDto)
+                .toList();
     }
 
     public int getParticipantsCount(long eventId){
