@@ -34,38 +34,50 @@ class EventParticipationServiceTest {
 
     @Test
     void testRegisterRegisteredParticipant() {
-        User user = Mockito.mock(User.class);
-        when(user.getId()).thenReturn(USER_ID);
-        when(eventParticipationRepository.findAllParticipantsByEventId(EVENT_ID)).thenReturn(List.of(user));
-        assertThrows(IllegalArgumentException.class, () -> eventParticipationService.registerParticipant(EVENT_ID, USER_ID));
+        User user = new User();
+        user.setId(USER_ID);
+        when(eventParticipationRepository.findAllParticipantsByEventId(EVENT_ID))
+                .thenReturn(List.of(user));
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> eventParticipationService.registerParticipant(EVENT_ID, USER_ID));
+        assertEquals("User is already participating", exception.getMessage());
     }
 
     @Test
     void testRegisterNotRegisteredParticipant() {
-        when(eventParticipationRepository.findAllParticipantsByEventId(Mockito.anyLong())).thenReturn(new ArrayList<>());
+        when(eventParticipationRepository.findAllParticipantsByEventId(Mockito.anyLong()))
+                .thenReturn(new ArrayList<>());
         eventParticipationService.registerParticipant(EVENT_ID, USER_ID);
         verify(eventParticipationRepository, times(1)).register(EVENT_ID, USER_ID);
     }
 
     @Test
     void testUnregisterRegisteredParticipant() {
-        User user = Mockito.mock(User.class);
-        when(user.getId()).thenReturn(USER_ID);
-        when(eventParticipationRepository.findAllParticipantsByEventId(Mockito.anyLong())).thenReturn(List.of(user));
+        User user = new User();
+        user.setId(USER_ID);
+        when(eventParticipationRepository.findAllParticipantsByEventId(Mockito.anyLong()))
+                .thenReturn(List.of(user));
         eventParticipationService.unregisterParticipant(EVENT_ID, USER_ID);
         verify(eventParticipationRepository, times(1)).unregister(EVENT_ID, USER_ID);
     }
 
     @Test
     void testUnregisterNotRegisteredParticipant() {
-        when(eventParticipationRepository.findAllParticipantsByEventId(Mockito.anyLong())).thenReturn(new ArrayList<>());
-        assertThrows(IllegalArgumentException.class, () -> eventParticipationService.unregisterParticipant(EVENT_ID, USER_ID));
+        when(eventParticipationRepository.findAllParticipantsByEventId(Mockito.anyLong()))
+                .thenReturn(new ArrayList<>());
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> eventParticipationService.unregisterParticipant(EVENT_ID, USER_ID));
+        assertEquals("User is not participating", exception.getMessage());
     }
 
     @Test
     void testGetParticipants(){
-        User user1 = Mockito.mock(User.class);
-        User user2 = Mockito.mock(User.class);
+        User user1 = new User();
+        User user2 = new User();
+        user1.setId(1L);
+        user2.setId(2L);
         List<User> users = new ArrayList<>(List.of(user1, user2));
         UserDto userDto1 = new UserDto();
         UserDto userDto2 = new UserDto();
@@ -74,7 +86,8 @@ class EventParticipationServiceTest {
         List<UserDto> expected = new ArrayList<>();
         expected.add(userDto1);
         expected.add(userDto2);
-        when(eventParticipationRepository.findAllParticipantsByEventId(EVENT_ID)).thenReturn(users);
+        when(eventParticipationRepository.findAllParticipantsByEventId(EVENT_ID))
+                .thenReturn(users);
         when(userMapper.toDto(user1)).thenReturn(userDto1);
         when(userMapper.toDto(user2)).thenReturn(userDto2);
         List<UserDto> result = eventParticipationService.getParticipant(EVENT_ID);
@@ -85,14 +98,16 @@ class EventParticipationServiceTest {
     @Test
     void testGetParticipantsCount(){
         int count = 3;
-        when(eventParticipationRepository.countParticipants(EVENT_ID)).thenReturn(count);
+        when(eventParticipationRepository.countParticipants(EVENT_ID))
+                .thenReturn(count);
         int result = eventParticipationService.getParticipantsCount(EVENT_ID);
         assertEquals(count, result);
     }
 
     @Test
     void testIsNotRegisteredParticipant() {
-        when(eventParticipationRepository.findAllParticipantsByEventId(Mockito.anyLong())).thenReturn(new ArrayList<>());
+        when(eventParticipationRepository.findAllParticipantsByEventId(Mockito.anyLong()))
+                .thenReturn(new ArrayList<>());
         assertFalse(eventParticipationService.isRegisteredParticipant(EVENT_ID, USER_ID));
     }
 
@@ -100,7 +115,8 @@ class EventParticipationServiceTest {
     void testIsRegisteredParticipant() {
         User user = Mockito.mock(User.class);
         when(user.getId()).thenReturn(USER_ID);
-        when(eventParticipationRepository.findAllParticipantsByEventId(EVENT_ID)).thenReturn(new ArrayList<>(List.of(user)));
+        when(eventParticipationRepository.findAllParticipantsByEventId(EVENT_ID))
+                .thenReturn(new ArrayList<>(List.of(user)));
         assertTrue(eventParticipationService.isRegisteredParticipant(EVENT_ID, USER_ID));
     }
 
