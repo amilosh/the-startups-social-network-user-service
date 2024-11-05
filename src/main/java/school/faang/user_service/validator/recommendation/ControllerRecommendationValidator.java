@@ -8,7 +8,10 @@ import school.faang.user_service.exeption.DataValidationException;
 @Component
 public class ControllerRecommendationValidator {
     public void validateContentRecommendation(String content) {
-        if (content.isEmpty() && content.isBlank()) {
+        if (content == null){
+            throw new DataValidationException("Recommendation content is null");
+        }
+        if (content.isEmpty() || content.isBlank()) {
             log.error("Recommendation content is empty {}", content);
             throw new DataValidationException("Recommendation content is empty");
         }

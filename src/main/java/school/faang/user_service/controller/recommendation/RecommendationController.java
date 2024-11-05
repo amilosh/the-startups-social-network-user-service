@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 
 import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.service.recommendation.RecommendationService;
 import school.faang.user_service.validator.recommendation.ControllerRecommendationValidator;
 
@@ -18,10 +17,10 @@ public class RecommendationController {
     private final RecommendationService recommendationService;
     private final ControllerRecommendationValidator recommendationValidator;
 
-    public void updateRecommendation(RecommendationDto updateRecommendationDto) {
+    public RecommendationDto updateRecommendation(RecommendationDto updateRecommendationDto) {
         log.info("A request has been received to update the recommendation {}", updateRecommendationDto);
         recommendationValidator.validateContentRecommendation(updateRecommendationDto.getContent());
-        updateRecommendation(updateRecommendationDto);
+        return recommendationService.updateRecommendation(updateRecommendationDto);
     }
 
     public RecommendationDto giveRecommendation(RecommendationDto recommendationDto) {
@@ -32,9 +31,16 @@ public class RecommendationController {
 
     public void deleteRecommendation(RecommendationDto delRecommendationDto) {
         log.info("A request was received to delete the recommendation {}", delRecommendationDto);
+        recommendationService.deleteRecommendation(delRecommendationDto);
     }
 
-    public List<SkillOfferDto> getAllUserRecommendations(long receiverId) {
-        return null;
+    public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
+        log.info("Request to receive all user {} recommendations", receiverId);
+        return recommendationService.getAllUserRecommendations(receiverId);
+    }
+
+    public List<RecommendationDto> getAllGivenRecommendations(long authorId){
+        log.info("Request to receive all recommendations created by the user {}", authorId);
+        return recommendationService.getAllGivenRecommendations(authorId);
     }
 }
