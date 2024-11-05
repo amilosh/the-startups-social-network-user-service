@@ -2,7 +2,7 @@ name: start test
 on:
   pull_request:
     branches:
-      - feature/pipeline-test-BC-*
+      - feature/pipeline-test-BC-BJS2-4077
 
 jobs:
   test:
