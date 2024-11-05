@@ -16,6 +16,5 @@ public class RequestFilterValidator {
             log.warn("Filter cannot be null.");
             throw new InvalidRequestFilterException("Filter cannot be null.");
         }
-        log.info("Filters {} are not null.", filters);
     }
 }

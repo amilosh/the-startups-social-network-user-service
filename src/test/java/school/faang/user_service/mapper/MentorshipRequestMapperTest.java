@@ -3,14 +3,13 @@ package school.faang.user_service.mapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-import school.faang.user_service.TestDataCreator;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static school.faang.user_service.entity.RequestStatus.ACCEPTED;
 
 class MentorshipRequestMapperTest {
 
@@ -23,10 +22,15 @@ class MentorshipRequestMapperTest {
 
     @Test
     void testToDto() {
-        User requester = TestDataCreator.createUser(1L);
-        User receiver = TestDataCreator.createUser(2L);
-        MentorshipRequest request = TestDataCreator.createMentorshipRequest(1L, requester, receiver,
-                ACCEPTED, "Help me with java!");
+        User requester = User.builder().id(1L).build();
+        User receiver = User.builder().id(2L).build();
+        MentorshipRequest request = MentorshipRequest.builder()
+                .id(1L)
+                .requester(requester)
+                .receiver(receiver)
+                .status(RequestStatus.ACCEPTED)
+                .description("Description")
+                .build();
 
         MentorshipRequestDto dto = mapper.toDto(request);
 
@@ -39,7 +43,13 @@ class MentorshipRequestMapperTest {
 
     @Test
     void toEntity() {
-        MentorshipRequestDto dto = TestDataCreator.createMentorshipRequestDto(1L, 1L, 2L, ACCEPTED, "H");
+        MentorshipRequestDto dto = MentorshipRequestDto.builder()
+                .id(1L)
+                .requesterId(1L)
+                .receiverId(2L)
+                .description("Description")
+                .status(RequestStatus.PENDING)
+                .build();
 
         MentorshipRequest request = mapper.toEntity(dto);
 

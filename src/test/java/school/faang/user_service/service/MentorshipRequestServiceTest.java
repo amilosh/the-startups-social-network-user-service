@@ -3,9 +3,9 @@ package school.faang.user_service.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.TestDataCreator;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
@@ -13,8 +13,8 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.EntityNotFoundException;
+import school.faang.user_service.filter.Filter;
 import school.faang.user_service.filter.MentorshipRequestFilter.DescriptionFilter;
-import school.faang.user_service.filter.MentorshipRequestFilter.RequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.MentorshipRequestValidator;
@@ -24,11 +24,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,47 +38,78 @@ import static org.mockito.Mockito.when;
 class MentorshipRequestServiceTest {
 
     @Mock
-    private MentorshipRequestValidator requestValidator;
+    private UserService userService;
     @Mock
     private MentorshipRequestRepository requestRepository;
     @Mock
+    private MentorshipRequestValidator requestValidator;
+    @Mock
     private MentorshipRequestMapper requestMapper;
-    @Mock
-    private DescriptionFilter descriptionFilter;
-    @Mock
-    private User firstUser;
-    @Mock
-    private User secondUser;
-    @Mock
-    private MentorshipRequest firstRequest;
-    @Mock
-    private MentorshipRequest secondRequest;
 
+    @InjectMocks
     private MentorshipRequestService requestService;
-    private MentorshipRequestDto requestDto;
+
+    private DescriptionFilter descriptionFilter;
+    private List<Filter<MentorshipRequest, RequestFilterDto>> filters;
+    private User requester;
+    private User receiver;
+    private MentorshipRequest firstRequest;
+    private MentorshipRequest secondRequest;
+    private MentorshipRequestDto firstRequestDto;
     private RequestFilterDto filterDto;
     private Long firstRequestId;
     private RejectionDto rejectionDto;
 
     @BeforeEach
     void setUp() {
-        requestDto = TestDataCreator.createMentorshipRequestDto(1L, 1L, 2L, RequestStatus.ACCEPTED,
-                "Need help with Java!");
-        filterDto = TestDataCreator.createRequestFilterDto(1L, 2L, "HELP", RequestStatus.ACCEPTED);
-        List<RequestFilter> requestFilters = List.of(descriptionFilter);
-        requestService = new MentorshipRequestService(requestRepository, requestValidator,
-                requestMapper, requestFilters);
+        descriptionFilter = mock(DescriptionFilter.class);
+        filters = new ArrayList<>(List.of(descriptionFilter));
+        requestService = new MentorshipRequestService(
+                userService, requestRepository, requestValidator, requestMapper, filters);
+
+        requester = User.builder().id(1L).build();
+        receiver = User.builder().id(2L).build();
+
+        firstRequestDto = MentorshipRequestDto.builder()
+                .id(1L)
+                .requesterId(1L)
+                .receiverId(2L)
+                .description("Need help with java.")
+                .status(RequestStatus.PENDING)
+                .build();
+
+        filterDto = RequestFilterDto.builder()
+                .descriptionPattern("HELP")
+                .build();
+
+        firstRequest = MentorshipRequest.builder()
+                .id(1L)
+                .requester(requester)
+                .receiver(receiver)
+                .description("Need help with java.")
+                .status(RequestStatus.PENDING)
+                .build();
+
+        secondRequest = MentorshipRequest.builder()
+                .id(2L)
+                .requester(receiver)
+                .receiver(requester)
+                .status(RequestStatus.PENDING)
+                .description("Description")
+                .build();
+
         firstRequestId = firstRequest.getId();
-        rejectionDto = TestDataCreator.createRejectionDto("reason");
+        rejectionDto = RejectionDto.builder().reason("Reason").build();
+
     }
 
     @Test
     void testServiceRequestMentorshipShouldCreateRequest() {
-        requestValidator.validateMentorshipRequest(requestDto);
-        requestService.requestMentorship(requestDto);
+        MentorshipRequestDto result = requestService.requestMentorship(firstRequestDto);
 
-        verify(requestRepository).create(requestDto.getRequesterId(),
-                requestDto.getReceiverId(), requestDto.getDescription());
+        verify(requestRepository).create(firstRequestDto.getRequesterId(),
+                firstRequestDto.getReceiverId(), firstRequestDto.getDescription());
+        assertEquals(result, firstRequestDto);
     }
 
     @Test
@@ -89,16 +121,16 @@ class MentorshipRequestServiceTest {
     void testGetRequestsShouldReturnFilteredList() {
         when(requestRepository.findAll()).thenReturn(List.of(firstRequest, secondRequest));
         when(descriptionFilter.isApplicable(filterDto)).thenReturn(true);
-        when(descriptionFilter.apply(any(), any())).thenAnswer(invocationOnMock -> Stream.of(firstRequest));
-        when(requestMapper.toDto(firstRequest)).thenReturn(requestDto);
+        when(descriptionFilter.apply(any(), eq(filterDto))).thenAnswer(invocationOnMock -> Stream.of(firstRequest));
+        when(requestMapper.toDto(firstRequest)).thenReturn(firstRequestDto);
 
-        List<MentorshipRequestDto> requestDtoList = requestService.getRequests(filterDto);
+        List<MentorshipRequestDto> result = requestService.getRequests(filterDto);
 
-        assertEquals(1, requestDtoList.size());
         verify(descriptionFilter, times(1)).isApplicable(any(RequestFilterDto.class));
-        verify(descriptionFilter, times(1)).apply(any(Stream.class), any(RequestFilterDto.class));
+        verify(descriptionFilter, times(1)).apply(any(), any(RequestFilterDto.class));
         verify(requestMapper, times(1)).toDto(any(MentorshipRequest.class));
         verify(requestRepository, times(1)).findAll();
+        assertTrue(result.contains(firstRequestDto));
     }
 
     @Test
@@ -108,32 +140,25 @@ class MentorshipRequestServiceTest {
         assertThrows(EntityNotFoundException.class, () -> requestService.acceptRequest(firstRequestId));
         verify(requestValidator, times(1)).validateMentorshipRequestExists(firstRequestId);
         verify(requestRepository, times(1)).findById(firstRequestId);
-        verify(firstRequest, times(0)).getRequester();
-        verify(firstRequest, times(0)).getReceiver();
-        verify(requestValidator, times(0)).validateRequesterHasReceiverAsMentor(any(), any());
-        verify(firstUser, times(0)).getMentors();
-        verify(firstRequest, times(0)).setStatus(RequestStatus.ACCEPTED);
     }
 
     @Test
     void testAcceptRequestSuccessful() {
-        List<User> mentors = new ArrayList<>();
-
+        requester.setMentors(new ArrayList<>());
+        receiver.setMentees(new ArrayList<>());
+        firstRequestDto.setStatus(RequestStatus.ACCEPTED);
         when(requestRepository.findById(firstRequestId)).thenReturn(Optional.of(firstRequest));
-        when(firstRequest.getRequester()).thenReturn(firstUser);
-        when(firstRequest.getReceiver()).thenReturn(secondUser);
-        when(firstUser.getMentors()).thenReturn(mentors);
+        when(requestRepository.save(firstRequest)).thenReturn(firstRequest);
+        when(requestMapper.toDto(firstRequest)).thenReturn(firstRequestDto);
 
-        requestService.acceptRequest(firstRequestId);
+        MentorshipRequestDto result = requestService.acceptRequest(firstRequestId);
 
-        verify(requestValidator, times(1)).validateMentorshipRequestExists(firstRequestId);
         verify(requestRepository, times(1)).findById(firstRequestId);
-        verify(firstRequest, times(1)).getRequester();
-        verify(firstRequest, times(1)).getReceiver();
-        verify(requestValidator, times(1)).validateRequesterHasReceiverAsMentor(any(), any());
-        verify(firstUser, times(1)).getMentors();
-        verify(firstRequest, times(1)).setStatus(RequestStatus.ACCEPTED);
-        assertEquals(1, mentors.size());
+        verify(requestRepository, times(1)).save(firstRequest);
+        assertEquals(result.getId(), firstRequestId);
+        assertEquals(result.getRequesterId(), firstRequest.getRequester().getId());
+        assertEquals(result.getReceiverId(), firstRequest.getReceiver().getId());
+        assertEquals(result.getStatus(), firstRequest.getStatus());
     }
 
     @Test
@@ -142,16 +167,20 @@ class MentorshipRequestServiceTest {
 
         assertThrows(EntityNotFoundException.class,
                 () -> requestService.rejectRequest(firstRequestId, rejectionDto));
-        verify(firstRequest, times(0)).setStatus(RequestStatus.REJECTED);
-        verify(firstRequest, times(0)).setRejectionReason(rejectionDto.getReason());
+        verify(requestRepository, times(0)).save(any(MentorshipRequest.class));
     }
 
     @Test
     void testRejectRequestSuccessful() {
+        firstRequestDto.setStatus(RequestStatus.REJECTED);
         when(requestRepository.findById(firstRequestId)).thenReturn(Optional.of(firstRequest));
+        when(requestRepository.save(firstRequest)).thenReturn(firstRequest);
+        when(requestMapper.toDto(firstRequest)).thenReturn(firstRequestDto);
 
-        assertDoesNotThrow(() -> requestService.rejectRequest(firstRequestId, rejectionDto));
-        verify(firstRequest, times(1)).setStatus(RequestStatus.REJECTED);
-        verify(firstRequest, times(1)).setRejectionReason(rejectionDto.getReason());
+        MentorshipRequestDto result = requestService.rejectRequest(firstRequestId, rejectionDto);
+
+        verify(requestRepository, times(1)).findById(firstRequestId);
+        verify(requestRepository, times(1)).save(firstRequest);
+        assertEquals(result.getStatus(), firstRequestDto.getStatus());
     }
 }

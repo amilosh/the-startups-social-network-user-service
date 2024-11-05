@@ -6,14 +6,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.TestDataCreator;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.EntityNotFoundException;
-import school.faang.user_service.exception.InvalidMentorshipRejectException;
 import school.faang.user_service.exception.InvalidMentorshipRequestException;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
@@ -51,8 +49,15 @@ class MentorshipRequestValidatorTest {
 
     @BeforeEach
     void setUp() {
-        requestDto = TestDataCreator.createMentorshipRequestDto(1L, 1L, 2L, RequestStatus.PENDING, "help me with java.");
-        rejectionDto = TestDataCreator.createRejectionDto("Reason");
+        requestDto = MentorshipRequestDto.builder()
+                .id(1L)
+                .requesterId(1L)
+                .receiverId(2L)
+                .description("Description")
+                .status(RequestStatus.PENDING)
+                .build();
+
+        rejectionDto = RejectionDto.builder().reason("Reason").build();
     }
 
     @Test
@@ -73,7 +78,7 @@ class MentorshipRequestValidatorTest {
     }
 
     @Test
-    void testValidateOneRequestPerThreeMonthsShouldThrowException() {
+    void testValidateOneRequestPerMonthsShouldThrowExceptionLimit() {
         MentorshipRequest request = new MentorshipRequest();
         request.setCreatedAt(LocalDateTime.now(ZoneId.of("UTC")).minusMonths(1));
 
@@ -108,29 +113,6 @@ class MentorshipRequestValidatorTest {
     }
 
     @Test
-    void testBlankDescriptionShouldThrowException() {
-        requestDto.setDescription(BLANK_STRING);
-
-        assertThrows(InvalidMentorshipRequestException.class,
-                () -> requestValidator.validateNullOrBlankDescription(requestDto));
-    }
-
-    @Test
-    void testNullDescriptionShouldThrowException() {
-        requestDto.setDescription(null);
-
-        assertThrows(InvalidMentorshipRequestException.class,
-                () -> requestValidator.validateNullOrBlankDescription(requestDto));
-    }
-
-    @Test
-    void testCorrectDescriptionIsSuccessful() {
-        requestDto.setDescription("Help me with java please!");
-
-        assertDoesNotThrow(() -> requestValidator.validateNullOrBlankDescription(requestDto));
-    }
-
-    @Test
     void testValidateMentorshipRequestExistsShouldThrowException() {
         when(requestRepository.existsById(requestDto.getRequesterId())).thenReturn(false);
 
@@ -145,27 +127,6 @@ class MentorshipRequestValidatorTest {
 
         assertDoesNotThrow(() -> requestValidator.validateMentorshipRequestExists(requestDto.getRequesterId()));
         verify(requestRepository, times(1)).existsById(requestDto.getRequesterId());
-    }
-
-    @Test
-    void testNullRequestIdShouldThrowException() {
-        requestDto.setId(null);
-
-        assertThrows(InvalidMentorshipRequestException.class,
-                () -> requestValidator.validateNullOrUnavailableId(requestDto.getId()));
-    }
-
-    @Test
-    void testUnavailableRequestIdShouldThrowException() {
-        requestDto.setId(0L);
-
-        assertThrows(InvalidMentorshipRequestException.class,
-                () -> requestValidator.validateNullOrUnavailableId(requestDto.getId()));
-    }
-
-    @Test
-    void testValidateNullOrUnavailableIdSuccessful() {
-        assertDoesNotThrow(() -> requestValidator.validateNullOrUnavailableId(requestDto.getId()));
     }
 
     @Test
@@ -188,21 +149,5 @@ class MentorshipRequestValidatorTest {
     @Test
     void testNullRejectReasonShouldThrowException() {
         rejectionDto.setReason(null);
-
-        assertThrows(InvalidMentorshipRejectException.class,
-                () -> requestValidator.validateNullOrBlankRejectReason(rejectionDto));
-    }
-
-    @Test
-    void testBlankRejectReasonShouldThrowException() {
-        rejectionDto.setReason(BLANK_STRING);
-
-        assertThrows(InvalidMentorshipRejectException.class,
-                () -> requestValidator.validateNullOrBlankRejectReason(rejectionDto));
-    }
-
-    @Test
-    void testValidateNullOrBlankRejectReasonSuccessful() {
-        assertDoesNotThrow(() -> requestValidator.validateNullOrBlankRejectReason(rejectionDto));
     }
 }

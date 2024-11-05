@@ -15,8 +15,8 @@ public class UserValidator {
 
     public void isUserExists(Long id) {
         if (!repository.existsById(id)) {
-            log.warn("User with id '{}' not exists.", id);
-            throw new EntityNotFoundException("User with id '" + id + "' not exists.");
+            log.warn("User with id #{} not exists.", id);
+            throw new EntityNotFoundException("User with id #" + id + " not exists.");
         }
         log.info("User '{}' exist.", id);
     }
