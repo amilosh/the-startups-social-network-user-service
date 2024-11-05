@@ -45,14 +45,14 @@ public class EventControllerTest {
     public void testGetEvent() {
         EventDto eventDto = EventDto.builder().build();
 
-        when(eventService.getEvent(anyLong())).thenReturn(eventDto);
+        when(eventService.getEventDto(anyLong())).thenReturn(eventDto);
 
         EventDto result = eventController.getEvent(1L);
 
         assertEquals(eventDto, result);
         assertNotNull(result);
 
-        verify(eventService, times(1)).getEvent(anyLong());
+        verify(eventService, times(1)).getEventDto(anyLong());
     }
 
     @Test

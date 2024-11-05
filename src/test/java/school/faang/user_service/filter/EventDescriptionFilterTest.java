@@ -24,8 +24,8 @@ public class EventDescriptionFilterTest {
     public void EventDescriptionNotNullTest() {
         EventFilterDto eventFilterDto = EventFilterDto
                 .builder()
-                .description("Description").
-                build();
+                .description("Description")
+                .build();
 
         boolean result = eventDescriptionFilter.isApplicable(eventFilterDto);
         assertTrue(result);

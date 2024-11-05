@@ -43,7 +43,7 @@ public class EventValidationTest {
     }
 
     @Test
-    public void testValidateEventDto_Success() {
+    public void testValidateEventDtoSuccess() {
         SkillDto skill1 = SkillDto.builder().id(1L).title("Skill1").build();
         SkillDto skill2 = SkillDto.builder().id(2L).title("Skill2").build();
 
@@ -52,11 +52,11 @@ public class EventValidationTest {
 
         List<Long> userSkills = Arrays.asList(1L, 2L, 3L);
 
-        eventValidation.validateEventDto(event, userSkills);
+        eventValidation.validateRelatedSkills(event, userSkills);
     }
 
     @Test
-    public void testValidateEventDto_Failure_MissingSkill() {
+    public void testValidateEventDtoFailureMissingSkill() {
         SkillDto skill1 = SkillDto.builder().id(1L).title("Skill1").build();
         SkillDto skill2 = SkillDto.builder().id(2L).title("Skill2").build();
 
@@ -66,17 +66,17 @@ public class EventValidationTest {
         List<Long> userSkills = List.of(1L);
 
         assertThrows(DataValidationException.class, () -> {
-            eventValidation.validateEventDto(event, userSkills);
+            eventValidation.validateRelatedSkills(event, userSkills);
         }, "User does not have required skills");
     }
 
     @Test
-    public void testValidateEventDto_Failure_NoSkills() {
+    public void testValidateEventDtoFailureNoSkills() {
         EventDto event = EventDto.builder().build();
         event.setRelatedSkills(List.of());
         List<Long> userSkills = Arrays.asList(1L, 2L);
 
-        eventValidation.validateEventDto(event, userSkills);
+        eventValidation.validateRelatedSkills(event, userSkills);
     }
 }
 

@@ -85,7 +85,7 @@ public class EventServiceTest {
         Assertions.assertNotNull(createdEvent);
         assertEquals(event.getId(), createdEvent.getId());
 
-        verify(eventValidation, times(1)).validateEventDto(eventDto, List.of(skill.getId()));
+        verify(eventValidation, times(1)).validateRelatedSkills(eventDto, List.of(skill.getId()));
         verify(eventRepository, times(1)).save(any(Event.class));
     }
 
@@ -94,7 +94,7 @@ public class EventServiceTest {
         when(eventRepository.findById(event.getId())).thenReturn(Optional.of(event));
         when(eventMapper.eventToDto(event)).thenReturn(eventDto);
 
-        EventDto foundEvent = eventService.getEvent(event.getId());
+        EventDto foundEvent = eventService.getEventDto(event.getId());
 
         Assertions.assertNotNull(foundEvent);
         assertEquals(event.getId(), foundEvent.getId());
@@ -104,7 +104,7 @@ public class EventServiceTest {
     public void testGetEventThrowingEntityNotFoundException() {
         when(eventRepository.findById(event.getId())).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> eventService.getEvent(event.getId()));
+        assertThrows(EntityNotFoundException.class, () -> eventService.getEventDto(event.getId()));
     }
 
     @Test

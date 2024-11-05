@@ -27,20 +27,12 @@ public class EventService {
     private final List<EventFilter> eventFilters;
 
     public EventDto create(EventDto eventDto) {
-        List<Long> skillsId = userService.findById(eventDto.getOwnerId()).getSkills().stream()
-                .map(Skill::getId)
-                .toList();
-
-        eventValidation.validateEventDto(eventDto, skillsId);
+        eventValidation.validateEvent(eventDto);
         Event event = eventRepository.save(eventMapper.dtoToEvent(eventDto));
         return eventMapper.eventToDto(event);
     }
 
-    private Event findEventById(long eventId) {
-        return eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException("Event id not found"));
-    }
-
-    public EventDto getEvent(long eventId) {
+    public EventDto getEventDto(long eventId) {
         Event findEvent = findEventById(eventId);
         return eventMapper.eventToDto(findEvent);
     }
@@ -64,7 +56,7 @@ public class EventService {
                 .map(Skill::getId)
                 .toList();
 
-        eventValidation.validateEventDto(eventDto, skillsId);
+        eventValidation.validateRelatedSkills(eventDto, skillsId);
         Event updatedEvent = eventMapper.dtoToEventWithId(eventDto, event.getId());
         Event savedEvent = eventRepository.save(updatedEvent);
         return eventMapper.eventToDto(savedEvent);
@@ -78,5 +70,9 @@ public class EventService {
     public List<EventDto> getParticipatedEvents(long userId) {
         List<Event> participatedEvents = eventRepository.findParticipatedEventsByUserId(userId);
         return eventMapper.toDtoList(participatedEvents);
+    }
+    
+    private Event findEventById(long eventId) {
+        return eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException("Event id not found"));
     }
 }

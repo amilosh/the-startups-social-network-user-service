@@ -18,7 +18,7 @@ public class EventValidation {
         }
     }
 
-    public void validateEventDto(EventDto event, List<Long> skillsId) {
+    public void validateRelatedSkills(EventDto event, List<Long> skillsId) {
         if (!event.getRelatedSkills().stream().allMatch(ev -> skillsId.contains(ev.getId()))) {
             throw new DataValidationException("User does not have required skills");
         }
