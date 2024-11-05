@@ -8,7 +8,7 @@ import school.faang.user_service.entity.RequestStatus;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class InvitationFilterIDto {
+public class InvitationFilterDto {
     private String inviterNamePattern;
     private String invitedNamePattern;
     private Long inviterId;

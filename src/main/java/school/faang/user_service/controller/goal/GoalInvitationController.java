@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
-import school.faang.user_service.dto.goal.InvitationFilterIDto;
+import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.service.goal.GoalInvitationService;
 
 import java.util.List;
@@ -30,19 +30,19 @@ public class GoalInvitationController {
 
     @PutMapping("accept/{id}")
     @Operation(summary = "Accept an invitation to a goal")
-    public void acceptGoalInvitation(@PathVariable long id) {
-        goalInvitationService.acceptGoalInvitation(id);
+    public GoalInvitationDto acceptGoalInvitation(@PathVariable long id) {
+        return goalInvitationService.acceptGoalInvitation(id);
     }
 
     @PutMapping("reject/{id}")
     @Operation(summary = "Decline an invitation to a goal")
-    public void rejectGoalInvitation(@PathVariable long id) {
-        goalInvitationService.rejectGoalInvitation(id);
+    public GoalInvitationDto rejectGoalInvitation(@PathVariable long id) {
+        return goalInvitationService.rejectGoalInvitation(id);
     }
 
     @PutMapping("/filters")
     @Operation(summary = "View all invitations with filters")
-    public List<GoalInvitationDto> getInvitations(@RequestBody InvitationFilterIDto filter) {
-        return goalInvitationService.getInvitations(filter);
+    public List<GoalInvitationDto> getInvitations(@RequestBody InvitationFilterDto filter) {
+        return goalInvitationService.getInvitationsByFilter(filter);
     }
 }
