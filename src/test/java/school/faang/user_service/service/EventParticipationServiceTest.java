@@ -39,7 +39,7 @@ public class EventParticipationServiceTest {
         doNothing().when(validator).validateRegisterParticipation(eventId, userId); // Настройка на отсутствие исключений
         doNothing().when(eventParticipationRepository).register(eventId, userId);
 
-        eventParticipationService.registerParticipation(eventId, userId);
+        eventParticipationService.registerParticipant(eventId, userId);
 
 
         verify(validator).validateParticipation(eventId, userId);
@@ -53,7 +53,7 @@ public class EventParticipationServiceTest {
         long userId = 1L;
         when(eventParticipationRepository.countParticipants(eventId)).thenReturn(1);
         Exception exception = assertThrows(RuntimeException.class, () -> eventParticipationService.
-                registerParticipation(eventId, userId));
+                registerParticipant(eventId, userId));
         assertEquals("Пользователь уже зарегистрирован на событие", exception.getMessage());
     }
 
@@ -62,7 +62,7 @@ public class EventParticipationServiceTest {
         long eventId = 1L;
         long userId = 2L;
         when(eventParticipationRepository.countParticipants(eventId)).thenReturn(1);
-        eventParticipationService.unregisterParticipation(eventId, userId);
+        eventParticipationService.unregisterParticipant(eventId, userId);
         verify(eventParticipationRepository, times(1)).unregister(eventId, userId);
     }
 
@@ -71,7 +71,7 @@ public class EventParticipationServiceTest {
         long eventId = 1L;
         long userId = 2L;
         Exception exception = assertThrows(RuntimeException.class, () ->
-                eventParticipationService.unregisterParticipation(eventId, userId));
+                eventParticipationService.unregisterParticipant(eventId, userId));
         assertEquals("Пользователь не зарегисрирован на событие", exception.getMessage());
     }
 
@@ -82,7 +82,7 @@ public class EventParticipationServiceTest {
 
         Mockito.when(eventParticipationRepository.countParticipants(eventId)).thenReturn(expectedCount);
 
-        int actualCount = eventParticipationService.getParticipantsCount(eventId);
+        int actualCount = eventParticipationService.getCountRegisteredParticipant(eventId);
 
         assertEquals(expectedCount, actualCount);
 
@@ -93,7 +93,7 @@ public class EventParticipationServiceTest {
     public void testRegisterParticipation_NullEventId() {
         long userId = 2L;
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
-                eventParticipationService.registerParticipation(null, userId));
+                eventParticipationService.registerParticipant(null, userId));
         assertEquals("Event ID cannot be null", exception.getMessage());
     }
 
@@ -101,7 +101,7 @@ public class EventParticipationServiceTest {
     public void testRegisterParticipation_NullUserId() {
         long eventId = 1L;
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
-                eventParticipationService.registerParticipation(eventId, null));
+                eventParticipationService.registerParticipant(eventId, null));
         assertEquals("User ID cannot be null", exception.getMessage());
     }
 

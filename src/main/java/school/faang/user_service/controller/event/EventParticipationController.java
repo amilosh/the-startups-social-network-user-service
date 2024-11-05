@@ -23,25 +23,25 @@ public class EventParticipationController {
 
     @PostMapping("/register")
     public ResponseEntity<String> registerParticipation(@RequestParam Long eventId, @RequestParam Long userId) {
-        eventParticipationService.registerParticipation(eventId, userId);
+        eventParticipationService.registerParticipant(eventId, userId);
         return ResponseEntity.ok("Пользователь успешно зарегистрирован на событие");
     }
 
     @DeleteMapping("/{eventId}/unregister/{userId}")
     public ResponseEntity<String> unregisterParticipant(@PathVariable Long eventId, @PathVariable Long userId) {
-        eventParticipationService.unregisterParticipation(eventId, userId);
+        eventParticipationService.unregisterParticipant(eventId, userId);
         return ResponseEntity.ok("Пользователь отписан от события.");
     }
 
     @GetMapping("/{eventId}/participants")
     public ResponseEntity<List<UserDto>> getParticipants(@PathVariable Long eventId) {
-        List<UserDto> participants = eventParticipationService.getListOfParticipants(eventId);
+        List<UserDto> participants = eventParticipationService.getListOfParticipant(eventId);
         return ResponseEntity.ok(participants);
     }
 
     @GetMapping("/{eventId}/participants/count")
     public ResponseEntity<Integer> getParticipantsCount(@PathVariable Long eventId) {
-        int count = eventParticipationService.getParticipantsCount(eventId);
+        int count = eventParticipationService.getCountRegisteredParticipant(eventId);
         return ResponseEntity.ok(count);
     }
 }

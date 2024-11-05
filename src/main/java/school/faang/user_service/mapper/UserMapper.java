@@ -1,37 +1,34 @@
 package school.faang.user_service.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.InjectionStrategy;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.contact.Contact;
+import school.faang.user_service.entity.contact.ContactType;
 
-@Component
-public class UserMapper {
+import java.util.List;
 
-    public static UserDto toDto(User user) {
-        if (user == null) {
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+public interface UserMapper {
+
+    User toEntity(UserDto userDto);
+
+    @Mapping(target = "preference", source = "contactPreference.preference")
+    @Mapping(target = "telegramChatId", source = "contacts", qualifiedByName = "getTelegramContact")
+    UserDto toDto(User user);
+
+    @Named("getTelegramContact")
+    default String getTelegramContact(List<Contact> contacts) {
+        if (contacts == null) {
             return null;
         }
-        UserDto userDto = new UserDto();
-        userDto.setId(user.getId());
-        userDto.setUsername(user.getUsername());
-        userDto.setEmail(user.getEmail());
-
-
-        return userDto;
+        return contacts.stream()
+                .filter(contact -> contact.getType() == ContactType.TELEGRAM)
+                .map(Contact::getContact)
+                .findFirst().orElse(null);
     }
-
-    public static User toEntity(UserDto userDto) {
-        if (userDto == null) {
-            return null;
-        }
-        User user = new User();
-        user.setId(userDto.getId());
-        user.setUsername(userDto.getUsername());
-        user.setEmail(userDto.getEmail());
-
-
-        return user;
-    }
-
-
 }
