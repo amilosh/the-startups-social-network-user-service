@@ -9,9 +9,9 @@ import school.faang.user_service.exception.skill.SkillDtoNullObjectValidationExc
 @Component
 @RequiredArgsConstructor
 public class SkillDtoValidation {
-    public final int MAX_TITLE_LENGTH = 64;
+    public static final int MAX_TITLE_LENGTH = 64;
 
-    public void Validate(SkillDto skillDto) {
+    public void validate(SkillDto skillDto) {
         if(skillDto == null || skillDto.getTitle() == null) {
             throw new SkillDtoNullObjectValidationException("Объект skillDto не может быть пустым!");
         }
