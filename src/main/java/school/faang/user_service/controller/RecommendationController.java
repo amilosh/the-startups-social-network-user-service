@@ -2,7 +2,6 @@ package school.faang.user_service.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -15,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.service.RecommendationService;
 
 import java.util.List;
@@ -40,13 +37,11 @@ public class RecommendationController {
 
     @PostMapping("/give")
     public ResponseEntity<RecommendationDto> giveRecommendation(@RequestBody @Valid RecommendationDto recommendation) {
-        validateRecommendation(recommendation);
         return new ResponseEntity<>(recommendationService.create(recommendation), HttpStatus.OK);
     }
 
     @PutMapping("/update")
     public ResponseEntity<RecommendationDto> updateRecommendation(@RequestBody @Valid RecommendationDto updated) {
-        validateRecommendation(updated);
         return new ResponseEntity<>(recommendationService.update(updated), HttpStatus.OK);
     }
 
@@ -54,17 +49,5 @@ public class RecommendationController {
     public ResponseEntity<Void> deleteRecommendation(@PathVariable Long id) {
         recommendationService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    private void validateRecommendation(RecommendationDto recommendationDto) throws DataValidationException {
-        if (recommendationDto.getAuthorId() == null) {
-            throw new DataValidationException(ErrorMessage.RECOMMENDATION_EMPTY_AUTHOR);
-        }
-        if (recommendationDto.getReceiverId() == null) {
-            throw new DataValidationException(ErrorMessage.RECOMMENDATION_EMPTY_RECEIVER);
-        }
-        if (StringUtils.isEmpty(recommendationDto.getContent())) {
-            throw new DataValidationException(ErrorMessage.RECOMMENDATION_EMPTY_CONTENT);
-        }
     }
 }

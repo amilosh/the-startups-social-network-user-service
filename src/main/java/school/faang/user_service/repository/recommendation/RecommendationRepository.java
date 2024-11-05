@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -28,7 +29,12 @@ public interface RecommendationRepository extends JpaRepository<Recommendation, 
 
     Page<Recommendation> findAllByReceiverId(long receiverId, Pageable pageable);
 
+    List<Recommendation> findListByReceiverId(long receiverId);
+
     Page<Recommendation> findAllByAuthorId(long authorId, Pageable pageable);
+
+    List<Recommendation> findListByAuthorId(long authorId);
+
 
     Optional<Recommendation> findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(long authorId, long receiverId);
 }

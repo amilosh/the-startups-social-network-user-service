@@ -3,8 +3,6 @@ package school.faang.user_service.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
@@ -21,6 +19,7 @@ import school.faang.user_service.repository.recommendation.RecommendationReposit
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -35,24 +34,24 @@ public class RecommendationService {
 
 
     public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
-        Page<Recommendation> recommendations = recRepository.findAllByReceiverId(receiverId, Pageable.unpaged());
-        log.info("Found " + recommendations.getTotalElements() + " recommendations for user with id - " + receiverId);
-        return recMapper.toDtoList(recommendations.getContent());
+        List<Recommendation> recommendations = recRepository.findListByReceiverId(receiverId);
+        log.info("Found {} recommendations for user with id - {}", recommendations.size(), receiverId);
+        return recMapper.toDtoList(recommendations);
     }
 
     public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
-        Page<Recommendation> recommendations = recRepository.findAllByAuthorId(authorId, Pageable.unpaged());
-        log.info("User with id - " + authorId + " created " + recommendations.getTotalElements() + " recommendations");
-        return recMapper.toDtoList(recommendations.getContent());
+        List<Recommendation> recommendations = recRepository.findListByAuthorId(authorId);
+        log.info("User with id - {} created {} recommendations", authorId, recommendations.size());
+        return recMapper.toDtoList(recommendations);
     }
 
     @Transactional
     public RecommendationDto create(RecommendationDto recDto) {
-        isDateTimeRecommendationOlderSixMonth(recDto);
-        isSkillOfferExists(recDto);
+        checkDateTimeRecommendationOlderSixMonth(recDto);
+        checkSkillOfferExists(recDto);
         addSkillOffersAndGuarantee(recDto);
         Recommendation result = recRepository.save(recMapper.toEntity(recDto));
-        log.info("Recommendation with id - " + result.getId() + "successfully saved");
+        log.info("Recommendation with id - {} successfully saved", result.getId());
 
         return recMapper.toDto(result);
 
@@ -60,10 +59,10 @@ public class RecommendationService {
 
     @Transactional
     public RecommendationDto update(RecommendationDto requestRecDto) {
-        isDateTimeRecommendationOlderSixMonth(requestRecDto);
-        isSkillOfferExists(requestRecDto);
+        checkDateTimeRecommendationOlderSixMonth(requestRecDto);
+        checkSkillOfferExists(requestRecDto);
         addSkillOffersAndGuarantee(requestRecDto);
-        log.info("Updating recommendation with id - " + requestRecDto.getId());
+        log.info("Updating recommendation with id - {}", requestRecDto.getId());
 
         skillOfferRepository.deleteAllByRecommendationId(requestRecDto.getId());
         Recommendation result = recRepository.save(recMapper.toEntity(requestRecDto));
@@ -74,7 +73,7 @@ public class RecommendationService {
     @Transactional
     public void delete(long id) {
         recRepository.deleteById(id);
-        log.info("Recommendation successfully deleted - " + id);
+        log.info("Recommendation successfully deleted - {}", id);
     }
 
     private void addSkillOffersAndGuarantee(RecommendationDto recDto) {
@@ -88,20 +87,21 @@ public class RecommendationService {
     }
 
     private void addGuaranteeToSkill(RecommendationDto recDto, Skill skill) {
-        if (skill.getGuarantees().stream()
+        Stream<Long> authorIdStream = skill.getGuarantees().stream()
                 .map(UserSkillGuarantee::getGuarantor)
-                .map(User::getId)
-                .noneMatch(recDto.getAuthorId()::equals)) {
+                .map(User::getId);
+
+        if (authorIdStream.noneMatch(recDto.getAuthorId()::equals)) {
             User receiver = userRepository.findById(recDto.getReceiverId())
                     .orElseThrow(() -> {
-                        log.error("Receiver with id - " + recDto.getReceiverId() + " not found!");
+                        log.error("Receiver with id - {} not found!", recDto.getReceiverId());
                         return new RuntimeException(ErrorMessage.RECOMMENDATION_RECEIVER_NOT_FOUND +
                                 recDto.getReceiverId());
                     });
 
             User author = userRepository.findById(recDto.getAuthorId())
                     .orElseThrow(() -> {
-                        log.error("Author with id - " + recDto.getAuthorId() + " not found!");
+                        log.error("Author with id - {} not found!", recDto.getAuthorId());
                         return new RuntimeException(ErrorMessage.RECOMMENDATION_AUTHOR_NOT_FOUND +
                                 recDto.getAuthorId());
                     });
@@ -115,7 +115,7 @@ public class RecommendationService {
         }
     }
 
-    private void isSkillOfferExists(RecommendationDto recDto) {
+    private void checkSkillOfferExists(RecommendationDto recDto) {
         if (!recDto.getSkillOffers().isEmpty()) {
             List<String> skillTitlesList = recDto.getSkillOffers().stream()
                     .map(SkillOfferDto::getSkillTitle)
@@ -123,14 +123,14 @@ public class RecommendationService {
 
             for (String skillTitle : skillTitlesList) {
                 if (!skillRepository.existsByTitle(skillTitle)) {
-                    log.error("Skill with title - " + skillTitle + " does not exist in the system!", skillTitle);
+                    log.error("Skill with title - {} does not exist in the system!", skillTitle);
                     throw new DataValidationException(String.format(ErrorMessage.SKILL_NOT_EXIST, skillTitle));
                 }
             }
         }
     }
 
-    private void isDateTimeRecommendationOlderSixMonth(RecommendationDto recDto) {
+    private void checkDateTimeRecommendationOlderSixMonth(RecommendationDto recDto) {
         recRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(recDto.getAuthorId(),
                 recDto.getReceiverId()).ifPresent(recommendation -> {
             if (recommendation.getCreatedAt().isAfter(recDto.getCreatedAt().minusMonths(DIFFERENCE_BETWEEN_DATE_IN_MONTH))) {
