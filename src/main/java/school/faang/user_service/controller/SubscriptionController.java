@@ -2,9 +2,11 @@ package school.faang.user_service.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SubscriptionService;
 
 import java.util.List;
@@ -42,6 +44,11 @@ public class SubscriptionController {
     public ResponseEntity<Long> getFollowingCount(long followeeId) {
         long followeeCount = subscriptionService.getFollowingCount(followeeId);
         return ResponseEntity.ok(followeeCount);
+    }
+
+    @ExceptionHandler(DataValidationException.class)
+    private ResponseEntity<String> handleDataValidationException(DataValidationException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
     }
 
 }
