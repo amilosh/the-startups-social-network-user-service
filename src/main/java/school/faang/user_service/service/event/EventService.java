@@ -3,10 +3,13 @@ package school.faang.user_service.service.event;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.exception.DataNotMatchException;
+import school.faang.user_service.exception.EntityNotFoundExceptionWithID;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -26,30 +29,30 @@ public class EventService {
     @Setter
     private List<EventFilter> eventFilters;
 
-    public EventDto create(EventDto eventDto) {
+    public ResponseEntity<EventDto> create(EventDto eventDto) throws DataNotMatchException {
         checkUserSkillsWithRelatedSkills(eventDto);
 
         Event event = eventMapper.toEntity(eventDto);
         log.info("event success created {}", event);
-        return eventMapper.toDto(eventRepository.save(event));
+        return ResponseEntity.status(201).body(eventMapper.toDto(eventRepository.save(event)));
     }
 
-    public EventDto getEvent(Long eventId) {
+    public ResponseEntity<EventDto> getEvent(Long eventId) throws EntityNotFoundExceptionWithID {
         EventDto eventDto = eventMapper.toDto(getEventById(eventId));
 
         log.info("success get event dto: {}", eventDto);
-        return eventDto;
+        return ResponseEntity.status(200).body(eventDto);
     }
 
-    public EventDto deleteEvent(Long eventId) {
+    public ResponseEntity<EventDto> deleteEvent(Long eventId) throws EntityNotFoundExceptionWithID {
         Event event = getEventById(eventId);
 
         log.info("success deleted event by id: {}", event);
         eventRepository.deleteById(eventId);
-        return eventMapper.toDto(event);
+        return ResponseEntity.status(200).body(eventMapper.toDto(event));
     }
 
-    public List<EventDto> getEventsByFilter(EventFilterDto eventFilterDto) {
+    public ResponseEntity<List<EventDto>> getEventsByFilter(EventFilterDto eventFilterDto) {
         Stream<Event> events = eventRepository.findAll().stream();
         log.info("get event filters {}", eventFilterDto.toString());
 
@@ -60,39 +63,40 @@ public class EventService {
                 .toList();
 
         log.info("got events by filter: {}", eventDtos);
-        return eventDtos;
+        return ResponseEntity.status(200).body(eventDtos);
     }
 
-    public EventDto updateEvent(EventDto eventDto) {
+    public ResponseEntity<EventDto> updateEvent(EventDto eventDto) throws EntityNotFoundExceptionWithID {
         if (eventRepository.existsById(eventDto.getId())) {
             checkUserSkillsWithRelatedSkills(eventDto);
 
             Event event = eventMapper.toEntity(eventDto);
             log.info("event success updated {}", event);
-            return eventMapper.toDto(eventRepository.save(event));
+            return ResponseEntity.status(200).body(eventMapper.toDto(eventRepository.save(event)));
         }
+
         String warnMessage = String.format("not such event by id: %d", eventDto.getId());
         log.warn(warnMessage);
-        throw new IllegalArgumentException(warnMessage);
+        throw new EntityNotFoundExceptionWithID(warnMessage, eventDto.getId());
     }
 
-    public List<EventDto> getOwnedEvents(Long userId) {
+    public ResponseEntity<List<EventDto>> getOwnedEvents(Long userId) {
         List<EventDto> events = eventRepository.findAllByUserId(userId).stream()
                 .map(eventMapper::toDto)
                 .toList();
         log.info("got OWNED events: {}, by userId: {}", events, userId);
-        return events;
+        return ResponseEntity.status(200).body(events);
     }
 
-    public List<EventDto> getParticipatedEvents(long userId) {
+    public ResponseEntity<List<EventDto>> getParticipatedEvents(long userId) {
         List<EventDto> events = eventRepository.findParticipatedEventsByUserId(userId).stream()
                 .map(eventMapper::toDto)
                 .toList();
         log.info("get PARTICIPATED events: {}, by userId: {}", events, userId);
-        return events;
+        return ResponseEntity.status(200).body(events);
     }
 
-    public void checkUserSkillsWithRelatedSkills(EventDto eventDto) {
+    public void checkUserSkillsWithRelatedSkills(EventDto eventDto) throws DataNotMatchException {
         List<String> userSkillsTitles = skillRepository.
                 findAllByUserId(eventDto.getOwnerId()).stream()
                 .map(skill -> skill.getTitle().toLowerCase())
@@ -103,7 +107,7 @@ public class EventService {
                 .findAny()
                 .ifPresent(skill -> {
                     log.warn("creating event wasn't successfully {}", eventDto);
-                    throw new IllegalArgumentException("you can't create such an event with such skills");
+                    throw new DataNotMatchException("you can't create such an event with such skills", skill);
                 });
     }
 
@@ -112,7 +116,7 @@ public class EventService {
                 .orElseThrow(() -> {
                     String warnMessage = String.format("not found such event by id:%d", eventId);
                     log.warn(warnMessage);
-                    return new IllegalArgumentException(warnMessage);
+                    return new EntityNotFoundExceptionWithID(warnMessage, eventId);
                 });
     }
 }

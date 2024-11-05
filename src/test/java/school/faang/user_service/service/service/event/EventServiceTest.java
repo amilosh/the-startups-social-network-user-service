@@ -3,7 +3,6 @@ package school.faang.user_service.service.service.event;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -13,11 +12,11 @@ import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.mapper.event.EventMapper;
+import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.service.event.filter.EventFilter;
 import school.faang.user_service.service.event.EventService;
+import school.faang.user_service.service.event.filter.EventFilter;
 import school.faang.user_service.service.event.filter.EventTitleFilter;
 import school.faang.user_service.service.event.filter.EventUserIdFilter;
 
@@ -41,7 +40,7 @@ public class EventServiceTest {
     private EventRepository eventRepository;
 
     @Spy
-    private EventMapper eventMapper = Mappers.getMapper(EventMapper.class);
+    private EventMapperImpl eventMapper;
 
     @Mock
     private SkillRepository skillRepository;
@@ -92,7 +91,7 @@ public class EventServiceTest {
         when(eventRepository.save(savedEvent))
                 .thenReturn(savedEvent);
 
-        EventDto returnedEventDto = eventService.create(eventDto);
+        EventDto returnedEventDto = eventService.create(eventDto).getBody();
 
         verify(eventMapper, times(2)).toEntity(eventDto);
         verify(eventRepository, times(1)).save(savedEvent);
@@ -108,7 +107,7 @@ public class EventServiceTest {
 
         when(eventRepository.findById(event.getId())).thenReturn(optionalEvent);
 
-        EventDto eventDto = eventService.getEvent(1L);
+        EventDto eventDto = eventService.getEvent(1L).getBody();
 
         verify(eventRepository, times(1)).findById(1L);
         verify(eventMapper, times(1)).toDto(event);
@@ -136,7 +135,7 @@ public class EventServiceTest {
 
         when(eventRepository.findById(event.getId())).thenReturn(optionalEvent);
 
-        EventDto eventDto = eventService.deleteEvent(1L);
+        EventDto eventDto = eventService.deleteEvent(1L).getBody();
 
         verify(eventRepository, times(1)).findById(1L);
         verify(eventMapper, times(1)).toDto(event);
@@ -176,7 +175,7 @@ public class EventServiceTest {
         when(eventRepository.save(savedEvent))
                 .thenReturn(savedEvent);
 
-        EventDto returnedEventDto = eventService.updateEvent(eventDto);
+        EventDto returnedEventDto = eventService.updateEvent(eventDto).getBody();
 
         verify(eventMapper, times(2)).toEntity(eventDto);
         verify(eventRepository, times(1)).save(savedEvent);
@@ -222,7 +221,7 @@ public class EventServiceTest {
                         Event.builder().title("social media startup").build(),
                         Event.builder().title("sport programming").build()));
 
-        List<EventDto> eventDtos = eventService.getEventsByFilter(eventFilterDto);
+        List<EventDto> eventDtos = eventService.getEventsByFilter(eventFilterDto).getBody();
 
         assertEquals(1, eventDtos.size());
         assertEquals(eventDtos.get(0).getTitle(), "social media startup");

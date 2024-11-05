@@ -1,4 +1,4 @@
-package school.faang.user_service.exception;
+package school.faang.user_service.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -6,6 +6,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import school.faang.user_service.exception.DataValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ public class ControllerMethodArgumentValidationExceptionHandler {
             String message = error.getDefaultMessage();
             errors.add(new DataValidationException(fieldName + " : " + message));
         });
-        log.info(errors.toString());
+        log.error("controller method argument validation error {}", errors.toString());
         return ResponseEntity.badRequest().body(errors);
     }
 }
