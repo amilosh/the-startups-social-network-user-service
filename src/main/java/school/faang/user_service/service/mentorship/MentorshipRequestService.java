@@ -10,12 +10,14 @@ import school.faang.user_service.dto.mentorship.RejectionDto;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.filter.mentorship.RequestFilter;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.mentorship.MentorshipRequestDtoValidator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -77,7 +79,20 @@ public class MentorshipRequestService {
         log.info("Accepting mentorship request with ID: {}", requestId);
         MentorshipRequest request = requestValidator.validateAcceptRequest(requestId);
 
-        userService.updateMentorsAndMentees(request.getRequester().getId(), request.getReceiver().getId());
+        User mentee = request.getRequester();
+        User mentor = request.getReceiver();
+
+        initializeLists(mentee);
+        initializeLists(mentor);
+
+        if (!mentee.getMentors().contains(mentor)) {
+            mentee.getMentors().add(mentor);
+            userService.save(mentee);
+        }
+        if (!mentor.getMentees().contains(mentee)) {
+            mentor.getMentees().add(mentee);
+            userService.save(mentor);
+        }
 
         request.setStatus(RequestStatus.ACCEPTED);
         MentorshipRequest savedRequest = requestRepository.save(request);
@@ -97,5 +112,14 @@ public class MentorshipRequestService {
         MentorshipRequest savedRequest = requestRepository.save(request);
         log.info("Successfully rejected request ID: {}", requestId);
         return requestMapper.toMentorshipRequestDto(savedRequest);
+    }
+
+    private void initializeLists(User user) {
+        if (user.getMentors() == null) {
+            user.setMentors(new ArrayList<>());
+        }
+        if (user.getMentees() == null) {
+            user.setMentees(new ArrayList<>());
+        }
     }
 }
