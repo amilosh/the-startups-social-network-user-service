@@ -16,6 +16,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,10 +47,18 @@ class MentorshipServiceTest {
         assertThrows(IllegalArgumentException.class,
                 () -> mentorshipService.getMentors(-12));
     }
+    @Test
+    void testNonexistentUser() {
+        Mockito.when(userRepository.existsById(13L)).thenReturn(false);
+        assertThrows(IllegalArgumentException.class,
+                () -> mentorshipService.getMentors(13));
+    }
 
     @Test
     void testMenteesListNotIdentified() {
         Mockito.when(userRepository.findById(0L)).thenReturn(Optional.of(firstUser));
+        Mockito.when(userRepository.existsById(0L)).thenReturn(true);
+
         assertThrows(IllegalArgumentException.class,
                 () -> mentorshipService.getMentees(0));
     }
@@ -57,6 +66,8 @@ class MentorshipServiceTest {
     @Test
     void testMentorsListNotIdentified() {
         Mockito.when(userRepository.findById(0L)).thenReturn(Optional.of(firstUser));
+        Mockito.when(userRepository.existsById(0L)).thenReturn(true);
+
         assertThrows(IllegalArgumentException.class,
                 () -> mentorshipService.getMentors(0));
     }
@@ -64,6 +75,8 @@ class MentorshipServiceTest {
     @Test
     void testNonExistentUserMentees() {
         Mockito.when(userRepository.findById(13L)).thenReturn(Optional.empty());
+        Mockito.when(userRepository.existsById(13L)).thenReturn(true);
+
         assertThrows(IllegalArgumentException.class,
                 () -> mentorshipService.getMentees(13));
         Mockito.verify(userRepository).findById(13L);
@@ -72,6 +85,8 @@ class MentorshipServiceTest {
     @Test
     void testNonExistentUserMentors() {
         Mockito.when(userRepository.findById(12L)).thenReturn(Optional.empty());
+        Mockito.when(userRepository.existsById(12L)).thenReturn(true);
+
         assertThrows(IllegalArgumentException.class,
                 () -> mentorshipService.getMentors(12));
         Mockito.verify(userRepository).findById(12L);
@@ -85,6 +100,7 @@ class MentorshipServiceTest {
             mentee.setMentors(new ArrayList<>());
         });
         Mockito.when(userRepository.findById(8L)).thenReturn(Optional.of(user));
+        Mockito.when(userRepository.existsById(8L)).thenReturn(true);
 
         List<UserDto> mentees = mentorshipService.getMentees(8);
         List<UserDto> users = user.getMentees().stream()
@@ -104,6 +120,7 @@ class MentorshipServiceTest {
         });
 
         Mockito.when(userRepository.findById(8L)).thenReturn(Optional.of(user));
+        Mockito.when(userRepository.existsById(8L)).thenReturn(true);
 
         List<UserDto> mentors = mentorshipService.getMentors(8);
         List<UserDto> users = user.getMentors().stream()
@@ -117,6 +134,8 @@ class MentorshipServiceTest {
     void testGetMenteesUserWithoutMentees() {
         firstUser.setMentees(List.of());
         Mockito.when(userRepository.findById(9L)).thenReturn(Optional.of(firstUser));
+        Mockito.when(userRepository.existsById(9L)).thenReturn(true);
+
         List<UserDto> mentees = mentorshipService.getMentees(9);
 
         Mockito.verify(userRepository).findById(9L);
@@ -127,6 +146,8 @@ class MentorshipServiceTest {
     void testGetMentorsUserWithoutMentors() {
         firstUser.setMentors(List.of());
         Mockito.when(userRepository.findById(9L)).thenReturn(Optional.of(firstUser));
+        Mockito.when(userRepository.existsById(9L)).thenReturn(true);
+
         List<UserDto> mentors = mentorshipService.getMentors(9);
 
         Mockito.verify(userRepository).findById(9L);
@@ -160,6 +181,9 @@ class MentorshipServiceTest {
     @Test
     void testNonExistentUserForDeleteMentee() {
         Mockito.when(userRepository.findById(6L)).thenReturn(Optional.empty());
+        Mockito.when(userRepository.existsById(6L)).thenReturn(true);
+        Mockito.when(userRepository.existsById(17L)).thenReturn(true);
+
         assertThrows(IllegalArgumentException.class,
                 () -> mentorshipService.deleteMentee(17, 6));
         Mockito.verify(userRepository).findById(6L);
@@ -168,6 +192,9 @@ class MentorshipServiceTest {
     @Test
     void testNonExistentUserForDeleteMentor() {
         Mockito.when(userRepository.findById(6L)).thenReturn(Optional.empty());
+        Mockito.when(userRepository.existsById(6L)).thenReturn(true);
+        Mockito.when(userRepository.existsById(17L)).thenReturn(true);
+
         assertThrows(IllegalArgumentException.class,
                 () -> mentorshipService.deleteMentor(6, 17));
         Mockito.verify(userRepository).findById(6L);
@@ -176,6 +203,9 @@ class MentorshipServiceTest {
     @Test
     void testInvalidMentorsValueForDeleteMentor() {
         Mockito.when(userRepository.findById(5L)).thenReturn(Optional.of(firstUser));
+        Mockito.when(userRepository.existsById(5L)).thenReturn(true);
+        Mockito.when(userRepository.existsById(17L)).thenReturn(true);
+
         assertThrows(IllegalArgumentException.class,
                 () -> mentorshipService.deleteMentor(5, 17));
         Mockito.verify(userRepository).findById(5L);
@@ -184,6 +214,9 @@ class MentorshipServiceTest {
     @Test
     void testInvalidMenteesValueForDeleteMentees() {
         Mockito.when(userRepository.findById(5L)).thenReturn(Optional.of(firstUser));
+        Mockito.when(userRepository.existsById(5L)).thenReturn(true);
+        Mockito.when(userRepository.existsById(14L)).thenReturn(true);
+
         assertThrows(IllegalArgumentException.class,
                 () -> mentorshipService.deleteMentee(14, 5));
         Mockito.verify(userRepository).findById(5L);
@@ -198,6 +231,9 @@ class MentorshipServiceTest {
         firstUser.getMentees().add(secondUser);
 
         Mockito.when(userRepository.findById(4L)).thenReturn(Optional.of(firstUser));
+        Mockito.when(userRepository.existsById(4L)).thenReturn(true);
+        Mockito.when(userRepository.existsById(secondUser.getId())).thenReturn(true);
+
         mentorshipService.deleteMentee(secondUser.getId(), 4);
         Mockito.verify(userRepository).findById(4L);
         assertEquals(firstUser.getMentees().size(), 2);
@@ -215,6 +251,9 @@ class MentorshipServiceTest {
         firstUser.getMentors().add(secondUser);
 
         Mockito.when(userRepository.findById(5L)).thenReturn(Optional.of(firstUser));
+        Mockito.when(userRepository.existsById(5L)).thenReturn(true);
+        Mockito.when(userRepository.existsById(secondUser.getId())).thenReturn(true);
+
         mentorshipService.deleteMentor(5L, secondUser.getId());
         Mockito.verify(userRepository).findById(5L);
         assertEquals(firstUser.getMentors().size(), 2);
@@ -224,8 +263,8 @@ class MentorshipServiceTest {
     }
 
     private User getUserWithMenteesOrMentors(boolean mentees) {
-        User firstMentees = new User();
-        User secondMentees = new User();
+        User firstMentees = setInfo();
+        User secondMentees = setInfo();
 
         firstMentees.setUsername("User1");
         firstMentees.setId(0L);
@@ -241,4 +280,16 @@ class MentorshipServiceTest {
         return user;
     }
 
+    private User setInfo() {
+        User user = new User();
+        user.setCreatedAt(LocalDateTime.now());
+        user.setActive(true);
+        user.setAboutMe("BlaBlaBla");
+        user.setFollowees(new ArrayList<>());
+        user.setFollowers(new ArrayList<>());
+        user.setGoals(new ArrayList<>());
+        user.setSkills(new ArrayList<>());
+
+        return user;
+    }
 }
