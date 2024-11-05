@@ -33,7 +33,7 @@ public class EventParticipationService {
     }
 
     public List<UserDto> getParticipants(EventDto eventDto) {
-        return userMapper.toUserDtoList(eventParticipationRepository.findAllParticipantsByEventId(eventDto.id()));
+        return userMapper.toDtos(eventParticipationRepository.findAllParticipantsByEventId(eventDto.id()));
     }
 
     public int getParticipantsCount(EventDto eventDto) {
@@ -42,9 +42,9 @@ public class EventParticipationService {
 
     private boolean isParticipantRegistered(UserDto userDto, EventDto eventDto) {
         User user = userService.getUserById(userDto.id());
-        List<Long> participantsId = eventParticipationRepository.findAllParticipantsByEventId(eventDto.id()).stream()
+        List<Long> participantsIds = eventParticipationRepository.findAllParticipantsByEventId(eventDto.id()).stream()
                 .map(User::getId)
                 .toList();
-        return participantsId.contains(user.getId());
+        return participantsIds.contains(user.getId());
     }
 }

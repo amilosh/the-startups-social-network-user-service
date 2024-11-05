@@ -10,11 +10,11 @@ import java.util.List;
 @Mapper(componentModel = "Spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
-    UserDto toUserDto(User user);
+    UserDto toDto(User user);
 
-    User toUser(UserDto userDto);
+    User toEntity(UserDto userDto);
 
-    List<UserDto> toUserDtoList(List<User> users);
+    List<UserDto> toDtos(List<User> users);
 
-    List<User> toUserList(List<UserDto> userDtos);
+    List<User> toEntities(List<UserDto> userDtos);
 }

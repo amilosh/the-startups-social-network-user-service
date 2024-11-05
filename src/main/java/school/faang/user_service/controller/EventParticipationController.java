@@ -22,7 +22,7 @@ public class EventParticipationController {
         eventParticipationService.unregisterParticipant(userDto, eventDto);
     }
 
-    public List<UserDto> getParticipant(@Valid EventDto eventDto) {
+    public List<UserDto> getParticipants(@Valid EventDto eventDto) {
         return eventParticipationService.getParticipants(eventDto);
     }
 

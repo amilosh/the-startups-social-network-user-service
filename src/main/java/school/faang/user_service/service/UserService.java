@@ -13,6 +13,6 @@ public class UserService {
 
     public User getUserById(long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Пользователь с id:%s не найден".formatted(id)));
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с id:%d не найден".formatted(id)));
     }
 }
