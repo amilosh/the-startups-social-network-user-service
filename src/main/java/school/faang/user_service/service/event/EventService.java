@@ -74,5 +74,10 @@ public class EventService {
     
     private Event findEventById(long eventId) {
         return eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException("Event id not found"));
+        }
+
+    public boolean checkEventExistence(long eventId) {
+        return eventRepository.existsById(eventId);
     }
+
 }

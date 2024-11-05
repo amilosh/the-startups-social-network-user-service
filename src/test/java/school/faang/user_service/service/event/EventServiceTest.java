@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -160,5 +162,25 @@ public class EventServiceTest {
 
         Assertions.assertNotNull(participatedEvents);
         assertEquals(1, participatedEvents.size());
+    }
+
+    @Test
+    void checkEventExistenceReturnFalse() {
+        long eventId = 1L;
+        when(eventRepository.existsById(eventId)).thenReturn(false);
+
+        boolean result = eventService.checkEventExistence(eventId);
+
+        assertFalse(result);
+    }
+
+    @Test
+    void checkEventExistenceReturnTrue() {
+        long eventId = 1L;
+        when(eventRepository.existsById(eventId)).thenReturn(true);
+
+        boolean result = eventService.checkEventExistence(eventId);
+
+        assertTrue(result);
     }
 }
