@@ -7,14 +7,19 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.UserAlreadyRegisteredException;
 import school.faang.user_service.exceptions.UserNotFoundException;
 import school.faang.user_service.repository.event.EventParticipationRepository;
+import school.faang.user_service.validation.EventParticipationServiceValidator;
 
 import java.util.List;
+
+import static school.faang.user_service.validation.EventParticipationServiceValidator.validateEventId;
+import static school.faang.user_service.validation.EventParticipationServiceValidator.validateUserId;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
+    private EventParticipationServiceValidator validator;
 
     private boolean userExists(long eventId, long userId) {
         return eventParticipationRepository
@@ -23,19 +28,7 @@ public class EventParticipationService {
                 .anyMatch(user -> user.getId() == userId);
     }
 
-    private void validateUserId(long userId) {
-        if (userId < 0) {
-            throw new IllegalArgumentException("userId cannot be negative:" +
-                    " userId=" + userId);
-        }
-    }
 
-    private void validateEventId(long eventId) {
-        if (eventId < 0) {
-            throw new IllegalArgumentException("eventId cannot be negative:" +
-                    " eventId=" + eventId);
-        }
-    }
 
     public void registerParticipant(long eventId, long userId) {
 
