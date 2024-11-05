@@ -8,7 +8,7 @@ import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.goal.DataValidationException;
 import school.faang.user_service.mapper.goal.GoalMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -17,8 +17,6 @@ import school.faang.user_service.validator.goal.GoalValidator;
 
 import java.util.List;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor
 @Data
@@ -34,7 +32,7 @@ public class GoalService {
     public GoalDto createGoal(Long userId, GoalDto goalDto) {
         goalValidator.validateCreationGoal(userId, goalDto);
 
-        Goal saveGoal = goalRepository.create(goalDto.getTitle(), goalDto.getDescription(), goalDto.getId());
+        Goal saveGoal = goalRepository.create(goalDto.getTitle(), goalDto.getDescription(), goalDto.getParentId());
 
         goalDto.getSkillIds().forEach(skillId -> goalRepository.addSkillToGoal(saveGoal.getId(), skillId));
         return goalMapper.toDto(saveGoal);
@@ -42,7 +40,7 @@ public class GoalService {
 
     @Transactional
     public GoalDto updateGoal(Long goalId, GoalDto goalDto) {
-        Goal existingGoal = goalRepository.findById(goalDto.getId())
+        Goal existingGoal = goalRepository.findById(goalId)
                 .orElseThrow(() -> new DataValidationException("Goal not found"));
 
         goalValidator.validateUpdatingGoal(goalId, goalDto);
@@ -50,7 +48,9 @@ public class GoalService {
         assignSkillsToUsers(goalDto.getSkillIds(), existingGoal.getId());
 
         updateGoalSkills(existingGoal.getId(), goalDto.getSkillIds());
+
         Goal updatedGoal = goalMapper.toEntity(goalDto);
+        updatedGoal.setId(goalId);
 
         goalRepository.save(updatedGoal);
 

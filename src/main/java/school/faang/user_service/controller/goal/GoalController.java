@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.goal.DataValidationException;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
@@ -22,9 +22,9 @@ public class GoalController {
         return goalService.createGoal(userId, goalDto);
     }
 
-    public GoalDto updateGoal(Long userId, GoalDto goalDto) {
+    public GoalDto updateGoal(Long goalId, GoalDto goalDto) {
         validateGoalTitle(goalDto);
-        return goalService.updateGoal(userId, goalDto);
+        return goalService.updateGoal(goalId, goalDto);
     }
 
     public void deleteGoal(Long goalId) {

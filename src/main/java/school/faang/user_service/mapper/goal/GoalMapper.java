@@ -14,12 +14,12 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface GoalMapper {
 
-    @Mapping(source = "parent.id",target = "parentId")
+    @Mapping(source = "parent.id", target = "parentId")
     @Mapping(source = "skillsToAchieve", target = "skillIds", qualifiedByName = "skillsToSkillIds")
     GoalDto toDto(Goal goal);
 
-    @Mapping(target = "parent", ignore = true)
-    @Mapping(source = "skillIds", target = "skillsToAchieve", qualifiedByName = "skillIdsToSkills")
+    @Mapping(source = "parentId", target = "parent.id")
+    @Mapping(target = "skillsToAchieve", ignore = true)
     Goal toEntity(GoalDto goalDto);
 
     List<GoalDto> toDto(List<Goal> goals);
@@ -28,17 +28,6 @@ public interface GoalMapper {
     default List<Long> skillsToSkillIds(List<Skill> skills) {
         return skills.stream()
                 .map(Skill::getId)
-                .collect(Collectors.toList());
-    }
-
-    @Named("skillIdsToSkills")
-    default List<Skill> skillIdsToSkills(List<Long> skillIds) {
-        return skillIds.stream()
-                .map(id -> {
-                    Skill skill = new Skill();
-                    skill.setId(id);
-                    return skill;
-                })
                 .collect(Collectors.toList());
     }
 }
