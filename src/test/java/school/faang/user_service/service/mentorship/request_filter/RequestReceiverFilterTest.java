@@ -1,11 +1,10 @@
-package school.faang.user_service.filter.mentorship.request_filter;
+package school.faang.user_service.service.mentorship.request_filter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.service.mentorship.request_filter.RequestRequesterFilter;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -14,9 +13,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class RequestRequesterFilterTest {
+public class RequestReceiverFilterTest {
+
     private RequestFilterDto requestDto;
-    private RequestRequesterFilter requestRequesterFilter;
+    private RequestReceiverFilter requestReceiverFilter;
     private Stream<MentorshipRequest> mentorshipRequestStream;
 
     @BeforeEach
@@ -28,27 +28,27 @@ public class RequestRequesterFilterTest {
                 .id(2L)
                 .build();
         requestDto = new RequestFilterDto();
-        requestDto.setRequesterId(1L);
-        requestRequesterFilter = new RequestRequesterFilter();
+        requestDto.setReceiverId(1L);
+        requestReceiverFilter = new RequestReceiverFilter();
         mentorshipRequestStream = Stream.of(
-                MentorshipRequest.builder().requester(firstUser).build(),
-                MentorshipRequest.builder().requester(secondUser).build());
+                MentorshipRequest.builder().receiver(firstUser).build(),
+                MentorshipRequest.builder().receiver(secondUser).build());
     }
 
     @Test
     public void testApply() {
-        List<MentorshipRequest> mentorshipRequests = requestRequesterFilter
+        List<MentorshipRequest> mentorshipRequests = requestReceiverFilter
                 .apply(mentorshipRequestStream, requestDto)
                 .stream()
                 .toList();
         assertEquals(1, mentorshipRequests.size());
         mentorshipRequests.forEach(mentorshipRequest ->
-                assertEquals(mentorshipRequest.getRequester().getId(), requestDto.getRequesterId()));
+                assertEquals(mentorshipRequest.getReceiver().getId(), requestDto.getReceiverId()));
     }
 
     @Test
     public void testIsApplicable() {
-        assertTrue(requestRequesterFilter.isApplicable(requestDto));
-        assertFalse(requestRequesterFilter.isApplicable(new RequestFilterDto()));
+        assertTrue(requestReceiverFilter.isApplicable(requestDto));
+        assertFalse(requestReceiverFilter.isApplicable(new RequestFilterDto()));
     }
 }

@@ -1,10 +1,9 @@
-package school.faang.user_service.filter.mentorship.request_filter;
+package school.faang.user_service.service.mentorship.request_filter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
-import school.faang.user_service.service.mentorship.request_filter.RequestDescriptionFilter;
 
 import java.util.List;
 import java.util.stream.Stream;
