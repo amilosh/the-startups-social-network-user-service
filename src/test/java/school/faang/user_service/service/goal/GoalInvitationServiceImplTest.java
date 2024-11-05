@@ -14,7 +14,6 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exception.goal.InvitationCheckException;
 import school.faang.user_service.exception.goal.InvitationEntityNotFoundException;
-import school.faang.user_service.exception.goal.UserNotFoundException;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
@@ -31,7 +30,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class GoalInvitationServiceImplTest {
     @InjectMocks
-    private GoalInvitationServiceImpl goalInvitationService;
+    private GoalInvitationService goalInvitationService;
 
     @Mock
     private GoalInvitationRepository goalInvitationRepository;
@@ -64,7 +63,7 @@ public class GoalInvitationServiceImplTest {
         goal = new Goal(); // инициализация объекта Goal
         goal.setId(3L);
 
-        invitationDto = new GoalInvitationDto(1L, 2L, 3L); // инициаторы DTO
+        invitationDto = new GoalInvitationDto(1L, 2L, 3L,12L, RequestStatus.REJECTED); // инициаторы DTO
         goalInvitation = new GoalInvitation(); // инициализация объекта GoalInvitation
     }
 
@@ -88,7 +87,7 @@ public class GoalInvitationServiceImplTest {
 
     @Test
     public void createInvitation_ShouldThrowException_WhenInviterAndInvitedSame() {
-        invitationDto = new GoalInvitationDto(1L, 1L, 3L); // inviterId и invitedUserId совпадают
+        invitationDto = new GoalInvitationDto(1L, 2L, 3L,12L, RequestStatus.REJECTED); // inviterId и invitedUserId совпадают
 
         assertThrows(InvitationCheckException.class, () -> goalInvitationService.createInvitation(invitationDto));
     }
@@ -103,7 +102,7 @@ public class GoalInvitationServiceImplTest {
         when(goalRepository.save(goal)).thenReturn(goal);
 
         // When
-        goalInvitationService.acceptGoalInvitation(1L);
+        goalInvitationService.acceptGoalInvitation(goal.getId());
 
         // Then
         assertEquals(RequestStatus.ACCEPTED, goalInvitation.getStatus());
@@ -114,7 +113,7 @@ public class GoalInvitationServiceImplTest {
     public void acceptGoalInvitation_ShouldThrowException_WhenInvitationNotFound() {
         when(goalInvitationRepository.findById(100L)).thenReturn(Optional.empty());
 
-        assertThrows(InvitationEntityNotFoundException.class, () -> goalInvitationService.acceptGoalInvitation(100L));
+        assertThrows(InvitationEntityNotFoundException.class, () -> goalInvitationService.acceptGoalInvitation(goal.getId()));
     }
 
     @Test

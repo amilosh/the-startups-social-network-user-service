@@ -8,5 +8,5 @@ import java.util.stream.Stream;
 public interface InvitationFilter {
     boolean isApplicable(InvitationFilterIDto filters);
 
-    Stream<GoalInvitation> apply(Stream<GoalInvitation> invitations, InvitationFilterIDto filters);
+    void apply(Stream<GoalInvitation> invitations, InvitationFilterIDto filters);
 }

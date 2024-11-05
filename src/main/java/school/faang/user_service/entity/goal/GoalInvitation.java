@@ -13,7 +13,6 @@ import school.faang.user_service.entity.User;
 import java.time.LocalDateTime;
 
 @Data
-@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
