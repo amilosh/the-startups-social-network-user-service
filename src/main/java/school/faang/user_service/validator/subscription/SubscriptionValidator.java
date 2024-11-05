@@ -28,10 +28,8 @@ public class SubscriptionValidator {
     public void validateUserFilterIsApplicable(UserFilterDto filter) {
         if (!userFilter.isApplicable(filter)) {
             throw new DataValidationException("""
-                    Filter not applicable. One of the following variables must not be null:
-                    - namePattern
-                    - emailPattern
-                    - phonePattern
+                    Filter not applicable.
+                    Variable 'namePattern' must not be null and 'emailPattern' or 'phonePattern' not be null
                     """
             );
         }
