@@ -1,0 +1,36 @@
+package school.faang.user_service.mapper;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+import org.mapstruct.ReportingPolicy;
+import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.goal.Goal;
+
+import java.util.List;
+
+
+@Mapper(componentModel = "spring", uses = SkillMapper.class, unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface UserMapper {
+    @Mapping(source = "settingGoals", target = "idsSettingGoals", qualifiedByName = "mapG")
+    @Mapping(source = "goals", target = "idsGoals", qualifiedByName = "mapG")
+    @Mapping(source = "skills", target = "idsSkills", qualifiedByName = "mapS")
+    UserDto toUserDto(User user);
+
+    @Mapping(target = "settingGoals", ignore = true)
+    @Mapping(target = "goals", ignore = true)
+    @Mapping(target = "skills", ignore = true)
+    User toEntity(UserDto userDto);
+
+    @Named("mapG")
+    default List<Long> mapG(List<Goal> goals){
+        return goals.stream().map(goal -> goal.getId()).toList();
+    }
+
+    @Named("mapS")
+    default List<Long> mapS(List<Skill> skills){
+        return skills.stream().map(skill -> skill.getId()).toList();
+    }
+}

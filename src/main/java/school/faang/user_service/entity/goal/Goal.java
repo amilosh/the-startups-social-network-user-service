@@ -76,4 +76,8 @@ public class Goal {
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
     private List<Skill> skillsToAchieve;
+
+    public boolean isEmptyUsers(){
+        return users.isEmpty();
+    }
 }

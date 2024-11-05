@@ -14,7 +14,13 @@ public class UserController {
 
     private final UserService userService;
 
-    public void deactivateUser(@NotNull @Positive long userId){
-        userService.deactivateUser(userId);
+    public String deactivateUser(@NotNull @Positive long userId){
+        boolean isDeactivate = userService.isDeactivatedUser(userId);
+
+        if(isDeactivate){
+            return "User successfully deactivated";
+        } else {
+            return "User not found.";
+        }
     }
 }
