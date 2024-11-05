@@ -1,29 +1,34 @@
 package school.faang.user_service.mapper;
 
+import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.contact.Contact;
+import school.faang.user_service.entity.contact.ContactType;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+import java.util.List;
+
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
 public interface UserMapper {
 
-    @Mapping(target = "id", source = "user.id")
-    @Mapping(target = "username", source = "user.username")
-    @Mapping(target = "email", source = "user.email")
-    @Mapping(target = "phone", source = "user.phone")
-    @Mapping(target = "aboutMe", source = "user.aboutMe")
-    @Mapping(target = "city", source = "user.city")
-    @Mapping(target = "experience", source = "user.experience")
+    User toEntity(UserDto userDto);
+
+    @Mapping(target = "preference", source = "contactPreference.preference")
+    @Mapping(target = "telegramChatId", source = "contacts", qualifiedByName = "getTelegramContact")
     UserDto toDto(User user);
 
-    @Mapping(target = "id", source = "userDto.id")
-    @Mapping(target = "username", source = "userDto.username")
-    @Mapping(target = "email", source = "userDto.email")
-    @Mapping(target = "phone", source = "userDto.phone")
-    @Mapping(target = "aboutMe", source = "userDto.aboutMe")
-    @Mapping(target = "city", source = "userDto.city")
-    @Mapping(target = "experience", source = "userDto.experience")
-    User toEntity(UserDto userDto);
+    @Named("getTelegramContact")
+    default String getTelegramContact(List<Contact> contacts) {
+        if (contacts == null) {
+            return null;
+        }
+        return contacts.stream()
+                .filter(contact -> contact.getType() == ContactType.TELEGRAM)
+                .map(Contact::getContact)
+                .findFirst().orElse(null);
+    }
 }
