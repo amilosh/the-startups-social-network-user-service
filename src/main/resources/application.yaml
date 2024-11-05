@@ -28,6 +28,8 @@ spring:
       port: 6379
       host: localhost
       channels:
+        profile_view_event_channel:
+          name: profile_view
         mentorship-channel:
           name: mentorship_channel
         follower_event_channel:

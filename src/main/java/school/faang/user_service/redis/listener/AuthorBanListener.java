@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.redis.listener.dto.AuthorBanDto;
+import school.faang.user_service.redis.event.AuthorBanEvent;
 import school.faang.user_service.service.user.UserService;
 
 import java.io.IOException;
@@ -21,8 +21,8 @@ public class AuthorBanListener implements MessageListener {
     @Override
     public void onMessage(Message message, byte[] pattern) {
         try {
-            AuthorBanDto dto = mapper.readValue(message.getBody(), AuthorBanDto.class);
-            userService.banUser(dto.userId());
+            AuthorBanEvent event = mapper.readValue(message.getBody(), AuthorBanEvent.class);
+            userService.banUser(event.userId());
         } catch(IOException e) {
             log.error("Faced an issue when deserializing to AuthorBanDto");
             throw new IllegalStateException("Faced an issue when deserializing to AuthorBanDto");
