@@ -195,13 +195,6 @@ public class EventServiceTest {
     }
 
     @Test
-    void testOwnedEventsWithNullUserId() {
-        List<EventDto> eventsDto = eventService.getOwnedEvents(null);
-        verify(eventRepository, times(0)).findAllByUserId(anyLong());
-        assertNull(eventsDto);
-    }
-
-    @Test
     void testOwnedEventsWithDbEmptyResponseUserId() {
         List<EventDto> eventsDto = eventService.getOwnedEvents(1L);
         verify(eventRepository, times(1)).findAllByUserId(anyLong());
@@ -216,6 +209,25 @@ public class EventServiceTest {
         when(eventRepository.findAllByUserId(anyLong())).thenReturn(events);
         List<EventDto> eventsDto = eventService.getOwnedEvents(1L);
         verify(eventRepository, times(1)).findAllByUserId(anyLong());
+        assertFalse(eventsDto.isEmpty());
+        assertEquals(3, eventsDto.size());
+    }
+
+    @Test
+    void testGetParticipatedEventsWithDbEmptyResponse() {
+        List<EventDto> eventsDto = eventService.getParticipatedEvents(1L);
+        verify(eventRepository, times(1)).findParticipatedEventsByUserId(anyLong());
+        assertTrue(eventsDto.isEmpty());
+    }
+
+    @Test
+    void testGetParticipatedEventsWithDbResponseUserId() {
+        prepareDtoWithTitleAndOwnerId();
+        prepareFiltersAndEvent();
+        List<Event> events = prepareEvents();
+        when(eventRepository.findParticipatedEventsByUserId(anyLong())).thenReturn(events);
+        List<EventDto> eventsDto = eventService.getParticipatedEvents(1L);
+        verify(eventRepository, times(1)).findParticipatedEventsByUserId(anyLong());
         assertFalse(eventsDto.isEmpty());
         assertEquals(3, eventsDto.size());
     }

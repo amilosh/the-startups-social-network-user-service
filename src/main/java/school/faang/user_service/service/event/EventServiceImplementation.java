@@ -72,11 +72,14 @@ public class EventServiceImplementation implements EventService {
     }
 
     @Override
-    public List<EventDto> getOwnedEvents(Long userId) {
-        if (userId == null) {
-            return null;
-        }
+    public List<EventDto> getOwnedEvents(long userId) {
         List<Event> events = eventRepository.findAllByUserId(userId);
+        return events.stream().map(eventMapper::toDto).toList();
+    }
+
+    @Override
+    public List<EventDto> getParticipatedEvents(long userId) {
+        List<Event> events = eventRepository.findParticipatedEventsByUserId(userId);
         return events.stream().map(eventMapper::toDto).toList();
     }
 

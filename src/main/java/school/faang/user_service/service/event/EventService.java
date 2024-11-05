@@ -9,5 +9,6 @@ public interface EventService {
     public EventDto create(EventDto eventDto);
     public EventDto getEvent(Long id);
     public List<EventDto> getEventsByFilter(EventFilterDto filter);
-    public List<EventDto> getOwnedEvents(Long userId);
+    public List<EventDto> getOwnedEvents(long userId);
+    public List<EventDto> getParticipatedEvents(long userId);
 }

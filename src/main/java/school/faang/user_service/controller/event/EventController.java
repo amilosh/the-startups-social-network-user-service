@@ -16,12 +16,12 @@ import java.util.List;
 public class EventController {
     private final EventService eventService;
 
-    //    @PostMapping("/{id}/create")
+    //    @PostMapping("/event/create")
     public EventDto create(EventDto event) {
         return eventService.create(event);
     }
 
-    //    @GetMapping("/{id}")
+    //    @GetMapping("/{eventId}")
     public EventDto getEvent(@PathVariable Long id) {
         return null;
     }
@@ -35,4 +35,10 @@ public class EventController {
     public List<EventDto> getOwnedEvents(@PathVariable Long userId) {
         return eventService.getOwnedEvents(userId);
     }
+
+    //    @GetMapping("/{participantId}")
+    public List<EventDto> getParticipatedEvents(@PathVariable long userId) {
+        return eventService.getParticipatedEvents(userId);
+    }
+
 }
