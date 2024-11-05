@@ -25,6 +25,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -72,23 +73,26 @@ public class EventServiceTest {
 
     @Test
     public void testCreateEvent() {
-        Skill skill = new Skill();
-        skill.setId(1L);
-        User user = new User();
-        user.setSkills(List.of(skill));
+        EventDto eventDto = EventDto.builder()
+                .id(1L)
+                .title("Test Event")
+                .ownerId(1L)
+                .build();
 
-        when(userService.findById(eventDto.getOwnerId())).thenReturn(user);
+        Event event = new Event();
+        event.setId(1L);
+        event.setTitle("Test Event");
+
         when(eventMapper.dtoToEvent(eventDto)).thenReturn(event);
-        when(eventRepository.save(any(Event.class))).thenReturn(event);
+        when(eventRepository.save(event)).thenReturn(event);
         when(eventMapper.eventToDto(event)).thenReturn(eventDto);
 
         EventDto createdEvent = eventService.create(eventDto);
 
-        Assertions.assertNotNull(createdEvent);
-        assertEquals(event.getId(), createdEvent.getId());
-
-        verify(eventValidation, times(1)).validateRelatedSkills(eventDto, List.of(skill.getId()));
-        verify(eventRepository, times(1)).save(any(Event.class));
+        assertNotNull(createdEvent);
+        assertEquals(eventDto.getId(), createdEvent.getId());
+        verify(eventValidation, times(1)).validateEvent(eventDto);
+        verify(eventRepository, times(1)).save(event);
     }
 
     @Test
@@ -98,7 +102,7 @@ public class EventServiceTest {
 
         EventDto foundEvent = eventService.getEventDto(event.getId());
 
-        Assertions.assertNotNull(foundEvent);
+        assertNotNull(foundEvent);
         assertEquals(event.getId(), foundEvent.getId());
     }
 
@@ -123,7 +127,7 @@ public class EventServiceTest {
 
         EventDto updatedEvent = eventService.updateEvent(eventDto);
 
-        Assertions.assertNotNull(updatedEvent);
+        assertNotNull(updatedEvent);
         assertEquals(event.getId(), updatedEvent.getId());
         verify(eventRepository, times(1)).save(event);
     }
@@ -147,7 +151,7 @@ public class EventServiceTest {
 
         List<EventDto> ownedEvents = eventService.getOwnedEvents(userId);
 
-        Assertions.assertNotNull(ownedEvents);
+        assertNotNull(ownedEvents);
         assertEquals(1, ownedEvents.size());
     }
 
@@ -160,7 +164,7 @@ public class EventServiceTest {
 
         List<EventDto> participatedEvents = eventService.getParticipatedEvents(eventDto.getOwnerId());
 
-        Assertions.assertNotNull(participatedEvents);
+        assertNotNull(participatedEvents);
         assertEquals(1, participatedEvents.size());
     }
 
