@@ -183,4 +183,12 @@ public class EventServiceTest {
 
         assertTrue(result);
     }
+
+    @Test
+    public void testCheckEventExistence() {
+        long id = 1L;
+        when(eventRepository.existsById(id)).thenReturn(true);
+        eventService.checkEventExistence(id);
+        verify(eventRepository, times(1)).existsById(id);
+    }
 }
