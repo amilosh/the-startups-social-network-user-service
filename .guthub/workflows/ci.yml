@@ -1,0 +1,37 @@
+name: start test
+on:
+  pull_request:
+    branches:
+      - feature/pipline-BC-*
+      - dev
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'  # Adjust the version if needed
+
+      - name: Install dependencies
+        run: |
+          ./gradlew clean build --no-daemon
+
+      - name: Run tests
+        run: |
+          ./gradlew test --no-daemon
+        continue-on-error: ${{ github.event.pull_request.head.ref == 'feature/pipeline-test-BC-BJS2-40777' }}
+
+  # Optional step: Notifies if any tests failed
+  notifications:
+    needs: test
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Notify on Failure
+        run: echo "Tests failed in feature/pipeline-test-BC-BJS2-40777"
