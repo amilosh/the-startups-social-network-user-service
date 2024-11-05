@@ -2,8 +2,7 @@ name: start test
 on:
   pull_request:
     branches:
-      - feature/pipeline-BC-*
-      - dev
+      - feature/pipeline-test-BC-*
 
 jobs:
   test:
