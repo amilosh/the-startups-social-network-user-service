@@ -31,7 +31,6 @@ public class GoalInvitationService {
     private final InvitationDtoValidator invitationDtoValidator;
     private final List<InvitationFilter> invitationFilters;
 
-
     public GoalInvitationDto createInvitation(GoalInvitationDto goalInvitationDto) {
         invitationDtoValidator.validate(goalInvitationDto);
         GoalInvitation savedInvitation = goalInvitationRepository.save(goalInvitationMapper.toEntity(goalInvitationDto));
@@ -81,7 +80,6 @@ public class GoalInvitationService {
     }
 
 
-
     public List<GoalInvitationDto> getInvitations(InvitationFilterDto filters) {
         Stream<GoalInvitation> goalInvitations = goalInvitationRepository.findAll().stream();
 
@@ -90,5 +88,4 @@ public class GoalInvitationService {
                 .map(goalInvitationMapper::toDto)
                 .toList();
     }
-
 }
