@@ -3,9 +3,11 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
@@ -19,29 +21,22 @@ public class UserService {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final GoalService goalService;
+    private final UserMapper userMapper;
 
-    public boolean isDeactivatedUser(long userId) {
+    public UserDto deactivateUser(long userId) {
         log.info("start to deactivate User by id {}", userId);
-        User user;
-
-        try {
-            user = getUserById(userId);
-        } catch (DataValidationException e) {
-            log.error(e.getMessage());
-            return false;
-        }
-
+        User user = getUserById(userId);
         List<Event> ownedEvents = user.getOwnedEvents();
 
         stopScheduledGoals(user);
         stopScheduledEvents(ownedEvents);
-
-
         user.setActive(false);
-        userRepository.save(user);
+
+        User savedUser = userRepository.save(user);
 
         log.info("User successfully deactivated by id {}", userId);
-        return true;
+
+        return userMapper.toUserDto(savedUser);
     }
 
     public User getUserById(long userId) {
@@ -54,7 +49,6 @@ public class UserService {
         goalService.removeGoalsWithoutUsers(user.getSettingGoals());
 
         user.removeAllGoals();
-        userRepository.save(user);
 
         log.info("all scheduled goals is stopped");
     }
@@ -72,4 +66,6 @@ public class UserService {
             eventRepository.deleteById(event.getId());
         }
     }
+
+
 }
