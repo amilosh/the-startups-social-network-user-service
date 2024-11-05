@@ -6,11 +6,13 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -21,21 +23,26 @@ public class UserService {
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final GoalService goalService;
+    private final MentorshipService mentorshipService;
     private final UserMapper userMapper;
 
     public UserDto deactivateUser(long userId) {
         log.info("start to deactivate User by id {}", userId);
         User user = getUserById(userId);
+
+        user.setDeactivationDate(LocalDateTime.now().plusMonths(3));
+
         List<Event> ownedEvents = user.getOwnedEvents();
 
         stopScheduledGoals(user);
         stopScheduledEvents(ownedEvents);
+        mentorshipService.stopMentorship(user);
+
         user.setActive(false);
 
         User savedUser = userRepository.save(user);
 
         log.info("User successfully deactivated by id {}", userId);
-
         return userMapper.toUserDto(savedUser);
     }
 
@@ -45,14 +52,15 @@ public class UserService {
     }
 
     private void stopScheduledGoals(User user) {
-        goalService.removeGoalsWithoutUsers(user.getGoals());
-        goalService.removeGoalsWithoutUsers(user.getSettingGoals());
+        List<Goal> ownedGoals = user.getGoals();
+
+        goalService.removeGoalsWithoutExecutingUsers(ownedGoals);
+        goalService.removeGoalsWithoutExecutingUsers(user.getSettingGoals());
 
         user.removeAllGoals();
 
         log.info("all scheduled goals is stopped");
     }
-
 
     private void stopScheduledEvents(List<Event> ownedEvents) {
         for (Event event : ownedEvents) {
@@ -64,8 +72,8 @@ public class UserService {
             });
 
             eventRepository.deleteById(event.getId());
+
+            log.info("all scheduled events is stopped and delete");
         }
     }
-
-
 }

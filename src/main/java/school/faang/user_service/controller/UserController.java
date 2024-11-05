@@ -15,7 +15,8 @@ public class UserController {
 
     private final UserService userService;
 
-    public UserDto deactivateUser(@NotNull @Positive long userId){
-      return userService.deactivateUser(userId);
+    public UserDto deactivateUser(@NotNull @Positive long userId) {
+        return userService.deactivateUser(userId);
     }
 }
+

@@ -78,7 +78,7 @@ public class Goal {
     )
     private List<Skill> skillsToAchieve;
 
-    public boolean isEmptyUsers(){
+    public boolean isEmptyExecutingUsers(){
         return users.isEmpty();
     }
 

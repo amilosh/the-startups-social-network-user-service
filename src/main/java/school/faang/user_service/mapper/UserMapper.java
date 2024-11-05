@@ -11,11 +11,12 @@ import school.faang.user_service.entity.goal.Goal;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = SkillMapper.class, unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
     @Mapping(source = "settingGoals", target = "idsSettingGoals", qualifiedByName = "mapGoalsToListId")
     @Mapping(source = "goals", target = "idsGoals", qualifiedByName = "mapGoalsToListId")
     @Mapping(source = "skills", target = "idsSkills", qualifiedByName = "mapSkillsToListId")
+    @Mapping(source = "mentors", target = "idsMentors", qualifiedByName = "mapMentorsToListId")
     UserDto toUserDto(User user);
 
     @Mapping(target = "settingGoals", ignore = true)
@@ -34,6 +35,13 @@ public interface UserMapper {
     default List<Long> mapSkillsToListId(List<Skill> skills) {
         return skills.stream()
                 .map(skill -> skill.getId())
+                .toList();
+    }
+
+    @Named("mapMentorsToListId")
+    default List<Long> mapMentorsToListId(List<User> mentors){
+        return mentors.stream()
+                .map(mentor -> mentor.getId())
                 .toList();
     }
 }
