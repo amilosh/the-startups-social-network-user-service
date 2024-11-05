@@ -28,8 +28,6 @@ public class EventParticipationService {
                 .anyMatch(user -> user.getId() == userId);
     }
 
-
-
     public void registerParticipant(long eventId, long userId) {
 
         validateUserId(userId);
