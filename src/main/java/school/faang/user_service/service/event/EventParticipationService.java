@@ -16,6 +16,12 @@ public class EventParticipationService {
     private final UserMapper userMapper;
 
     public void registerParticipant(long eventId, long userId) {
+        if (userId < 0){
+            throw new IllegalArgumentException("userId cannot be negative");
+        }
+        if (eventId < 0){
+            throw new IllegalArgumentException("eventId cannot be negative");
+        }
         if (isRegisteredParticipant(eventId, userId)) {
            throw new IllegalArgumentException("User is already participating");
         }
@@ -23,6 +29,12 @@ public class EventParticipationService {
     }
 
     public void unregisterParticipant(long eventId, long userId) {
+        if (userId < 0){
+            throw new IllegalArgumentException("userId cannot be negative");
+        }
+        if (eventId < 0){
+            throw new IllegalArgumentException("eventId cannot be negative");
+        }
         if (!isRegisteredParticipant(eventId, userId)) {
             throw new IllegalArgumentException("User is not participating");
         }
@@ -30,11 +42,22 @@ public class EventParticipationService {
     }
 
     public boolean isRegisteredParticipant(long eventId, long userId) {
-        return eventParticipationRepository.findAllParticipantsByEventId(eventId)
-                .stream().anyMatch(user -> user.getId() == userId);
+        if (userId < 0){
+            throw new IllegalArgumentException("userId cannot be negative");
+        }
+        if (eventId < 0){
+            throw new IllegalArgumentException("eventId cannot be negative");
+        }
+        return eventParticipationRepository
+                .findAllParticipantsByEventId(eventId)
+                .stream()
+                .anyMatch(user -> user.getId() == userId);
     }
 
     public List<UserDto> getParticipant (long eventId) {
+        if (eventId < 0){
+            throw new IllegalArgumentException("eventId cannot be negative");
+        }
         return eventParticipationRepository
                 .findAllParticipantsByEventId(eventId)
                 .stream()
@@ -43,6 +66,9 @@ public class EventParticipationService {
     }
 
     public int getParticipantsCount(long eventId){
+        if (eventId < 0){
+            throw new IllegalArgumentException("eventId cannot be negative");
+        }
         return eventParticipationRepository.countParticipants(eventId);
     }
 }
