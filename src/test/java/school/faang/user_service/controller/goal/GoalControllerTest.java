@@ -16,11 +16,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import school.faang.user_service.dto.GoalDTO;
+import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.dto.request.CreateGoalRequest;
 import school.faang.user_service.service.goal.GoalService;
-import school.faang.user_service.exception.DataValidationException;
 
 import java.util.List;
 
@@ -45,7 +44,7 @@ class GoalControllerTest {
     @Test
     void testCreateGoalSuccess() throws Exception {
         Long userId = 1L;
-        GoalDTO goalDTO = new GoalDTO();
+        GoalDto goalDTO = new GoalDto();
         goalDTO.setTitle("New Goal");
         CreateGoalRequest request = new CreateGoalRequest(userId, goalDTO);
 
@@ -64,7 +63,7 @@ class GoalControllerTest {
     @Test
     void testUpdateGoalSuccess() throws Exception {
         Long userId = 1L;
-        GoalDTO goalDTO = new GoalDTO();
+        GoalDto goalDTO = new GoalDto();
         goalDTO.setId(1L);
         goalDTO.setTitle("Updated Goal Title");
         CreateGoalRequest request = new CreateGoalRequest(userId, goalDTO);
@@ -97,9 +96,9 @@ class GoalControllerTest {
     void testGetGoalsByUserSuccess() throws Exception {
         long userId = 1L;
         GoalFilterDto filters = new GoalFilterDto();
-        GoalDTO goal1 = new GoalDTO();
+        GoalDto goal1 = new GoalDto();
         goal1.setTitle("Goal 1");
-        GoalDTO goal2 = new GoalDTO();
+        GoalDto goal2 = new GoalDto();
         goal2.setTitle("Goal 2");
 
         when(goalService.getGoalsByUser(userId, filters)).thenReturn(List.of(goal1, goal2));

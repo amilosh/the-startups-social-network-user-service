@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.GoalDTO;
+import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.dto.request.CreateGoalRequest;
 import school.faang.user_service.service.goal.GoalService;
@@ -29,7 +29,7 @@ public class GoalController {
      * @return the newly created goal
      */
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public GoalDTO createGoal(@RequestBody CreateGoalRequest request) {
+    public GoalDto createGoal(@RequestBody CreateGoalRequest request) {
         return goalService.createGoal(request.getUserId(), request.getGoal());
     }
 
@@ -43,7 +43,7 @@ public class GoalController {
      * The update will fail if the goal does not exist.
      */
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public GoalDTO updateGoal(@RequestBody CreateGoalRequest request) {
+    public GoalDto updateGoal(@RequestBody CreateGoalRequest request) {
         return goalService.updateGoal(request.getUserId(), request.getGoal());
     }
 
@@ -67,7 +67,7 @@ public class GoalController {
      * @return a list of goals for the given user ID, filtered by the provided goal filter
      */
     @PostMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<GoalDTO> getGoalsByUser(@PathVariable long userId, @RequestBody GoalFilterDto filters) {
+    public List<GoalDto> getGoalsByUser(@PathVariable long userId, @RequestBody GoalFilterDto filters) {
         return goalService.getGoalsByUser(userId, filters);
     }
 }

@@ -1,12 +1,14 @@
 package school.faang.user_service.service.user;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 
-@Component
+import java.util.Optional;
+
+@Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
@@ -17,8 +19,8 @@ public class UserService {
      * @param userId the ID of the user
      * @return the user, or null if the user does not exist
      */
-    public User getUserById(Long userId) {
-        return userRepository.getUserById(userId);
+    public Optional<User> getUserById(Long userId) {
+        return userRepository.findById(userId);
     }
 
     /**

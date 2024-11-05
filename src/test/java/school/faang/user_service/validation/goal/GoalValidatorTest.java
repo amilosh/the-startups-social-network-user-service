@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.GoalDTO;
+import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.UserRepository;
@@ -32,11 +32,11 @@ public class GoalValidatorTest {
     @Mock
     private SkillService skillService;
 
-    private GoalDTO goal;
+    private GoalDto goal;
 
     @BeforeEach
     void setUp() {
-        goal = new GoalDTO();
+        goal = new GoalDto();
         goal.setId(1L);
         goal.setTitle("Test Goal");
         goal.setDescription("This is a test goal");

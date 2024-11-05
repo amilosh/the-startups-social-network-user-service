@@ -2,7 +2,7 @@ package school.faang.user_service.validation.goal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.GoalDTO;
+import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -28,7 +28,7 @@ public class GoalValidator {
      * @param isCreate whether this is a create or update request
      * @throws DataValidationException if the request is invalid
      */
-    public void validateGoalRequest(Long userId, GoalDTO goal, boolean isCreate) {
+    public void validateGoalRequest(Long userId, GoalDto goal, boolean isCreate) {
         if (userId == 0) {
             throw new DataValidationException("User ID is missing");
         }

@@ -49,11 +49,4 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
             WHERE ug.goal_id = :goalId
             """)
     List<User> findUsersByGoalId(long goalId);
-
-    @Query(nativeQuery = true, value = """
-            SELECT g.* FROM goal g
-            WHERE g.id = :goalId
-            """
-    )
-    Goal findGoalById(long goalId);
 }

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.GoalDTO;
+import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.goal.Goal;
 
@@ -25,38 +25,37 @@ class GoalMapperTest {
 
     @Test
     public void testToDto_MappingSuccess() {
-        Goal parentGoal = new Goal();
-        parentGoal.setId(100L);
+        Goal parentGoal = Goal.builder().id(100L).build();
 
-        Skill skill1 = new Skill();
-        skill1.setId(1L);
-        Skill skill2 = new Skill();
-        skill2.setId(2L);
+        Skill firstSkill = Skill.builder().id(1L).build();
+        Skill secondSkill = Skill.builder().id(2L).build();
 
-        Goal goal = new Goal();
-        goal.setId(1L);
-        goal.setTitle("Goal Title");
-        goal.setDescription("Goal Description");
-        goal.setParent(parentGoal);
-        goal.setSkillsToAchieve(List.of(skill1, skill2));
+        Goal goal = Goal.builder()
+                .id(1L)
+                .title("Goal Title")
+                .description("Goal Description")
+                .parent(parentGoal)
+                .skillsToAchieve(List.of(firstSkill, secondSkill))
+                .build();
 
-        GoalDTO goalDTO = goalMapper.toDto(goal);
+        GoalDto goalDTO = goalMapper.toDto(goal);
 
         assertEquals(goal.getId(), goalDTO.getId());
         assertEquals(goal.getTitle(), goalDTO.getTitle());
         assertEquals(goal.getDescription(), goalDTO.getDescription());
         assertEquals(parentGoal.getId(), goalDTO.getParentGoalId());
-        assertEquals(List.of(skill1.getId(), skill2.getId()), goalDTO.getSkillIds());
+        assertEquals(List.of(firstSkill.getId(), secondSkill.getId()), goalDTO.getSkillIds());
     }
 
     @Test
     public void testToEntityMappingSuccess() {
-        GoalDTO goalDTO = new GoalDTO();
-        goalDTO.setId(1L);
-        goalDTO.setTitle("Goal Title");
-        goalDTO.setDescription("Goal Description");
-        goalDTO.setParentGoalId(100L);
-        goalDTO.setSkillIds(List.of(1L, 2L));
+        GoalDto goalDTO = GoalDto.builder()
+                .id(1L)
+                .title("Goal Title")
+                .description("Goal Description")
+                .parentGoalId(100L)
+                .skillIds(List.of(1L, 2L))
+                .build();
 
         Goal goal = goalMapper.toEntity(goalDTO);
 

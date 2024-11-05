@@ -83,23 +83,22 @@ class UserServiceTest {
     public void testGetUserByIdWhenUserExist() {
         User user = new User();
         user.setId(1L);
-        when(userRepository.getUserById(user.getId())).thenReturn(user);
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
-        User foundUser = userService.getUserById(user.getId());
+        Optional<User> foundUser = userService.getUserById(user.getId());
 
-        assertNotNull(foundUser);
-        assertEquals(user.getId(), foundUser.getId());
-        verify(userRepository, times(1)).getUserById(user.getId());
+        assertTrue(foundUser.isPresent(), "Expected user to be present");
+        assertEquals(user.getId(), foundUser.get().getId());
+        verify(userRepository, times(1)).findById(user.getId());
     }
 
     @Test
     public void testGetUserByIdWhenUserDoesNotExist() {
-        User user = new User();
-        user.setId(1L);
-        when(userRepository.getUserById(user.getId())).thenReturn(null);
+        Long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertNull(userService.getUserById(user.getId()));
-        verify(userRepository, times(1)).getUserById(user.getId());
+        assertTrue(userService.getUserById(userId).isEmpty(), "Expected user to be empty");
+        verify(userRepository, times(1)).findById(userId);
     }
 
     @Test

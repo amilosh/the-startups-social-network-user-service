@@ -1,10 +1,10 @@
 package school.faang.user_service.service.goal;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.GoalDTO;
+import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.EntityNotFoundException;
@@ -14,11 +14,12 @@ import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validation.goal.GoalValidator;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service
-@Component
 @RequiredArgsConstructor
 public class GoalService {
     private final GoalRepository goalRepository;
@@ -43,20 +44,24 @@ public class GoalService {
      * if the user does not exist. The goal will be created with the given details
      * and saved in the database.
      */
-    public GoalDTO createGoal(Long userId, GoalDTO goal) {
+    public GoalDto createGoal(Long userId, GoalDto goal) {
         goalValidation.validateGoalRequest(userId, goal, true);
 
         goal.setId(null);
         goal.setStatus(GoalStatus.ACTIVE);
 
         Goal entity = goalMapper.toEntity(goal);
-        entity.setUsers(List.of(userService.getUserById(userId)));
 
-        if (goal.getParentGoalId() != null) {
-            entity.setParent(goalRepository.findGoalById(goal.getParentGoalId()));
+        Optional<User> user = userService.getUserById(userId);
+        user.ifPresent(value -> entity.setUsers(List.of(value)));
+
+        if (goal.getSkillIds() != null) {
+            entity.setSkillsToAchieve(goal.getSkillIds().stream()
+                    .map(skillService::getSkillById)
+                    .toList());
+        } else {
+            entity.setSkillsToAchieve(Collections.emptyList());
         }
-
-        entity.setSkillsToAchieve(goal.getSkillIds().stream().map(skillService::getSkillById).toList());
 
         goalRepository.save(entity);
 
@@ -74,10 +79,16 @@ public class GoalService {
      * if the user does not exist. The goal will be updated with the given details
      * and saved in the database.
      */
-    public GoalDTO updateGoal(Long userId, GoalDTO goal) {
+    public GoalDto updateGoal(Long userId, GoalDto goal) {
         goalValidation.validateGoalRequest(userId, goal, false);
 
-        Goal entity = goalRepository.findGoalById(goal.getId());
+        Optional<Goal> optionalEntity = goalRepository.findById(goal.getId());
+
+        if (optionalEntity.isEmpty()) {
+            throw new EntityNotFoundException("Goal with id " + goal.getId() + " does not exist");
+        }
+
+        Goal entity = optionalEntity.get();
 
         entity.setTitle(goal.getTitle());
         entity.setDescription(goal.getDescription());
@@ -85,11 +96,12 @@ public class GoalService {
         entity.setDeadline(goal.getDeadline());
 
         if (goal.getMentorId() != null) {
-            entity.setMentor(userService.getUserById(goal.getMentorId()));
+            Optional<User> mentor = userService.getUserById(goal.getMentorId());
+            mentor.ifPresent(entity::setMentor);
         }
 
         if (goal.getParentGoalId() != null) {
-            entity.setParent(goalRepository.findGoalById(goal.getParentGoalId()));
+            entity.setParent(goalRepository.findById(goal.getParentGoalId()).get());
         }
 
         goalRepository.save(entity);
@@ -105,10 +117,7 @@ public class GoalService {
      * The deletion will fail if the goal does not exist.
      */
     public void deleteGoal(long goalId) {
-        if (!goalRepository.existsById(goalId)) {
-            throw new EntityNotFoundException("Goal with id " + goalId + " does not exist");
-        }
-        goalRepository.delete(goalRepository.findGoalById(goalId));
+        goalRepository.deleteById(goalId);
     }
 
     /**
@@ -118,7 +127,7 @@ public class GoalService {
      * @param filters the goal filter to apply on the retrieved goals
      * @return a list of goals for the given user ID, filtered by the provided goal filter
      */
-    public List<GoalDTO> getGoalsByUser(long userId, GoalFilterDto filters) {
+    public List<GoalDto> getGoalsByUser(long userId, GoalFilterDto filters) {
         Stream<Goal> goals = goalRepository.findGoalsByUserId(userId).stream();
 
         Stream<Goal> filteredGoals = goalFilters.stream()
