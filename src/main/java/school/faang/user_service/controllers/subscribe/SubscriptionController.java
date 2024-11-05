@@ -32,7 +32,7 @@ public class SubscriptionController {
     @GetMapping("/followers")
     public List<UserDTO> getFollowers(
         @RequestParam Long userId,
-        @RequestBody(required = false) UserFilterDTO filter) {
+        @RequestBody UserFilterDTO filter) {
         return subscriptionService.getFollowers(userId, filter);
     }
 
@@ -44,7 +44,7 @@ public class SubscriptionController {
     @GetMapping("/following")
     public List<UserDTO> getFollowing(
         @RequestParam Long userId,
-        @RequestBody(required = false) UserFilterDTO filter) {
+        @RequestBody UserFilterDTO filter) {
         return subscriptionService.getFollowing(userId, filter);
     }
 }

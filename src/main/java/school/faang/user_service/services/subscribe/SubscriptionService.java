@@ -8,6 +8,7 @@ import school.faang.user_service.dto.UserFilterDTO;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.subscribe.InvalidUserIdException;
 import school.faang.user_service.exceptions.subscribe.SubscriptionNotFoundException;
+import school.faang.user_service.exceptions.subscribe.UnfollowException;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.util.List;
@@ -44,7 +45,7 @@ public class SubscriptionService {
             log.info("Пользователь {} успешно отписался от пользователя {}.", followerId, followeeId);
         } catch (Exception ex) {
             log.error("Произошла ошибка при отписке пользователя: followerId={}, followeeId={}", followerId, followeeId, ex);
-            throw new RuntimeException("Не удалось отписаться от пользователя.", ex);
+            throw new UnfollowException("Не удалось отписаться от пользователя.", ex);
         }
     }
 

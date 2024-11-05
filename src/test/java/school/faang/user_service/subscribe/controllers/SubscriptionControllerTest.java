@@ -1,91 +1,98 @@
 package school.faang.user_service.subscribe.controllers;
 
-import org.junit.jupiter.api.BeforeEach;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 import school.faang.user_service.controllers.subscribe.SubscriptionController;
 import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.dto.UserFilterDTO;
 import school.faang.user_service.services.subscribe.SubscriptionService;
 
 import java.util.Collections;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@AutoConfigureMockMvc
+@WebMvcTest(SubscriptionController.class)
 class SubscriptionControllerTest {
 
-    @InjectMocks
-    private SubscriptionController subscriptionController;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @Mock
+    @MockBean
     private SubscriptionService subscriptionService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Test
+    void followUser_ShouldReturnCreatedStatus() throws Exception {
+        mockMvc.perform(post("/subscriptions/follow")
+                .param("followerId", "1")
+                .param("followeeId", "2"))
+            .andExpect(status().isCreated());
+
+        verify(subscriptionService).followUser(1L, 2L);
     }
 
     @Test
-    void testFollowUser() {
-        Long followerId = 1L;
-        Long followeeId = 2L;
+    void unfollowUser_ShouldReturnOkStatus() throws Exception {
+        mockMvc.perform(delete("/subscriptions/unfollow")
+                .param("followerId", "1")
+                .param("followeeId", "2"))
+            .andExpect(status().isOk());
 
-        subscriptionController.followUser(followerId, followeeId);
-
-        verify(subscriptionService, times(1)).followUser(followerId, followeeId);
+        verify(subscriptionService).unfollowUser(1L, 2L);
     }
 
     @Test
-    void testUnfollowUser() {
-        Long followerId = 1L;
-        Long followeeId = 2L;
-
-        subscriptionController.unfollowUser(followerId, followeeId);
-
-        verify(subscriptionService, times(1)).unfollowUser(followerId, followeeId);
-    }
-
-    @Test
-    void testGetFollowers() {
-        Long userId = 1L;
+    void getFollowers_ShouldReturnListOfUsers() throws Exception {
         UserFilterDTO filter = new UserFilterDTO();
-        UserDTO userDTO = new UserDTO(1L, "username", "email@example.com");
-        when(subscriptionService.getFollowers(userId, filter)).thenReturn(Collections.singletonList(userDTO));
+        UserDTO user = new UserDTO();
+        when(subscriptionService.getFollowers(1L, filter))
+            .thenReturn(Collections.singletonList(user));
 
-        List<UserDTO> followers = subscriptionController.getFollowers(userId, filter);
+        mockMvc.perform(get("/subscriptions/followers")
+                .param("userId", "1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(filter)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
-        assertEquals(1, followers.size());
-        verify(subscriptionService, times(1)).getFollowers(userId, filter);
+        verify(subscriptionService).getFollowers(1L, filter);
     }
 
     @Test
-    void testGetFollowersCount() {
-        Long userId = 1L;
-        long expectedCount = 5;
-        when(subscriptionService.countFollowers(userId)).thenReturn(expectedCount);
+    void getFollowersCount_ShouldReturnCount() throws Exception {
+        when(subscriptionService.countFollowers(1L)).thenReturn(10L);
 
-        long count = subscriptionController.getFollowersCount(userId);
+        mockMvc.perform(get("/subscriptions/followers/count")
+                .param("userId", "1"))
+            .andExpect(status().isOk())
+            .andExpect(content().string("10"));
 
-        assertEquals(expectedCount, count);
-        verify(subscriptionService, times(1)).countFollowers(userId);
+        verify(subscriptionService).countFollowers(1L);
     }
 
     @Test
-    void testGetFollowing() {
-        Long userId = 1L;
+    void getFollowing_ShouldReturnListOfUsers() throws Exception {
         UserFilterDTO filter = new UserFilterDTO();
-        UserDTO userDTO = new UserDTO(1L, "username", "email@example.com");
-        when(subscriptionService.getFollowing(userId, filter)).thenReturn(Collections.singletonList(userDTO));
+        UserDTO user = new UserDTO();
+        when(subscriptionService.getFollowing(1L, filter))
+            .thenReturn(Collections.singletonList(user));
 
-        List<UserDTO> following = subscriptionController.getFollowing(userId, filter);
+        mockMvc.perform(get("/subscriptions/following")
+                .param("userId", "1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(filter)))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
-        assertEquals(1, following.size());
-        verify(subscriptionService, times(1)).getFollowing(userId, filter);
+        verify(subscriptionService).getFollowing(1L, filter);
     }
 }
