@@ -6,7 +6,6 @@ import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.validation.skill.SkillValidation;
 
 import java.time.LocalDate;
@@ -17,35 +16,11 @@ import java.util.Optional;
 public class RecommendationValidator {
     private static final int RECOMMENDATION_COOLDOWN_MONTHS = 6;
     private final RecommendationRepository recommendationRepository;
-    private final SkillOfferRepository skillOfferRepository;
     private final SkillValidation skillValidation;
 
-    public void validateDto(RecommendationDto recommendationDto) {
-
-        if (recommendationDto.getAuthorId() == null || recommendationDto.getAuthorId() <= 0) {
-            throw new DataValidationException("Author id must be a positive number");
-        }
-
-        if (recommendationDto.getReceiverId() == null || recommendationDto.getReceiverId() <= 0) {
-            throw new DataValidationException("Receiver id must be a positive number");
-        }
-
+    public void validateAuthorAndReceiverId(RecommendationDto recommendationDto) {
         if (recommendationDto.getReceiverId().equals(recommendationDto.getAuthorId())) {
             throw new DataValidationException("You cannot recommend yourself");
-        }
-
-        if (recommendationDto.getContent() == null || recommendationDto.getContent().isBlank()) {
-            throw new DataValidationException("Recommendation cannot be empty");
-        }
-
-        if (recommendationDto.getSkillOffers() == null) {
-            throw new DataValidationException("Skill offers list cannot be null");
-        }
-    }
-
-    public void validateId(Long id) {
-        if (id == null || id <=0) {
-            throw new DataValidationException("Id must be a positive number");
         }
     }
 

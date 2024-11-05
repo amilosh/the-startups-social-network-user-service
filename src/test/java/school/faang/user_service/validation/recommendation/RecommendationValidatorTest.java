@@ -1,7 +1,6 @@
 package school.faang.user_service.validation.recommendation;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -62,114 +61,6 @@ class RecommendationValidatorTest {
                         .build()))
                 .build();
         recommendation = recommendationMapper.toEntity(dto);
-    }
-
-    @Test
-    @DisplayName("Test Exception throw when Author Id is Null")
-    void testAuthorIdIsNull() {
-        dto.setAuthorId(null);
-
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateDto(dto));
-    }
-
-    @Test
-    @DisplayName("Test Exception throw when Author Id is 0")
-    void testAuthorIdIsZero() {
-        dto.setAuthorId(0L);
-
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateDto(dto));
-    }
-
-    @Test
-    @DisplayName("Test Exception throw when Author Id is negative")
-    void testAuthorIdIsNegative() {
-        dto.setAuthorId(-5L);
-
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateDto(dto));
-    }
-
-    @Test
-    @DisplayName("Test Exception throw when Receiver Id is Null")
-    void testReceiverIdIsNull() {
-        dto.setReceiverId(null);
-
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateDto(dto));
-    }
-
-    @Test
-    @DisplayName("Test Exception throw when Receiver Id is 0")
-    void testReceiverIdIsZero() {
-        dto.setReceiverId(0L);
-
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateDto(dto));
-    }
-
-    @Test
-    @DisplayName("Test Exception throw when Receiver Id is negative")
-    void testReceiverIdIsNegative() {
-        dto.setReceiverId(-5L);
-
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateDto(dto));
-    }
-
-    @Test
-    @DisplayName("Test Exception throw when Receiver and Author are same person")
-    void testReceiverIdEqualsAuthorId() {
-        dto.setReceiverId(3L);
-        dto.setAuthorId(3L);
-
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateDto(dto));
-    }
-
-    @Test
-    @DisplayName("Test Exception throw when Content is Null")
-    void testContentIsNull() {
-        dto.setContent(null);
-
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateDto(dto));
-    }
-
-    @Test
-    @DisplayName("Test Exception throw when Content is Blank")
-    void testContentIsBlank() {
-        dto.setContent(" ");
-
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateDto(dto));
-    }
-
-    @Test
-    @DisplayName("Test Exception throw when Skill Offer list is Null")
-    void testSkillOfferListIsNull() {
-        dto.setSkillOffers(null);
-
-        assertThrows(DataValidationException.class, () -> recommendationValidator.validateDto(dto));
-    }
-
-    @Test
-    @DisplayName("Test Exception throw when Recommendation Id is Null")
-    void testRecommendationIdIsNull() {
-        dto.setId(null);
-
-        assertThrows(DataValidationException.class, () ->
-                recommendationValidator.validateId(dto.getId()));
-    }
-
-    @Test
-    @DisplayName("Test Exception throw when Id is 0")
-    void testIdIsZero() {
-        dto.setId(0L);
-
-        assertThrows(DataValidationException.class, () ->
-                recommendationValidator.validateId(dto.getId()));
-    }
-
-    @Test
-    @DisplayName("Test Exception throw when Id is negative")
-    void testIdIsNegative() {
-        dto.setId(-6L);
-
-        assertThrows(DataValidationException.class, () ->
-                recommendationValidator.validateId(dto.getId()));
     }
 
     @Test

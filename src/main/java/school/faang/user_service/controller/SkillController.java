@@ -2,7 +2,6 @@ package school.faang.user_service.controller;
 
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +16,6 @@ import school.faang.user_service.validation.skill.SkillDtoValidation;
 
 import java.util.List;
 
-@Component
 @Validated
 @RestController
 @RequestMapping("/api/skills")  // Базовый URL для контроллера
@@ -28,7 +26,7 @@ public class SkillController {
 
     @PostMapping("/create")
     public SkillDto create(@RequestBody SkillDto skillDto) {
-        skillDtoValidation.Validate(skillDto);
+        skillDtoValidation.validate(skillDto);
 
         skillDto = skillService.create(skillDto);
 
@@ -41,7 +39,7 @@ public class SkillController {
     }
 
     public SkillCandidateDto getOfferedSkills(SkillCandidateDto skillCandidateDto) {
-        skillDtoValidation.Validate(skillCandidateDto.getSkill());
+        skillDtoValidation.validate(skillCandidateDto.getSkill());
 
         return skillService.getOfferedSkills(skillCandidateDto);
     }

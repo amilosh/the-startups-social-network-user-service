@@ -1,5 +1,9 @@
 package school.faang.user_service.dto;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 import lombok.Data;
 
@@ -9,10 +13,25 @@ import java.util.List;
 @Data
 @Builder
 public class RecommendationDto {
+
+    @Positive (message = "Id must be a positive number")
     private Long id;
+
+    @NotNull (message = "Author id must be a positive number")
+    @Positive (message = "Author id must be a positive number")
     private Long authorId;
+
+    @NotNull (message = "Receiver id must be a positive number")
+    @Positive (message = "Receiver id must be a positive number")
     private Long receiverId;
+
+    @NotBlank (message = "Recommendation cannot be empty")
     private String content;
-    private List<SkillOfferDto> skillOffers;
+
+    @NotNull(message = "Skill offers list cannot be null")
+    @Valid
+    private List<@Valid SkillOfferDto> skillOffers;
+
+
     private LocalDateTime createdAt;
 }
