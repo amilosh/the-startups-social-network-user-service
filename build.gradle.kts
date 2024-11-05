@@ -119,9 +119,9 @@ tasks.test {
     finalizedBy(tasks.jacocoTestCoverageVerification)
 }
 
-//tasks.build {
-//    dependsOn(tasks.jacocoTestCoverageVerification)
-//}
+tasks.build {
+    dependsOn(tasks.jacocoTestCoverageVerification)
+}
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
