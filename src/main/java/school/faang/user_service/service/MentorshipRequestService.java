@@ -108,7 +108,7 @@ public class MentorshipRequestService {
         if (mentorshipRequest.getStatus() == RequestStatus.ACCEPTED) {
             throw new IllegalStateException("This mentorship request has already been accepted.");
         }
-        if (mentorshipRequest.getStatus() == RequestStatus.REJECTED) {
+        else if (mentorshipRequest.getStatus() == RequestStatus.REJECTED) {
             throw new IllegalStateException("This mentorship request has already been rejected.");
         }
 

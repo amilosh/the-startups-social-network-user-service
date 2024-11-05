@@ -6,6 +6,7 @@ import school.faang.user_service.entity.RequestStatus;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class MentorshipRequestDto {
     private Long id;
     @NonNull

@@ -42,52 +42,46 @@ public class MentorshipRequestServiceTest {
     @InjectMocks
     private MentorshipRequestService mentorshipRequestService;
 
-    private User requester;
-    private User receiver;
-    private MentorshipRequest mentorshipRequest;
-    private MentorshipRequestDto mentorshipRequestDto;
+    private User createUser(Long id) {
+        return User.builder()
+                .id(id)
+                .sentMentorshipRequests(new ArrayList<>())
+                .mentors(new ArrayList<>())
+                .build();
+    }
 
-    @BeforeEach
-    public void setUp() {
-        requester = new User();
-        requester.setId(1L);
-        requester.setSentMentorshipRequests(new ArrayList<>());
-        requester.setMentors(new ArrayList<>());
+    private MentorshipRequest createMentorshipRequest(User requester, User receiver) {
+        return MentorshipRequest.builder()
+                .id(1L)
+                .description("Test Description")
+                .requester(requester)
+                .receiver(receiver)
+                .status(RequestStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
 
-        receiver = new User();
-        receiver.setId(2L);
-
-        mentorshipRequest = new MentorshipRequest();
-        mentorshipRequest.setId(1L);
-        mentorshipRequest.setDescription("Test Description");
-        mentorshipRequest.setRequester(requester);
-        mentorshipRequest.setReceiver(receiver);
-        mentorshipRequest.setStatus(RequestStatus.PENDING);
-
-        mentorshipRequestDto = new MentorshipRequestDto();
-        mentorshipRequestDto.setRequesterId(1L);
-        mentorshipRequestDto.setReceiverId(2L);
-        mentorshipRequestDto.setDescription("Test Description");
+    private MentorshipRequestDto createMentorshipRequestDto(User requester, User receiver) {
+        return MentorshipRequestDto.builder()
+                .requesterId(requester.getId())
+                .receiverId(receiver.getId())
+                .description("Test Description")
+                .status(RequestStatus.PENDING)
+                .build();
     }
 
     @Test
     public void testRequestMentorship_Success() {
-
-        mentorshipRequest = new MentorshipRequest();
-        mentorshipRequest.setId(1L);
-        mentorshipRequest.setRequester(requester);
-        mentorshipRequest.setReceiver(receiver);
-        mentorshipRequest.setStatus(RequestStatus.PENDING);
-        mentorshipRequest.setDescription("Test Description");
-        mentorshipRequest.setCreatedAt(LocalDateTime.now());
-        mentorshipRequest.setUpdatedAt(LocalDateTime.now());
+        User requester = createUser(1L);
+        User receiver = createUser(2L);
+        MentorshipRequest mentorshipRequest = createMentorshipRequest(requester, receiver);
+        MentorshipRequestDto mentorshipRequestDto = createMentorshipRequestDto(requester, receiver);
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(requester));
         when(userRepository.findById(2L)).thenReturn(Optional.of(receiver));
         when(mentorshipRequestRepository.save(any(MentorshipRequest.class))).thenReturn(mentorshipRequest);
         when(mentorshipRequestMapper.mapToDto(mentorshipRequest)).thenReturn(mentorshipRequestDto);
-
-        when(mentorshipRequestMapper.mapToEntity(mentorshipRequestDto)).thenReturn(mentorshipRequest);
 
         MentorshipRequestDto result = mentorshipRequestService.requestMentorship(mentorshipRequestDto);
 
@@ -98,7 +92,9 @@ public class MentorshipRequestServiceTest {
 
     @Test
     public void testRequestMentorship_SelfRequest_ThrowsException() {
-        mentorshipRequestDto.setReceiverId(1L);
+        User requester = createUser(1L);
+        MentorshipRequestDto mentorshipRequestDto = createMentorshipRequestDto(requester, requester);
+        mentorshipRequestDto.setReceiverId(requester.getId());
 
         assertThrows(IllegalArgumentException.class, () -> {
             mentorshipRequestService.requestMentorship(mentorshipRequestDto);
@@ -107,7 +103,10 @@ public class MentorshipRequestServiceTest {
 
     @Test
     public void testGetRequests_ByStatus() {
-
+        User requester = createUser(1L);
+        User receiver = createUser(2L);
+        MentorshipRequest mentorshipRequest = createMentorshipRequest(requester, receiver);
+        MentorshipRequestDto mentorshipRequestDto = createMentorshipRequestDto(requester, receiver);
 
         RequestFilterDto filterDto = new RequestFilterDto();
         filterDto.setStatus(RequestStatus.PENDING);
@@ -124,7 +123,11 @@ public class MentorshipRequestServiceTest {
 
     @Test
     public void testAcceptMentorship_Success() {
+        User requester = createUser(1L);
+        User receiver = createUser(2L);
+        MentorshipRequest mentorshipRequest = createMentorshipRequest(requester, receiver);
         mentorshipRequest.setDescription("Sample description");
+
         when(mentorshipRequestRepository.findById(1L)).thenReturn(Optional.of(mentorshipRequest));
         when(userRepository.save(requester)).thenReturn(requester);
 
@@ -149,7 +152,10 @@ public class MentorshipRequestServiceTest {
 
     @Test
     public void testAcceptMentorship_AlreadyMentor_ThrowsException() {
+        User requester = createUser(1L);
+        User receiver = createUser(2L);
         requester.getMentors().add(receiver);
+        MentorshipRequest mentorshipRequest = createMentorshipRequest(requester, receiver);
 
         when(mentorshipRequestRepository.findById(1L)).thenReturn(Optional.of(mentorshipRequest));
 
@@ -160,6 +166,11 @@ public class MentorshipRequestServiceTest {
 
     @Test
     public void testRejectRequest_Success() {
+        User requester = createUser(1L);
+        User receiver = createUser(2L);
+        MentorshipRequest mentorshipRequest = createMentorshipRequest(requester, receiver);
+        MentorshipRequestDto mentorshipRequestDto = createMentorshipRequestDto(requester, receiver);
+
         RejectionDto rejectionDto = new RejectionDto();
         rejectionDto.setReason("Test Reason");
 
