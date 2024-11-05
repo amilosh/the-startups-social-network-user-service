@@ -13,7 +13,6 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.service.goal.filter.InvitationFilter;
 import school.faang.user_service.validator.goal.InvitationDtoValidator;
@@ -39,16 +38,8 @@ public class GoalInvitationServiceImplTest {
 
     @Mock
     private GoalInvitationRepository goalInvitationRepository;
-
-    @Mock
-    private UserRepository userRepository;
-
     @Mock
     private GoalInvitationMapper goalInvitationMapper;
-
-    @Mock
-    private List<InvitationFilter> filters;
-
     @Mock
     private List<InvitationFilter> invitationFilters;
     @Mock
@@ -58,6 +49,7 @@ public class GoalInvitationServiceImplTest {
     private GoalInvitationService goalInvitationService;
     private GoalInvitationDto goalInvitationDtoAccept;
     private GoalInvitation goalInvitationAccept;
+
     private GoalInvitationDto goalInvitationDtoReject;
     private GoalInvitation goalInvitationReject;
 
@@ -136,7 +128,8 @@ public class GoalInvitationServiceImplTest {
         when(goalInvitationRepository.save(goalInvitationAccept)).thenReturn(goalInvitationAccept);
         when(goalInvitationMapper.toDto(goalInvitationAccept)).thenReturn(goalInvitationDtoAccept);
 
-        GoalInvitationDto result = goalInvitationService.acceptGoalInvitation(1L);
+        GoalInvitationDto result;
+        result = goalInvitationService.acceptGoalInvitation(1L);
 
         assertNotNull(result);
         assertEquals(RequestStatus.ACCEPTED, result.getStatus());
@@ -177,7 +170,7 @@ public class GoalInvitationServiceImplTest {
     }
 
     @Test
-    public void testGetInvitations() {
+    public void testGetInvitationsByFilter() {
         InvitationFilterDto filters = new InvitationFilterDto();
         GoalInvitation goalInvitation1 = new GoalInvitation();
         GoalInvitation goalInvitation2 = new GoalInvitation();
@@ -197,9 +190,9 @@ public class GoalInvitationServiceImplTest {
         GoalInvitationDto dto1 = new GoalInvitationDto();
         when(goalInvitationMapper.toDto(goalInvitation1)).thenReturn(dto1);
 
-        List<GoalInvitationDto> result = goalInvitationService.getInvitations(filters);
+        List<GoalInvitationDto> result = goalInvitationService.getInvitationsByFilter(filters);
 
-        assertEquals(1, result.size());
+        assertEquals(2, result.size());
         assertEquals(dto1, result.get(0));
 
         verify(goalInvitationRepository, times(1)).findAll();

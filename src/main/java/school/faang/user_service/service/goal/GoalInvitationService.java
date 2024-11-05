@@ -18,7 +18,6 @@ import school.faang.user_service.validator.goal.InvitationDtoValidator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -38,24 +37,24 @@ public class GoalInvitationService {
     }
 
     public GoalInvitationDto acceptGoalInvitation(long id) {
-        log.info("Accept goal invitation with idL {}", id);
         GoalInvitation goalInvitation = goalInvitationRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("No such goal invitation with id:" + id));
+
         User invited = goalInvitation.getInvited();
-        if (invited.getReceivedGoalInvitations().size() > 3) {
+        if (invited.getReceivedGoalInvitations().size() > 3)
             throw new IllegalArgumentException("Exception invited user can`t have more than 3 goal invitations");
-        }
+
         invited.getGoals().add(goalInvitation.getGoal());
         goalInvitation.setStatus(RequestStatus.ACCEPTED);
         userRepository.save(invited);
         goalInvitationRepository.save(goalInvitation);
         return goalInvitationMapper.toDto(goalInvitation);
+
     }
 
     public GoalInvitationDto rejectGoalInvitation(long id) {
         log.info("Reject goal with id: {}", id);
-        GoalInvitation invitation = goalInvitationRepository.findById(id).orElseThrow(() ->
-                new NoSuchElementException("No such goal invitation with id:" + id));
+        GoalInvitation invitation = findGoalInvitationById(id);
         invitation.setStatus(RequestStatus.REJECTED);
         goalInvitationRepository.save(invitation);
         return goalInvitationMapper.toDto(invitation);
@@ -77,15 +76,5 @@ public class GoalInvitationService {
                 .filter(f -> f.isAcceptable(filterDto))
                 .forEach(f -> f.apply(invitations.stream(), filterDto));
         return invitations.stream().map(goalInvitationMapper::toDto).toList();
-    }
-
-
-    public List<GoalInvitationDto> getInvitations(InvitationFilterDto filters) {
-        Stream<GoalInvitation> goalInvitations = goalInvitationRepository.findAll().stream();
-
-        return invitationFilters.stream().filter(filter -> filter.isAcceptable(filters))
-                .flatMap(filter -> filter.apply(goalInvitations, filters))
-                .map(goalInvitationMapper::toDto)
-                .toList();
     }
 }

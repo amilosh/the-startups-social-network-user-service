@@ -26,7 +26,7 @@ public class InvitationDtoValidator {
     private void validateUserIsNotInvitingSelf(GoalInvitationDto goalInvitationDto) {
         log.info("Check users for matching, inviter: {}, invited: {}", goalInvitationDto.getInvitedUserId(), goalInvitationDto.getInviterId());
         if (goalInvitationDto.getInvitedUserId().equals(goalInvitationDto.getInviterId())) {
-            throw new IllegalArgumentException("Invited user cannot be the same as the inviter.");
+            throw new NullPointerException("Invited user cannot be the same as the inviter.");
         }
     }
 
