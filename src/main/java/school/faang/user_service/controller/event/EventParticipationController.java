@@ -1,6 +1,7 @@
 package school.faang.user_service.controller.event;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.service.event.EventParticipationService;
@@ -13,19 +14,38 @@ public class EventParticipationController {
 
     private final EventParticipationService eventParticipationService;
 
-    public void registerParticipant(long eventId, long userId) {
-        eventParticipationService.registerParticipant(eventId, userId);
+    public ResponseEntity<Void> registerParticipant(long eventId, long userId) {
+        try {
+            eventParticipationService.registerParticipant(eventId, userId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    public void unregisterParticipant(long eventId, long userId) {
-        eventParticipationService.unregisterParticipant(eventId, userId);
+    public ResponseEntity<Void> unregisterParticipant(long eventId, long userId) {
+        try {
+            eventParticipationService.unregisterParticipant(eventId, userId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+
     }
 
-    public List<UserDto> getParticipant (long eventId) {
-        return eventParticipationService.getParticipant(eventId);
+    public ResponseEntity<List<UserDto>> getParticipant(long eventId) {
+        try {
+            return ResponseEntity.ok(eventParticipationService.getParticipant(eventId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    public int getParticipantCount (long eventId) {
-        return eventParticipationService.getParticipantsCount(eventId);
+    public ResponseEntity<Integer> getParticipantCount(long eventId) {
+        try {
+            return ResponseEntity.ok(eventParticipationService.getParticipantsCount(eventId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }
