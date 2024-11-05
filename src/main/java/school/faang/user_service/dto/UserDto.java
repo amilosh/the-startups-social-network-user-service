@@ -5,13 +5,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import java.util.List;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -28,4 +27,8 @@ public class UserDto {
     @Email(message = "Email should be in valid email format")
     @Size(min = 3, max = 16, message = "Email length should be min 3, max 16")
     private String email;
+
+    private List<Long> menteesId;
+    private List<Long> mentorsId;
+    private List<Long> skillsId;
 }
