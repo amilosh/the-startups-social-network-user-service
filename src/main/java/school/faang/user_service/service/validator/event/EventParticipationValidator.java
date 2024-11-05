@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.validator.event;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.repository.event.EventParticipationRepository;

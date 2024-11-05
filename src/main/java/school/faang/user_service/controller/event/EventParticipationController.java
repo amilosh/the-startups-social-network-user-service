@@ -9,12 +9,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.service.eventService.EventParticipationService;
-import school.faang.user_service.service.EventParticipationValidator;
+import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.service.event.EventParticipationService;
 
 import java.util.List;
-
 
 @RestController
 @RequiredArgsConstructor
@@ -22,11 +20,9 @@ import java.util.List;
 public class EventParticipationController {
 
     private final EventParticipationService eventParticipationService;
-    private final EventParticipationValidator validator;
 
     @PostMapping("/register")
     public ResponseEntity<String> registerParticipation(@RequestParam Long eventId, @RequestParam Long userId) {
-        validator.validateParticipation(eventId, userId);
         eventParticipationService.registerParticipation(eventId, userId);
         return ResponseEntity.ok("Пользователь успешно зарегистрирован на событие");
     }
@@ -38,10 +34,11 @@ public class EventParticipationController {
     }
 
     @GetMapping("/{eventId}/participants")
-    public ResponseEntity <List<UserDto>> getParticipants (@PathVariable Long eventId) {
+    public ResponseEntity<List<UserDto>> getParticipants(@PathVariable Long eventId) {
         List<UserDto> participants = eventParticipationService.getListOfParticipants(eventId);
         return ResponseEntity.ok(participants);
     }
+
     @GetMapping("/{eventId}/participants/count")
     public ResponseEntity<Integer> getParticipantsCount(@PathVariable Long eventId) {
         int count = eventParticipationService.getParticipantsCount(eventId);

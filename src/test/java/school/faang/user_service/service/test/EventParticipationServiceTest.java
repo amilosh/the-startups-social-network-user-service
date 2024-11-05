@@ -1,14 +1,15 @@
 package school.faang.user_service.service.test;
-import org.junit.jupiter.api.Test; // Импортируйте из JUnit 5
-import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.repository.EventParticipationRepository;
-import school.faang.user_service.service.EventParticipationValidator;
-import school.faang.user_service.service.eventService.EventParticipationService;
-import school.faang.user_service.service.userService.UserService;
+import school.faang.user_service.service.validator.event.EventParticipationValidator;
+import school.faang.user_service.service.event.EventParticipationService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -17,6 +18,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class EventParticipationServiceTest {
 
     @Mock
@@ -24,19 +26,9 @@ public class EventParticipationServiceTest {
 
     @Mock
     private EventParticipationValidator validator;
-
-    @Mock
-    private UserService userService;
-
     @InjectMocks
     private EventParticipationService eventParticipationService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
-
-    // Тест для регистрации участника
     @Test
     public void testRegisterParticipation_Success() {
         long eventId = 1L;
@@ -65,7 +57,6 @@ public class EventParticipationServiceTest {
         assertEquals("Пользователь уже зарегистрирован на событие", exception.getMessage());
     }
 
-    // Тест для отмены регистрации
     @Test
     public void testUnregisterParticipation_Success() {
         long eventId = 1L;
@@ -81,11 +72,11 @@ public class EventParticipationServiceTest {
         long userId = 2L;
         Exception exception = assertThrows(RuntimeException.class, () ->
                 eventParticipationService.unregisterParticipation(eventId, userId));
-        assertEquals("Пользователь не зарегисрирован на событие ", exception.getMessage());
+        assertEquals("Пользователь не зарегисрирован на событие", exception.getMessage());
     }
 
     @Test
-    public void testGetParticipantCount () {
+    public void testGetParticipantCount() {
         long eventId = 1L;
         int expectedCount = 5;
 
@@ -97,6 +88,7 @@ public class EventParticipationServiceTest {
 
         verify(eventParticipationRepository, times(1)).countParticipants(eventId);
     }
+
     @Test
     public void testRegisterParticipation_NullEventId() {
         long userId = 2L;

@@ -8,8 +8,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
 import school.faang.user_service.controller.event.EventParticipationController;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.service.eventService.EventParticipationService;
+import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.service.event.EventParticipationService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,6 @@ public class EventParticipationControllerTest {
         MockitoAnnotations.openMocks(this);
     }
 
-    // Тест для получения списка участников
     @Test
     public void testGetListOfParticipants() {
         long eventId = 1L;
@@ -37,13 +36,10 @@ public class EventParticipationControllerTest {
         userDtos.add(new UserDto(1L, "testUser1", "testUser1@mail.ru"));
         userDtos.add(new UserDto(2L, "testUser2", "testUser2@mail.ru"));
 
-        // Мокаем метод getListOfParticipants
         Mockito.when(eventParticipationService.getListOfParticipants(eventId)).thenReturn(userDtos);
 
-        // Вызываем метод контроллера
         ResponseEntity<List<UserDto>> responseEntity = eventParticipationController.getParticipants(eventId);
 
-        // Проверяем статус и содержимое ответа
         assertEquals(200, responseEntity.getStatusCodeValue());
         assertEquals(2, responseEntity.getBody().size());
         assertEquals("testUser1", responseEntity.getBody().get(0).getUsername());
