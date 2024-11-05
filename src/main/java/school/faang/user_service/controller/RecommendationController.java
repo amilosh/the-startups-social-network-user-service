@@ -1,39 +1,46 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.service.RecommendationService;
-import school.faang.user_service.validation.recommendation.RecommendationValidator;
 
 import java.util.List;
 
-@Component
+@RestController
+@RequestMapping("api/recommendations")
 @RequiredArgsConstructor
+@Validated
 public class RecommendationController {
     private final RecommendationService recommendationService;
-    private final RecommendationValidator recommendationValidator;
 
-    public RecommendationDto giveRecommendation(RecommendationDto recommendationDto) {
-        return recommendationService.create(recommendationDto);
+    @PostMapping()
+    public ResponseEntity<RecommendationDto> createRecommendation(@Valid @RequestBody RecommendationDto recommendationDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(recommendationService.create(recommendationDto));
     }
 
-    public RecommendationDto updateRecommendation(RecommendationDto recommendationDto) {
-        return recommendationService.update(recommendationDto);
+    @PutMapping("/update-recommendation")
+    public ResponseEntity<RecommendationDto> updateRecommendation(@Valid @RequestBody RecommendationDto recommendationDto) {
+        return ResponseEntity.ok(recommendationService.update(recommendationDto));
     }
 
-    public void deleteRecommendation(Long recommendationId) {
-        recommendationValidator.validateId(recommendationId);
+    @DeleteMapping("/{recommendationId}")
+    public ResponseEntity<Void> deleteRecommendation(@PathVariable @NotNull @Positive long recommendationId) {
         recommendationService.delete(recommendationId);
+        return ResponseEntity.noContent().build();
     }
-
-    public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
-        recommendationValidator.validateId(receiverId);
-        return recommendationService.getAllUserRecommendations(receiverId);
+    @GetMapping("/receivers/{receiverId}")
+    public ResponseEntity<List<RecommendationDto>> getAllUserRecommendations(@PathVariable @Positive long receiverId) {
+        return ResponseEntity.ok().body(recommendationService.getAllUserRecommendations(receiverId));
     }
-
-    public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
-        recommendationValidator.validateId(authorId);
-        return recommendationService.getAllGivenRecommendations(authorId);
+    @GetMapping("/authors/{authorId}")
+    public ResponseEntity<List<RecommendationDto>> getAllGivenRecommendations(@PathVariable @Positive long authorId) {
+        return ResponseEntity.ok().body(recommendationService.getAllGivenRecommendations(authorId));
     }
 }

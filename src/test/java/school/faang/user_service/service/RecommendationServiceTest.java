@@ -112,7 +112,7 @@ class RecommendationServiceTest {
 
         assertEquals(10L, result.getId());
 
-        verify(recommendationValidator, times(1)).validateDto(dto);
+        verify(recommendationValidator, times(1)).validateAuthorAndReceiverId(dto);
         verify(recommendationValidator, times(1)).validateSkillAndTimeRequirementsForGuarantee(dto);
         verify(recommendationValidator, times(1)).validateRecommendationExistsById(recommendation.getId());
         verify(userService, times(1)).findUser(dto.getAuthorId());
@@ -135,7 +135,7 @@ class RecommendationServiceTest {
         assertEquals(10L, result.getId());
         assertEquals("Updated content", result.getContent());
 
-        verify(recommendationValidator, times(1)).validateDto(dto);
+        verify(recommendationValidator, times(1)).validateAuthorAndReceiverId(dto);
         verify(recommendationValidator, times(1)).validateSkillAndTimeRequirementsForGuarantee(dto);
         verify(recommendationRepository, times(1))
                 .update(anyLong(), anyLong(), anyString());

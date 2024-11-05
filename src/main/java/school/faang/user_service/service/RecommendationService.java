@@ -28,7 +28,7 @@ public class RecommendationService {
 
     @Transactional
     public RecommendationDto create(RecommendationDto recommendationDto) {
-        recommendationValidator.validateDto(recommendationDto);
+        recommendationValidator.validateAuthorAndReceiverId(recommendationDto);
         recommendationValidator.validateSkillAndTimeRequirementsForGuarantee(recommendationDto);
 
         Recommendation recommendation = recommendationRepository.save(createRecommendationFromDto(recommendationDto));
@@ -41,7 +41,7 @@ public class RecommendationService {
 
     @Transactional
     public RecommendationDto update(RecommendationDto recommendationDto) {
-        recommendationValidator.validateDto(recommendationDto);
+        recommendationValidator.validateAuthorAndReceiverId(recommendationDto);
         recommendationValidator.validateSkillAndTimeRequirementsForGuarantee(recommendationDto);
 
         recommendationRepository.update(
@@ -84,10 +84,6 @@ public class RecommendationService {
         recommendation.setReceiver(userService.findUser(recommendationDto.getReceiverId()));
         recommendation.setSkillOffers(skillOfferService.findAllByUserId(recommendationDto.getReceiverId()));
         return recommendation;
-    }
-
-    public boolean checkIfRecommendationExistsById(Long recommendationId) {
-        return recommendationRepository.existsById(recommendationId);
     }
 
     private List<Recommendation> getAllRecommendationsByReceiverId(long receiverId) {

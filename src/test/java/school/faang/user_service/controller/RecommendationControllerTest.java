@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.dto.SkillOfferDto;
 import school.faang.user_service.service.RecommendationService;
@@ -46,25 +48,27 @@ class RecommendationControllerTest {
     }
 
     @Test
-    void testGiveRecommendation() {
+    void testCreateRecommendation() {
         when(recommendationService.create(dto)).thenReturn(dto);
 
-        RecommendationDto result = recommendationController.giveRecommendation(dto);
+        ResponseEntity<RecommendationDto> result = recommendationController.createRecommendation(dto);
 
         verify(recommendationService, times(1)).create(dto);
 
         assertNotNull(result);
-        assertEquals(dto, result);
+        assertEquals(dto, result.getBody());
+        assertEquals(HttpStatus.CREATED, result.getStatusCode());
     }
 
     @Test
     void testUpdateRecommendation() {
         when(recommendationService.update(dto)).thenReturn(dto);
 
-        RecommendationDto result = recommendationController.updateRecommendation(dto);
+        ResponseEntity<RecommendationDto> result = recommendationController.updateRecommendation(dto);
 
         assertNotNull(result);
-        assertEquals(dto, result);
+        assertEquals(dto, result.getBody());
+        assertEquals(HttpStatus.OK, result.getStatusCode());
 
         verify(recommendationService, times(1)).update(dto);
     }
@@ -74,7 +78,6 @@ class RecommendationControllerTest {
 
         recommendationController.deleteRecommendation(dto.getId());
 
-        verify(recommendationValidator, times(1)).validateId(dto.getId());
         verify(recommendationService, times(1)).delete(dto.getId());
     }
 
@@ -83,13 +86,12 @@ class RecommendationControllerTest {
         dto.setId(1L);
         when(recommendationService.getAllUserRecommendations(dto.getReceiverId())).thenReturn(List.of(dto));
 
-        List<RecommendationDto> result = recommendationController.getAllUserRecommendations(dto.getReceiverId());
+        ResponseEntity<List<RecommendationDto>> result = recommendationController.getAllUserRecommendations(dto.getReceiverId());
 
         assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(dto, result.get(0));
+        assertEquals(1, result.getBody().size());
+        assertEquals(dto, result.getBody().get(0));
 
-        verify(recommendationValidator, times(1)).validateId(dto.getReceiverId());
         verify(recommendationService, times(1)).getAllUserRecommendations(dto.getReceiverId());
     }
 
@@ -98,13 +100,12 @@ class RecommendationControllerTest {
         dto.setId(1L);
         when(recommendationService.getAllGivenRecommendations(dto.getAuthorId())).thenReturn(List.of(dto));
 
-        List<RecommendationDto> result = recommendationController.getAllGivenRecommendations(dto.getAuthorId());
+        ResponseEntity<List<RecommendationDto>> result = recommendationController.getAllGivenRecommendations(dto.getAuthorId());
 
         assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals(dto, result.get(0));
+        assertEquals(1, result.getBody().size());
+        assertEquals(dto, result.getBody().get(0));
 
-        verify(recommendationValidator, times(1)).validateId(dto.getAuthorId());
         verify(recommendationService, times(1)).getAllGivenRecommendations(dto.getAuthorId());
     }
 }
