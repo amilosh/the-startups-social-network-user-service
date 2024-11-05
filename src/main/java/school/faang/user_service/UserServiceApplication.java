@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean;
 @EnableFeignClients("school.faang.user_service.client")
 @OpenAPIDefinition(
         info = @Info(
-                title = "User Service",
+                title = "User Service Test",
                 version = "1.0.0")
 )
 public class UserServiceApplication {
