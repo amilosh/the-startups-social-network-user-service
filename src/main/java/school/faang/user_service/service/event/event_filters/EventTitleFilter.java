@@ -16,6 +16,6 @@ public class EventTitleFilter implements EventFilter {
     @Override
     public List<Event> apply(List<Event> events, EventFilterDto filters) {
         String titlePattern = filters.getTitlePattern();
-        return events.stream().filter(event -> event.getTitle() != null && event.getTitle().contains(titlePattern)).toList();
+        return events.stream().filter(event -> event.getTitle() != null && event.getTitle().toLowerCase().contains(titlePattern.toLowerCase())).toList();
     }
 }
