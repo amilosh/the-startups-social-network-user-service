@@ -19,15 +19,18 @@ import org.testcontainers.utility.DockerImageName;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.entity.event.EventType;
 import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.event.EventRepository;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -44,6 +47,9 @@ public class EventControllerIT {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private EventRepository eventRepository;
 
     @Container
     public static final PostgreSQLContainer<?> POSTGRESQL_CONTAINER =
@@ -97,7 +103,6 @@ public class EventControllerIT {
 
         String requestJson = objectMapper.writeValueAsString(eventDto);
 
-
         MvcResult result = mockMvc.perform(post("/v1/events")
                         .header("x-user-id", 10)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -110,7 +115,8 @@ public class EventControllerIT {
         String responseJson = result.getResponse().getContentAsString();
         EventDto responseEvent = objectMapper.readValue(responseJson, EventDto.class);
 
-        System.out.println("RESPONSE: " + responseEvent);
+        List<Event> events = eventRepository.findAll();
+        assertFalse(events.isEmpty(), "The list of events should not be empty");
 
         assertEquals(eventDto.getOwnerId(), responseEvent.getOwnerId());
         assertEquals(eventDto.getTitle(), responseEvent.getTitle());
