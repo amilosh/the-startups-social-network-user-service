@@ -3,6 +3,7 @@ package school.faang.user_service.controller.goal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.service.GoalInvitationService;
 
 @Component
@@ -12,5 +13,17 @@ public class GoalInvitationController {
 
     public GoalInvitationDto createInvitation(GoalInvitationDto invitationDto) {
         return invitationService.creatInvitation(invitationDto);
+    }
+
+    public void acceptGoalInvitation(long id) {
+        invitationService.acceptGoalInvitation(id);
+    }
+
+    public void rejecGoalInvitation(long id) {
+        invitationService.rejectGoalInvitation(id);
+    }
+
+    public void getInvitations(InvitationFilterDto filter) {
+
     }
 }
