@@ -23,7 +23,7 @@ public class EventController {
 
     //    @GetMapping("/{eventId}")
     public EventDto getEvent(@PathVariable Long id) {
-        return null;
+        return eventService.getEvent(id);
     }
 
     //    @GetMapping

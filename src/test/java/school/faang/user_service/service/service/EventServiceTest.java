@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -22,7 +21,7 @@ import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.service.event.EventServiceImplementation;
+import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.event.EventOwnerValidator;
 import school.faang.user_service.validator.event.EventStartDateValidator;
 import school.faang.user_service.validator.event.EventTitleValidator;
@@ -33,12 +32,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,18 +56,19 @@ public class EventServiceTest {
     @Mock
     private UserRepository userRepository;
     @Spy
-    private EventMapper eventMapper = Mappers.getMapper(EventMapper.class);
+    private final EventMapper eventMapper = Mappers.getMapper(EventMapper.class);
     private final EventOwnerValidator eventOwnerValidator = new EventOwnerValidator();
     private final EventStartDateValidator eventStartDateValidator = new EventStartDateValidator();
     private final EventTitleValidator eventTitleValidator = new EventTitleValidator();
     private final EventDescriptionFilter eventDescriptionFilter = new EventDescriptionFilter();
     private final EventTitleFilter eventTitleFilter = new EventTitleFilter();
     private final EventOwnerFilter eventOwnerFilter = new EventOwnerFilter();
-    @InjectMocks
-    private EventServiceImplementation eventService;
 
     private final List<EventValidator> eventValidators = Arrays.asList(eventOwnerValidator, eventStartDateValidator, eventTitleValidator);
     private final List<EventFilter> eventFilters = Arrays.asList(eventDescriptionFilter, eventTitleFilter, eventOwnerFilter);
+
+    private EventService eventService;
+
     private EventDto eventDto;
     private Event event;
     private Skill skill;
@@ -87,7 +87,14 @@ public class EventServiceTest {
         user.setId(33L);
         skill = new Skill();
 
-        eventService.setEventValidators(eventValidators);
+        eventService = new EventService(
+                eventRepository,
+                skillRepository,
+                userRepository,
+                eventMapper,
+                eventValidators,
+                eventFilters
+        );
     }
 
     @Test
@@ -145,8 +152,7 @@ public class EventServiceTest {
     @Test
     void testGetEventByIdIfIfDoesNotExistInDb() {
         prepareDtoWithTitleAndOwnerId();
-        EventDto eventDto = eventService.getEvent(1L);
-        assertNull(eventDto);
+        assertThrows(NoSuchElementException.class, () -> eventService.getEvent(1L));
     }
 
     @Test
@@ -236,8 +242,6 @@ public class EventServiceTest {
         filter = new EventFilterDto("Title", "desc", 33L);
         event.setDescription("desc");
         event.setRelatedSkills(new ArrayList<>());
-        eventService.setEventFilters(eventFilters);
-
     }
 
     private void prepareDtoWithTitleAndOwnerId() {
