@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,7 +24,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("api/mentorshipRequests")
+@RequestMapping("api/mentorship-requests")
 @RequiredArgsConstructor
 @Validated
 public class MentorshipRequestController {
@@ -35,20 +36,20 @@ public class MentorshipRequestController {
         return ResponseEntity.status(HttpStatus.CREATED).body(requestService.requestMentorship(dto));
     }
 
-    @GetMapping("/filteredRequests/")
-    public ResponseEntity<List<MentorshipRequestDto>> getRequests(@NotNull RequestFilterDto filters) {
+    @GetMapping("/requests/filtered")
+    public ResponseEntity<List<MentorshipRequestDto>> getRequests(@Valid @RequestBody RequestFilterDto filters) {
         log.info("Getting all requests by filters: {}.", filters);
         return ResponseEntity.ok().body(requestService.getRequests(filters));
     }
 
-    @PutMapping
-    public ResponseEntity<MentorshipRequestDto> acceptRequest(@NotNull @Positive Long id) {
+    @PutMapping("/requests/accepts/{id}")
+    public ResponseEntity<MentorshipRequestDto> acceptRequest(@PathVariable @NotNull @Positive Long id) {
         log.info("Accepting request with id #{}", id);
         return ResponseEntity.ok().body(requestService.acceptRequest(id));
     }
 
-    @PutMapping
-    public ResponseEntity<MentorshipRequestDto> rejectRequest(@NotNull @Positive Long id,
+    @PutMapping("/requests/rejects/{id}")
+    public ResponseEntity<MentorshipRequestDto> rejectRequest(@PathVariable @NotNull @Positive Long id,
                                                               @Valid @RequestBody RejectionDto rejectionDto) {
         log.info("Rejecting request with id #{} and reason '{}'", id, rejectionDto.getReason());
         return ResponseEntity.ok().body(requestService.rejectRequest(id, rejectionDto));
