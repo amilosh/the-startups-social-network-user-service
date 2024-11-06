@@ -24,13 +24,12 @@ public interface UserMapper {
     @Mapping(target = "skills", ignore = true)
     User toEntity(UserDto userDto);
 
-
     List<UserDto> toDto(List<User> users);
 
     List<User> toEntity(List<UserDto> usersDto);
 
     @Named("mapToUsersId")
-    default List<Long> mapToUsersId (List<User> users) {
+    default List<Long> mapToUsersId(List<User> users) {
         return mapToIds(users, User::getId);
     }
 

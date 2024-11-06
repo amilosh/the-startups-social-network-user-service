@@ -52,6 +52,5 @@ public class MentorshipService {
                     + " does not have a mentor with " + mentorId + " id");
         }
     }
-
 }
 
