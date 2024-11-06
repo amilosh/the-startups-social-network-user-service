@@ -1,4 +1,4 @@
-package school.faang.user_service.validator;
+package school.faang.user_service.validator.Recommendation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +11,7 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Component
@@ -26,7 +27,9 @@ public class RecommendationDtoValidator {
     }
 
     private void checkSkillOfferExists(RecommendationDto recDto) {
-        if (!recDto.getSkillOffers().isEmpty()) {
+        if (recDto.getSkillOffers() == null || recDto.getSkillOffers().isEmpty()) {
+            throw new NoSuchElementException(ErrorMessage.SKILL_OFFERS_IS_EMPTY);
+        } else {
             List<String> skillTitlesList = recDto.getSkillOffers().stream()
                     .map(SkillOfferDto::getSkillTitle)
                     .toList();

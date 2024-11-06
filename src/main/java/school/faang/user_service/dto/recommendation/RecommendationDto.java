@@ -25,4 +25,6 @@ public class RecommendationDto {
 
     @NotNull
     private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 }

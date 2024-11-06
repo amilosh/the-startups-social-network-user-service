@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.Recommendation;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +11,12 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.ErrorMessage;
-import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.mapper.Recommendation.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.validator.RecommendationDtoValidator;
+import school.faang.user_service.validator.Recommendation.RecommendationDtoValidator;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -57,13 +57,13 @@ public class RecommendationService {
     }
 
     @Transactional
-    public RecommendationDto update(RecommendationDto requestRecDto) {
-        recDtoValidator.validateExistedSkillsAndDate(requestRecDto);
-        addSkillOffersAndGuarantee(requestRecDto);
-        log.info("Updating recommendation with id - {}", requestRecDto.getId());
+    public RecommendationDto update(RecommendationDto recDto) {
+        recDtoValidator.validateExistedSkillsAndDate(recDto);
+        addSkillOffersAndGuarantee(recDto);
+        log.info("Updating recommendation with id - {}", recDto.getId());
 
-        skillOfferRepository.deleteAllByRecommendationId(requestRecDto.getId());
-        Recommendation result = recRepository.save(recMapper.toEntity(requestRecDto));
+//        skillOfferRepository.deleteAllByRecommendationId(recDto.getId());
+        Recommendation result = recRepository.save(recMapper.toEntity(recDto));
 
         return recMapper.toDto(result);
     }
