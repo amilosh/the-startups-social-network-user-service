@@ -144,7 +144,9 @@ public class User {
     private Premium premium;
 
     public void removeParticipatedEvent(Event event) {
-        participatedEvents.remove(event);
+        if (event != null) {
+            participatedEvents.remove(event);
+        }
     }
 
     public void removeAllGoals() {
@@ -153,6 +155,8 @@ public class User {
     }
 
     public void removeMentor(User mentor) {
-        mentors.remove(mentor);
+        if (mentor != null) {
+            mentors.remove(mentor);
+        }
     }
 }
