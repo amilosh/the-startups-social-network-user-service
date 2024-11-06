@@ -13,16 +13,22 @@ public interface UserMapper {
 
     @Mapping(target = "phone", ignore = true)
     @Mapping(target = "aboutMe", ignore = true)
+    @Mapping(target = "password", ignore = true)
     @Mapping(target = "city", ignore = true)
+    @Mapping(target = "country", ignore = true)
     @Mapping(target = "experience", ignore = true)
-    @Mapping(target = "contactPreference", ignore = true)
+    @Mapping(target = "active", ignore = true)
+
+
     User toEntity(UserDto userDto);
 
     @Mapping(target = "phone", ignore = true)
     @Mapping(target = "aboutMe", ignore = true)
+    @Mapping(target = "password", ignore = true)
     @Mapping(target = "city", ignore = true)
+    @Mapping(target = "country", ignore = true)
     @Mapping(target = "experience", ignore = true)
-    @Mapping(target = "preference", ignore = true)
-    @Mapping(target = "telegramChatId", ignore = true)
+    @Mapping(target = "active", ignore = true)
     UserDto toDto(User user);
 }
+

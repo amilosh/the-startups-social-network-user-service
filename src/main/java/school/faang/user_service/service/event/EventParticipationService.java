@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
-    private final UserMapper userMapper;
+    private UserMapper userMapper;
 
     public void registerParticipant(Long eventId, Long userId) { //1
         validateEventId(eventId);
@@ -55,8 +55,6 @@ public class EventParticipationService {
         return eventParticipationRepository.countParticipants(eventId);
     }
 
-
-    // Возвращаем количество зарегистрированных участников
     private void validateEventId(Long eventId) {
         if (!eventParticipationRepository.existsById(eventId)) {
             throw new IllegalArgumentException("There is not event with this ID!");

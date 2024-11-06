@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import school.faang.user_service.entity.contact.PreferredContact;
+import school.faang.user_service.entity.Country;
+
 
 @Data
 @Builder
@@ -17,11 +18,10 @@ public class UserDto {
     private String email;
     private String phone;
     private String aboutMe;
-    private String city;
-    private String country;
     private String password;
-    private String telegramChatId;
+    private String city;
+    private Country country;
     private Integer experience;
-    private PreferredContact preference;
+    private boolean active;
 
 }
