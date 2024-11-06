@@ -5,9 +5,11 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.validator.SkillValidator;
 
 import java.util.List;
@@ -17,9 +19,12 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Component
 public class SkillService {
+
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
     private final SkillValidator skillValidator;
+
+    private final SkillRequestRepository skillRequestRepository;
 
     public SkillDto create(SkillDto skillDto) {
         skillValidator.validateExistTitle(skillDto.getTitle());
@@ -54,5 +59,21 @@ public class SkillService {
         Optional<Skill> skill = skillRepository.findUserSkill(skillId, userId);
         return skill.map(skill1 -> skillMapper.entityToDto(skill1))
                 .orElseThrow(() -> new DataValidationException("Скилл не найден"));
+    }
+
+    public List<SkillRequest> findByRequestId(long requestId) {
+        return skillRequestRepository.findByRequestId(requestId);
+    }
+
+    public SkillRequest createRequest(long requestId, long skillId) {
+        return skillRequestRepository.create(requestId, skillId);
+    }
+
+    public Optional<Skill> findUserSkill(long userId, long skillId) {
+        return skillRepository.findUserSkill(userId, skillId);
+    }
+
+    public boolean existsById(long id) {
+        return skillRepository.existsById(id);
     }
 }

@@ -18,10 +18,9 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
-import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
-import school.faang.user_service.repository.recommendation.SkillRequestRepository;
+import school.faang.user_service.service.SkillService;
+import school.faang.user_service.service.UserService;
 import school.faang.user_service.service.recommendation.filter.RecommendationRequestFilter;
 import school.faang.user_service.service.recommendation.filter.RecommendationRequestReceiverFilter;
 import school.faang.user_service.service.recommendation.filter.RecommendationRequestRequesterFilter;
@@ -39,16 +38,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class RecommendationRequestServiceImplTest {
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Mock
     private RecommendationRequestRepository recommendationRequestRepository;
 
     @Mock
-    private SkillRepository skillRepository;
-
-    @Mock
-    private SkillRequestRepository skillRequestRepository;
+    private SkillService skillService;
 
     @Spy
     private RecommendationRequestMapper recommendationRequestMapper = Mappers.getMapper(RecommendationRequestMapper.class);
@@ -59,24 +55,24 @@ class RecommendationRequestServiceImplTest {
     @BeforeEach
     public void setUp() {
         List<RecommendationRequestFilter> filters = new ArrayList<>(List.of(new RecommendationRequestStatusFilter(), new RecommendationRequestRequesterFilter(), new RecommendationRequestReceiverFilter()));
-        recommendationRequestService = new RecommendationRequestServiceImpl(userRepository, recommendationRequestRepository, skillRepository, skillRequestRepository, recommendationRequestMapper, filters);
+        recommendationRequestService = new RecommendationRequestServiceImpl(userService, skillService, recommendationRequestRepository, recommendationRequestMapper, filters);
 
-        Mockito.lenient().when(userRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(new User()));
-        Mockito.lenient().when(skillRepository.findUserSkill(Mockito.anyLong(), Mockito.anyLong())).thenReturn(Optional.of(new Skill()));
-        Mockito.lenient().when(skillRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.lenient().when(userService.findById(Mockito.anyLong())).thenReturn(Optional.of(new User()));
+        Mockito.lenient().when(skillService.findUserSkill(Mockito.anyLong(), Mockito.anyLong())).thenReturn(Optional.of(new Skill()));
+        Mockito.lenient().when(skillService.existsById(Mockito.anyLong())).thenReturn(true);
         Mockito.lenient().when(recommendationRequestRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(new RecommendationRequest()));
     }
 
     @Test
     public void requestedUserNotFound() {
-        Mockito.lenient().when(userRepository.findById(getRecommendationRequestDto().getRequesterId())).thenReturn(Optional.empty());
+        Mockito.lenient().when(userService.findById(getRecommendationRequestDto().getRequesterId())).thenReturn(Optional.empty());
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> recommendationRequestService.create(getRecommendationRequestDto()));
         assertEquals("Requester id %s not exist".formatted(getRecommendationRequestDto().getRequesterId()), exception.getMessage());
     }
 
     @Test
     public void receiverUserNotFound() {
-        Mockito.lenient().when(userRepository.findById(getRecommendationRequestDto().getReceiverId())).thenReturn(Optional.empty());
+        Mockito.lenient().when(userService.findById(getRecommendationRequestDto().getReceiverId())).thenReturn(Optional.empty());
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> recommendationRequestService.create(getRecommendationRequestDto()));
         assertEquals("Receiver id %s not exist".formatted(getRecommendationRequestDto().getReceiverId()), exception.getMessage());
     }
@@ -93,14 +89,14 @@ class RecommendationRequestServiceImplTest {
 
     @Test
     public void receiverUserDontHaveSkill() {
-        Mockito.lenient().when(skillRepository.findUserSkill(1L, getRecommendationRequestDto().getReceiverId())).thenReturn(Optional.empty());
+        Mockito.lenient().when(skillService.findUserSkill(1L, getRecommendationRequestDto().getReceiverId())).thenReturn(Optional.empty());
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> recommendationRequestService.create(getRecommendationRequestDto()));
         assertEquals("The receiver user id %s does not have the skill %s".formatted(getRecommendationRequestDto().getReceiverId(), 1L), exception.getMessage());
     }
 
     @Test
     public void skillNotExists() {
-        Mockito.lenient().when(skillRepository.existsById(1L)).thenReturn(false);
+        Mockito.lenient().when(skillService.existsById(1L)).thenReturn(false);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> recommendationRequestService.create(getRecommendationRequestDto()));
         assertEquals("Skill id %s not exist".formatted(1L), exception.getMessage());
     }

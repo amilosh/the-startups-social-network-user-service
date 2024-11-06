@@ -12,6 +12,8 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
+import school.faang.user_service.service.SkillService;
+import school.faang.user_service.service.UserService;
 import school.faang.user_service.service.recommendation.filter.RecommendationRequestFilter;
 
 import java.time.LocalDateTime;
@@ -23,10 +25,10 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class RecommendationRequestServiceImpl implements RecommendationRequestService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
+    private final SkillService skillService;
+
     private final RecommendationRequestRepository recommendationRequestRepository;
-    private final SkillRepository skillRepository;
-    private final SkillRequestRepository skillRequestRepository;
 
     private final RecommendationRequestMapper recommendationRequestMapper;
 
@@ -36,13 +38,20 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     public RecommendationRequestDto create(RecommendationRequestDto request) {
         validateRecommendationRequest(request);
 
-        request.getSkillIds().forEach(skillId -> skillRequestRepository.create(request.getId(), skillId));
+        request.getSkillIds().forEach(skillId -> skillService.createRequest(request.getId(), skillId));
 
         RecommendationRequest recommendationRequest = recommendationRequestMapper.toEntity(request);
-        recommendationRequest.setRequester(userRepository.findById(request.getRequesterId()).orElseThrow(() -> new IllegalArgumentException("Requester id %s not exist".formatted(request.getRequesterId()))));
-        recommendationRequest.setReceiver(userRepository.findById(request.getReceiverId()).orElseThrow(() -> new IllegalArgumentException("Receiver id %s not exist".formatted(request.getReceiverId()))));
+        recommendationRequest.setRequester(
+                userService.findById(request.getRequesterId())
+                        .orElseThrow(() -> new IllegalArgumentException("Requester id %s not exist".formatted(request.getRequesterId())))
+        );
+        recommendationRequest.setReceiver(
+                userService.findById(request.getReceiverId())
+                        .orElseThrow(() -> new IllegalArgumentException("Receiver id %s not exist".formatted(request.getReceiverId())))
+        );
+
         recommendationRequest.setStatus(RequestStatus.PENDING);
-        recommendationRequest.setSkills(skillRequestRepository.findByRequestId(recommendationRequest.getId()));
+        recommendationRequest.setSkills(skillService.findByRequestId(recommendationRequest.getId()));
 
         return recommendationRequestMapper.toDto(recommendationRequestRepository.save(recommendationRequest));
     }
@@ -64,14 +73,19 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
 
     @Override
     public RecommendationRequestDto getRequest(long id) {
-        return recommendationRequestMapper.toDto(recommendationRequestRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Recommendation request id %s not found".formatted(id))));
+        return recommendationRequestMapper.toDto(
+                recommendationRequestRepository.findById(id)
+                        .orElseThrow(() -> new IllegalArgumentException("Recommendation request id %s not found".formatted(id)))
+        );
     }
 
     @Override
     public RecommendationRequestDto rejectRequest(long id, RecommendationRequestRejectionDto rejection) {
         validateRejectionRequest(id);
 
-        RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Recommendation request id %s not found".formatted(id)));
+        RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Recommendation request id %s not found".formatted(id)));
+
         recommendationRequest.setStatus(RequestStatus.REJECTED);
         recommendationRequest.setUpdatedAt(LocalDateTime.now());
         recommendationRequest.setRejectionReason(rejection.getReason());
@@ -92,7 +106,9 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
     }
 
     private void validateRecommendationRequest(RecommendationRequestDto request) {
-        Optional<RecommendationRequest> recommendationRequest = recommendationRequestRepository.findLatestPendingRequest(request.getRequesterId(), request.getReceiverId());
+        Optional<RecommendationRequest> recommendationRequest = recommendationRequestRepository
+                .findLatestPendingRequest(request.getRequesterId(), request.getReceiverId());
+
         if (recommendationRequest.isPresent()) {
             if (recommendationRequest.get().getCreatedAt().plusMonths(6L).isAfter(request.getCreatedAt())) {
                 throw new IllegalArgumentException("A recommendation request from the same user to another can be sent no more than once every 6 months.");
@@ -100,11 +116,11 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
         }
 
         request.getSkillIds().forEach(skillId -> {
-            if (skillRepository.findUserSkill(skillId, request.getReceiverId()).isEmpty()) {
+            if (skillService.findUserSkill(skillId, request.getReceiverId()).isEmpty()) {
                 throw new IllegalArgumentException("The receiver user id %s does not have the skill %s".formatted(request.getReceiverId(), skillId));
             }
 
-            if (!skillRepository.existsById(skillId)) {
+            if (!skillService.existsById(skillId)) {
                 throw new IllegalArgumentException("Skill id %s not exist".formatted(skillId));
             }
         });
