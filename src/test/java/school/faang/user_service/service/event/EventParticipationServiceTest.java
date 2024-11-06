@@ -142,26 +142,4 @@ public class EventParticipationServiceTest {
         verify(eventParticipationRepository, times(1))
                 .countParticipants(eventId);
     }
-
-    @Test
-    @DisplayName("Проверка validateUserId")
-    void testValidateUserId_UserIdIsNegative() {
-        long negativeUserId = -1L;
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> eventParticipationService.registerParticipant(eventId, negativeUserId));
-
-        assertEquals("userId cannot be negative: userId=-1", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("Проверка validateEventId")
-    void testValidateEventId_EventIdIsNegative() {
-        long negativeEventId = -1L;
-
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> eventParticipationService.registerParticipant(negativeEventId, userId));
-
-        assertEquals("eventId cannot be negative: eventId=-1", exception.getMessage());
-    }
 }

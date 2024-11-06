@@ -1,4 +1,4 @@
-package school.faang.user_service.service.event;
+package school.faang.user_service.controller.event;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -7,8 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.controller.event.EventParticipationController;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.service.event.EventParticipationService;
 
 import java.util.List;
 

@@ -11,15 +11,12 @@ import school.faang.user_service.validation.EventParticipationServiceValidator;
 
 import java.util.List;
 
-import static school.faang.user_service.validation.EventParticipationServiceValidator.validateEventId;
-import static school.faang.user_service.validation.EventParticipationServiceValidator.validateUserId;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
-    private EventParticipationServiceValidator validator;
+    private final EventParticipationServiceValidator validator;
 
     private boolean userExists(long eventId, long userId) {
         return eventParticipationRepository
@@ -30,8 +27,9 @@ public class EventParticipationService {
 
     public void registerParticipant(long eventId, long userId) {
 
-        validateUserId(userId);
-        validateEventId(eventId);
+        validator.validateEventId(eventId);
+        validator.validateUserId(userId);
+
 
         if (userExists(eventId, userId)) {
             log.error("User already registered: eventId={}, userId={}", eventId, userId);
@@ -44,8 +42,8 @@ public class EventParticipationService {
 
     public void unregisterParticipant(long eventId, long userId) {
 
-        validateUserId(userId);
-        validateEventId(eventId);
+        validator.validateEventId(eventId);
+        validator.validateUserId(userId);
 
         if (!userExists(eventId, userId)) {
             log.warn("User not found: eventId={}, userId={}", eventId, userId);
@@ -57,12 +55,16 @@ public class EventParticipationService {
     }
 
     public List<User> getParticipant(long eventId) {
-        validateEventId(eventId);
+
+        validator.validateEventId(eventId);
+
         return eventParticipationRepository.findAllParticipantsByEventId(eventId);
     }
 
     public int getParticipantsCount(long eventId) {
-        validateEventId(eventId);
+
+        validator.validateEventId(eventId);
+
         return eventParticipationRepository.countParticipants(eventId);
     }
 }
