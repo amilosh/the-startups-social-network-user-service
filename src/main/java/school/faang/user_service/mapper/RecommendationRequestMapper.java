@@ -7,6 +7,8 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = SkillRequestMapper.class)
 public interface RecommendationRequestMapper {
 
@@ -15,4 +17,8 @@ public interface RecommendationRequestMapper {
     @Mapping(source = "requester.id", target = "requesterId")
     @Mapping(source = "receiver.id", target = "receiverId")
     RecommendationRequestDto toDto(RecommendationRequest recommendationRequest);
+
+    List<RecommendationRequest> toEntityList(List<RecommendationRequestDto> recommendationRequestDtoList);
+
+    List<RecommendationRequestDto> toDtoList(List<RecommendationRequest> recommendationRequestList);
 }

@@ -33,31 +33,34 @@ public class RecommendationRequestService {
 
     public RecommendationRequestDto create(RecommendationRequestDto recommendationRequestDto) {
         RecommendationRequest recommendationRequest = mapToFullRecommendationRequest(recommendationRequestDto);
-        validateAbilityToSendRepeatRequest(recommendationRequest);
+        validateRecommendationRequest(recommendationRequest);
 
         recommendationRequest = recommendationRequestRepository.save(recommendationRequest);
         saveSkillRequests(recommendationRequest);
         return recommendationRequestMapper.toDto(recommendationRequest);
     }
 
-    public List<RecommendationRequest> getRequests(RequestFilterDto filterDto) {
+    public List<RecommendationRequestDto> getRequests(RequestFilterDto filterDto) {
         Stream<RecommendationRequest> recommendationRequestsStream = recommendationRequestRepository.findAll().stream();
 
-        return filters.stream()
+        List<RecommendationRequest> recommendationRequestList = filters.stream()
                 .filter(filter -> filter.isApplicable(filterDto))
                 .reduce(recommendationRequestsStream, (stream, filter) -> filter.apply(stream, filterDto),
                         ((subGenStream, stream) -> stream))
                 .distinct()
                 .toList();
+
+        return recommendationRequestMapper.toDtoList(recommendationRequestList);
     }
 
-    public RecommendationRequest getRequest(long id) {
-        return recommendationRequestRepository.findById(id)
+    public RecommendationRequestDto getRequest(long id) {
+        RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Unable to find recommendation request with id " + id));
+        return recommendationRequestMapper.toDto(recommendationRequest);
     }
 
-    public RecommendationRequest rejectRequest(long id, RejectionDto rejection) {
-        RecommendationRequest recommendationRequest = getRequest(id);
+    public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection) {
+        RecommendationRequest recommendationRequest = recommendationRequestMapper.toEntity(getRequest(id));
 
         if (recommendationRequest.getStatus().equals(RequestStatus.ACCEPTED) || recommendationRequest.getStatus().equals(RequestStatus.REJECTED)) {
             throw new DataValidationException("The recommendation request has already been accepted or rejected");
@@ -65,21 +68,21 @@ public class RecommendationRequestService {
 
         recommendationRequest.setStatus(RequestStatus.REJECTED);
         recommendationRequest.setRejectionReason(rejection.reason());
-        return recommendationRequestRepository.save(recommendationRequest);
+        recommendationRequest = recommendationRequestRepository.save(recommendationRequest);
+        return recommendationRequestMapper.toDto(recommendationRequest);
     }
 
-    private void validateAbilityToSendRepeatRequest(RecommendationRequest recommendationRequest) {
+    private void validateRecommendationRequest(RecommendationRequest recommendationRequest) {
         long requesterId = recommendationRequest.getRequester().getId();
         long receiverId = recommendationRequest.getReceiver().getId();
-        RecommendationRequest lastRecommendationRequest = recommendationRequestRepository.findLatestPendingRequest(requesterId, receiverId)
-                .orElse(null);
-        if (lastRecommendationRequest != null) {
-            boolean isAcceptable = ChronoUnit.MONTHS.between(LocalDateTime.now(), lastRecommendationRequest.getCreatedAt()) >= ACCEPTABLE_MONTH_BETWEEN_REQUEST;
-            if (!isAcceptable) {
-                throw new DataValidationException("Less than 6 months since the last request");
-            }
-        }
+        recommendationRequestRepository.findLatestPendingRequest(requesterId, receiverId)
+                .ifPresent(lastRequest -> {
+                    if (!(ChronoUnit.MONTHS.between(LocalDateTime.now(), lastRequest.getCreatedAt()) >= ACCEPTABLE_MONTH_BETWEEN_REQUEST)) {
+                        throw new DataValidationException("Less than 6 months since the last request");
+                    }
+                });
     }
+
 
     private RecommendationRequest mapToFullRecommendationRequest(RecommendationRequestDto recommendationRequestDto) {
         RecommendationRequest recommendationRequest = recommendationRequestMapper.toEntity(recommendationRequestDto);

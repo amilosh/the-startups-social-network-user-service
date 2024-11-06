@@ -1,5 +1,7 @@
 package school.faang.user_service.controller.recommendation;
 
+import jakarta.validation.constraints.Positive;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
@@ -12,22 +14,27 @@ import java.util.List;
 
 
 @Controller
+@RequiredArgsConstructor
 public class RecommendationRequestController {
-    private RecommendationRequestService recommendationRequestService;
+    private final RecommendationRequestService recommendationRequestService;
 
-    public RecommendationRequestDto requestRecommendation(@Validated RecommendationRequestDto recommendationRequest) {
+    @Validated
+    public RecommendationRequestDto requestRecommendation(RecommendationRequestDto recommendationRequest) {
         return recommendationRequestService.create(recommendationRequest);
     }
 
-    public List<RecommendationRequest> getRecommendationRequests(@Validated RequestFilterDto filter) {
+    @Validated
+    public List<RecommendationRequestDto> getRecommendationRequests(RequestFilterDto filter) {
         return recommendationRequestService.getRequests(filter);
     }
 
-    public RecommendationRequest getRecommendationRequest(long id) {
+    @Validated
+    public RecommendationRequestDto getRecommendationRequest(@Positive long id) {
         return recommendationRequestService.getRequest(id);
     }
 
-    public RecommendationRequest rejectRequest(@Validated long id, RejectionDto rejection) {
+    @Validated
+    public RecommendationRequestDto rejectRequest(@Positive long id, RejectionDto rejection) {
         return recommendationRequestService.rejectRequest(id, rejection);
     }
 }
