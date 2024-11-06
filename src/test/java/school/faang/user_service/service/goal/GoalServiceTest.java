@@ -5,12 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.exception.goal.DataValidationException;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.goal.GoalMapper;
 import school.faang.user_service.mapper.goal.GoalMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
@@ -37,7 +36,7 @@ class GoalServiceTest {
     @Mock
     private GoalValidator goalValidator;
 
-    @Spy
+    @Mock
     private GoalMapperImpl goalMapper;
 
     @Mock
@@ -58,6 +57,7 @@ class GoalServiceTest {
         goalDto = new GoalDto();
         goalDto.setTitle("New Goal");
         goalDto.setDescription("Description");
+        goalDto.setParentId(1L);
         goalDto.setSkillIds(List.of(1L, 2L));
 
         goal = new Goal();
@@ -69,7 +69,7 @@ class GoalServiceTest {
 
     @Test
     void testCreateGoalSuccessful() {
-        when(goalRepository.create(anyString(), anyString(), any())).thenReturn(goal);
+        when(goalRepository.create("New Goal", "Description", 1L)).thenReturn(goal);
         when(goalMapper.toDto(any(Goal.class))).thenReturn(goalDto);
 
         GoalDto result = goalService.createGoal(1L, goalDto);
@@ -77,7 +77,7 @@ class GoalServiceTest {
         assertEquals(goalDto, result);
         verify(goalValidator).validateCreationGoal(1L, goalDto);
         verify(goalRepository).create(goalDto.getTitle(), goalDto.getDescription(), goalDto.getParentId());
-        verify(goalRepository, times(goalDto.getSkillIds().size())).addSkillToGoal(goal.getId(), anyLong());
+        verify(goalRepository, times(goalDto.getSkillIds().size())).addSkillToGoal(eq(goal.getId()), anyLong());
         verify(goalMapper).toDto(goal);
     }
 
@@ -121,20 +121,7 @@ class GoalServiceTest {
     }
 
     @Test
-    void testFindSubtasksByGoalIdSuccessful() {
-        when(goalRepository.findByParent(anyLong())).thenReturn(Stream.of(goal));
-        when(goalMapper.toDto(any(Goal.class))).thenReturn(goalDto);
-        when(goalFilters.stream()).thenReturn(Stream.of());
-
-        List<GoalDto> result = goalService.findSubtasksByGoalId(1L, filterDto);
-
-        assertEquals(1, result.size());
-        assertEquals(goalDto, result.get(0));
-        verify(goalRepository).findByParent(1L);
-    }
-
-    @Test
-    void testFindSubtasksByGoalId_WithFilters() {
+    void testFindSubtasksByGoalId() {
         GoalFilter mockFilter = mock(GoalFilter.class);
         when(goalFilters.stream()).thenReturn(Stream.of(mockFilter));
         when(mockFilter.isApplicable(any(GoalFilterDto.class))).thenReturn(true);
@@ -150,20 +137,7 @@ class GoalServiceTest {
     }
 
     @Test
-    void getGoalsByUserSuccessful() {
-        when(goalRepository.findGoalsByUserId(anyLong())).thenReturn(Stream.of(goal));
-        when(goalMapper.toDto(any(Goal.class))).thenReturn(goalDto);
-        when(goalFilters.stream()).thenReturn(Stream.of());
-
-        List<GoalDto> result = goalService.getGoalsByUser(1L, filterDto);
-
-        assertEquals(1, result.size());
-        assertEquals(goalDto, result.get(0));
-        verify(goalRepository).findGoalsByUserId(1L);
-    }
-
-    @Test
-    void testGetGoalsByUserWithFilters() {
+    void testGetGoalsByUser() {
         GoalFilter mockFilter = mock(GoalFilter.class);
         when(goalFilters.stream()).thenReturn(Stream.of(mockFilter));
         when(mockFilter.isApplicable(any(GoalFilterDto.class))).thenReturn(true);

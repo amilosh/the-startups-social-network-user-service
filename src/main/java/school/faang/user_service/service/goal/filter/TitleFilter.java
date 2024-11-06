@@ -15,6 +15,8 @@ public class TitleFilter implements GoalFilter {
 
     @Override
     public Stream<Goal> apply(Stream<Goal> goals, GoalFilterDto filters) {
-        return goals.filter(goal -> goal.getTitle().equals(filters.getTitle()));
+        String titlePattern = filters.getTitle();
+        return goals.filter(goal -> goal.getTitle() != null &&
+                goal.getTitle().toLowerCase().contains(titlePattern.toLowerCase()));
     }
 }
