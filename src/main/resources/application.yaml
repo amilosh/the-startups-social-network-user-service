@@ -40,7 +40,3 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
-
-settingRecommendationPage:
-  setStartPage: 0
-  setSize: 20
