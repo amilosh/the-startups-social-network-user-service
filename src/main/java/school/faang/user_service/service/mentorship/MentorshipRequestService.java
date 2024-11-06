@@ -13,7 +13,7 @@ import school.faang.user_service.mapper.mentorship_request.MentorshipRequestMapp
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.service.mentorship.request_filter.RequestFilter;
-import school.faang.user_service.validation.mentorship_request.MentorshipRequestValidation;
+import school.faang.user_service.validator.mentorship_request.MentorshipRequestValidation;
 
 import java.util.List;
 import java.util.stream.Stream;

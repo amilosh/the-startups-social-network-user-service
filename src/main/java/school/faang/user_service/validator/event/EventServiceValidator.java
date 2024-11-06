@@ -1,4 +1,4 @@
-package school.faang.user_service.validation.event;
+package school.faang.user_service.validator.event;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;

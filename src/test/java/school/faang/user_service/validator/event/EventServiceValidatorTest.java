@@ -1,4 +1,4 @@
-package school.faang.validation;
+package school.faang.user_service.validator.event;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
@@ -16,7 +16,6 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.validation.event.EventServiceValidator;
 
 import java.util.ArrayList;
 import java.util.List;
