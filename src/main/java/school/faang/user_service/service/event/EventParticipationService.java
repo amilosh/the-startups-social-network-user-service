@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exceptions.UserAlreadyRegisteredException;
-import school.faang.user_service.exceptions.UserNotFoundException;
+import school.faang.user_service.exceptions.EntityNotFoundException;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.validation.EventParticipationServiceValidator;
 
@@ -33,7 +32,7 @@ public class EventParticipationService {
 
         if (userExists(eventId, userId)) {
             log.error("User already registered: eventId={}, userId={}", eventId, userId);
-            throw new UserAlreadyRegisteredException("User is already registered for the event");
+            throw new IllegalArgumentException("User is already registered for the event");
         }
 
         eventParticipationRepository.register(eventId, userId);
@@ -47,7 +46,7 @@ public class EventParticipationService {
 
         if (!userExists(eventId, userId)) {
             log.warn("User not found: eventId={}, userId={}", eventId, userId);
-            throw new UserNotFoundException("User is not registered for the event");
+            throw new EntityNotFoundException("User is not registered for the event");
         }
 
         eventParticipationRepository.unregister(eventId, userId);

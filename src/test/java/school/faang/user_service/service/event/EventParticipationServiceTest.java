@@ -8,8 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exceptions.UserAlreadyRegisteredException;
-import school.faang.user_service.exceptions.UserNotFoundException;
+import school.faang.user_service.exceptions.EntityNotFoundException;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.ArrayList;
@@ -67,7 +66,7 @@ public class EventParticipationServiceTest {
                 .findAllParticipantsByEventId(eventId))
                 .thenReturn(participants);
 
-        assertThrows(UserAlreadyRegisteredException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             eventParticipationService.registerParticipant(eventId, userId);
         });
 
@@ -102,7 +101,7 @@ public class EventParticipationServiceTest {
                 .findAllParticipantsByEventId(eventId))
                 .thenReturn(new ArrayList<>());
 
-        assertThrows(UserNotFoundException.class, () -> {
+        assertThrows(EntityNotFoundException.class, () -> {
             eventParticipationService.unregisterParticipant(eventId, userId);
         });
 
