@@ -24,12 +24,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 
-    public static class RecommendationRequestNotFoundException extends RuntimeException {
-        public RecommendationRequestNotFoundException(String message) {
-            super(message);
-        }
-    }
-
     @ExceptionHandler(RecommendationRequestNotFoundException.class)
     public ResponseEntity<String> handleRecommendationRequestNotFoundException(
             RecommendationRequestNotFoundException exception) {

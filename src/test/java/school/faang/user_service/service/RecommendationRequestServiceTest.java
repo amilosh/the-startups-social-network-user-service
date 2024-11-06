@@ -12,21 +12,35 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.exception.GlobalExceptionHandler;
+import school.faang.user_service.exception.RecommendationRequestNotFoundException;
+import school.faang.user_service.filter.RecommendationRequestFilterManager;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
-import school.faang.user_service.repository.recommendation.SkillRequestRepository;
+import school.faang.user_service.validator.RecommendationRequestValidator;
+import school.faang.user_service.validator.SkillValidator;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class RecommendationRequestServiceTest {
 
@@ -34,208 +48,275 @@ class RecommendationRequestServiceTest {
     private RecommendationRequestRepository recommendationRequestRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private RecommendationRequestMapper recommendationRequestMapper;
+
+    @Mock
+    private UserService userService;
 
     @Mock
     private SkillRepository skillRepository;
 
     @Mock
-    private SkillRequestRepository skillRequestRepository;
+    private SkillRequestService skillRequestService;
 
     @Mock
-    private RecommendationRequestMapper recommendationRequestMapper;
+    private SkillValidator skillValidator;
+
+    @Mock
+    private RecommendationRequestFilterManager filterManager;
 
     @InjectMocks
     private RecommendationRequestService recommendationRequestService;
 
+    private RecommendationRequestValidator recommendationRequestValidator;
+
+    private User requester;
+    private User receiver;
+    private Skill skill1;
+    private Skill skill2;
+    private Skill skill3;
+    private RecommendationRequest recommendationRequest;
+    private RecommendationRequestDto recommendationRequestDto;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        RecommendationRequestValidator realValidator = new RecommendationRequestValidator(recommendationRequestRepository);
+        recommendationRequestValidator = spy(realValidator);
+
+        recommendationRequestService = new RecommendationRequestService(
+                recommendationRequestRepository,
+                recommendationRequestMapper,
+                skillRequestService,
+                skillValidator,
+                userService,
+                filterManager,
+                recommendationRequestValidator
+        );
+
+        requester = User.builder()
+                .id(1L)
+                .build();
+
+        receiver = User.builder()
+                .id(2L)
+                .build();
+
+        skill1 = Skill.builder()
+                .id(1L)
+                .title("Java")
+                .build();
+
+        skill2 = Skill.builder()
+                .id(2L)
+                .title("Kotlin")
+                .build();
+
+        skill3 = Skill.builder()
+                .id(3L)
+                .title("Hibernate")
+                .build();
+
+        recommendationRequest = RecommendationRequest.builder()
+                .id(1L)
+                .requester(requester)
+                .receiver(receiver)
+                .status(RequestStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .message("Пожалуйста, дай мне рекомендацию")
+                .build();
+
+        recommendationRequestDto = RecommendationRequestDto.builder()
+                .id(1L)
+                .requesterId(1L)
+                .receiverId(2L)
+                .status(RequestStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .skills(Arrays.asList(1L, 2L, 3L))
+                .message("Пожалуйста, дай мне рекомендацию")
+                .build();
     }
 
     @Test
     void testCreateRecommendationRequest_Success() {
+        doNothing().when(skillValidator).validateSkills(recommendationRequestDto.getSkills());
 
-        RecommendationRequestDto dto = new RecommendationRequestDto();
-        dto.setRequesterId(1L);
-        dto.setReceiverId(2L);
-        dto.setMessage("Пожалуйста дай рекомендацию тест");
-        dto.setSkills(Arrays.asList(1L, 2L, 3L));
-
-        User requester = new User();
-        requester.setId(1L);
-
-        User receiver = new User();
-        receiver.setId(2L);
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(requester));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(receiver));
+        when(userService.getUserById(1L)).thenReturn(requester);
+        when(userService.getUserById(2L)).thenReturn(receiver);
         when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L))
                 .thenReturn(Optional.empty());
-        when(skillRepository.countExisting(dto.getSkills())).thenReturn(dto.getSkills().size());
+        doNothing().when(skillValidator).validateSkills(recommendationRequestDto.getSkills());
 
-        Skill skill1 = new Skill();
-        skill1.setId(1L);
-        Skill skill2 = new Skill();
-        skill2.setId(2L);
-        Skill skill3 = new Skill();
-        skill2.setId(3L);
-
-        when(skillRepository.findById(1L)).thenReturn(Optional.of(skill1));
-        when(skillRepository.findById(2L)).thenReturn(Optional.of(skill2));
-        when(skillRepository.findById(3L)).thenReturn(Optional.of(skill3));
-
-        RecommendationRequest recommendationRequest = new RecommendationRequest();
-        recommendationRequest.setMessage(dto.getMessage());
-
-        when(recommendationRequestMapper.toEntity(dto)).thenReturn(recommendationRequest);
+        when(recommendationRequestMapper.toEntity(any(RecommendationRequestDto.class)))
+                .thenReturn(recommendationRequest);
         when(recommendationRequestRepository.save(any(RecommendationRequest.class)))
                 .thenAnswer(invocation -> {
                     RecommendationRequest savedRequest = invocation.getArgument(0);
                     savedRequest.setId(1L);
                     return savedRequest;
                 });
-        when(recommendationRequestMapper.toDto(any(RecommendationRequest.class))).thenReturn(dto);
+        when(recommendationRequestMapper.toDto(any(RecommendationRequest.class)))
+                .thenReturn(recommendationRequestDto);
 
-        RecommendationRequestDto result = recommendationRequestService.create(dto);
+        when(skillRepository.findAllById(recommendationRequestDto.getSkills()))
+                .thenReturn(Arrays.asList(skill1, skill2, skill3));
+
+        RecommendationRequestDto result = recommendationRequestService.create(recommendationRequestDto);
 
         assertNotNull(result);
-        assertEquals(dto.getMessage(), result.getMessage());
+        assertEquals(recommendationRequestDto.getMessage(), result.getMessage());
+        assertEquals(RequestStatus.PENDING, result.getStatus());
+        assertEquals(1L, result.getId());
+
+        verify(userService, times(1)).getUserById(1L);
+        verify(userService, times(1)).getUserById(2L);
         verify(recommendationRequestRepository, times(1))
-                .save(any(RecommendationRequest.class));
-        verify(skillRequestRepository, times(dto.getSkills().size())).save(any());
+                .findLatestPendingRequest(1L, 2L);
+        verify(skillValidator, times(1)).validateSkills(recommendationRequestDto.getSkills());
+        verify(recommendationRequestMapper, times(1))
+                .toEntity(recommendationRequestDto);
+        verify(recommendationRequestRepository, times(1))
+                .save(recommendationRequest);
+        verify(recommendationRequestMapper, times(1))
+                .toDto(recommendationRequest);
     }
 
     @Test
     void testCreateRecommendationRequest_RequesterNotFound() {
-        RecommendationRequestDto dto = new RecommendationRequestDto();
+        doThrow(new IllegalArgumentException("Пользователя, запрашивающего рекомендацию не существует"))
+                .when(recommendationRequestValidator).validateUsersExistence(null, receiver);
 
-        dto.setRequesterId(1L);
-        dto.setReceiverId(2L);
-        dto.setMessage("Пожалуйста дай рекомендацию");
-        dto.setSkills(Arrays.asList(1L, 2L, 3L));
+        when(userService.getUserById(1L)).thenReturn(null);
+        when(userService.getUserById(2L)).thenReturn(receiver);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            recommendationRequestService.create(dto);
-        });
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                recommendationRequestService.create(recommendationRequestDto)
+        );
 
         assertEquals("Пользователя, запрашивающего рекомендацию не существует", exception.getMessage());
+
+        verify(userService, times(1)).getUserById(1L);
+        verify(userService, times(1)).getUserById(2L);
+        verify(recommendationRequestValidator, times(1)).validateUsersExistence(null, receiver);
+        verify(recommendationRequestValidator, never()).validateRequestFrequency(anyLong(), anyLong());
+        verify(skillValidator, never()).validateSkills(anyList());
+        verify(recommendationRequestMapper, never()).toEntity(any());
+        verify(recommendationRequestRepository, never()).save(any());
+        verify(recommendationRequestMapper, never()).toDto(any());
     }
 
     @Test
     void testCreateRecommendationRequest_ReceiverNotFound() {
-        RecommendationRequestDto dto = new RecommendationRequestDto();
-        dto.setRequesterId(1L);
-        dto.setReceiverId(2L);
-        dto.setMessage("Пожалуйста дай рекомендацию");
-        dto.setSkills(Arrays.asList(1L, 1L));
+        doThrow(new IllegalArgumentException("Пользователя, получающего рекомендацию не существует"))
+                .when(recommendationRequestValidator).validateUsersExistence(requester, null);
 
-        User requester = new User();
-        requester.setId(1L);
+        when(userService.getUserById(1L)).thenReturn(requester);
+        when(userService.getUserById(2L)).thenReturn(null);
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(requester));
-        when(userRepository.findById(2L)).thenReturn(Optional.empty());
-
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            recommendationRequestService.create(dto);
-        });
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                recommendationRequestService.create(recommendationRequestDto)
+        );
 
         assertEquals("Пользователя, получающего рекомендацию не существует", exception.getMessage());
+
+        verify(userService, times(1)).getUserById(1L);
+        verify(userService, times(1)).getUserById(2L);
+        verify(recommendationRequestValidator, times(1)).validateUsersExistence(requester, null);
+        verify(recommendationRequestValidator, never()).validateRequestFrequency(anyLong(), anyLong());
+        verify(skillValidator, never()).validateSkills(anyList());
+        verify(recommendationRequestMapper, never()).toEntity(any());
+        verify(recommendationRequestRepository, never()).save(any());
+        verify(recommendationRequestMapper, never()).toDto(any());
     }
 
     @Test
     void testCreateRecommendationRequest_RequestLimitExceeded() {
-        RecommendationRequestDto dto = new RecommendationRequestDto();
-        dto.setRequesterId(1L);
-        dto.setReceiverId(2L);
-        dto.setMessage("Пожалуйста дай рекомендацию");
-        dto.setSkills(Arrays.asList(1L, 1L));
-
-
-        User requester = new User();
-        requester.setId(1L);
-
-        User receiver = new User();
-        receiver.setId(2L);
-
-        RecommendationRequest lastRequest = new RecommendationRequest();
-        lastRequest.setCreatedAt(LocalDateTime.now().minusMonths(3));
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(requester));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(receiver));
+        when(userService.getUserById(1L)).thenReturn(requester);
+        when(userService.getUserById(2L)).thenReturn(receiver);
         when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L))
-                .thenReturn(Optional.of(lastRequest));
+                .thenReturn(Optional.of(RecommendationRequest.builder()
+                        .createdAt(LocalDateTime.now().minusMonths(3))
+                        .build()));
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            recommendationRequestService.create(dto);
-        });
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                recommendationRequestService.create(recommendationRequestDto)
+        );
 
         assertEquals("Запрос этому пользователю можно отправлять только раз в полгода", exception.getMessage());
+
+        verify(userService, times(1)).getUserById(1L);
+        verify(userService, times(1)).getUserById(2L);
+        verify(recommendationRequestRepository, times(1))
+                .findLatestPendingRequest(1L, 2L);
+        verify(skillValidator, never()).validateSkills(anyList());
+        verify(recommendationRequestMapper, never()).toEntity(any());
+        verify(recommendationRequestRepository, never()).save(any());
+        verify(recommendationRequestMapper, never()).toDto(any());
+        verify(skillRequestService, never()).createSkillRequest(any(), any());
     }
 
     @Test
     void testCreateRecommendationRequest_SkillsNotFound() {
-        RecommendationRequestDto dto = new RecommendationRequestDto();
-        dto.setRequesterId(1L);
-        dto.setReceiverId(2L);
-        dto.setMessage("Пожалуйста дай рекомендацию");
-        dto.setSkills(Arrays.asList(1L, 2L, 3L));
-
-        User requester = new User();
-        requester.setId(1L);
-
-        User receiver = new User();
-        receiver.setId(2L);
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(requester));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(receiver));
+        when(userService.getUserById(1L)).thenReturn(requester);
+        when(userService.getUserById(2L)).thenReturn(receiver);
         when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L))
                 .thenReturn(Optional.empty());
-        when(skillRepository.countExisting(dto.getSkills())).thenReturn(2);
+        doThrow(new IllegalArgumentException("Некоторых скиллов нет в базе данных"))
+                .when(skillValidator).validateSkills(recommendationRequestDto.getSkills());
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            recommendationRequestService.create(dto);
-        });
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                recommendationRequestService.create(recommendationRequestDto)
+        );
 
         assertEquals("Некоторых скиллов нет в базе данных", exception.getMessage());
+
+        verify(userService, times(1)).getUserById(1L);
+        verify(userService, times(1)).getUserById(2L);
+        verify(recommendationRequestRepository, times(1))
+                .findLatestPendingRequest(1L, 2L);
+        verify(skillValidator, times(1)).validateSkills(recommendationRequestDto.getSkills());
+        verify(recommendationRequestMapper, never()).toEntity(any());
+        verify(recommendationRequestRepository, never()).save(any());
+        verify(recommendationRequestMapper, never()).toDto(any());
+        verify(skillRequestService, never()).createSkillRequest(any(), any());
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void testGetRequests_WithAllFilters() {
-        RequestFilterDto filter = new RequestFilterDto();
-        filter.setStatus(RequestStatus.PENDING);
-        filter.setRequesterId(1L);
-        filter.setReceiverId(2L);
-        filter.setStartDate(LocalDateTime.of(2024, 1, 1, 0, 0));
-        filter.setEndDate(LocalDateTime.of(2024, 12, 31, 23, 59));
+        RequestFilterDto filter = RequestFilterDto.builder()
+                .status(RequestStatus.PENDING)
+                .requesterId(1L)
+                .receiverId(2L)
+                .startDate(LocalDateTime.of(2024, 1, 1, 0, 0))
+                .endDate(LocalDateTime.of(2024, 12, 31, 23, 59))
+                .skillTitles(Arrays.asList("Java", "Spring"))
+                .build();
 
-        User requester = new User();
-        requester.setId(1L);
+        RecommendationRequest requestOne = RecommendationRequest.builder()
+                .id(1L)
+                .status(RequestStatus.PENDING)
+                .createdAt(LocalDateTime.of(2024, 8, 21, 12, 0))
+                .requester(requester)
+                .receiver(receiver)
+                .message("Пожалуйста, дай мне рекомендацию")
+                .build();
 
-        User receiver = new User();
-        receiver.setId(2L);
-
-        RecommendationRequest requestOne = new RecommendationRequest();
-        requestOne.setId(1L);
-        requestOne.setStatus(RequestStatus.PENDING);
-        requestOne.setCreatedAt(LocalDateTime.of(2024, 8, 21, 12, 0));
-        requestOne.setRequester(requester);
-        requestOne.setReceiver(receiver);
-
-        RecommendationRequestDto dtoOne = new RecommendationRequestDto();
-        dtoOne.setId(1L);
-        dtoOne.setMessage("Пожалуйста дай мне рекомендацию");
-        dtoOne.setRequesterId(1L);
-        dtoOne.setReceiverId(2L);
-        dtoOne.setStatus(RequestStatus.PENDING);
-        dtoOne.setCreatedAt(LocalDateTime.of(2024, 8, 21, 12, 0));
-        dtoOne.setSkills(Arrays.asList(1L, 2L));
+        RecommendationRequestDto dtoOne = RecommendationRequestDto.builder()
+                .id(1L)
+                .status(RequestStatus.PENDING)
+                .createdAt(LocalDateTime.of(2024, 8, 21, 12, 0))
+                .requesterId(1L)
+                .receiverId(2L)
+                .message("Пожалуйста, дай мне рекомендацию")
+                .skills(Arrays.asList(1L, 2L))
+                .build();
 
         List<RecommendationRequest> requestsList = Arrays.asList(requestOne);
 
         when(recommendationRequestRepository.findAll()).thenReturn(requestsList);
+        when(filterManager.applyFilters(any(Stream.class), eq(filter))).thenReturn(requestsList.stream());
         when(recommendationRequestMapper.toDto(requestOne)).thenReturn(dtoOne);
 
         List<RecommendationRequestDto> result = recommendationRequestService.getRequests(filter);
@@ -245,44 +326,60 @@ class RecommendationRequestServiceTest {
         assertEquals(dtoOne.getId(), result.get(0).getId());
 
         verify(recommendationRequestRepository, times(1)).findAll();
+        verify(filterManager, times(1)).applyFilters(any(Stream.class), eq(filter));
+        verify(recommendationRequestMapper, times(1)).toDto(requestOne);
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void testGetRequests_NoFilters() {
-        RequestFilterDto filter = new RequestFilterDto();
+        RecommendationRequest requestOne = RecommendationRequest.builder()
+                .id(1L)
+                .status(RequestStatus.ACCEPTED)
+                .createdAt(LocalDateTime.now())
+                .requester(requester)
+                .receiver(receiver)
+                .message("Пожалуйста, дай мне рекомендацию")
+                .build();
 
-        RecommendationRequest requestOne = new RecommendationRequest();
-        requestOne.setId(1L);
-        requestOne.setStatus(RequestStatus.ACCEPTED);
-        requestOne.setCreatedAt(LocalDateTime.now());
+        RecommendationRequest requestTwo = RecommendationRequest.builder()
+                .id(2L)
+                .status(RequestStatus.REJECTED)
+                .createdAt(LocalDateTime.now().minusDays(10))
+                .requester(requester)
+                .receiver(receiver)
+                .message("Пожалуйста, дай мне рекомендацию")
+                .build();
 
-        RecommendationRequestDto dtoOne = new RecommendationRequestDto();
-        dtoOne.setId(1L);
-        dtoOne.setMessage("Пожалуйста дай мне рекомендацию");
-        dtoOne.setRequesterId(1L);
-        dtoOne.setReceiverId(2L);
-        dtoOne.setStatus(RequestStatus.ACCEPTED);
-        dtoOne.setCreatedAt(requestOne.getCreatedAt());
-        dtoOne.setSkills(Arrays.asList(1L, 2L));
+        RecommendationRequestDto dtoOne = RecommendationRequestDto.builder()
+                .id(1L)
+                .status(RequestStatus.ACCEPTED)
+                .createdAt(requestOne.getCreatedAt())
+                .requesterId(1L)
+                .receiverId(2L)
+                .message("Пожалуйста, дай мне рекомендацию")
+                .skills(Arrays.asList(1L, 2L))
+                .build();
 
-        RecommendationRequest requestTwo = new RecommendationRequest();
-        requestTwo.setId(2L);
-        requestTwo.setStatus(RequestStatus.REJECTED);
-        requestTwo.setCreatedAt(LocalDateTime.now().minusDays(10));
+        RecommendationRequestDto dtoTwo = RecommendationRequestDto.builder()
+                .id(2L)
+                .status(RequestStatus.REJECTED)
+                .createdAt(requestTwo.getCreatedAt())
+                .requesterId(1L)
+                .receiverId(2L)
+                .message("Пожалуйста, дай мне рекомендацию")
+                .skills(Arrays.asList(1L, 2L))
+                .build();
 
-        RecommendationRequestDto dtoTwo = new RecommendationRequestDto();
-        dtoTwo.setId(2L);
-        dtoTwo.setMessage("Пожалуйста дай мне рекомендацию");
-        dtoTwo.setRequesterId(1L);
-        dtoTwo.setReceiverId(2L);
-        dtoTwo.setStatus(RequestStatus.REJECTED);
-        dtoTwo.setCreatedAt(requestTwo.getCreatedAt());
-        dtoTwo.setSkills(Arrays.asList(1L, 2L));
+        List<RecommendationRequest> requestsList = Arrays.asList(requestOne, requestTwo);
 
-        when(recommendationRequestRepository.findAll()).thenReturn(Arrays.asList(requestOne, requestTwo));
+        when(recommendationRequestRepository.findAll()).thenReturn(requestsList);
+        when(filterManager.applyFilters(any(Stream.class), any(RequestFilterDto.class)))
+                .thenReturn(requestsList.stream());
         when(recommendationRequestMapper.toDto(requestOne)).thenReturn(dtoOne);
         when(recommendationRequestMapper.toDto(requestTwo)).thenReturn(dtoTwo);
 
+        RequestFilterDto filter = RequestFilterDto.builder().build();
         List<RecommendationRequestDto> result = recommendationRequestService.getRequests(filter);
 
         assertNotNull(result);
@@ -291,14 +388,22 @@ class RecommendationRequestServiceTest {
         assertEquals(dtoTwo.getId(), result.get(1).getId());
 
         verify(recommendationRequestRepository, times(1)).findAll();
+        verify(filterManager, times(1)).applyFilters(any(Stream.class), eq(filter));
+        verify(recommendationRequestMapper, times(1)).toDto(requestOne);
+        verify(recommendationRequestMapper, times(1)).toDto(requestTwo);
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void testGetRequests_NoResults() {
-        RequestFilterDto filter = new RequestFilterDto();
-        filter.setStatus(RequestStatus.REJECTED);
+        RequestFilterDto filter = RequestFilterDto.builder()
+                .status(RequestStatus.REJECTED)
+                .build();
 
-        when(recommendationRequestRepository.findAll()).thenReturn(Arrays.asList());
+        List<RecommendationRequest> requestsList = Arrays.asList();
+
+        when(recommendationRequestRepository.findAll()).thenReturn(requestsList);
+        when(filterManager.applyFilters(any(Stream.class), eq(filter))).thenReturn(requestsList.stream());
 
         List<RecommendationRequestDto> result = recommendationRequestService.getRequests(filter);
 
@@ -306,45 +411,28 @@ class RecommendationRequestServiceTest {
         assertTrue(result.isEmpty());
 
         verify(recommendationRequestRepository, times(1)).findAll();
+        verify(filterManager, times(1)).applyFilters(any(Stream.class), eq(filter));
+        verify(recommendationRequestMapper, never()).toDto(any());
     }
 
     @Test
     void getRequest_Success() {
         Long id = 1L;
-        User requester = new User();
-        requester.setId(1L);
-        User receiver = new User();
-        receiver.setId(2L);
 
-        RecommendationRequest request = new RecommendationRequest();
-        request.setId(id);
-        request.setStatus(RequestStatus.PENDING);
-        request.setCreatedAt(LocalDateTime.now());
-        request.setRequester(requester);
-        request.setReceiver(receiver);
-
-        RecommendationRequestDto dto = new RecommendationRequestDto();
-        dto.setId(id);
-        dto.setMessage("Пожалуйста дай мне рекомендацию");
-        dto.setRequesterId(1L);
-        dto.setReceiverId(2L);
-        dto.setStatus(RequestStatus.PENDING);
-        dto.setCreatedAt(request.getCreatedAt());
-        dto.setSkills(Arrays.asList(1L, 2L));
-
-        when(recommendationRequestRepository.findById(id)).thenReturn(Optional.of(request));
-        when(recommendationRequestMapper.toDto(request)).thenReturn(dto);
+        when(recommendationRequestRepository.findById(id)).thenReturn(Optional.of(recommendationRequest));
+        when(recommendationRequestMapper.toDto(recommendationRequest)).thenReturn(recommendationRequestDto);
 
         RecommendationRequestDto result = recommendationRequestService.getRequest(id);
 
         assertNotNull(result);
-        assertEquals(dto.getId(), result.getId());
-        assertEquals(dto.getRequesterId(), result.getRequesterId());
-        assertEquals(dto.getReceiverId(), result.getReceiverId());
+        assertEquals(recommendationRequestDto.getId(), result.getId());
+        assertEquals(recommendationRequestDto.getRequesterId(), result.getRequesterId());
+        assertEquals(recommendationRequestDto.getReceiverId(), result.getReceiverId());
 
         verify(recommendationRequestRepository, times(1)).findById(id);
-        verify(recommendationRequestMapper, times(1)).toDto(request);
+        verify(recommendationRequestMapper, times(1)).toDto(recommendationRequest);
     }
+
 
     @Test
     void getRequest_NotFound() {
@@ -352,10 +440,10 @@ class RecommendationRequestServiceTest {
 
         when(recommendationRequestRepository.findById(id)).thenReturn(Optional.empty());
 
-        GlobalExceptionHandler.RecommendationRequestNotFoundException exception =
-                assertThrows(GlobalExceptionHandler.RecommendationRequestNotFoundException.class, () -> {
-                    recommendationRequestService.getRequest(id);
-                });
+        RecommendationRequestNotFoundException exception =
+                assertThrows(RecommendationRequestNotFoundException.class, () ->
+                        recommendationRequestService.getRequest(id)
+                );
 
         assertEquals("Запрос на рекомендацию с таким id не найден", exception.getMessage());
 
@@ -363,79 +451,61 @@ class RecommendationRequestServiceTest {
         verify(recommendationRequestMapper, never()).toDto(any());
     }
 
+
     @Test
     void rejectRequest_Success() {
         Long id = 1L;
-        RejectionDto rejection = new RejectionDto();
-        rejection.setReason("Просто не хочу. Ты мне неприятен.");
+        RejectionDto rejection = RejectionDto.builder()
+                .reason("Просто не хочу. Ты мне неприятен.")
+                .build();
 
-        User requester = new User();
-        requester.setId(1L);
-        User receiver = new User();
-        receiver.setId(2L);
+        recommendationRequest.setStatus(RequestStatus.PENDING);
+        recommendationRequest.setRejectionReason(null);
 
-        RecommendationRequest request = new RecommendationRequest();
-        request.setId(id);
-        request.setMessage("PПожалуйста, дай мне рекомендацию");
-        request.setStatus(RequestStatus.PENDING);
-        request.setCreatedAt(LocalDateTime.now());
-        request.setRequester(requester);
-        request.setReceiver(receiver);
-        request.setRejectionReason(null);
+        when(recommendationRequestRepository.findById(id)).thenReturn(Optional.of(recommendationRequest));
+        when(recommendationRequestRepository.save(recommendationRequest)).thenReturn(recommendationRequest);
 
-        RecommendationRequestDto dto = new RecommendationRequestDto();
-        dto.setId(id);
-        dto.setMessage("Пожалуйста, дай мне рекомендацию");
-        dto.setRequesterId(1L);
-        dto.setReceiverId(2L);
-        dto.setStatus(RequestStatus.REJECTED);
-        dto.setCreatedAt(request.getCreatedAt());
-        dto.setRejectionReason("Просто не хочу. Ты мне неприятен.");
+        RecommendationRequestDto rejectedDto = RecommendationRequestDto.builder()
+                .id(1L)
+                .requesterId(1L)
+                .receiverId(2L)
+                .status(RequestStatus.REJECTED)
+                .createdAt(recommendationRequest.getCreatedAt())
+                .skills(Arrays.asList(1L, 2L, 3L))
+                .message("Please give me a recommendation")
+                .rejectionReason("Просто не хочу. Ты мне неприятен.")
+                .build();
 
-        when(recommendationRequestRepository.findById(id)).thenReturn(java.util.Optional.of(request));
-        when(recommendationRequestRepository.save(request)).thenReturn(request);
-        when(recommendationRequestMapper.toDto(request)).thenReturn(dto);
+        when(recommendationRequestMapper.toDto(recommendationRequest)).thenReturn(rejectedDto);
 
         RecommendationRequestDto result = recommendationRequestService.rejectRequest(id, rejection);
 
         assertNotNull(result);
-        assertEquals(dto.getId(), result.getId());
-        assertEquals(dto.getStatus(), RequestStatus.REJECTED);
-        assertEquals(dto.getRejectionReason(), "Просто не хочу. Ты мне неприятен.");
+        assertEquals(RequestStatus.REJECTED, result.getStatus());
+        assertEquals("Просто не хочу. Ты мне неприятен.", result.getRejectionReason());
 
         verify(recommendationRequestRepository, times(1)).findById(id);
-        verify(recommendationRequestRepository, times(1)).save(request);
-        verify(recommendationRequestMapper, times(1)).toDto(request);
+        verify(recommendationRequestRepository, times(1)).save(recommendationRequest);
+        verify(recommendationRequestMapper, times(1)).toDto(recommendationRequest);
     }
 
     @Test
     void rejectRequest_AlreadyRejected() {
         Long id = 1L;
-        RejectionDto rejection = new RejectionDto();
-        rejection.setReason("Duplicate request");
+        RejectionDto rejection = RejectionDto.builder()
+                .reason("Запрос уже отклонен")
+                .build();
 
-        User requester = new User();
-        requester.setId(1L);
-        User receiver = new User();
-        receiver.setId(2L);
+        recommendationRequest.setStatus(RequestStatus.REJECTED);
+        recommendationRequest.setRejectionReason("Просто не хочу. Ты мне неприятен.");
 
-        RecommendationRequest request = new RecommendationRequest();
-        request.setId(id);
-        request.setMessage("Пожалуйста, дай мне рекомендацию");
-        request.setStatus(RequestStatus.REJECTED);
-        request.setCreatedAt(LocalDateTime.now());
-        request.setRequester(requester);
-        request.setReceiver(receiver);
-        request.setRejectionReason("Просто не хочу. Ты мне неприятен.");
+        when(recommendationRequestRepository.findById(id)).thenReturn(Optional.of(recommendationRequest));
 
-        when(recommendationRequestRepository.findById(id)).thenReturn(java.util.Optional.of(request));
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
+                recommendationRequestService.rejectRequest(id, rejection)
+        );
 
-        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            recommendationRequestService.rejectRequest(id, rejection);
-        });
-
-        assertEquals("Невозможно отклонить запрос на рекомендацию, поскольку он уже имеет статус REJECTED",
-                exception.getMessage());
+        assertEquals("Невозможно отклонить запрос на рекомендацию, поскольку он уже имеет статус REJECTED", exception.getMessage());
 
         verify(recommendationRequestRepository, times(1)).findById(id);
         verify(recommendationRequestRepository, never()).save(any());
@@ -445,15 +515,16 @@ class RecommendationRequestServiceTest {
     @Test
     void rejectRequest_NotFound() {
         Long id = 99L;
-        RejectionDto rejection = new RejectionDto();
-        rejection.setReason("Invalid request");
+        RejectionDto rejection = RejectionDto.builder()
+                .reason("Запрос на рекомендацию с таким Id не найден")
+                .build();
 
-        when(recommendationRequestRepository.findById(id)).thenReturn(java.util.Optional.empty());
+        when(recommendationRequestRepository.findById(id)).thenReturn(Optional.empty());
 
-        GlobalExceptionHandler.RecommendationRequestNotFoundException exception
-                = assertThrows(GlobalExceptionHandler.RecommendationRequestNotFoundException.class, () -> {
-            recommendationRequestService.rejectRequest(id, rejection);
-        });
+        RecommendationRequestNotFoundException exception =
+                assertThrows(RecommendationRequestNotFoundException.class, () ->
+                        recommendationRequestService.rejectRequest(id, rejection)
+                );
 
         assertEquals("Запрос на рекомендацию с таким id не найден", exception.getMessage());
 

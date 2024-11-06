@@ -1,6 +1,6 @@
 package school.faang.user_service.service;
 
-import feign.Request;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.RecommendationRequestDto;
@@ -11,50 +11,39 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
-import school.faang.user_service.exception.GlobalExceptionHandler;
+import school.faang.user_service.filter.RecommendationRequestFilterManager;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
-import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
-import school.faang.user_service.repository.recommendation.SkillRequestRepository;
+import school.faang.user_service.validator.RecommendationRequestValidator;
+import school.faang.user_service.validator.SkillValidator;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class RecommendationRequestService {
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final RecommendationRequestMapper recommendationRequestMapper;
-    private final UserRepository userRepository;
-    private final SkillRepository skillRepository;
-    private final SkillRequestRepository skillRequestRepository;
+    private final SkillRequestService skillRequestService;
+    private final SkillValidator skillValidator;
+    private final UserService userService;
+    private final RecommendationRequestFilterManager recommendationRequestFilterManager;
+    private final RecommendationRequestValidator recommendationRequestValidator;
 
+    @Transactional
     public RecommendationRequestDto create(RecommendationRequestDto dto) {
-        User requester = userRepository.findById(dto.getRequesterId())
-                .orElseThrow(() -> new IllegalArgumentException("Пользователя, запрашивающего рекомендацию не существует"));
-        User receiver = userRepository.findById(dto.getReceiverId())
-                .orElseThrow(() -> new IllegalArgumentException("Пользователя, получающего рекомендацию не существует"));
+        User requester = userService.getUserById(dto.getRequesterId());
+        User receiver = userService.getUserById(dto.getReceiverId());
 
-        Optional<RecommendationRequest> lastRequest = recommendationRequestRepository.findLatestPendingRequest(
-                dto.getRequesterId(), dto.getReceiverId());
-
-        if (lastRequest.isPresent()) {
-            LocalDateTime lastRequestDate = lastRequest.get().getCreatedAt();
-            if (lastRequestDate.isAfter(LocalDateTime.now().minusMonths(6))) {
-                throw new IllegalArgumentException("Запрос этому пользователю можно отправлять только раз в полгода");
-            }
-        }
+        recommendationRequestValidator.validateUsersExistence(requester, receiver);
+        recommendationRequestValidator.validateRequestFrequency(dto.getRequesterId(), dto.getReceiverId());
 
         List<Long> skillsIds = dto.getSkills();
         if (skillsIds != null && !skillsIds.isEmpty()) {
-            long existingSkillsCount = skillRepository.countExisting(skillsIds);
-            if (existingSkillsCount != skillsIds.size()) {
-                throw new IllegalArgumentException("Некоторых скиллов нет в базе данных");
-            }
+            skillValidator.validateSkills(skillsIds);
         }
 
         RecommendationRequest recommendationRequest = recommendationRequestMapper.toEntity(dto);
@@ -65,23 +54,14 @@ public class RecommendationRequestService {
 
         recommendationRequest.setRequester(requester);
         recommendationRequest.setReceiver(receiver);
-
         recommendationRequest.setStatus(RequestStatus.PENDING);
 
         RecommendationRequest savedRequest = recommendationRequestRepository.save(recommendationRequest);
 
-        List<Long> skillIds = dto.getSkills();
-        if (skillIds != null && !skillIds.isEmpty()) {
-            for (Long skillId : skillIds) {
-                Skill skill = skillRepository.findById(skillId)
-                        .orElseThrow(() -> new IllegalArgumentException("В базе данных нет скилла с id: " + skillId));
-
-                SkillRequest skillRequest = new SkillRequest();
-                skillRequest.setSkill(skill);
-                skillRequest.setRequest(savedRequest);
-
-                skillRequestRepository.save(skillRequest);
-
+        if (skillsIds != null && !skillsIds.isEmpty()) {
+            List<Skill> skills = skillRequestService.getSkillsByIds(skillsIds);
+            for (Skill skill : skills) {
+                SkillRequest skillRequest = skillRequestService.createSkillRequest(skill, savedRequest);
                 savedRequest.getSkills().add(skillRequest);
             }
         }
@@ -89,40 +69,29 @@ public class RecommendationRequestService {
         return recommendationRequestMapper.toDto(savedRequest);
     }
 
-
     public List<RecommendationRequestDto> getRequests(RequestFilterDto filter) {
         List<RecommendationRequest> requests = recommendationRequestRepository.findAll();
 
-        return requests.stream()
-                .filter(request -> filter.getStatus() == null || request.getStatus() == filter.getStatus())
-                .filter(request -> filter.getRequesterId() == null || request.getRequester()
-                        .getId().equals(filter.getRequesterId()))
-                .filter(request -> filter.getReceiverId() == null || request.getReceiver()
-                        .getId().equals(filter.getReceiverId()))
-                .filter(request -> filter.getStartDate() == null || !request.getCreatedAt()
-                        .isBefore(filter.getStartDate()))
-                .filter(request -> filter.getEndDate() == null || !request.getCreatedAt()
-                        .isAfter(filter.getEndDate()))
+        Stream<RecommendationRequest> stream = requests.stream();
+
+        stream = recommendationRequestFilterManager.applyFilters(stream, filter);
+
+        return stream
                 .map(recommendationRequestMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     public RecommendationRequestDto getRequest(Long id) {
-        RecommendationRequest request = recommendationRequestRepository.findById(id)
-                .orElseThrow(() -> new GlobalExceptionHandler.RecommendationRequestNotFoundException(
-                        "Запрос на рекомендацию с таким id не найден"));
+        RecommendationRequest request = recommendationRequestValidator.getAndValidateRecommendationRequest(id);
+
         return recommendationRequestMapper.toDto(request);
     }
 
+    @Transactional
     public RecommendationRequestDto rejectRequest(Long id, RejectionDto rejection) {
-        RecommendationRequest request = recommendationRequestRepository.findById(id)
-                .orElseThrow(() -> new GlobalExceptionHandler.RecommendationRequestNotFoundException(
-                        "Запрос на рекомендацию с таким id не найден"));
+        RecommendationRequest request = recommendationRequestValidator.getAndValidateRecommendationRequest(id);
 
-        if (request.getStatus() == RequestStatus.ACCEPTED || request.getStatus() == RequestStatus.REJECTED) {
-            throw new IllegalStateException(
-                    "Невозможно отклонить запрос на рекомендацию, поскольку он уже имеет статус " + request.getStatus());
-        }
+        recommendationRequestValidator.validateRejectRequest(request);
 
         request.setStatus(RequestStatus.REJECTED);
         request.setRejectionReason(rejection.getReason());

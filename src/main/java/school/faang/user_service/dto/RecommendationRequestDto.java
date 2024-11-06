@@ -1,6 +1,7 @@
 package school.faang.user_service.dto;
 
 import jakarta.validation.constraints.NotEmpty;
+import lombok.Builder;
 import lombok.Data;
 import school.faang.user_service.entity.RequestStatus;
 
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@Builder
 public class RecommendationRequestDto {
     private Long id;
 

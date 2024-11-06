@@ -32,12 +32,12 @@ public class RecommendationRequestController {
 
     @GetMapping
     public ResponseEntity<List<RecommendationRequestDto>> getRecommendationRequests(
-            @Valid @ModelAttribute RequestFilterDto filter) {
+            @Valid RequestFilterDto filter) {
         List<RecommendationRequestDto> requests = recommendationRequestService.getRequests(filter);
         return ResponseEntity.ok(requests);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<RecommendationRequestDto> getRecommendationRequest(@PathVariable Long id) {
         RecommendationRequestDto dto = recommendationRequestService.getRequest(id);
         return ResponseEntity.ok(dto);
