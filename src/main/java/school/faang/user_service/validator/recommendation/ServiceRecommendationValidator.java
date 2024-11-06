@@ -7,14 +7,14 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
-import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.exeption.DataValidationException;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.service.recommendation.UserSkillGuaranteeService;
+import school.faang.user_service.service.recommendation.RecommendationService;
+import school.faang.user_service.service.skill.SkillService;
+import school.faang.user_service.service.skill_offer.SkillOfferService;
+import school.faang.user_service.service.user_skill_guarantee.UserSkillGuaranteeService;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,14 +26,14 @@ import static java.lang.Math.abs;
 @Service
 @RequiredArgsConstructor
 public class ServiceRecommendationValidator {
-    private final SkillRepository skillRepository;
-    private final SkillOfferRepository skillOfferRepository;
+    private final SkillService skillService;
+    private final SkillOfferService skillOfferService;
     private final RecommendationMapper recommendationMapper;
-    private final RecommendationRepository recommendationRepository;
+    private final RecommendationService recommendationService;
     private final UserSkillGuaranteeService userSkillGuaranteeService;
 
     public void checkingThePeriodOfFasting(long authorId, long receiverId) {
-        Optional<Recommendation> recommendation = recommendationRepository.
+        Optional<Recommendation> recommendation = recommendationService.
                 findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId);
 
         if (recommendation.isPresent()) {
@@ -49,7 +49,7 @@ public class ServiceRecommendationValidator {
 
     public void checkingTheSkillsOfRecommendation(List<SkillOfferDto> skills) {
         skills.forEach(skillOfferDto -> {
-            int skillsAvailableInDB = skillRepository.countExisting(skillOfferDto.getSkillsId());
+            int skillsAvailableInDB = skillService.countExisting(skillOfferDto.getSkillsId());
             if (skillsAvailableInDB != skillOfferDto.getSkillsId().size()) {
                 throw new DataValidationException("These skills do not meet the conditions");
             }
@@ -63,10 +63,10 @@ public class ServiceRecommendationValidator {
         recommendationDto.getSkillOffers().stream()
                 .flatMap(skillOfferDto -> skillOfferDto.getSkillsId().stream()
                         .map(skillId -> {
-                            skillOfferRepository.create(skillId, recommendationDto.getId());
-                            Optional<Skill> skill = skillRepository.findUserSkill(skillId, receiverId);
+                            skillOfferService.create(skillId, recommendationDto.getId());
+                            Optional<Skill> skill = skillService.findUserSkill(skillId, receiverId);
                             if (skill.isEmpty()) {
-                                skillRepository.assignSkillToUser(skillId, receiverId);
+                                skillService.assignSkillToUser(skillId, receiverId);
                             } else {
                                 Long guaranteeId = userSkillGuaranteeService.createGuarantee(authorId, skillId);
                                 if (guaranteeId == null) {

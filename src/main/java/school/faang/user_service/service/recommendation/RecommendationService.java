@@ -12,11 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
-import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
+import school.faang.user_service.service.skill_offer.SkillOfferService;
 import school.faang.user_service.validator.recommendation.ServiceRecommendationValidator;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RecommendationService {
     private final RecommendationMapper recommendationMapper;
-    private final SkillOfferRepository skillOfferRepository;
+    private final SkillOfferService skillOfferService;
     private final RecommendationRepository recommendationRepository;
     private final ServiceRecommendationValidator serviceRecommendationValidator;
 
@@ -32,6 +33,12 @@ public class RecommendationService {
     private int page;
     @Value("${settingRecommendationPage.setSize}")
     private int size;
+
+    @Transactional
+    public Optional<Recommendation> findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(long authorId, long receiverId) {
+        return recommendationRepository.
+                findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId);
+    }
 
     @Transactional
     public RecommendationDto giveRecommendation(RecommendationDto recommendationDto) {
@@ -82,7 +89,7 @@ public class RecommendationService {
                 updateRecommendationDto.getReceiverId(),
                 updateRecommendationDto.getContent());
 
-        skillOfferRepository.deleteAllByRecommendationId(recommendation.getId());
+        skillOfferService.deleteAllByRecommendationId(recommendation.getId());
 
         serviceRecommendationValidator.checkingTheUserSkills(updateRecommendationDto);
 
