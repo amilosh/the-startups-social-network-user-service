@@ -12,6 +12,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
+import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validation.recommendation.RecommendationValidator;
 import school.faang.user_service.validation.skill.SkillValidator;
 
