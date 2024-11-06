@@ -14,7 +14,7 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.service.recommendation.RecommendationService;
-import school.faang.user_service.service.recommendation.UserSkillGuaranteeService;
+import school.faang.user_service.service.user_skill_guarantee.UserSkillGuaranteeService;
 import school.faang.user_service.validator.recommendation.ServiceRecommendationValidator;
 
 import java.time.LocalDate;
