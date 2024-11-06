@@ -21,7 +21,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/not-existing-ids")
-    public ResponseEntity<List<Long>> getNotExistingUserIds(@RequestBody @NotNull List<Long> userIds) {
+    public ResponseEntity<List<Long>> getNotExistingUserIds(@RequestBody @NotNull List<@NotNull Long> userIds) {
         List<Long> notExistingUserIds = userService.getNotExistingUserIds(userIds);
         return ResponseEntity.ok(notExistingUserIds);
     }
