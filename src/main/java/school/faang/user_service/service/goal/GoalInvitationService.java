@@ -18,9 +18,8 @@ public class GoalInvitationService {
         long inviter = invitationDto.getInviterId();
         long invited = invitationDto.getInvitedUserId();
 
-        userValidator.userIdsAreEqual(inviter, invited);
-        userValidator.userAlreadyExists(inviter);
-        userValidator.userAlreadyExists(invited);
+        userValidator.areUsersIdEqual(inviter, invited);
+        userValidator.areUsersExist(inviter, invited);
 
         goalInvitationRepository.save(goalInvitationMapper.toEntity(invitationDto));
     }

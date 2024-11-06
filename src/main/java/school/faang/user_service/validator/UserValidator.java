@@ -21,8 +21,8 @@ public class UserValidator {
         isUserExists(secondUserId);
     }
 
-    public void userIdsAreEqual(long userId1, long userId2) throws DataValidationException {
-        if (userId1 == userId2) {
+    public void areUsersIdEqual(long firstUserId, long secondUserId) {
+        if (firstUserId == secondUserId) {
             throw new DataValidationException("Id of inviter and invited user can't be the same");
         }
     }

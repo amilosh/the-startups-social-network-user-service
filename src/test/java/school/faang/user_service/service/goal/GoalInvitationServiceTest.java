@@ -28,9 +28,9 @@ public class GoalInvitationServiceTest {
         dto.setInviterId(1L);
         dto.setInvitedUserId(1L);
 
-        Mockito.doThrow(new DataValidationException("Id of inviter and invited user can't be the same"))
+        Mockito.doThrow(new DataValidationException(""))
                 .when(userValidator)
-                .userIdsAreEqual(1L, 1L);
+                .areUsersIdEqual(1L, 1L);
 
         Assert.assertThrows(
                 DataValidationException.class,
@@ -42,10 +42,11 @@ public class GoalInvitationServiceTest {
     public void userDoesNotExistTest() {
         GoalInvitationDto dto = new GoalInvitationDto();
         dto.setInviterId(1L);
+        dto.setInvitedUserId(2L);
 
-        Mockito.doThrow(new DataValidationException("Такого пользователя в БД не существует"))
+        Mockito.doThrow(new DataValidationException(""))
                 .when(userValidator)
-                .userAlreadyExists(1L);
+                .areUsersExist(1L, 2L);
 
         Assert.assertThrows(
                 DataValidationException.class,
