@@ -1,10 +1,8 @@
 package school.faang.user_service.validator.recommendation;
 
-import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
@@ -58,25 +56,27 @@ public class ServiceRecommendationValidator {
     }
 
     public void checkingTheUserSkills(RecommendationDto recommendationDto) {
+        boolean guaranteeExist;
+        Long guaranteeId;
         Long receiverId = recommendationDto.getReceiverId();
         Long authorId = recommendationDto.getAuthorId();
 
-        recommendationDto.getSkillOffers().stream()
-                .flatMap(skillOfferDto -> skillOfferDto.getSkillsId().stream()
-                        .map(skillId -> {
-                            skillOfferService.create(skillId, recommendationDto.getId());
-                            Optional<Skill> skill = skillService.findUserSkill(skillId, receiverId);
-                            if (skill.isEmpty()) {
-                                skillService.assignSkillToUser(skillId, receiverId);
-                            } else {
-                                Long guaranteeId = userSkillGuaranteeService.createGuarantee(authorId, skillId);
-                                if (guaranteeId == null) {
-                                    log.info("The author is already the guarantor of this skill {}", skill);
-                                }
-                            }
-                            return 0;
-                        }))
-                .toList();
+        for (SkillOfferDto skillOfferDto : recommendationDto.getSkillOffers()) {
+            for (Long skillId : skillOfferDto.getSkillsId()) {
+                skillOfferService.create(skillId, recommendationDto.getId());
+                Optional<Skill> skill = skillService.findUserSkill(skillId, receiverId);
+                if (skill.isEmpty()) {
+                    skillService.assignSkillToUser(skillId, receiverId);
+                } else {
+                    guaranteeExist = userSkillGuaranteeService.existsByUserIdAndSkillId(authorId, skillId);
+                    if (guaranteeExist) {
+                        log.info("The author is already the guarantor of this skill {}", skill);
+                    } else {
+                        guaranteeId = userSkillGuaranteeService.createGuarantee(authorId, skillId);
+                    }
+                }
+            }
+        }
     }
 
     public void preparingBeforeDelete(RecommendationDto delRecommendationDto) {

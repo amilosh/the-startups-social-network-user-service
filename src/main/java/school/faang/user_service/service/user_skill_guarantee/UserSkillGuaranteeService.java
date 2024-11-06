@@ -15,12 +15,13 @@ public class UserSkillGuaranteeService {
 
     @Transactional
     public Long createGuarantee(long userId, long skillId) {
-        if (!userSkillGuaranteeRepository.existsByUserIdAndSkillId(userId, skillId)) {
             Long maxGuarantorId = userSkillGuaranteeRepository.findMaxGuarantorId();
-            long newGuarantorId = maxGuarantorId + 1;
+            long newGuarantorId = (maxGuarantorId != null) ? maxGuarantorId + 1 : 1;
 
-            return userSkillGuaranteeRepository.create(userId, skillId, newGuarantorId);
-        }
-        return null;
+       return userSkillGuaranteeRepository.create(userId, skillId, newGuarantorId);
+    }
+
+    public boolean existsByUserIdAndSkillId(Long userId, Long skillId) {
+        return userSkillGuaranteeRepository.existsByUserIdAndSkillId(userId, skillId);
     }
 }

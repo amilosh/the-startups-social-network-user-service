@@ -65,13 +65,15 @@ public class ServiceRecommendationValidatorTest {
 
     @BeforeEach
     public void setUp() {
+
+        recommendation = new Recommendation();
         MockitoAnnotations.openMocks(this);
         recommendationDto = RecommendationDto.builder().id(1L).authorId(2L).receiverId(3L).content("Test").
                 createdAt(LocalDate.of(2022, 3, 22).atStartOfDay()).build();
         authorId = recommendationDto.getAuthorId();
         receiverId = recommendationDto.getReceiverId();
-        recommendation = new Recommendation();
     }
+
 
     @Test
     public void testCheckingThePeriodOffFasting_NoRecommendation() {
@@ -147,7 +149,6 @@ public class ServiceRecommendationValidatorTest {
         serviceRecommendationValidator.checkingTheSkillsOfRecommendation(skills);
     }
 
-    //==============================================================================
     @Test
     public void checkingTheUserSkills_SkillIsNotPresent() {
         Long skillId = 101L;
@@ -167,19 +168,22 @@ public class ServiceRecommendationValidatorTest {
     @Test
     public void checkingTheUserSkills_SkillIsPresent_AuthorIsNotGuarantee() {
         Long skillId = 101L;
-        Long authorId = recommendationDto.getAuthorId();
 
-        recommendationDto.setSkillOffers(List.of(skillOfferDto));
         skillOfferDto.setSkillsId(List.of(skillId));
+        recommendationDto.setSkillOffers(List.of(skillOfferDto));
+
 
         when(skillService.findUserSkill(skillId, receiverId)).thenReturn(Optional.of(mock(Skill.class)));
-        when(userSkillGuaranteeService.createGuarantee(authorId, skillId)).thenReturn(null);
+        when(userSkillGuaranteeService.existsByUserIdAndSkillId(authorId, skillId)).thenReturn(false);
 
         serviceRecommendationValidator.checkingTheUserSkills(recommendationDto);
+        //userSkillGuaranteeService.createGuarantee(authorId, skillId);
+
+        verify(userSkillGuaranteeService).createGuarantee(authorId, skillId);
 
         verify(skillService, never()).assignSkillToUser(skillId, receiverId);
 
-        verify(userSkillGuaranteeService).createGuarantee(authorId, skillId);
+
     }
 
     @Test
@@ -190,8 +194,8 @@ public class ServiceRecommendationValidatorTest {
         recommendationDto.setSkillOffers(List.of(skillOfferDto));
         skillOfferDto.setSkillsId(List.of(skillId));
 
-        when(skillService.findUserSkill(skillId, receiverId)).thenReturn(Optional.of(mock(Skill.class))); // Навык уже есть у пользователя
-        when(userSkillGuaranteeService.createGuarantee(authorId, skillId)).thenReturn(1L); // Автор является гарантом
+        when(skillService.findUserSkill(skillId, receiverId)).thenReturn(Optional.of(mock(Skill.class)));
+        when(userSkillGuaranteeService.existsByUserIdAndSkillId(authorId, skillId)).thenReturn(true);
 
         serviceRecommendationValidator.checkingTheUserSkills(recommendationDto);
 
@@ -200,7 +204,6 @@ public class ServiceRecommendationValidatorTest {
         verify(userSkillGuaranteeService, never()).createGuarantee(authorId, skillId);
     }
 
-    //==============================================================================
     @Test
     public void testPreparingBeforeDelete_DoesNotExistIsInvalid() {
         recommendationDto = new RecommendationDto();
