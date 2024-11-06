@@ -21,10 +21,10 @@ import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.mapper.skill.SkillMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.service.event.filter.EventFilter;
-import school.faang.user_service.service.event.filter.EventLocationFilter;
-import school.faang.user_service.service.event.filter.EventOwnerFilter;
-import school.faang.user_service.service.event.filter.EventTitleFilter;
+import school.faang.user_service.filter.event.EventFilter;
+import school.faang.user_service.filter.event.EventLocationFilter;
+import school.faang.user_service.filter.event.EventOwnerFilter;
+import school.faang.user_service.filter.event.EventTitleFilter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

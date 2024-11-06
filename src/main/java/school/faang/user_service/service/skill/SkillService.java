@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.skill;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +44,7 @@ public class SkillService {
     }
 
     public List<SkillDto> getUserSkills(long userId) {
-        userValidator.userAlreadyExists(userId);
+        userValidator.isUserExists(userId);
 
         List<Skill> skills = skillRepository.findAllByUserId(userId);
         log.info("У пользователя {} было найдено {} навыков", userId, skills.size());
@@ -52,7 +52,7 @@ public class SkillService {
     }
 
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
-        userValidator.userAlreadyExists(userId);
+        userValidator.isUserExists(userId);
 
         List<SkillDto> skills = skillMapper.toDtoList(skillRepository.findSkillsOfferedToUser(userId));
 
@@ -61,7 +61,7 @@ public class SkillService {
     }
 
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
-        userValidator.userAlreadyExists(userId);
+        userValidator.isUserExists(userId);
         Skill skill = skillValidator.skillAlreadyExists(skillId);
 
         Optional<Skill> skillOptional = skillRepository.findUserSkill(skillId, userId);

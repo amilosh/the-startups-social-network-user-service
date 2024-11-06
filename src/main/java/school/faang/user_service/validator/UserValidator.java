@@ -11,9 +11,14 @@ public class UserValidator {
 
     private final UserRepository userRepository;
 
-    public void userAlreadyExists(long userId) {
+    public void isUserExists(long userId) {
         userRepository.findById(userId)
-                .orElseThrow(() -> new DataValidationException("Такого пользователя в БД не существует"));
+                .orElseThrow(() -> new DataValidationException("User with id: " + userId + " not found in DB"));
+    }
+
+    public void areUsersExist(long firstUserId, long secondUserId) {
+        isUserExists(firstUserId);
+        isUserExists(secondUserId);
     }
 
     public void userIdsAreEqual(long userId1, long userId2) throws DataValidationException {

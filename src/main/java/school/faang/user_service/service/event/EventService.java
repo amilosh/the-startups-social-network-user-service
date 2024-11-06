@@ -14,7 +14,7 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.service.event.filter.EventFilter;
+import school.faang.user_service.filter.event.EventFilter;
 
 import java.util.List;
 import java.util.Set;
