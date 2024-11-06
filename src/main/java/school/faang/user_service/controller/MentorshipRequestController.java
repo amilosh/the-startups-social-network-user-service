@@ -21,14 +21,14 @@ public class MentorshipRequestController {
 
     @PostMapping(UrlUtils.CREATE)
     public ResponseEntity<Void> requestMentorship(@RequestBody MentorshipRequestDto mentorshipRequestDto) {
-        if (mentorshipRequestDto.description().length() > 100) {
+        if (mentorshipRequestDto.description().length() > 35) {
             mentorshipRequestService.requestMentorship(mentorshipRequestDto);
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.badRequest().build();
     }
 
-    @GetMapping( UrlUtils.REQUESTS_FILTER)
+    @GetMapping
     public ResponseEntity<List<MentorshipRequestDto>> getRequests(@RequestBody RequestFilterDto filter) {
         return ResponseEntity.ok(mentorshipRequestService.getRequest(filter));
     }

@@ -6,6 +6,7 @@ import lombok.experimental.UtilityClass;
 public class UrlUtils {
     public static final String MAIN_URL = "/api/user-service";
     public static final String ID = "/{id}";
+    public static final String V1 = "/v1";
     public static final String REQUEST = "/request";
     public static final String CREATE= "/create";
     public static final String ACCEPT = "/accept";
