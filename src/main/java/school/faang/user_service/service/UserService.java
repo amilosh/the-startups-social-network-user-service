@@ -51,9 +51,12 @@ public class UserService {
 
     private void stopScheduledGoals(User user) {
         List<Goal> ownedGoals = user.getGoals();
+        List<Goal> settingGoals = user.getSettingGoals();
+
+        settingGoals.forEach(goal -> goal.removeExecutingUser(user));
 
         goalService.removeGoalsWithoutExecutingUsers(ownedGoals);
-        goalService.removeGoalsWithoutExecutingUsers(user.getSettingGoals());
+        goalService.removeGoalsWithoutExecutingUsers(settingGoals);
 
         user.removeAllGoals();
         log.info("all scheduled goals is stopped");

@@ -12,7 +12,6 @@ import school.faang.user_service.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Data
 @Builder
@@ -28,7 +27,7 @@ public class Goal {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="parent_goal_id")
+    @JoinColumn(name = "parent_goal_id")
     private Goal parent;
 
     @Column(name = "title", length = 64, nullable = false, unique = true)
@@ -78,8 +77,13 @@ public class Goal {
     )
     private List<Skill> skillsToAchieve;
 
-    public boolean isEmptyExecutingUsers(){
+    public boolean isEmptyExecutingUsers() {
         return users.isEmpty();
     }
 
+    public void removeExecutingUser(User user) {
+        if (user != null) {
+            users.remove(user);
+        }
+    }
 }

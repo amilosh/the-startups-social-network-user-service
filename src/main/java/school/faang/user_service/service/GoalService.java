@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -12,6 +13,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Validated
 public class GoalService {
     private final GoalRepository goalRepository;
 
