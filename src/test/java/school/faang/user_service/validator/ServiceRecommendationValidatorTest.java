@@ -141,8 +141,8 @@ public class ServiceRecommendationValidatorTest {
                 new SkillOfferDto(8L, List.of(3L, 4L, 5L))
         );
 
-        when(skillRepository.countExisting(List.of(1L, 2L))).thenReturn(2);
-        when(skillRepository.countExisting(List.of(3L, 4L, 5L))).thenReturn(3);
+        when(skillService.countExisting(List.of(1L, 2L))).thenReturn(2);
+        when(skillService.countExisting(List.of(3L, 4L, 5L))).thenReturn(3);
 
         serviceRecommendationValidator.checkingTheSkillsOfRecommendation(skills);
     }
@@ -153,15 +153,15 @@ public class ServiceRecommendationValidatorTest {
         Long skillId = 101L;
 
         SkillOfferDto skillOfferDto = new SkillOfferDto(1L, List.of(skillId));
-        when(recommendationDto.getSkillOffers()).thenReturn(new ArrayList<>(List.of(skillOfferDto)));
-        when(skillOfferDto.getSkillsId()).thenReturn(List.of(skillId));
+        recommendationDto.setSkillOffers(List.of(skillOfferDto));
+
         when(skillService.findUserSkill(skillId, receiverId)).thenReturn(Optional.empty()); // Навык отсутствует у пользователя
 
         serviceRecommendationValidator.checkingTheUserSkills(recommendationDto);
 
-        //verify(skillService).assignSkillToUser(skillId, receiverId);
+        verify(skillService).assignSkillToUser(skillId, receiverId);
 
-       // verify(userSkillGuaranteeService, never()).createGuarantee(anyLong(), anyLong());
+        verify(userSkillGuaranteeService, never()).createGuarantee(anyLong(), anyLong());
     }
 
     @Test
@@ -169,8 +169,9 @@ public class ServiceRecommendationValidatorTest {
         Long skillId = 101L;
         Long authorId = recommendationDto.getAuthorId();
 
-        when(recommendationDto.getSkillOffers()).thenReturn(List.of(skillOfferDto));
-        when(skillOfferDto.getSkillsId()).thenReturn(List.of(skillId));
+        recommendationDto.setSkillOffers(List.of(skillOfferDto));
+        skillOfferDto.setSkillsId(List.of(skillId));
+
         when(skillService.findUserSkill(skillId, receiverId)).thenReturn(Optional.of(mock(Skill.class)));
         when(userSkillGuaranteeService.createGuarantee(authorId, skillId)).thenReturn(null);
 
@@ -186,8 +187,9 @@ public class ServiceRecommendationValidatorTest {
         Long skillId = 101L;
         Long authorId = recommendationDto.getAuthorId();
 
-        when(recommendationDto.getSkillOffers()).thenReturn(List.of(skillOfferDto));
-        when(skillOfferDto.getSkillsId()).thenReturn(List.of(skillId));
+        recommendationDto.setSkillOffers(List.of(skillOfferDto));
+        skillOfferDto.setSkillsId(List.of(skillId));
+
         when(skillService.findUserSkill(skillId, receiverId)).thenReturn(Optional.of(mock(Skill.class))); // Навык уже есть у пользователя
         when(userSkillGuaranteeService.createGuarantee(authorId, skillId)).thenReturn(1L); // Автор является гарантом
 

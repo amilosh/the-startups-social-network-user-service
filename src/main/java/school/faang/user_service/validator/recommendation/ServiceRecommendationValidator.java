@@ -1,5 +1,6 @@
 package school.faang.user_service.validator.recommendation;
 
+import io.swagger.models.auth.In;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 
@@ -74,7 +75,8 @@ public class ServiceRecommendationValidator {
                                 }
                             }
                             return 0;
-                        }));
+                        }))
+                .toList();
     }
 
     public void preparingBeforeDelete(RecommendationDto delRecommendationDto) {
