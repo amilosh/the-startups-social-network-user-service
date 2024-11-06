@@ -13,7 +13,7 @@ public class SkillValidation {
 
     public void validateDuplicate(Skill skill) {
         if(skillRepository.existsByTitle(skill.getTitle())) {
-            throw new SkillDuplicateException("Такой навык уже существует");
+            throw new SkillDuplicateException("The skill " + skill.getTitle() + " already exists");
         }
     }
 }

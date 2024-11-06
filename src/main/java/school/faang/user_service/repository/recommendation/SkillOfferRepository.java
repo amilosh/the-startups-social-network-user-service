@@ -40,5 +40,5 @@ public interface SkillOfferRepository extends CrudRepository<SkillOffer, Long> {
             SELECT COUNT(so.id) FROM skill_offer so
             WHERE so.skill_id = :skillId
             """)
-    int countAllOffersOfSkill(long skillId);
+    Long countAllOffersOfSkill(long skillId);
 }

@@ -1,10 +1,10 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class SkillOfferService {
     private SkillOfferRepository skillOfferRepository;
@@ -13,7 +13,7 @@ public class SkillOfferService {
         return skillOfferRepository.countAllOffersOfSkill(skillId, userId) ;
     }
 
-    public int getCountSkillOffersBySkill(Long skillId) {
+    public Long getCountSkillOffersBySkill(Long skillId) {
         return skillOfferRepository.countAllOffersOfSkill(skillId) ;
     }
 }

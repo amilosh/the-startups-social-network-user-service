@@ -1,7 +1,7 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.skill.SkillAcquireDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
@@ -14,16 +14,18 @@ import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.validation.skill.SkillValidation;
 
 import java.util.List;
+import java.util.Optional;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class SkillService {
+    public static final int OFFERS_AMOUNT = 3;
+
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
     private final SkillValidation skillValidation;
     private final UserService userService;
     private final SkillOfferService skillOfferService;
-    public final int OFFERS_AMOUNT = 3;
 
     public SkillDto create(SkillDto skillDto) {
         Skill skill = skillMapper.toEntity(skillDto);
@@ -42,19 +44,19 @@ public class SkillService {
 
     public SkillCandidateDto getOfferedSkills(SkillCandidateDto skillCandidateDto) {
         Skill skill = skillMapper.toEntity(skillCandidateDto.getSkill());
-        int offersAmount = skillOfferService.getCountSkillOffersBySkill(skill.getId());
+        Long offersAmount = skillOfferService.getCountSkillOffersBySkill(skill.getId());
 
-        skillCandidateDto.setOffersAmount(Long.valueOf(offersAmount));
+        skillCandidateDto.setOffersAmount(offersAmount);
 
         return skillCandidateDto;
     }
 
     public SkillDto acquireSkillFromOffers(SkillAcquireDto skillAcquireDto) {
-        Skill skill = getByIdOrThrow(skillAcquireDto.getSkillId());
-        User user = userService.getByIdOrThrow(skillAcquireDto.getUserId());
+        Skill skill = getSkillByIdOrThrow(skillAcquireDto.getSkillId());
+        User user = userService.findUser(skillAcquireDto.getUserId());
 
         if(user.getSkills().contains(skill)) {
-            throw new SkillDuplicateException("Пользователь " + user.getUsername() + " уже владеет навыком " + skill.getTitle());
+            throw new SkillDuplicateException("User " + user.getUsername() + " already possesses the skill " + skill.getTitle());
         }
 
         int skillOfferCount = skillOfferService.getCountSkillOffersForUser(skill.getId(), user.getId());
@@ -66,13 +68,8 @@ public class SkillService {
         return skillMapper.toDto(skill);
     }
 
-    public Skill getByIdOrThrow(Long id) {
-        Skill skill = skillRepository.getById(id);
-
-        if(skill == null) {
-            throw new SkillResourceNotFoundException("Не существует навыка в БД по id = " + id);
-        }
-
-        return skill;
+    public Skill getSkillByIdOrThrow(Long id) {
+        return Optional.ofNullable(skillRepository.getById(id))
+            .orElseThrow(() -> new SkillResourceNotFoundException("Skill not found in DB with id = " + id));
     }
 }

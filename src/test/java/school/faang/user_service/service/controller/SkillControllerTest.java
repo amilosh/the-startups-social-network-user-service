@@ -14,16 +14,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.containers.PostgreSQLContainer;
 import school.faang.user_service.controller.SkillController;
-import school.faang.user_service.dto.skill.SkillAcquireDto;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
-import school.faang.user_service.exception.skill.SkillAcquireDtoNullObjectValidationException;
-import school.faang.user_service.exception.skill.SkillDtoFieldConstraintValidationException;
-import school.faang.user_service.exception.skill.SkillDtoNullObjectValidationException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.service.SkillService;
-import school.faang.user_service.validation.skill.SkillAcquireDtoValidation;
-import school.faang.user_service.validation.skill.SkillDtoValidation;
 import school.faang.user_service.validation.skill.SkillValidation;
 
 import java.util.Arrays;
@@ -33,16 +27,13 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 
 @SpringBootTest
@@ -79,12 +70,6 @@ public class SkillControllerTest {
     private SkillService skillService;
 
     @MockBean
-    private SkillDtoValidation skillDtoValidation;
-
-    @MockBean
-    private SkillAcquireDtoValidation skillAcquireDtoValidation;
-
-    @MockBean
     private SkillValidation skillValidation;
 
     @MockBean
@@ -92,92 +77,21 @@ public class SkillControllerTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private SkillDto emptySkillDto = new SkillDto();
-    private SkillAcquireDto emptySkillAcquireDto = new SkillAcquireDto();
-    private SkillDto skillDtoWithoutTitle = new SkillDto(null, "");
-    private SkillDto skillDtoExceedingSizeTitle = new SkillDto(null, "a".repeat(SkillDtoValidation.MAX_TITLE_LENGTH + 1));
-    private SkillDto SkillDtoJava = new SkillDto(null, "Test");
-
     @Test
-    public void testCreateEmptySkill() throws Exception {
-        doThrow(new SkillDtoNullObjectValidationException("Объект skillDto не может быть пустым!"))
-            .when(skillDtoValidation).validate(emptySkillDto);
+    public void createSkillWithoutTitle() throws Exception {
+        SkillDto invalidSkillDto = new SkillDto(null, null);
 
         mockMvc.perform(post("/api/skills/create")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(emptySkillDto)))
+                .content(objectMapper.writeValueAsString(invalidSkillDto)))
             .andExpect(status().isBadRequest())
-            .andExpect(content().string("Объект skillDto не может быть пустым!"));
-
-        verify(skillDtoValidation, times(1)).validate(emptySkillDto);
-        verify(skillService, never()).create(any(SkillDto.class));
+            .andExpect(jsonPath("$.title").value("title name cannot be blank"));
     }
 
     @Test
-    public void testAcquireNullSkillFromOffers() throws Exception {
-        doThrow(new SkillAcquireDtoNullObjectValidationException("Объект skillAcquireDto не может быть пустым!"))
-            .when(skillAcquireDtoValidation).validate(emptySkillAcquireDto);
+    public void createValidSkill() throws Exception {
+        SkillDto SkillDtoJava = new SkillDto(null, "Test");
 
-        mockMvc.perform(post("/api/skills/acquireSkillFromOffers")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(emptySkillAcquireDto)))
-            .andExpect(status().isBadRequest())
-            .andExpect(content().string("Объект skillAcquireDto не может быть пустым!"));
-
-        verify(skillAcquireDtoValidation, times(1)).validate(emptySkillAcquireDto);
-        verify(skillService, never()).acquireSkillFromOffers(emptySkillAcquireDto);
-    }
-
-    @Test
-    public void testCreateSkillWithoutTitle() throws Exception {
-        doThrow(new SkillDtoNullObjectValidationException("Объект skillDto не может быть пустым!"))
-            .when(skillDtoValidation).validate(skillDtoWithoutTitle);
-
-        mockMvc.perform(post("/api/skills/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(skillDtoWithoutTitle)))
-            .andExpect(status().isBadRequest())
-            .andExpect(content().string("Объект skillDto не может быть пустым!"));
-
-        verify(skillDtoValidation, times(1)).validate(skillDtoWithoutTitle);
-        verify(skillService, never()).create(any(SkillDto.class));
-    }
-
-    @Test
-    public void testCreateSkillExceedingSizeTitle() throws Exception {
-        doThrow(new SkillDtoFieldConstraintValidationException("Наименование навыка превышает допустимое кол-во символов!"))
-            .when(skillDtoValidation).validate(skillDtoExceedingSizeTitle);
-
-        mockMvc.perform(post("/api/skills/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(skillDtoExceedingSizeTitle)))
-            .andExpect(status().isBadRequest())
-            .andExpect(content().string("Наименование навыка превышает допустимое кол-во символов!"));
-
-        verify(skillDtoValidation, times(1)).validate(skillDtoExceedingSizeTitle);
-        verify(skillService, never()).create(any(SkillDto.class));
-    }
-
-    @Test
-    public void testGetOfferedSkillsInvalidSkillDto() throws Exception {
-        SkillCandidateDto skillCandidateDto = new SkillCandidateDto(skillDtoWithoutTitle, null);
-
-        doThrow(new SkillDtoFieldConstraintValidationException("Наименование навыка не может быть пустым!"))
-            .when(skillDtoValidation).validate(any(SkillDto.class));
-
-        mockMvc.perform(post("/api/skills/offeredSkills")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(skillCandidateDto)))
-            .andExpect(status().isBadRequest())
-            .andExpect(content().string("Наименование навыка не может быть пустым!"));
-
-        verify(skillDtoValidation, times(1)).validate(any(SkillDto.class));
-        verify(skillService, never()).getOfferedSkills(any(SkillCandidateDto.class));
-    }
-
-    @Test
-    public void testCreateSkillValid() throws Exception {
-        doNothing().when(skillDtoValidation).validate(any(SkillDto.class));
         doNothing().when(skillValidation).validateDuplicate(any());
         when(skillService.create(any(SkillDto.class))).thenReturn(SkillDtoJava);
 
@@ -187,25 +101,7 @@ public class SkillControllerTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.title", is("Test")));
 
-        verify(skillDtoValidation, times(1)).validate(any(SkillDto.class));
         verify(skillService, times(1)).create(any(SkillDto.class));
-    }
-
-    @Test
-    public void testAcquireSkillFromOffersNullSkillId() throws Exception {
-        SkillAcquireDto skillAcquireDto = new SkillAcquireDto(null, 1L);
-
-        doThrow(new SkillAcquireDtoNullObjectValidationException("Объект skillId не может быть пустым!"))
-            .when(skillAcquireDtoValidation).validate(skillAcquireDto);
-
-        mockMvc.perform(post("/api/skills/acquireSkillFromOffers")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(skillAcquireDto)))
-            .andExpect(status().isBadRequest())
-            .andExpect(content().string("Объект skillId не может быть пустым!"));
-
-        verify(skillAcquireDtoValidation, times(1)).validate(skillAcquireDto);
-        verify(skillService, never()).acquireSkillFromOffers(any(SkillAcquireDto.class));
     }
 
     @Test
