@@ -22,6 +22,7 @@ public interface UserMapper {
     @Mapping(target = "settingGoals", ignore = true)
     @Mapping(target = "goals", ignore = true)
     @Mapping(target = "skills", ignore = true)
+    @Mapping(target = "mentors", ignore = true)
     User toEntity(UserDto userDto);
 
     @Named("mapGoalsToListId")
