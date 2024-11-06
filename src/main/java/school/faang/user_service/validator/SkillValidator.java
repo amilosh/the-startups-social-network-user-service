@@ -1,6 +1,7 @@
 package school.faang.user_service.validator;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.recommendation.SkillOffer;
@@ -19,12 +20,8 @@ public class SkillValidator {
     private final SkillOfferRepository skillOfferRepository;
 
     public void validateSkill(SkillDto skillDto) {
-        if (skillDto.getTitle() == null) {
-            throw new DataValidationException("Скилл должен иметь название");
-        }
-
-        if (skillDto.getTitle().isBlank()) {
-            throw new DataValidationException("Имя скилла не может быть пустым");
+        if (Strings.isBlank(skillDto.getTitle())) {
+            throw new DataValidationException("Скилл должен иметь название и имя скилла не может быть пустым");
         }
     }
 

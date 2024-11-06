@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SkillCandidateDto {
-    private SkillDto sKillDto;
+    private SkillDto skillDto;
     private long offerAmount;
 }

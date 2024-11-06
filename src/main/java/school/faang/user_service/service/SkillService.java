@@ -22,11 +22,9 @@ public class SkillService {
     private final SkillValidator skillValidator;
 
     public SkillDto create(SkillDto skillDto) {
-        Skill skill = skillMapper.dtoToEntity(skillDto);
-
         skillValidator.validateExistTitle(skillDto.getTitle());
 
-        skillRepository.save(skill);
+        Skill skill = skillRepository.save(skillMapper.dtoToEntity(skillDto));
         return skillMapper.entityToDto(skill);
     }
 
