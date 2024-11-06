@@ -1,14 +1,13 @@
 package school.faang.user_service.service.goal;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.validator.UserValidator;
 
-@Service
+@Component
 @RequiredArgsConstructor
 public class GoalInvitationService {
     private final UserValidator userValidator;
@@ -19,9 +18,7 @@ public class GoalInvitationService {
         long inviter = invitationDto.getInviterId();
         long invited = invitationDto.getInvitedUserId();
 
-        if (inviter == invited) {
-            throw new DataValidationException("Id of inviter and invited user can't be the same");
-        }
+        userValidator.userIdsAreEqual(inviter, invited);
         userValidator.userAlreadyExists(inviter);
         userValidator.userAlreadyExists(invited);
 
