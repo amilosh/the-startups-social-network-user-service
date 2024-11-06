@@ -39,7 +39,6 @@ public class GoalService {
     @Value("${application.constants.max-active-goals-count}")
     private int maxActiveGoalsCount;
 
-    @Transactional
     public GoalDto createGoal(Long userId, GoalDto goalDto) {
         User user = findUserById(userId);
         checkMaxActiveGoals(userId);
@@ -59,7 +58,6 @@ public class GoalService {
         return goalMapper.toGoalDto(savedGoal);
     }
 
-    @Transactional
     public GoalDto updateGoal(Long goalId, GoalDto goalDto) {
         Goal goalToUpdate = goalRepository.findById(goalId)
                 .orElseThrow(() -> {
@@ -82,7 +80,6 @@ public class GoalService {
         return goalMapper.toGoalDto(savedGoal);
     }
 
-    @Transactional
     public void deleteGoal(long goalId) {
         Goal goalToDelete = goalRepository.findById(goalId)
                 .orElseThrow(() -> {
@@ -95,13 +92,11 @@ public class GoalService {
         goalRepository.delete(goalToDelete);
     }
 
-    @Transactional(readOnly = true)
     public List<GoalDto> findSubtasksByGoalId(Long goalId, GoalFilterDto filterDto) {
         Stream<Goal> goals = goalRepository.findByParent(goalId);
         return filterGoals(goals, filterDto);
     }
 
-    @Transactional(readOnly = true)
     public List<GoalDto> findGoalsByUserId(Long userId, GoalFilterDto filterDto) {
         Stream<Goal> goals = goalRepository.getGoalsByUserIdId(userId);
         return filterGoals(goals, filterDto);
