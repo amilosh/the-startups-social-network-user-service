@@ -5,12 +5,11 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 
 @Component
-public class PagePatternFilter implements UserFilter {
-    private int pattern;
+public class PagePatternFilter extends UserFilter {
 
     @Override
     public boolean isApplicable(UserFilterDto filters) {
-        this.pattern = filters.page();
+        int pattern = filters.page();
         return pattern > 0;
     }
 

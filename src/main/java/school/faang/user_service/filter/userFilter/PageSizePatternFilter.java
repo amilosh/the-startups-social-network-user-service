@@ -5,12 +5,11 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 
 @Component
-public class PageSizePatternFilter implements UserFilter {
-    private int pattern;
+public class PageSizePatternFilter extends UserFilter {
 
     @Override
     public boolean isApplicable(UserFilterDto filters) {
-        this.pattern = filters.pageSize();
+        int pattern = filters.pageSize();
         return pattern > 0;
     }
 

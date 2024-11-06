@@ -5,7 +5,7 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 
 @Component
-public class MaxExperiencePatternFilter implements UserFilter {
+public class MaxExperiencePatternFilter extends UserFilter {
     private int pattern;
 
     @Override

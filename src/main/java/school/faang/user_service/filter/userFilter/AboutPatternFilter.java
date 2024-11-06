@@ -5,8 +5,7 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 
 @Component
-public class AboutPatternFilter implements UserFilter {
-    private String pattern;
+public class AboutPatternFilter extends UserFilter {
 
     @Override
     public boolean isApplicable(UserFilterDto filters) {

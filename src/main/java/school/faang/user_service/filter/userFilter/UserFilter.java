@@ -5,7 +5,9 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 
 @Component
-public interface UserFilter {
-    boolean isApplicable(UserFilterDto filters);
-    boolean apply(User user);
+public abstract class UserFilter {
+    protected String pattern;
+
+    public abstract boolean isApplicable(UserFilterDto filters);
+    public abstract boolean apply(User user);
 }

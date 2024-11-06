@@ -9,7 +9,6 @@ import school.faang.user_service.entity.User;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -62,6 +61,27 @@ public class UserFilterTest {
 
         filterDto = UserFilterDto.builder()
                 .skillPattern("Python")
+                .build();
+
+        assertTrue(filter.isApplicable(filterDto));
+        assertFalse(filter.apply(user));
+    }
+
+    @Test
+    public void testApplyMinExperienceFilter() {
+        MinExperiencePatternFilter filter = new MinExperiencePatternFilter();
+        User user = new User();
+        user.setExperience(5);
+
+        UserFilterDto filterDto = UserFilterDto.builder()
+                .experienceMin(5)
+                .build();
+
+        assertTrue(filter.isApplicable(filterDto));
+        assertTrue(filter.apply(user));
+
+        filterDto = UserFilterDto.builder()
+                .experienceMin(6)
                 .build();
 
         assertTrue(filter.isApplicable(filterDto));

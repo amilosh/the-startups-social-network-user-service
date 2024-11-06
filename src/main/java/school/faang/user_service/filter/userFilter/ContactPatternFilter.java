@@ -6,8 +6,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.contact.Contact;
 
 @Component
-public class ContactPatternFilter implements UserFilter {
-    private String pattern;
+public class ContactPatternFilter extends UserFilter {
 
     @Override
     public boolean isApplicable(UserFilterDto filters) {

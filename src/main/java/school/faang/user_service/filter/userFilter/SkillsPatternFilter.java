@@ -6,8 +6,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 
 @Component
-public class SkillsPatternFilter implements UserFilter {
-    private String pattern;
+public class SkillsPatternFilter extends UserFilter {
 
     @Override
     public boolean isApplicable(UserFilterDto filters) {
