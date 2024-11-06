@@ -30,47 +30,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class MentorshipRequestServiceTest {
 
-    @Spy
-    private MentorshipRequestMapper mentorshipRequestMapper = Mappers.getMapper(MentorshipRequestMapper.class);
-
-    @Mock
-    private MentorshipRequestRepository mentorshipRequestRepository;
-
-    @Mock
-    private UserRepository userRepository;
-
-    @InjectMocks
-    private MentorshipRequestService mentorshipRequestService;
-
-    private User createUser(Long id) {
-        return User.builder()
-                .id(id)
-                .sentMentorshipRequests(new ArrayList<>())
-                .mentors(new ArrayList<>())
-                .build();
-    }
-
-    private MentorshipRequest createMentorshipRequest(User requester, User receiver) {
-        return MentorshipRequest.builder()
-                .id(1L)
-                .description("Test Description")
-                .requester(requester)
-                .receiver(receiver)
-                .status(RequestStatus.PENDING)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
-    }
-
-    private MentorshipRequestDto createMentorshipRequestDto(User requester, User receiver) {
-        return MentorshipRequestDto.builder()
-                .requesterId(requester.getId())
-                .receiverId(receiver.getId())
-                .description("Test Description")
-                .status(RequestStatus.PENDING)
-                .build();
-    }
-
     @Test
     public void testRequestMentorship_Success() {
         User requester = createUser(1L);
@@ -183,5 +142,46 @@ public class MentorshipRequestServiceTest {
         assertEquals(mentorshipRequestDto, result);
         assertEquals(RequestStatus.REJECTED, mentorshipRequest.getStatus());
         assertEquals("Test Reason", mentorshipRequest.getRejectionReason());
+    }
+
+    @Spy
+    private MentorshipRequestMapper mentorshipRequestMapper = Mappers.getMapper(MentorshipRequestMapper.class);
+
+    @Mock
+    private MentorshipRequestRepository mentorshipRequestRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    @InjectMocks
+    private MentorshipRequestService mentorshipRequestService;
+
+    private User createUser(Long id) {
+        return User.builder()
+                .id(id)
+                .sentMentorshipRequests(new ArrayList<>())
+                .mentors(new ArrayList<>())
+                .build();
+    }
+
+    private MentorshipRequest createMentorshipRequest(User requester, User receiver) {
+        return MentorshipRequest.builder()
+                .id(1L)
+                .description("Test Description")
+                .requester(requester)
+                .receiver(receiver)
+                .status(RequestStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
+    private MentorshipRequestDto createMentorshipRequestDto(User requester, User receiver) {
+        return MentorshipRequestDto.builder()
+                .requesterId(requester.getId())
+                .receiverId(receiver.getId())
+                .description("Test Description")
+                .status(RequestStatus.PENDING)
+                .build();
     }
 }
