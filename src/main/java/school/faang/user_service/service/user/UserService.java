@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.validator.UserValidator;
 
 import java.util.Collections;
 import java.util.List;

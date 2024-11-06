@@ -1,7 +1,6 @@
 package school.faang.user_service.controller.user;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +21,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/not-existing-ids")
-    public ResponseEntity<List<Long>> getNotExistingUserIds(@Valid @RequestBody @NotNull List<Long> userIds) {
+    public ResponseEntity<List<Long>> getNotExistingUserIds(@RequestBody @NotNull List<Long> userIds) {
         List<Long> notExistingUserIds = userService.getNotExistingUserIds(userIds);
         return ResponseEntity.ok(notExistingUserIds);
     }

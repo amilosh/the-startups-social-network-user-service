@@ -7,8 +7,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.validator.UserValidator;
 
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
@@ -48,5 +51,24 @@ class UserServiceTest {
         userService.saveUser(user);
 
         verify(userRepository, times(1)).save(user);
+    }
+
+    @Test
+    void getNotExistingUsersEmptyListTest() {
+        List<Long> userIds = Collections.emptyList();
+        List<Long> notExistingUserIds = userService.getNotExistingUserIds(userIds);
+
+        assertTrue(notExistingUserIds.isEmpty());
+    }
+
+    @Test
+    void getNotExistingUsersValidListTest() {
+        List<Long> userIds = List.of(1L, 2L, 3L);
+        when(userRepository.findNotExistingUserIds(userIds)).thenReturn(List.of(1L));
+
+        List<Long> notExistingUserIds = userService.getNotExistingUserIds(userIds);
+
+        assertEquals(1, notExistingUserIds.size());
+        assertTrue(notExistingUserIds.contains(1L));
     }
 }
