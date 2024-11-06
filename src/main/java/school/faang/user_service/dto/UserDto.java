@@ -30,10 +30,4 @@ public class UserDto {
     private List<Long> menteesId;
     private List<Long> mentorsId;
     private List<Long> skillsId;
-//    private String phone;
-//    private String aboutMe;
-//    private String city;
-//    private Integer experience;
-//    private LocalDateTime createdAt;
-//    private LocalDateTime updatedAt;
 }
