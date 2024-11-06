@@ -60,4 +60,6 @@ public class EventParticipationService {
             throw new IllegalArgumentException("There is not event with this ID!");
         }
     }
+
+
 }
