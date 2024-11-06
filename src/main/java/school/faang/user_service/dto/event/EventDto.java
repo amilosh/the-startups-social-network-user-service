@@ -3,6 +3,7 @@ package school.faang.user_service.dto.event;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -44,6 +45,7 @@ public class EventDto {
     private String description;
 
     @NotNull
+    @NotEmpty
     private List<SkillDto> relatedSkills;
 
     @Nullable

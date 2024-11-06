@@ -9,26 +9,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import school.faang.user_service.exception.DataValidationException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
 public class ControllerMethodArgumentValidationExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<List<DataValidationException>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        List<DataValidationException> errors = new ArrayList<>();
+    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        Map<String, String> errors = new HashMap<>();
 
-        e.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName;
-            try {
-                fieldName = ((FieldError) error).getField();
-            } catch (ClassCastException ex) {
-                fieldName = error.getObjectName();
-            }
-            String message = error.getDefaultMessage();
-            errors.add(new DataValidationException(fieldName + " : " + message));
+        log.error("controller method argument validation error {}", e.getMessage(), e);
+        e.getFieldErrors().forEach((error) -> {
+            errors.put(error.getField(), error.getDefaultMessage());
         });
-        log.error("controller method argument validation error {}", errors.toString());
         return ResponseEntity.badRequest().body(errors);
     }
 }

@@ -106,7 +106,7 @@ public class EventService {
                 .filter(relatedSkill -> !userSkillsTitles.contains(relatedSkill.getTitle().toLowerCase()))
                 .findAny()
                 .ifPresent(skill -> {
-                    log.warn("creating event wasn't successfully {}", eventDto);
+                    log.error("creating event wasn't successfully {}", eventDto);
                     throw new DataNotMatchException("you can't create such an event with such skills", skill);
                 });
     }
