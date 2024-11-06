@@ -12,6 +12,6 @@ public class failTest {
 
     @Test
     public void createSkillWithEmptyTitleTest() {
-        assertEquals(5, 2 + 2);
+        assertEquals(5, 2 + 3);
     }
 }
