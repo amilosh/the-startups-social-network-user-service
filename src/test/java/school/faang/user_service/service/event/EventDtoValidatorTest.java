@@ -29,13 +29,6 @@ public class EventDtoValidatorTest {
     private SkillMapper skillMapper;
 
     private final Long testId = 1L;
-    private final List<SkillDto> skillDtoList = List.of(new SkillDto());
-    private final List<Skill> skillList = List.of(Skill.builder().id(testId).build());
-    private final EventDto dto = EventDto.builder()
-            .ownerId(testId)
-            .relatedSkills(skillDtoList)
-            .build();
-    private final User user = User.builder().skills(skillList).build();
     private final String testTitle = "testTitle";
 
 
@@ -85,22 +78,49 @@ public class EventDtoValidatorTest {
 
     @Test
     public void testIncompleteSkillsOfOwner() {
-        when(userService.findById(dto.getOwnerId())).thenReturn(user);
-        when(skillMapper.toListEntity(dto.getRelatedSkills()))
+        EventDto eventDto = getEventDto();
+        User user = getUser();
+
+        when(userService.findById(eventDto.getOwnerId())).thenReturn(user);
+        when(skillMapper.toListEntity(eventDto.getRelatedSkills()))
                 .thenReturn(List.of(Skill.builder().id(testId + 1).build()));
 
         Assertions.assertThrows(
                 DataValidationException.class,
-                () -> validator.validateOwnerOfEvent(dto)
+                () -> validator.validateOwnerOfEvent(eventDto)
         );
     }
 
     @Test
     public void testValidSkillsOfOwner() {
-        when(userService.findById(dto.getOwnerId())).thenReturn(user);
-        when(skillMapper.toListEntity(dto.getRelatedSkills()))
+        EventDto eventDto = getEventDto();
+        User user = getUser();
+
+        when(userService.findById(eventDto.getOwnerId())).thenReturn(user);
+        when(skillMapper.toListEntity(eventDto.getRelatedSkills()))
                 .thenReturn(List.of(Skill.builder().id(testId).build()));
 
-        Assertions.assertDoesNotThrow(() -> validator.validateOwnerOfEvent(dto));
+        Assertions.assertDoesNotThrow(() -> validator.validateOwnerOfEvent(eventDto));
+    }
+
+    private List<SkillDto> getSkillDtoList() {
+        return List.of(new SkillDto());
+    }
+
+    private List<Skill> getSkillList() {
+        return List.of(Skill.builder().id(testId).build());
+    }
+
+    private EventDto getEventDto() {
+        return EventDto.builder()
+                .ownerId(testId)
+                .relatedSkills(getSkillDtoList())
+                .build();
+    }
+
+    private User getUser() {
+        return User.builder()
+                .skills(getSkillList())
+                .build();
     }
 }

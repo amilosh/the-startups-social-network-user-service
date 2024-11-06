@@ -30,37 +30,31 @@ public class EventController {
     }
 
     @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public EventDto getEvent(@PathVariable long id) {
         return eventService.getEvent(id);
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.OK)
     public List<EventDto> getEventsByFilters(@RequestBody EventFilterDto filters) {
         return eventService.getEventsByFilters(filters);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public void deleteEvent(@PathVariable long id) {
         eventService.deleteEvent(id);
     }
 
     @PutMapping
-    @ResponseStatus(HttpStatus.OK)
     public EventDto updateEvent(@RequestBody EventDto event) {
         return eventService.updateEvent(event);
     }
 
     @GetMapping("/user-events/{userId}")
-    @ResponseStatus(HttpStatus.OK)
     public List<EventDto> getOwnedEvents(@PathVariable long userId) {
         return eventService.getOwnedEvents(userId);
     }
 
     @GetMapping("/participate-events/{userId}")
-    @ResponseStatus(HttpStatus.OK)
     public List<EventDto> getParticipatedEvents(@PathVariable long userId) {
         return eventService.getParticipatedEvents(userId);
     }

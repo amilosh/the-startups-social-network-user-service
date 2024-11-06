@@ -39,16 +39,15 @@ public class EventServiceTest {
     private EventTitleFilter titleFilter;
 
     private final Long testId = 1L;
-    private final EventDto inputDto = EventDto.builder().id(testId).build();
-    private final EventDto outputDto = EventDto.builder().id(testId + 1).build();
-    private final List<EventDto> eventDtos = List.of(outputDto);
-    private final Event event = Event.builder().build();
-    private final List<Event> events = List.of(event);
-    private final Event savedEvent = Event.builder().id(testId).build();
-    private final User user = User.builder().build();
 
     @Test
     public void testCreate() {
+        EventDto inputDto = getInputDto();
+        EventDto outputDto = getOutputDto();
+        Event event = getEvent();
+        User user = getUser();
+        Event savedEvent = getSavedEvent();
+
         when(eventMapper.toEntity(inputDto)).thenReturn(event);
         when(userService.findById(inputDto.getOwnerId())).thenReturn(user);
         when(eventRepository.save(event)).thenReturn(savedEvent);
@@ -70,6 +69,9 @@ public class EventServiceTest {
 
     @Test
     public void testValidEventIdGet() {
+        Event event = getEvent();
+        EventDto outputDto = getOutputDto();
+
         when(eventRepository.findById(testId)).thenReturn(Optional.of(event));
         when(eventMapper.toDto(event)).thenReturn(outputDto);
 
@@ -79,6 +81,9 @@ public class EventServiceTest {
 
     @Test
     public void testGetEventsByFilters() {
+        List<Event> events = getEvents();
+        List<EventDto> eventDtos = getEventDtoList();
+
         List<EventFilter> eventFilters = List.of(titleFilter);
         EventService service = new EventService(eventRepository, userService, eventMapper, validator, eventFilters);
         EventFilterDto filters = Mockito.mock(EventFilterDto.class);
@@ -108,6 +113,8 @@ public class EventServiceTest {
 
     @Test
     public void testInvalidEventDtoUpdate() {
+        EventDto inputDto = getInputDto();
+
         when(eventRepository.findById(inputDto.getId())).thenReturn(Optional.empty());
         Assertions.assertThrows(
                 DataValidationException.class,
@@ -117,6 +124,10 @@ public class EventServiceTest {
 
     @Test
     public void testValidEventDtoUpdate() {
+        EventDto inputDto = getInputDto();
+        Event event = getEvent();
+        EventDto outputDto = getOutputDto();
+
         when(eventRepository.findById(inputDto.getId())).thenReturn(Optional.of(event));
         when(eventMapper.toEntity(inputDto)).thenReturn(event);
         when(eventMapper.toDto(event)).thenReturn(outputDto);
@@ -127,6 +138,9 @@ public class EventServiceTest {
 
     @Test
     public void testGetOwnedEvents() {
+        List<Event> events = getEvents();
+        List<EventDto> eventDtos = getEventDtoList();
+
         when(eventRepository.findAllByUserId(testId)).thenReturn(events);
         when(eventMapper.toListDto(events)).thenReturn(eventDtos);
         List<EventDto> result = eventService.getOwnedEvents(testId);
@@ -136,10 +150,47 @@ public class EventServiceTest {
 
     @Test
     public void testParticipatedEvents() {
+        List<Event> events = getEvents();
+        List<EventDto> eventDtos = getEventDtoList();
+
         when(eventRepository.findParticipatedEventsByUserId(testId)).thenReturn(events);
         when(eventMapper.toListDto(events)).thenReturn(eventDtos);
         List<EventDto> result = eventService.getParticipatedEvents(testId);
 
         Assertions.assertSame(result, eventDtos);
+    }
+
+    private EventDto getInputDto() {
+        return EventDto.builder()
+                .id(testId)
+                .build();
+    }
+
+    private EventDto getOutputDto() {
+        return EventDto.builder()
+                .id(testId + 1)
+                .build();
+    }
+
+    private List<EventDto> getEventDtoList() {
+        return List.of(getOutputDto());
+    }
+
+    private Event getEvent() {
+        return Event.builder().build();
+    }
+
+    private List<Event> getEvents() {
+        return List.of(getEvent());
+    }
+
+    private Event getSavedEvent() {
+        return Event.builder()
+                .id(testId)
+                .build();
+    }
+
+    private User getUser() {
+        return User.builder().build();
     }
 }
