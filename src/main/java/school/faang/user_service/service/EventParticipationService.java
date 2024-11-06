@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
 
     public void registerParticipant(Long eventId, Long userId) {
         validateEventId(eventId);
@@ -27,15 +27,15 @@ public class EventParticipationService {
         eventParticipationRepository.register(eventId, userId);
     }
 
-    public void unregisterParticipant(Long eventId, Long userId) { //2
+    public void unregisterParticipant(Long eventId, Long userId) {
         if (checkThereIsUserInEvent(eventId, userId)) {
             eventParticipationRepository.unregister(eventId, userId);
         } else {
-            throw new IllegalArgumentException("You are not registered");
+            throw new IllegalArgumentException("Пользователь не зарегистрирован на событие");
         }
     }
 
-    public boolean checkThereIsUserInEvent(long eventId, long userId) { //2.1
+    public boolean checkThereIsUserInEvent(long eventId, long userId) {
         return eventParticipationRepository.findAllParticipantsByEventId(eventId).stream()
                 .anyMatch(user -> user.getId() == userId);
     }
@@ -50,7 +50,7 @@ public class EventParticipationService {
         return userDto;
     }
 
-    public int getCountRegisteredParticipant(Long eventId) { //4
+    public int getCountRegisteredParticipant(Long eventId) {
         validateEventId(eventId);
         return eventParticipationRepository.countParticipants(eventId);
     }

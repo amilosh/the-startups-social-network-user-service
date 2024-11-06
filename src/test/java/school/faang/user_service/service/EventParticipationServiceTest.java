@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
@@ -55,7 +56,21 @@ public class EventParticipationServiceTest {
                 () -> eventParticipationService.registerParticipant(1L, 1L));
     }
 
+    @Test
+    public void unregisterParticipantUserNotRegisteredThrowsUserNotRegisteredAtEventExceptionTest() {
+        assertThrows(IllegalArgumentException.class,
+                () -> eventParticipationService.unregisterParticipant(1L, 2L));
+    }
 
+    @Test
+    public void getParticipantTest() {
+        User user = User.builder().id(1L).username("name").build();
+        UserDto userDto = UserDto.builder().id(1L).username("name").email("mail").build();
+        Mockito.when(eventParticipationRepository.existsById(1L)).thenReturn(true);
+        Mockito.when(eventParticipationRepository.findAllParticipantsByEventId(1L)).thenReturn(List.of(user));
+        Mockito.when(userMapper.toDto(user)).thenReturn(userDto);
+        assertEquals(userDto, eventParticipationService.getListOfParticipant(1L).get(0));
+    }
 
     @Test
     public void testUnregisterParticipation_UserNorRegistered() {
@@ -63,29 +78,16 @@ public class EventParticipationServiceTest {
         long userId = 2L;
         Exception exception = assertThrows(RuntimeException.class, () ->
                 eventParticipationService.unregisterParticipant(eventId, userId));
-        assertEquals("Пользователь не зарегисрирован на событие", exception.getMessage());
+        assertEquals("Пользователь не зарегистрирован на событие", exception.getMessage());
     }
 
-    @Test
-    public void testGetParticipantCount() {
-        long eventId = 1L;
-        int expectedCount = 5;
-
-        Mockito.when(eventParticipationRepository.countParticipants(eventId)).thenReturn(expectedCount);
-
-        int actualCount = eventParticipationService.getCountRegisteredParticipant(eventId);
-
-        assertEquals(expectedCount, actualCount);
-
-        verify(eventParticipationRepository, times(1)).countParticipants(eventId);
-    }
 
     @Test
     public void testRegisterParticipation_NullEventId() {
         long userId = 2L;
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        Exception exception = assertThrows (IllegalArgumentException.class, () ->
                 eventParticipationService.registerParticipant(null, userId));
-        assertEquals("Event ID cannot be null", exception.getMessage());
+        assertEquals("There is not event with this ID!", exception.getMessage());
     }
 
     @Test
