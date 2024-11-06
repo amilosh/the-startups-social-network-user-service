@@ -86,7 +86,8 @@ public class RecommendationService {
 
     private void addGuaranteeIfNotGranted(User receiver, User guarantor, Skill skill) {
         if (skill.getGuarantees().stream()
-                .filter(guarantee -> Objects.equals(guarantee.getGuarantor().getId(), guarantor.getId()))
+                .filter(guarantee -> Objects.equals(guarantee.getGuarantor().getId(), guarantor.getId())
+                        && Objects.equals(guarantee.getUser().getId(), receiver.getId()))
                 .findAny().isEmpty()) {
             UserSkillGuarantee guarantee = UserSkillGuarantee.builder()
                     .user(receiver)
