@@ -2,8 +2,6 @@ package school.faang.user_service.service.recommendation;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -28,11 +26,6 @@ public class RecommendationService {
     private final SkillOfferService skillOfferService;
     private final RecommendationRepository recommendationRepository;
     private final ServiceRecommendationValidator serviceRecommendationValidator;
-
-    @Value("${settingRecommendationPage.setStartPage}")
-    private int page;
-    @Value("${settingRecommendationPage.setSize}")
-    private int size;
 
     @Transactional
     public Optional<Recommendation> findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(long authorId, long receiverId) {
@@ -67,7 +60,7 @@ public class RecommendationService {
 
     @Transactional(readOnly = true)
     public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = Pageable.unpaged();
         Page<Recommendation> recommendationsPage = recommendationRepository.findAllByReceiverId(receiverId, pageable);
         return recommendationsPage.getContent().stream()
                 .map(recommendationMapper::toDto)
@@ -98,11 +91,11 @@ public class RecommendationService {
 
     @Transactional(readOnly = true)
     public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = Pageable.unpaged();
         Page<Recommendation> recommendationsPage = recommendationRepository.findAllByAuthorId(authorId, pageable);
         return recommendationsPage.getContent().stream()
                 .map(recommendationMapper::toDto)
-                .collect(Collectors.toList());
+                 .collect(Collectors.toList());
     }
 }
 
