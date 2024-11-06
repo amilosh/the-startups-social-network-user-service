@@ -4,16 +4,13 @@ package school.faang.user_service.service.recommendation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.Recommendation.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.validator.Recommendation.RecommendationDtoValidator;
@@ -43,9 +40,6 @@ public class RecommendationDtoValidatorTest {
 
     @Mock
     private SkillRepository skillRepository;
-
-    @Spy
-    private RecommendationMapper recommendationMapper = Mappers.getMapper(RecommendationMapper.class);
 
     private RecommendationDto getTestRecommendationData() {
         return RecommendationDto.builder()
