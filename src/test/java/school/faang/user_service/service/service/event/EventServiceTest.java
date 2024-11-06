@@ -12,6 +12,8 @@ import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.exception.DataNotMatchException;
+import school.faang.user_service.exception.EntityNotFoundExceptionWithID;
 import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -69,7 +71,7 @@ public class EventServiceTest {
                                 .build())
                 );
 
-        assertThrows(IllegalArgumentException.class, () -> eventService.create(eventDto));
+        assertThrows(DataNotMatchException.class, () -> eventService.create(eventDto));
         verify(skillRepository, times(1)).findAllByUserId(1L);
     }
 
@@ -122,7 +124,7 @@ public class EventServiceTest {
 
         when(eventRepository.findById(event.getId())).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> eventService.getEvent(1L));
+        assertThrows(EntityNotFoundExceptionWithID.class, () -> eventService.getEvent(1L));
         verify(eventRepository, times(1)).findById(1L);
     }
 
@@ -150,7 +152,7 @@ public class EventServiceTest {
 
         when(eventRepository.findById(event.getId())).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> eventService.deleteEvent(2L));
+        assertThrows(EntityNotFoundExceptionWithID.class, () -> eventService.deleteEvent(2L));
         verify(eventRepository, times(1)).findById(2L);
         verify(eventRepository, times(0)).deleteById(2L);
     }
@@ -196,7 +198,7 @@ public class EventServiceTest {
                 );
         when(eventRepository.existsById(eventDto.getId())).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class, () -> eventService.updateEvent(eventDto));
+        assertThrows(DataNotMatchException.class, () -> eventService.updateEvent(eventDto));
         verify(skillRepository, times(1)).findAllByUserId(1L);
     }
 
@@ -207,7 +209,7 @@ public class EventServiceTest {
                 .build();
         when(eventRepository.existsById(eventDto.getId())).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class, () -> eventService.updateEvent(eventDto));
+        assertThrows(EntityNotFoundExceptionWithID.class, () -> eventService.updateEvent(eventDto));
         verify(eventRepository, times(1)).existsById(eventDto.getId());
     }
 

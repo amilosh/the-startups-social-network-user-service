@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.Map;
 
 @RestControllerAdvice
-public class DataNotMatchException {
+public class DataNotMatchExceptionHandler {
 
     @ExceptionHandler(school.faang.user_service.exception.DataNotMatchException.class)
     public ResponseEntity<Map<String, ?>> illegalArgumentExceptionHandler(school.faang.user_service.exception.DataNotMatchException e) {
