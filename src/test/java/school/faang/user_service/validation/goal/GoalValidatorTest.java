@@ -172,7 +172,6 @@ public class GoalValidatorTest {
     @Test
     public void testUserAlreadyHasGoal() {
         when(userRepository.existsById(1L)).thenReturn(true);
-        when(goalRepository.existsById(goal.getId())).thenReturn(true);
         when(goalRepository.countActiveGoalsPerUser(1L)).thenReturn(10);
 
         DataValidationException exception = assertThrows(DataValidationException.class, () ->
@@ -190,7 +189,7 @@ public class GoalValidatorTest {
         goal.setSkillIds(null);
 
         DataValidationException exception = assertThrows(DataValidationException.class, () ->
-                goalValidator.validateGoalRequest(1L, goal, true)
+                goalValidator.validateGoalRequest(1L, goal, false)
         );
 
         assertEquals(exception.getMessage(), "Skill IDs are missing");
@@ -202,7 +201,7 @@ public class GoalValidatorTest {
         when(goalRepository.existsById(goal.getId())).thenReturn(true);
 
         DataValidationException exception = assertThrows(DataValidationException.class, () ->
-                goalValidator.validateGoalRequest(1L, goal, true)
+                goalValidator.validateGoalRequest(1L, goal, false)
         );
 
         assertEquals(exception.getMessage(), "One of the skill IDs does not exist");

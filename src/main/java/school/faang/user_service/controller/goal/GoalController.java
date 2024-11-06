@@ -1,7 +1,9 @@
 package school.faang.user_service.controller.goal;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,8 +31,10 @@ public class GoalController {
      * @return the newly created goal
      */
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public GoalDto createGoal(@RequestBody CreateGoalRequest request) {
-        return goalService.createGoal(request.getUserId(), request.getGoal());
+    public ResponseEntity<GoalDto> createGoal(@RequestBody CreateGoalRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(goalService.createGoal(request.getUserId(), request.getGoal()));
     }
 
     /**
@@ -43,8 +47,8 @@ public class GoalController {
      * The update will fail if the goal does not exist.
      */
     @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public GoalDto updateGoal(@RequestBody CreateGoalRequest request) {
-        return goalService.updateGoal(request.getUserId(), request.getGoal());
+    public ResponseEntity<GoalDto> updateGoal(@RequestBody CreateGoalRequest request) {
+        return ResponseEntity.ok(goalService.updateGoal(request.getUserId(), request.getGoal()));
     }
 
     /**
@@ -55,8 +59,9 @@ public class GoalController {
      * The deletion will fail if the goal does not exist.
      */
     @DeleteMapping(value = "/{goalId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public void deleteGoal(@PathVariable Long goalId) {
+    public ResponseEntity<Void> deleteGoal(@PathVariable Long goalId) {
         goalService.deleteGoal(goalId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     /**
@@ -67,7 +72,7 @@ public class GoalController {
      * @return a list of goals for the given user ID, filtered by the provided goal filter
      */
     @PostMapping(value = "/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<GoalDto> getGoalsByUser(@PathVariable long userId, @RequestBody GoalFilterDto filters) {
-        return goalService.getGoalsByUser(userId, filters);
+    public ResponseEntity<List<GoalDto>> getGoalsByUser(@PathVariable long userId, @RequestBody GoalFilterDto filters) {
+        return ResponseEntity.ok(goalService.getGoalsByUser(userId, filters));
     }
 }

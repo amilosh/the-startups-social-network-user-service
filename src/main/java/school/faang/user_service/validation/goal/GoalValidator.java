@@ -64,7 +64,7 @@ public class GoalValidator {
         if (goal.getId() == null && !isCreate) {
             throw new DataValidationException("Goal ID does not exist");
         }
-        if (!goalRepository.existsById(goal.getId())) {
+        if (!isCreate && !goalRepository.existsById(goal.getId())) {
             throw new DataValidationException("Goal does not exist");
         }
 

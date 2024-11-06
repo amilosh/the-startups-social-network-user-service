@@ -53,7 +53,7 @@ class GoalControllerTest {
         mockMvc.perform(post("/api/v1/goals")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.title").value("New Goal"));
 
@@ -87,7 +87,7 @@ class GoalControllerTest {
         doNothing().when(goalService).deleteGoal(goalId);
 
         mockMvc.perform(delete("/api/v1/goals/{goalId}", goalId))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         verify(goalService, times(1)).deleteGoal(goalId);
     }
