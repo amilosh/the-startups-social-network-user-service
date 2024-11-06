@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.exception.recommendation.DataValidationException;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import static org.mockito.Mockito.when;
@@ -22,7 +22,7 @@ public class SubscriptionValidatorTest {
     public void testUserSubscribeOrUnfollowToHimself() {
         Assertions.assertThrows(
                 DataValidationException.class,
-                () -> subscriptionValidator.validateUserIsTryingToCallHimself(3L, 3L, "test")
+                () -> subscriptionValidator.validateUserIsTryingToCallHimself(3L, 3L)
         );
     }
 

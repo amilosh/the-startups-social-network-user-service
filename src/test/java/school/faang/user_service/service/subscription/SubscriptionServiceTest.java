@@ -55,7 +55,7 @@ public class SubscriptionServiceTest {
         subscriptionService.followUser(followerId, followeeId);
 
         verify(subscriptionValidator, times(1))
-                .validateUserIsTryingToCallHimself(followerId, followeeId, "User 4 trying to subscribe to himself");
+                .validateUserIsTryingToCallHimself(followerId, followeeId);
         verify(subscriptionValidator, times(1))
                 .validateUserAlreadyHasThisSubscription(followerId, followeeId);
         verify(subscriptionRepository, times(1))
@@ -67,7 +67,7 @@ public class SubscriptionServiceTest {
         subscriptionService.unfollowUser(followerId, followeeId);
 
         verify(subscriptionValidator, times(1))
-                .validateUserIsTryingToCallHimself(followerId, followeeId, "User 4 trying to unfollow himself");
+                .validateUserIsTryingToCallHimself(followerId, followeeId);
         verify(subscriptionRepository, times(1))
                 .unfollowUser(followerId, followeeId);
     }
