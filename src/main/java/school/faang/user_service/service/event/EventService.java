@@ -10,7 +10,7 @@ import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.event_filters.EventFilter;
-import school.faang.user_service.validation.event.EventServiceValidator;
+import school.faang.user_service.validator.event.EventServiceValidator;
 
 import java.util.List;
 
