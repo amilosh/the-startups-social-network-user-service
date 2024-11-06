@@ -142,6 +142,8 @@ class SkillServiceTest {
         SkillDto result = skillService.acquireSkillFromOffers(SKILL_ID, USER_ID);
 
         verify(skillRepository).assignSkillToUser(skillIdCaptor.capture(), userIdCaptor.capture());
+        assertEquals(SKILL_ID, skillIdCaptor.getValue());
+        assertEquals(USER_ID, userIdCaptor.getValue());
 
         assertNotNull(result, "SkillDto should not be null if the skill acquisition is successful.");
         assertEquals("Java", result.getTitle());
