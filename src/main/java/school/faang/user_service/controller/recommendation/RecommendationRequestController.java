@@ -1,7 +1,7 @@
 package school.faang.user_service.controller.recommendation;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestRejectionDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
@@ -9,7 +9,7 @@ import school.faang.user_service.service.recommendation.RecommendationRequestSer
 
 import java.util.List;
 
-@Component
+@Controller
 @RequiredArgsConstructor
 public class RecommendationRequestController {
 

@@ -214,7 +214,7 @@ class RecommendationRequestServiceImplTest {
     }
 
     private RecommendationRequestDto getRecommendationRequestDto() {
-        return new RecommendationRequestDto(1L, "message", RequestStatus.PENDING, null, List.of(1L), 1L, 2L, LocalDateTime.of(2002, 3, 2, 1, 1), LocalDateTime.of(2002, 3, 2, 1, 1));
+        return new RecommendationRequestDto(1L, "message", RequestStatus.PENDING, null, List.of(1L), 1L, 2L, "2002-03-02T01:01:00", "2002-03-02T01:01:00");
     }
 
     private RecommendationRequest getRecommendationRequest() {

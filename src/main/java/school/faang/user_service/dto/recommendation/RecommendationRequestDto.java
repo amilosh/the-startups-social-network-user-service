@@ -19,6 +19,6 @@ public class RecommendationRequestDto {
     private List<Long> skillIds;
     private long requesterId;
     private long receiverId;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String createdAt;
+    private String updatedAt;
 }

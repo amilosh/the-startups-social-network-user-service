@@ -1,17 +1,14 @@
 package school.faang.user_service.service.recommendation;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestRejectionDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
-import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
-import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.UserService;
 import school.faang.user_service.service.recommendation.filter.RecommendationRequestFilter;
@@ -21,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class RecommendationRequestServiceImpl implements RecommendationRequestService {
 
@@ -110,7 +107,7 @@ public class RecommendationRequestServiceImpl implements RecommendationRequestSe
                 .findLatestPendingRequest(request.getRequesterId(), request.getReceiverId());
 
         if (recommendationRequest.isPresent()) {
-            if (recommendationRequest.get().getCreatedAt().plusMonths(6L).isAfter(request.getCreatedAt())) {
+            if (recommendationRequest.get().getCreatedAt().plusMonths(6L).isAfter(LocalDateTime.parse(request.getCreatedAt()))) {
                 throw new IllegalArgumentException("A recommendation request from the same user to another can be sent no more than once every 6 months.");
             }
         }
