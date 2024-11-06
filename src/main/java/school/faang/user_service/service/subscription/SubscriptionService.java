@@ -12,22 +12,19 @@ import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.validator.subscription.SubscriptionValidator;
 
 import java.util.List;
+import java.util.stream.Stream;
 
+@Slf4j
 @Data
 @Service
-@Slf4j
 public class SubscriptionService {
     private final SubscriptionValidator subscriptionValidator;
     private final SubscriptionRepository subscriptionRepository;
-    private final UserFilter userFilter;
     private final UserMapper userMapper;
+    private final List<UserFilter> userFilters;
 
     public void followUser(long followerId, long followeeId) {
-        subscriptionValidator.validateUserIsTryingToCallHimself(
-                followerId,
-                followeeId,
-                String.format("User %s trying to subscribe to himself", followerId)
-        );
+        subscriptionValidator.validateUserIsTryingToCallHimself(followerId, followeeId);
         subscriptionValidator.validateUserAlreadyHasThisSubscription(followerId, followeeId);
         subscriptionRepository.followUser(followerId, followeeId);
 
@@ -35,14 +32,10 @@ public class SubscriptionService {
     }
 
     public void unfollowUser(long followerId, long followeeId) {
-        subscriptionValidator.validateUserIsTryingToCallHimself(
-                followerId,
-                followeeId,
-                String.format("User %s trying to unfollow himself", followerId)
-        );
+        subscriptionValidator.validateUserIsTryingToCallHimself(followerId, followeeId);
         subscriptionRepository.unfollowUser(followerId, followeeId);
 
-        log.info("User {} unfollowed the user {}", followerId, followeeId);
+        log.info("User {} unfollowed user {}", followerId, followeeId);
     }
 
     public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
@@ -68,10 +61,11 @@ public class SubscriptionService {
     }
 
     private List<UserDto> filterUsers(List<User> users, UserFilterDto filter) {
-        subscriptionValidator.validateUserFilterIsApplicable(filter);
+        Stream<User> userStream = users.stream();
 
-        return users.stream()
-                .filter(user -> userFilter.apply(user, filter))
+        return userFilters.stream()
+                .filter(f -> f.isApplicable(filter))
+                .flatMap(f -> f.apply(userStream, filter))
                 .map(userMapper::toDto)
                 .toList();
     }

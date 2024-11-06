@@ -1,15 +1,15 @@
 package school.faang.user_service.controller.subscription;
 
 import lombok.Data;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.service.subscription.SubscriptionService;
 
 import java.util.List;
 
-@Component
 @Data
+@Controller
 public class SubscriptionController {
     private SubscriptionService subscriptionService;
 
