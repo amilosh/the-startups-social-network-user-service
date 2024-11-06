@@ -2,13 +2,17 @@ package school.faang.user_service.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.shadow.com.univocity.parsers.common.DataValidationException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import java.util.Collections;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
@@ -35,31 +39,23 @@ public class EventParticipationServiceTest {
     }
 
     @Test
-    public void testRegisterParticipation_UserAlreadyRegistered() {
-        long eventId = 1L;
-        long userId = 1L;
-
-        // Мокаем репозиторий, чтобы событие существовало (например, возвращаем true)
-        when(eventParticipationRepository.existsById(eventId)).thenReturn(true);
-
-        // Мокаем репозиторий, чтобы пользователь был уже зарегистрирован для этого события
-        when(eventParticipationRepository.countParticipants(eventId)).thenReturn(1);
-
-        // Ожидаем выброс исключения с правильным сообщением
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> eventParticipationService.registerParticipant(eventId, userId));
-
-        // Проверяем, что исключение содержит правильное сообщение
-        assertEquals("Пользователь уже зарегистрирован на событие", exception.getMessage());
+    public void unregisterParticipantTest() {
+        User user = User.builder().id(1L).username("name").build();
+        Mockito.when(eventParticipationRepository.findAllParticipantsByEventId(1L)).thenReturn(List.of(user));
+        eventParticipationService.unregisterParticipant(1L, 1L);
+        Mockito.verify(eventParticipationRepository).unregister(1L, 1L);
     }
 
     @Test
-    public void testUnregisterParticipation_Success() {
-        long eventId = 1L;
-        long userId = 2L;
-        when(eventParticipationRepository.countParticipants(eventId)).thenReturn(1);
-        eventParticipationService.unregisterParticipant(eventId, userId);
-        verify(eventParticipationRepository, times(1)).unregister(eventId, userId);
+    public void registerParticipantThrowExceptionTest() {
+        User user = User.builder().id(1L).username("name").build();
+        Mockito.when(eventParticipationRepository.existsById(1L)).thenReturn(true);
+        Mockito.when(eventParticipationRepository.findAllParticipantsByEventId(1L)).thenReturn(List.of(user));
+        assertThrows(IllegalArgumentException.class,
+                () -> eventParticipationService.registerParticipant(1L, 1L));
     }
+
+
 
     @Test
     public void testUnregisterParticipation_UserNorRegistered() {
