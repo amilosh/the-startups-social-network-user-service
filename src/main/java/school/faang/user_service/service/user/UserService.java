@@ -1,10 +1,14 @@
 package school.faang.user_service.service.user;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.validator.UserValidator;
+
+import java.util.Collections;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,5 +24,10 @@ public class UserService {
     @Transactional
     public void saveUser(User user) {
         userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Long> getNotExistingUserIds(List<Long> userIds) {
+        return userIds.isEmpty() ? Collections.emptyList() : userRepository.findNotExistingUserIds(userIds);
     }
 }
