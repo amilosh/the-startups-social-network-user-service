@@ -1,4 +1,4 @@
-package school.faang.user_service.service.event;
+package school.faang.user_service.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -6,23 +6,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import school.faang.user_service.repository.EventParticipationRepository;
+import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.repository.event.EventParticipationRepository;
 import java.util.Collections;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@Component
 @ExtendWith(MockitoExtension.class)
 public class EventParticipationServiceTest {
-
     @Mock
     private EventParticipationRepository eventParticipationRepository;
+
+    @Mock
+    private UserMapper userMapper;
 
     @InjectMocks
     private EventParticipationService eventParticipationService;
@@ -32,17 +31,24 @@ public class EventParticipationServiceTest {
         Mockito.when(eventParticipationRepository.existsById(1L)).thenReturn(true);
         Mockito.when(eventParticipationRepository.findAllParticipantsByEventId(1L)).thenReturn(Collections.emptyList());
         eventParticipationService.registerParticipant(1L, 10L);
-        verify(eventParticipationRepository).register(1L, 10L);
-        verify(eventParticipationRepository, times(1)).countParticipants(1L);
+        Mockito.verify(eventParticipationRepository).register(1L, 10L);
     }
 
     @Test
     public void testRegisterParticipation_UserAlreadyRegistered() {
         long eventId = 1L;
         long userId = 1L;
+
+        // Мокаем репозиторий, чтобы событие существовало (например, возвращаем true)
+        when(eventParticipationRepository.existsById(eventId)).thenReturn(true);
+
+        // Мокаем репозиторий, чтобы пользователь был уже зарегистрирован для этого события
         when(eventParticipationRepository.countParticipants(eventId)).thenReturn(1);
-        Exception exception = assertThrows(RuntimeException.class, () -> eventParticipationService.
-                registerParticipant(eventId, userId));
+
+        // Ожидаем выброс исключения с правильным сообщением
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> eventParticipationService.registerParticipant(eventId, userId));
+
+        // Проверяем, что исключение содержит правильное сообщение
         assertEquals("Пользователь уже зарегистрирован на событие", exception.getMessage());
     }
 

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.service.event.EventParticipationService;
+import school.faang.user_service.service.EventParticipationService;
 
 import java.util.List;
 

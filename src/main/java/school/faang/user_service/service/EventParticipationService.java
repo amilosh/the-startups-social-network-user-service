@@ -1,7 +1,8 @@
-package school.faang.user_service.service.event;
+package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
@@ -9,20 +10,19 @@ import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-
+@ControllerAdvice
 @Component
 @RequiredArgsConstructor
 public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
     private UserMapper userMapper;
 
-    public void registerParticipant(Long eventId, Long userId) { //1
+    public void registerParticipant(Long eventId, Long userId) {
         validateEventId(eventId);
         List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
-        for (User user : users) {
-            if (user.getId().equals(userId)) {
-                throw new IllegalArgumentException("You are registered already!");
-            }
+        boolean userAlreadyRegistered = users.stream().anyMatch(user -> user.getId().equals(userId));
+        if (userAlreadyRegistered) {
+            throw new IllegalArgumentException("Пользователь уже зарегистрирован.");
         }
         eventParticipationRepository.register(eventId, userId);
     }
@@ -40,7 +40,7 @@ public class EventParticipationService {
                 .anyMatch(user -> user.getId() == userId);
     }
 
-    public List<UserDto> getListOfParticipant(Long eventId) { //3
+    public List<UserDto> getListOfParticipant(Long eventId) {
         validateEventId(eventId);
         List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
         List<UserDto> userDto = new ArrayList<>();

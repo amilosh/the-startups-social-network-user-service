@@ -3,11 +3,10 @@ package school.faang.user_service.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.repository.event.EventParticipation;
 import java.util.List;
 
 @Repository
-public interface EventParticipationRepository extends JpaRepository<EventParticipation, Long> {
+public interface EventParticipationRepository extends JpaRepository<User, Long> {
 
     boolean existsByEventIdAndUserId(Long eventId, Long userId);
 
