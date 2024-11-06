@@ -45,11 +45,12 @@ class MentorshipRequestServiceTest {
     private MentorshipRequestValidator requestValidator;
     @Mock
     private MentorshipRequestMapper requestMapper;
+    @Mock
+    private DescriptionFilter descriptionFilter;
 
     @InjectMocks
     private MentorshipRequestService requestService;
 
-    private DescriptionFilter descriptionFilter;
     private List<Filter<MentorshipRequest, RequestFilterDto>> filters;
     private User requester;
     private User receiver;
@@ -100,7 +101,6 @@ class MentorshipRequestServiceTest {
 
         firstRequestId = firstRequest.getId();
         rejectionDto = RejectionDto.builder().reason("Reason").build();
-
     }
 
     @Test

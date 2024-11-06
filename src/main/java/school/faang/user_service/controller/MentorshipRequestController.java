@@ -1,41 +1,56 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.service.MentorshipRequestService;
-import school.faang.user_service.validator.RequestFilterValidator;
 
 import java.util.List;
 
 @Slf4j
-@Component
+@RestController
+@RequestMapping("api/mentorshipRequests")
 @RequiredArgsConstructor
+@Validated
 public class MentorshipRequestController {
     private final MentorshipRequestService requestService;
-    private final RequestFilterValidator filterValidator;
 
-    public MentorshipRequestDto requestMentorship(MentorshipRequestDto dto) {
+    @PostMapping
+    public ResponseEntity<MentorshipRequestDto> requestMentorship(@Valid @RequestBody MentorshipRequestDto dto) {
         log.info("Requesting mentorship from userId #{} to userId #{}.", dto.getRequesterId(), dto.getReceiverId());
-        return requestService.requestMentorship(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(requestService.requestMentorship(dto));
     }
 
-    public List<MentorshipRequestDto> getRequests(RequestFilterDto filters) {
-        filterValidator.validateNullFilter(filters);
+    @GetMapping("/filteredRequests/")
+    public ResponseEntity<List<MentorshipRequestDto>> getRequests(@NotNull RequestFilterDto filters) {
         log.info("Getting all requests by filters: {}.", filters);
-        return requestService.getRequests(filters);
+        return ResponseEntity.ok().body(requestService.getRequests(filters));
     }
 
-    public MentorshipRequestDto acceptRequest(Long id) {
+    @PutMapping
+    public ResponseEntity<MentorshipRequestDto> acceptRequest(@NotNull @Positive Long id) {
         log.info("Accepting request with id #{}", id);
-        return requestService.acceptRequest(id);
+        return ResponseEntity.ok().body(requestService.acceptRequest(id));
     }
 
-    public MentorshipRequestDto rejectRequest(Long id, RejectionDto rejectionDto) {
+    @PutMapping
+    public ResponseEntity<MentorshipRequestDto> rejectRequest(@NotNull @Positive Long id,
+                                                              @Valid @RequestBody RejectionDto rejectionDto) {
         log.info("Rejecting request with id #{} and reason '{}'", id, rejectionDto.getReason());
-        return requestService.rejectRequest(id, rejectionDto);
+        return ResponseEntity.ok().body(requestService.rejectRequest(id, rejectionDto));
     }
 }

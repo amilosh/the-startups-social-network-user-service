@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,7 @@ public class MentorshipRequestService {
                 .toList();
     }
 
+    @Transactional
     public MentorshipRequestDto acceptRequest(long id) {
         MentorshipRequest request = validateAndGetMentorshipRequest(id);
         User requester = request.getRequester();
@@ -63,6 +65,7 @@ public class MentorshipRequestService {
         return requestMapper.toDto(requestRepository.save(request));
     }
 
+    @Transactional
     public MentorshipRequestDto rejectRequest(long id, RejectionDto rejectionDto) {
         MentorshipRequest request = validateAndGetMentorshipRequest(id);
         request.setStatus(RequestStatus.REJECTED);

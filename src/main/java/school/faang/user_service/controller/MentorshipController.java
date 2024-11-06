@@ -12,7 +12,7 @@ import java.util.List;
 public class MentorshipController {
     private final MentorshipService mentorshipService;
 
-    public List<UserDto> getMentes(long userId) {
+    public List<UserDto> getMentees(long userId) {
         return mentorshipService.getMentees(userId);
     }
 

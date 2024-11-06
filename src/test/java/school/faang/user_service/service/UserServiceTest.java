@@ -64,7 +64,7 @@ public class UserServiceTest {
 
     @Test
     public void testFindUserWhenUserDoesNotExist() {
-        long userId = 1;
+        long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->

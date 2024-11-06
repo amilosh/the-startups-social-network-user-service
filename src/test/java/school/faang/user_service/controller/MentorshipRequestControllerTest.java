@@ -15,7 +15,6 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.service.MentorshipRequestService;
 import school.faang.user_service.validator.MentorshipRequestValidator;
-import school.faang.user_service.validator.RequestFilterValidator;
 
 import java.util.List;
 
@@ -32,8 +31,6 @@ class MentorshipRequestControllerTest {
     private MentorshipRequestService requestService;
     @Mock
     private MentorshipRequestValidator requestValidator;
-    @Mock
-    private RequestFilterValidator filterValidator;
     @Spy
     private MentorshipRequestMapper requestMapper = Mappers.getMapper(MentorshipRequestMapper.class);
 
@@ -69,7 +66,7 @@ class MentorshipRequestControllerTest {
         List<MentorshipRequestDto> dtos = List.of(firstRequestDto, secondRequestDto);
         when(requestService.getRequests(filterDto)).thenReturn(dtos);
 
-        List<MentorshipRequestDto> result = requestController.getRequests(filterDto);
+        List<MentorshipRequestDto> result = requestController.getRequests(filterDto).getBody();
 
         verify(requestService, times(1)).getRequests(filterDto);
         assertEquals(dtos, result);
@@ -80,7 +77,7 @@ class MentorshipRequestControllerTest {
         long id = firstRequest.getId();
         when(requestService.acceptRequest(id)).thenReturn(firstRequestDto);
 
-        MentorshipRequestDto result = requestController.acceptRequest(id);
+        MentorshipRequestDto result = requestController.acceptRequest(id).getBody();
 
         verify(requestService, times(1)).acceptRequest(id);
         assertEquals(result, firstRequestDto);
@@ -91,7 +88,7 @@ class MentorshipRequestControllerTest {
         long id = firstRequest.getId();
         when(requestService.rejectRequest(id, rejectionDto)).thenReturn(firstRequestDto);
 
-        MentorshipRequestDto result = requestController.rejectRequest(id, rejectionDto);
+        MentorshipRequestDto result = requestController.rejectRequest(id, rejectionDto).getBody();
 
         verify(requestService, times(1)).rejectRequest(id, rejectionDto);
         assertEquals(result, firstRequestDto);
