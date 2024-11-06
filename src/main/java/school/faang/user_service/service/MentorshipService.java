@@ -9,6 +9,7 @@ import school.faang.user_service.mapper.MenteesMapper;
 import school.faang.user_service.mapper.MentorsMapper;
 import school.faang.user_service.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,7 +27,8 @@ public class MentorshipService {
         if (user.isPresent() && !user.get().getMentees().isEmpty()) {
             return menteesMapper.toDto(user.get().getMentees());
         } else {
-            throw new RuntimeException(userId + " has no mentees");
+            System.out.println("User_id " + userId + " has no mentees");
+            return new ArrayList<>();
         }
     }
 
@@ -36,7 +38,8 @@ public class MentorshipService {
         if (user.isPresent() && !user.get().getMentors().isEmpty()) {
             return mentorsMapper.toDto(user.get().getMentors());
         } else {
-            throw new RuntimeException(userId + " has no mentors");
+            System.out.println("User_id " + userId + " has no mentors");
+            return new ArrayList<>();
         }
     }
 
@@ -46,7 +49,7 @@ public class MentorshipService {
         if (mentor.isPresent() && !mentor.get().getMentees().isEmpty()) {
             mentor.get().getMentees().removeIf(user -> user.getId().equals(menteeId));
         } else {
-            throw new RuntimeException(menteeId + " not found");
+            System.out.println("Mentee " + menteeId + " for delete not found");
         }
     }
 
@@ -56,16 +59,20 @@ public class MentorshipService {
         if (mentee.isPresent() && !mentee.get().getMentees().isEmpty()) {
             mentee.get().getMentees().removeIf(user -> user.getId().equals(mentorId));
         } else {
-            throw new RuntimeException(mentorId + " not found");
+            System.out.println("Mentor " + mentorId + " for delete not found");
         }
     }
 
     private Optional<User> getUser(long userId) {
-        if (userRepository.findById(userId).isEmpty()) {
-            throw new RuntimeException(userId + " not found");
-        } else {
-            return userRepository.findById(userId);
+        try {
+            if (userRepository.findById(userId).isEmpty()) {
+                System.out.println((userId + " not found in DB"));
+            } else {
+                return userRepository.findUserById(userId);
+            }
+        } catch (Exception e) {
+            System.out.println("Exception " + e.getMessage());
         }
+        return Optional.empty();
     }
-
 }
