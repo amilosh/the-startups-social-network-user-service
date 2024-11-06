@@ -49,13 +49,13 @@ public class MentorshipRequestService {
                 findLatestRequest(requesterUserId, receiverUserId).getCreatedAt()
         );
 
-        mentorshipRequestRepository.create(
+        MentorshipRequest createdMentorshipRequest = mentorshipRequestRepository.create(
                 requesterUserId,
                 receiverUserId,
                 mentorshipRequestDto.getDescription()
         );
 
-        return mentorshipRequestDto;
+        return mentorshipRequestMapper.toDto(createdMentorshipRequest);
     }
 
     public MentorshipRequestDto acceptRequest(long id) {
