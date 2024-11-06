@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.dto.MentorshipRequestMapper;
+import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
@@ -30,25 +30,30 @@ public class MentorshipRequestService {
     public void requestMentorship(MentorshipRequestDto mentorshipRequestDto) {
         long idRequester = mentorshipRequestDto.requesterId();
         long idReceiver = mentorshipRequestDto.receiverId();
-        Optional<MentorshipRequest> lastRequest = mentorshipRequestRepository.findLatestRequest(idRequester, idReceiver);
+        validateRequesterReceiver(idRequester, idReceiver);
+        validateRequestDate(idRequester, idReceiver);
+        mentorshipRequestRepository.create(idRequester, idReceiver, mentorshipRequestDto.description());
+    }
 
-        if (userRepository.existsById(idRequester)
-                && userRepository.existsById(idReceiver)
-                && (idRequester != idReceiver)) {
-            if (lastRequest.isPresent()) {
-                if (lastRequest.get().getCreatedAt()
-                        .isBefore(LocalDateTime.now().minusMonths(3))) {
-                    mentorshipRequestRepository.save(mentorshipRequestMapper.toEntity(mentorshipRequestDto));
-                } else {
-                    log.error("Last request has date less 3 months: " + lastRequest.get().getCreatedAt());
-                    throw new IllegalArgumentException(String.format("Last request has date less 3 months", lastRequest.get().getCreatedAt()));
-                }
-            } else {
-                mentorshipRequestRepository.save(mentorshipRequestMapper.toEntity(mentorshipRequestDto));
-            }
-        } else {
+
+    public void validateRequesterReceiver(long idRequester, long idReceiver) {
+        if (!userRepository.existsById(idRequester)
+                || !userRepository.existsById(idReceiver)
+                || idRequester == idReceiver) {
             log.error("Requester or Receiver not found or the both is the same person: idReq - " + idRequester + "idRec - " + idReceiver);
-            throw new IllegalArgumentException(String.format("Requester or Receiver not found or the both is the same person", idRequester, idReceiver));
+            throw new IllegalArgumentException(String.format("Requester or Receiver not found or the both is the same person", idRequester + idReceiver));
+        }
+    }
+
+
+    public void validateRequestDate(long idRequester, long idReceiver) {
+        Optional<MentorshipRequest> lastRequest = mentorshipRequestRepository.findLatestRequest(idRequester, idReceiver);
+        if (lastRequest.isPresent()) {
+            if (!lastRequest.get().getCreatedAt()
+                    .isBefore(LocalDateTime.now().minusMonths(3))) {
+                log.error("Last request has date less 3 months: " + lastRequest.get().getCreatedAt());
+                throw new IllegalArgumentException(String.format("Last request has date less 3 months", lastRequest.get().getCreatedAt()));
+            }
         }
     }
 

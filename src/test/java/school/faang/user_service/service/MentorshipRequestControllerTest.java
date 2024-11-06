@@ -2,10 +2,7 @@ package school.faang.user_service.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.github.javafaker.Faker;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -20,7 +17,6 @@ import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.utilities.UrlUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
@@ -37,47 +33,16 @@ public class MentorshipRequestControllerTest {
     @MockBean
     private UserContext userContext;
 
-    private Faker faker;
-
     @Autowired
     private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper;
-
-    @BeforeEach
-    public void setup() {
-        faker = new Faker();
-        MockitoAnnotations.openMocks(this);
-        this.objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
-    }
-
-    private MentorshipRequestDto generateMentorshipRequestDto() {
-        return new MentorshipRequestDto(
-                faker.number().randomNumber(),
-                faker.lorem().sentence(20),
-                faker.number().randomNumber(),
-                faker.number().randomNumber(),
-                faker.options().option(RequestStatus.class),
-                faker.bool().bool() ? faker.lorem().sentence(10) : null,
-                LocalDateTime.now().minusDays(faker.number().numberBetween(1, 30)),
-                LocalDateTime.now()
-        );
-    }
-
-    private RequestFilterDto generateRequestFilterDto() {
-        return new RequestFilterDto(
-                faker.lorem().sentence(20),
-                faker.number().randomNumber(),
-                faker.number().randomNumber(),
-                faker.options().option(RequestStatus.class)
-        );
-    }
+    private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Test
-    public void testRequestMentorship_Success() throws Exception {
-        MentorshipRequestDto requestDto = generateMentorshipRequestDto();
+    public void testCreateRequestMentorshipSuccess() throws Exception {
+        MentorshipRequestDto requestDto = new MentorshipRequestDto("sdfsddsfadsfdafefdferw213213qdfdsfsdfadfadsf", 3L, 4L);
 
-        mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.REQUEST + UrlUtils.CREATE, 1L)
+        mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.REQUEST + UrlUtils.CREATE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isOk());
@@ -87,10 +52,9 @@ public class MentorshipRequestControllerTest {
 
     @Test
     public void testRequestMentorship_BadRequest() throws Exception {
-        MentorshipRequestDto requestDto = new MentorshipRequestDto(1L, "sdfsd", 1L, 1L,
-                RequestStatus.PENDING, null, LocalDateTime.now().minusDays(1), null);
+        MentorshipRequestDto requestDto = new MentorshipRequestDto( "less25symbols",1L, 1L);
 
-        mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.REQUEST + UrlUtils.CREATE, 1L)
+        mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.REQUEST + UrlUtils.CREATE)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isBadRequest());
@@ -100,11 +64,11 @@ public class MentorshipRequestControllerTest {
 
     @Test
     public void testGetRequests() throws Exception {
-        RequestFilterDto filter = generateRequestFilterDto();
-        List<MentorshipRequestDto> responseList = List.of(generateMentorshipRequestDto());
+        RequestFilterDto filter = new RequestFilterDto("sdf", 1L, 2L, RequestStatus.PENDING);
+        List<MentorshipRequestDto> responseList = List.of(new MentorshipRequestDto("test", 3L, 4L));
         when(mentorshipRequestService.getRequest(filter)).thenReturn(responseList);
 
-        mockMvc.perform(get(UrlUtils.MAIN_URL + UrlUtils.REQUEST + UrlUtils.REQUESTS_FILTER)
+        mockMvc.perform(get(UrlUtils.MAIN_URL + UrlUtils.REQUEST)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filter)))
                 .andExpect(status().isOk())

@@ -3,11 +3,13 @@ package school.faang.user_service.service;
 import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.dto.MentorshipRequestMapper;
+import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
@@ -24,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @Log4j2
+@ExtendWith(MockitoExtension.class)
 class MentorshipRequestServiceTest {
 
     @Mock
@@ -37,12 +40,6 @@ class MentorshipRequestServiceTest {
 
     @InjectMocks
     private MentorshipRequestService mentorshipRequestService;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-
-    }
 
     public MentorshipRequest generateMentorshipRequest() {
         User user1 = new User();
@@ -61,22 +58,20 @@ class MentorshipRequestServiceTest {
 
     @Test
     void testRequestMentorship_SuccessfulRequest() {
-        MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto(1L, "Request description", 2L, 3L, RequestStatus.PENDING, null, LocalDateTime.now(), null);
-        MentorshipRequest mentorshipRequest = new MentorshipRequest();
+        MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto("Request description", 2L, 3L);
 
         when(userRepository.existsById(2L)).thenReturn(true);
         when(userRepository.existsById(3L)).thenReturn(true);
         when(mentorshipRequestRepository.findLatestRequest(2L, 3L)).thenReturn(Optional.empty());
-        when(mentorshipRequestMapper.toEntity(mentorshipRequestDto)).thenReturn(mentorshipRequest);
 
         mentorshipRequestService.requestMentorship(mentorshipRequestDto);
 
-        verify(mentorshipRequestRepository, times(1)).save(mentorshipRequest);
+        verify(mentorshipRequestRepository).create(2L,3L, "Request description");
     }
 
     @Test
     void testRequestMentorship_RequestWithinThreeMonths_ThrowsException() {
-        MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto(1L, "Request description", 2L, 3L, RequestStatus.PENDING, null, LocalDateTime.now(), null);
+        MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto("Request description", 2L, 3L);
         MentorshipRequest lastRequest = new MentorshipRequest();
         lastRequest.setCreatedAt(LocalDateTime.now().minusMonths(2));
 
@@ -91,7 +86,7 @@ class MentorshipRequestServiceTest {
 
     @Test
     void testRequestMentorship_InvalidUser_ThrowsException() {
-        MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto(1L, "Request description", 2L, 3L, RequestStatus.PENDING, null, LocalDateTime.now(), null);
+        MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto("Request description", 2L, 3L);
 
         when(userRepository.existsById(2L)).thenReturn(false);
 
@@ -114,7 +109,7 @@ class MentorshipRequestServiceTest {
         mentorshipRequest.setStatus(RequestStatus.PENDING);
 
         when(mentorshipRequestRepository.findAll()).thenReturn(List.of(mentorshipRequest));
-        when(mentorshipRequestMapper.toDto(mentorshipRequest)).thenReturn(new MentorshipRequestDto(1L, "desc", 2L, 3L, RequestStatus.ACCEPTED, null, LocalDateTime.now(), LocalDateTime.now()));
+        when(mentorshipRequestMapper.toDto(mentorshipRequest)).thenReturn(new MentorshipRequestDto( "desc", 2L, 3L));
 
         List<MentorshipRequestDto> result = mentorshipRequestService.getRequest(filter);
 
