@@ -26,7 +26,7 @@ public interface GoalMapper {
 
     @Named("skillsToSkillIds")
     default List<Long> skillsToSkillIds(List<Skill> skills) {
-        return skills.stream()
+        return skills == null ? List.of() : skills.stream()
                 .map(Skill::getId)
                 .collect(Collectors.toList());
     }
