@@ -27,9 +27,7 @@ public class SkillController {
 
     @PostMapping("/create")
     public SkillDto create(@Valid @RequestBody SkillDto skillDto) throws Exception {
-        skillDto = skillService.create(skillDto);
-
-        return skillDto;
+        return skillService.create(skillDto);
     }
 
     @GetMapping("/user/{userId}")

@@ -1,16 +1,15 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.mentorship;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.service.user.UserService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,7 +18,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -52,13 +50,13 @@ public class MentorshipServiceTest {
 
         assertNotNull(result);
         assertEquals(2, result.size());
-        assertEquals(2l, result.get(0).getId());
+        assertEquals(2L, result.get(0).getId());
         verify(userService, times(1)).findUser(userId);
     }
 
     @Test
     public void getMenteesUserWithNoMenteesReturnsEmptyList() {
-        long userId = 1l;
+        long userId = 1L;
         User user = new User();
         user.setId(userId);
         user.setMentees(Collections.emptyList());
@@ -73,7 +71,7 @@ public class MentorshipServiceTest {
 
     @Test
     public void testGetMentorsWhenUserHasMentees() {
-        long userId = 1l;
+        long userId = 1L;
         User user = new User();
         user.setId(userId);
         User mentor1 = new User();
@@ -88,14 +86,14 @@ public class MentorshipServiceTest {
 
         assertNotNull(result);
         assertEquals(2, result.size());
-        assertEquals(2l, result.get(0).getId());
-        assertEquals(3l, result.get(1).getId());
+        assertEquals(2L, result.get(0).getId());
+        assertEquals(3L, result.get(1).getId());
         verify(userService, times(1)).findUser(userId);
     }
 
     @Test
     public void testGetMentorsUserWithNoMenteesReturnsEmptyList() {
-        long userId = 1l;
+        long userId = 1L;
         User user = new User();
         user.setId(userId);
         user.setMentors(Collections.emptyList());
@@ -111,13 +109,12 @@ public class MentorshipServiceTest {
     @Test
     public void testDeleteMenteeWhenMenteeExists() {
         User mentor = new User();
-        mentor.setId(1l);
+        mentor.setId(1L);
         User mentee = new User();
         mentee.setId(2L);
         mentor.setMentees(new ArrayList<>());
         mentor.getMentees().add(mentee);
         when(userService.findUser(mentor.getId())).thenReturn(mentor);
-
 
         mentorshipService.deleteMentee(mentee.getId(), mentor.getId());
 
@@ -128,11 +125,11 @@ public class MentorshipServiceTest {
     @Test
     public void testDeleteMenteeWhenMenteeDoesNotExist() {
         User mentor = new User();
-        mentor.setId(1l);
+        mentor.setId(1L);
         mentor.setMentees(new ArrayList<>());
         when(userService.findUser(mentor.getId())).thenReturn(mentor);
 
-        mentorshipService.deleteMentee(3l, mentor.getId());
+        mentorshipService.deleteMentee(3L, mentor.getId());
 
         verify(userService, never()).saveUser(mentor);
     }
@@ -140,7 +137,7 @@ public class MentorshipServiceTest {
     @Test
     public void testDeleteMentorWhenMenteeExists() {
         User mentee = new User();
-        mentee.setId(1l);
+        mentee.setId(1L);
         User mentor = new User();
         mentor.setId(2L);
         mentee.setMentors(new ArrayList<>());
@@ -156,11 +153,11 @@ public class MentorshipServiceTest {
     @Test
     public void testDeleteMentorWhenMenteeDoesNotExist() {
         User mentee = new User();
-        mentee.setId(1l);
+        mentee.setId(1L);
         mentee.setMentors(new ArrayList<>());
         when(userService.findUser(mentee.getId())).thenReturn(mentee);
 
-        mentorshipService.deleteMentor(mentee.getId(), 3l);
+        mentorshipService.deleteMentor(mentee.getId(), 3L);
 
         verify(userService, never()).saveUser(mentee);
     }

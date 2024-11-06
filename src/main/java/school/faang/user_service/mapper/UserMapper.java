@@ -9,7 +9,6 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -25,13 +24,12 @@ public interface UserMapper {
     @Mapping(target = "skills", ignore = true)
     User toEntity(UserDto userDto);
 
-
     List<UserDto> toDto(List<User> users);
 
     List<User> toEntity(List<UserDto> usersDto);
 
     @Named("mapToUsersId")
-    default List<Long> mapToUsersId (List<User> users) {
+    default List<Long> mapToUsersId(List<User> users) {
         return mapToIds(users, User::getId);
     }
 

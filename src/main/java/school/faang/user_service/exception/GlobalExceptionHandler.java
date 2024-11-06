@@ -37,4 +37,28 @@ public class GlobalExceptionHandler {
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .body("Ошибка сервера: " + ex.getMessage());
     }
+
+    /**
+     * Handle {@link DataValidationException} by returning a {@link ResponseEntity} with a 400 status code
+     * and the error message.
+     *
+     * @param ex the {@link DataValidationException} thrown
+     * @return a {@link ResponseEntity} with the error message
+     */
+    @ExceptionHandler(DataValidationException.class)
+    public ResponseEntity<String> handleDataValidationException(DataValidationException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    /**
+     * Handle {@link EntityNotFoundException} by returning a {@link ResponseEntity} with a 404 status code
+     * and the error message.
+     *
+     * @param ex the {@link EntityNotFoundException} thrown
+     * @return a {@link ResponseEntity} with the error message
+     */
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 }
