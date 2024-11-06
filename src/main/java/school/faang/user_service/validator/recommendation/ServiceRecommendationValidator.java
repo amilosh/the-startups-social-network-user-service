@@ -56,7 +56,7 @@ public class ServiceRecommendationValidator {
         });
     }
 
-    public void checkingTheUserSkills(@NotNull RecommendationDto recommendationDto) {
+    public void checkingTheUserSkills(RecommendationDto recommendationDto) {
         Long receiverId = recommendationDto.getReceiverId();
         Long authorId = recommendationDto.getAuthorId();
 
