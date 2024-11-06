@@ -32,7 +32,7 @@ public class MentorshipService {
                 .toList();
     }
 
-    public void deleteMentee(long mentorId, long menteeId) {
+    public void deleteMentee(long menteeId, long mentorId) {
         deleteMentorAndMentee(mentorId, menteeId);
     }
 
@@ -40,15 +40,13 @@ public class MentorshipService {
         deleteMentorAndMentee(mentorId, menteeId);
     }
 
-    public void deleteMentorAndMentee(long mentorId, long menteeId) {
+    private void deleteMentorAndMentee(long mentorId, long menteeId) {
         User mentor = mentorshipRepository.findById(mentorId).orElseThrow();
         mentor.getMentees().removeIf(user -> user.getId() == menteeId);
-        mentor.setMentees(mentor.getMentees());
         mentorshipRepository.save(mentor);
 
         User mentee = mentorshipRepository.findById(menteeId).orElseThrow();
         mentee.getMentors().removeIf(user -> user.getId() == mentorId);
-        mentee.setMentors(mentee.getMentors());
         mentorshipRepository.save(mentee);
     }
 }
