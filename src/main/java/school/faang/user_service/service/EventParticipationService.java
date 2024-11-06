@@ -18,6 +18,7 @@ public class EventParticipationService {
     private final UserMapper userMapper;
 
     public void registerParticipant(Long eventId, Long userId) {
+        validateUserId(userId);
         validateEventId(eventId);
         List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
         boolean userAlreadyRegistered = users.stream().anyMatch(user -> user.getId().equals(userId));
@@ -61,5 +62,10 @@ public class EventParticipationService {
         }
     }
 
+    public void validateUserId(Long userId) {
+        if (userId == null) {
+            throw new IllegalArgumentException("User ID cannot be null");
+        }
+    }
 
 }
