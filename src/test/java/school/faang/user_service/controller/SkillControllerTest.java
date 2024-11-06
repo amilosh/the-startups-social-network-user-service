@@ -1,8 +1,6 @@
-package school.faang.user_service.service.controller;
+package school.faang.user_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -12,12 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.containers.PostgreSQLContainer;
-import school.faang.user_service.controller.SkillController;
-import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.mapper.SkillMapper;
-import school.faang.user_service.service.SkillService;
+import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.validation.skill.SkillValidation;
 
 import java.util.Arrays;
@@ -41,25 +36,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @Rollback
 public class SkillControllerTest {
-
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:13")
-        .withDatabaseName("postgres")
-        .withUsername("user")
-        .withPassword("password");
-
-    @BeforeAll
-    public static void setUp() {
-        postgres.start();
-        System.setProperty("spring.datasource.url", postgres.getJdbcUrl());
-        System.setProperty("spring.datasource.username", postgres.getUsername());
-        System.setProperty("spring.datasource.password", postgres.getPassword());
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        postgres.stop();
-    }
-
     @Autowired
     private MockMvc mockMvc;
 
@@ -90,14 +66,14 @@ public class SkillControllerTest {
 
     @Test
     public void createValidSkill() throws Exception {
-        SkillDto SkillDtoJava = new SkillDto(null, "Test");
+        SkillDto skillDtoJava = new SkillDto(null, "Test");
 
         doNothing().when(skillValidation).validateDuplicate(any());
-        when(skillService.create(any(SkillDto.class))).thenReturn(SkillDtoJava);
+        when(skillService.create(any(SkillDto.class))).thenReturn(skillDtoJava);
 
         mockMvc.perform(post("/api/skills/create")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(SkillDtoJava)))
+                .content(objectMapper.writeValueAsString(skillDtoJava)))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.title", is("Test")));
 
