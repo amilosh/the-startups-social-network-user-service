@@ -42,7 +42,6 @@ public class SkillController {
         return ResponseEntity.ok(
                 skillService
                         .getUserSkills(userId)
-                        .orElseGet(List::of)
         );
     }
 
@@ -53,7 +52,6 @@ public class SkillController {
         return ResponseEntity.ok(
                 skillService
                         .getOfferedSkills(userId)
-                        .orElseGet(List::of)
         );
     }
 

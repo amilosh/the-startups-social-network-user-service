@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -90,11 +91,11 @@ class SkillServiceTest {
         List<Skill> skills = List.of(skill);
         when(skillRepository.findAllByUserId(userId)).thenReturn(skills);
 
-        Optional<List<SkillDto>> result = skillService.getUserSkills(userId);
+        List<SkillDto> result = skillService.getUserSkills(userId);
 
-        assertTrue(result.isPresent());
-        assertEquals(1, result.get().size());
-        assertEquals(skillDto.getTitle(), result.get().get(0).getTitle());
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
+        assertEquals(skillDto.getTitle(), result.get(0).getTitle());
     }
 
     @Test
@@ -102,10 +103,9 @@ class SkillServiceTest {
         long userId = 1L;
         when(skillRepository.findAllByUserId(userId)).thenReturn(List.of());
 
-        Optional<List<SkillDto>> result = skillService.getUserSkills(userId);
+        List<SkillDto> result = skillService.getUserSkills(userId);
 
-        assertTrue(result.isPresent());
-        assertTrue(result.get().isEmpty());
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -114,10 +114,10 @@ class SkillServiceTest {
         List<Skill> skills = List.of(skill);
         when(skillRepository.findSkillsOfferedToUser(userId)).thenReturn(skills);
 
-        Optional<List<SkillCandidateDto>> result = skillService.getOfferedSkills(userId);
+        List<SkillCandidateDto> result = skillService.getOfferedSkills(userId);
 
-        assertTrue(result.isPresent());
-        assertEquals(1, result.get().size());
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
         verify(skillMapper).toCandidateDto(skill, 1L);
     }
 

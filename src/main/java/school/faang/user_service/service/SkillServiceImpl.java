@@ -2,7 +2,6 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
@@ -17,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -43,24 +43,21 @@ public class SkillServiceImpl implements SkillService {
     }
 
     @Override
-    public Optional<List<SkillDto>> getUserSkills(Long userId) {
-        List<Skill> skills = skillRepository.findAllByUserId(userId);
-
-        return Optional.ofNullable(skills)
-                .map(list -> list.stream()
-                        .map(skillMapper::toDto)
-                        .toList());
+    public List<SkillDto> getUserSkills(Long userId) {
+        return Stream.ofNullable(skillRepository.findAllByUserId(userId))
+                .flatMap(List::stream)
+                .map(skillMapper::toDto)
+                .toList();
     }
 
     @Override
-    public Optional<List<SkillCandidateDto>> getOfferedSkills(Long userId) {
-        List<Skill> skills = skillRepository.findSkillsOfferedToUser(userId);
-
-        return Optional.of(skills.stream()
+    public List<SkillCandidateDto> getOfferedSkills(Long userId) {
+        return Stream.ofNullable(skillRepository.findSkillsOfferedToUser(userId))
+                .flatMap(List::stream)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                 .entrySet().stream()
                 .map(entry -> skillMapper.toCandidateDto(entry.getKey(), entry.getValue()))
-                .toList());
+                .toList();
     }
 
     @Override
