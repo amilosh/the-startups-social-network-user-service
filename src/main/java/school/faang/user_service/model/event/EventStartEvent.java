@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @NoArgsConstructor
@@ -13,4 +14,18 @@ import java.util.List;
 public class EventStartEvent {
     private Long eventId;
     private List<Long> participantIds;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EventStartEvent that = (EventStartEvent) o;
+        return Objects.equals(eventId, that.eventId) &&
+                Objects.equals(participantIds, that.participantIds);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(eventId, participantIds);
+    }
 }
