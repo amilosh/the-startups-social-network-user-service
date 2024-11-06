@@ -19,7 +19,6 @@ import school.faang.user_service.service.user_skill_guarantee.UserSkillGuarantee
 import school.faang.user_service.validator.recommendation.ServiceRecommendationValidator;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,16 +57,15 @@ public class ServiceRecommendationValidatorTest {
     @InjectMocks
     ServiceRecommendationValidator serviceRecommendationValidator;
 
-    private RecommendationDto recommendationDto;
     private long authorId;
     private long receiverId;
+    private RecommendationDto recommendationDto;
     private Recommendation recommendation;
 
     @BeforeEach
     public void setUp() {
-
-        recommendation = new Recommendation();
         MockitoAnnotations.openMocks(this);
+        recommendation = new Recommendation();
         recommendationDto = RecommendationDto.builder().id(1L).authorId(2L).receiverId(3L).content("Test").
                 createdAt(LocalDate.of(2022, 3, 22).atStartOfDay()).build();
         authorId = recommendationDto.getAuthorId();
@@ -177,13 +175,10 @@ public class ServiceRecommendationValidatorTest {
         when(userSkillGuaranteeService.existsByUserIdAndSkillId(authorId, skillId)).thenReturn(false);
 
         serviceRecommendationValidator.checkingTheUserSkills(recommendationDto);
-        //userSkillGuaranteeService.createGuarantee(authorId, skillId);
 
         verify(userSkillGuaranteeService).createGuarantee(authorId, skillId);
 
         verify(skillService, never()).assignSkillToUser(skillId, receiverId);
-
-
     }
 
     @Test
