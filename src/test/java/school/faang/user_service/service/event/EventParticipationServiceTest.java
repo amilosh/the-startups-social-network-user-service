@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.event;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -6,44 +6,34 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import school.faang.user_service.repository.EventParticipationRepository;
-import school.faang.user_service.service.validator.event.EventParticipationValidator;
-import school.faang.user_service.service.event.EventParticipationService;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Component
 @ExtendWith(MockitoExtension.class)
 public class EventParticipationServiceTest {
 
     @Mock
     private EventParticipationRepository eventParticipationRepository;
 
-    @Mock
-    private EventParticipationValidator validator;
     @InjectMocks
     private EventParticipationService eventParticipationService;
 
     @Test
-    public void testRegisterParticipation_Success() {
-        long eventId = 1L;
-        long userId = 2L;
-
-        // Настройка моков для валидации
-        doNothing().when(validator).validateParticipation(eventId, userId); // Предполагаем, что метод ничего не возвращает
-        doNothing().when(validator).validateRegisterParticipation(eventId, userId); // Настройка на отсутствие исключений
-        doNothing().when(eventParticipationRepository).register(eventId, userId);
-
-        eventParticipationService.registerParticipant(eventId, userId);
-
-
-        verify(validator).validateParticipation(eventId, userId);
-        verify(validator).validateRegisterParticipation(eventId, userId);
-        verify(eventParticipationRepository).register(eventId, userId);
+    public void registerParticipantTest() {
+        Mockito.when(eventParticipationRepository.existsById(1L)).thenReturn(true);
+        Mockito.when(eventParticipationRepository.findAllParticipantsByEventId(1L)).thenReturn(Collections.emptyList());
+        eventParticipationService.registerParticipant(1L, 10L);
+        verify(eventParticipationRepository).register(1L, 10L);
+        verify(eventParticipationRepository, times(1)).countParticipants(1L);
     }
 
     @Test

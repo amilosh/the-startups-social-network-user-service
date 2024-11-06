@@ -20,7 +20,7 @@ public class EventParticipationService {
         validateEventId(eventId);
         List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
         for (User user : users) {
-            if (user.getId() == userId) {
+            if (user.getId().equals(userId)) {
                 throw new IllegalArgumentException("You are registered already!");
             }
         }
