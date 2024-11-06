@@ -14,11 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-
-@ExtendWith(MockitoExtension.class)
 public class EventDescriptionFilterTest {
-    @InjectMocks
-    EventDescriptionFilter eventDescriptionFilter;
+    private final EventDescriptionFilter eventDescriptionFilter = new EventDescriptionFilter();
 
     @Test
     public void EventDescriptionNotNullTest() {

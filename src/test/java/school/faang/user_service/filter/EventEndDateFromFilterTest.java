@@ -1,9 +1,6 @@
 package school.faang.user_service.filter;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
 
@@ -15,10 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(MockitoExtension.class)
 public class EventEndDateFromFilterTest {
-    @InjectMocks
-    EventEndDateFromFilter eventEndDateFromFilter;
+    private final EventEndDateFromFilter eventEndDateFromFilter = new EventEndDateFromFilter();
 
     @Test
     public void testEventDateFromNotNull() {
