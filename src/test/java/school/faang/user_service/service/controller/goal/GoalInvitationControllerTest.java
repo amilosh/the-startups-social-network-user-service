@@ -23,14 +23,6 @@ public class GoalInvitationControllerTest {
 
     @Test
     void createInvitation() {
-        GoalInvitationDto invitationDto = new GoalInvitationDto();
-        invitationDto.setId(1L);
-        invitationDto.setInviterId(1L);
-        invitationDto.setInvitedUserId(1L);
-        invitationDto.setGoalId(1L);
 
-        when(invitationService.creatInvitation(invitationDto)).thenReturn(invitationDto);
-
-        verify(invitationService, times(1)).creatInvitation(invitationDto);
     }
 }

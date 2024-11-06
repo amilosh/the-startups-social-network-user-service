@@ -23,7 +23,15 @@ public class GoalInvitationService {
     public GoalInvitationDto creatInvitation(GoalInvitationDto invitationDto) {
         validator.validateCorrectnessPlayers(invitationDto);
 
-        GoalInvitation invitation = invitationRepository.save(mapper.dtoToEntity(invitationDto));
+        GoalInvitation invitation = mapper.dtoToEntity(invitationDto);
+        invitation.setInviter(userRepository.findById(invitationDto.getInviterId())
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден")));
+        invitation.setInvited(userRepository.findById(invitationDto.getInvitedUserId())
+                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден")));
+        invitation.setGoal(goalRepository.findById(invitationDto.getGoalId())
+                .orElseThrow(() -> new IllegalArgumentException("Цель не найдена")));
+
+        invitation = invitationRepository.save(invitation);
         return mapper.entityToDto(invitation);
     }
 
