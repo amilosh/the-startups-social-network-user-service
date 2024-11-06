@@ -14,7 +14,7 @@ import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.validation.skill.SkillValidation;
+import school.faang.user_service.validation.skill.SkillValidator;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ class SkillServiceTest {
     private SkillRepository skillRepository;
 
     @Mock
-    private SkillValidation skillValidation;
+    private SkillValidator skillValidator;
 
     @Mock
     private UserService userService;
@@ -83,7 +83,7 @@ class SkillServiceTest {
         assertEquals(1, result.size());
         assertEquals(List.of(1L), result);
 
-        verify(skillValidation, times(1)).validateSkillExists(skill.getId());
+        verify(skillValidator, times(1)).validateSkillExists(skill.getId());
     }
 
     @Test
@@ -96,7 +96,7 @@ class SkillServiceTest {
         assertEquals(0, result.size());
         assertEquals(List.of(), result);
 
-        verify(skillValidation, times(1)).validateSkillExists(skill.getId());
+        verify(skillValidator, times(1)).validateSkillExists(skill.getId());
     }
 
     @Test

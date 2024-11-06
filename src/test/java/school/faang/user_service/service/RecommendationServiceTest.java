@@ -131,10 +131,6 @@ class RecommendationServiceTest {
         RecommendationDto result = recommendationService.update(dto);
         result.setContent("Updated content");
 
-        assertNotNull(result);
-        assertEquals(10L, result.getId());
-        assertEquals("Updated content", result.getContent());
-
         verify(recommendationValidator, times(1)).validateAuthorAndReceiverId(dto);
         verify(recommendationValidator, times(1)).validateSkillAndTimeRequirementsForGuarantee(dto);
         verify(recommendationRepository, times(1))
@@ -144,6 +140,9 @@ class RecommendationServiceTest {
         verify(skillOfferService, times(1)).create(dto.getSkillOffers().get(0).getSkillId(), recommendation.getId());
         verify(skillService, times(1)).addGuarantee(any(Recommendation.class));
 
+        assertNotNull(result);
+        assertEquals(10L, result.getId());
+        assertEquals("Updated content", result.getContent());
     }
 
     @Test
@@ -162,11 +161,11 @@ class RecommendationServiceTest {
                 .thenReturn(page);
         List<RecommendationDto> result = recommendationService.getAllUserRecommendations(dto.getReceiverId());
 
+        verify(userValidator, times(1)).validateUserById(dto.getReceiverId());
+
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("initial content", result.get(0).getContent());
-
-        verify(userValidator, times(1)).validateUserById(dto.getReceiverId());
     }
 
     @Test
@@ -176,10 +175,10 @@ class RecommendationServiceTest {
                 .thenReturn(page);
         List<RecommendationDto> result = recommendationService.getAllUserRecommendations(dto.getReceiverId());
 
+        verify(userValidator, times(1)).validateUserById(dto.getReceiverId());
+
         assertNotNull(result);
         assertEquals(0, result.size());
-
-        verify(userValidator, times(1)).validateUserById(dto.getReceiverId());
     }
 
     @Test
@@ -189,11 +188,11 @@ class RecommendationServiceTest {
                 .thenReturn(page);
         List<RecommendationDto> result = recommendationService.getAllUserRecommendations(dto.getAuthorId());
 
+        verify(userValidator, times(1)).validateUserById(dto.getAuthorId());
+
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("initial content", result.get(0).getContent());
-
-        verify(userValidator, times(1)).validateUserById(dto.getAuthorId());
     }
 
     @Test
@@ -203,10 +202,10 @@ class RecommendationServiceTest {
                 .thenReturn(page);
         List<RecommendationDto> result = recommendationService.getAllUserRecommendations(dto.getAuthorId());
 
+        verify(userValidator, times(1)).validateUserById(dto.getAuthorId());
+
         assertNotNull(result);
         assertEquals(0, result.size());
-
-        verify(userValidator, times(1)).validateUserById(dto.getAuthorId());
     }
 
     @Test
@@ -225,7 +224,8 @@ class RecommendationServiceTest {
 
         Recommendation result = recommendationService.getRecommendationById(recommendation.getId());
 
-        assertEquals(recommendation.getId(), result.getId());
         verify(recommendationRepository, times(1)).findById(recommendation.getId());
+
+        assertEquals(recommendation.getId(), result.getId());
     }
 }

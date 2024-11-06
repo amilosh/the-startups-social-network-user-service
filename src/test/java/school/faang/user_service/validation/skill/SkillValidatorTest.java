@@ -11,19 +11,19 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class SkillValidationTest {
+class SkillValidatorTest {
 
     @Mock
     private SkillRepository skillRepository;
 
     @InjectMocks
-    private SkillValidation skillValidation;
+    private SkillValidator skillValidator;
 
     @Test
     void testValidateSkillExists() {
         when(skillRepository.existsById(1L)).thenReturn(true);
 
-        boolean result = skillValidation.validateSkillExists(1L);
+        boolean result = skillValidator.validateSkillExists(1L);
 
         verify(skillRepository, times(1)).existsById(1L);
         assertTrue(result);

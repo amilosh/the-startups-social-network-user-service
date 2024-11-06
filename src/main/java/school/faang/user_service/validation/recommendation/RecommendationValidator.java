@@ -6,7 +6,7 @@ import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.validation.skill.SkillValidation;
+import school.faang.user_service.validation.skill.SkillValidator;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -16,7 +16,7 @@ import java.util.Optional;
 public class RecommendationValidator {
     private static final int RECOMMENDATION_COOLDOWN_MONTHS = 6;
     private final RecommendationRepository recommendationRepository;
-    private final SkillValidation skillValidation;
+    private final SkillValidator skillValidator;
 
     public void validateAuthorAndReceiverId(RecommendationDto recommendationDto) {
         if (recommendationDto.getReceiverId().equals(recommendationDto.getAuthorId())) {
@@ -50,7 +50,7 @@ public class RecommendationValidator {
 
     public void validateSkillExists(RecommendationDto recommendationDto) {
         recommendationDto.getSkillOffers().forEach(skillOffer -> {
-            if (!skillValidation.validateSkillExists(skillOffer.getSkillId())) {
+            if (!skillValidator.validateSkillExists(skillOffer.getSkillId())) {
                 throw new DataValidationException("Skill doesn't exist " + skillOffer.getSkillId());
             }
         });

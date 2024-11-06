@@ -13,7 +13,7 @@ import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.validation.recommendation.RecommendationValidator;
-import school.faang.user_service.validation.skill.SkillValidation;
+import school.faang.user_service.validation.skill.SkillValidator;
 
 import static org.mockito.Mockito.*;
 
@@ -24,7 +24,7 @@ class UserSkillGuaranteeServiceTest {
     private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
     @Mock
-    private SkillValidation skillValidation;
+    private SkillValidator skillValidator;
 
     @Mock
     private UserService userService;
@@ -56,7 +56,7 @@ class UserSkillGuaranteeServiceTest {
         userSkillGuaranteeService.addSkillGuarantee(skill, recommendation);
 
         verify(recommendationValidator, times(1)).validateRecommendationExistsById(recommendation.getId());
-        verify(skillValidation, times(1)).validateSkillExists(skill.getId());
+        verify(skillValidator, times(1)).validateSkillExists(skill.getId());
         verify(userSkillGuaranteeRepository, times(1)).save(any(UserSkillGuarantee.class));
     }
 

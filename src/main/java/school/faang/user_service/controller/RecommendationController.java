@@ -25,7 +25,7 @@ public class RecommendationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(recommendationService.create(recommendationDto));
     }
 
-    @PutMapping("/update-recommendation")
+    @PutMapping()
     public ResponseEntity<RecommendationDto> updateRecommendation(@Valid @RequestBody RecommendationDto recommendationDto) {
         return ResponseEntity.ok(recommendationService.update(recommendationDto));
     }

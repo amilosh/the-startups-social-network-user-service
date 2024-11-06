@@ -1,6 +1,8 @@
 package school.faang.user_service.controller;
 
-import jakarta.validation.constraints.Min;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,10 +11,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.service.SkillService;
-import school.faang.user_service.validation.skill.SkillDtoValidation;
 
 import java.util.List;
 
@@ -22,25 +22,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SkillController {
     private final SkillService skillService;
-    private final SkillDtoValidation skillDtoValidation;
 
-    @PostMapping("/create")
-    public SkillDto create(@RequestBody SkillDto skillDto) {
-        skillDtoValidation.validate(skillDto);
-
-        skillDto = skillService.create(skillDto);
-
-        return skillDto;
+    @PostMapping
+    public SkillDto create(@Valid @RequestBody SkillDto skillDto) {
+        return skillService.create(skillDto);
     }
 
-    @GetMapping("/user/{userId}")
-    public List<SkillDto> getUserSkills(@PathVariable @Min(1) Long userId) {
+    @GetMapping("/users/{userId}")
+    public List<SkillDto> getUserSkills(@PathVariable @NotNull @Positive long userId) {
         return skillService.getUserSkills(userId);
     }
 
-    public SkillCandidateDto getOfferedSkills(SkillCandidateDto skillCandidateDto) {
-        skillDtoValidation.validate(skillCandidateDto.getSkill());
-
-        return skillService.getOfferedSkills(skillCandidateDto);
+    @GetMapping("/users/{userId}/offers")
+    public List<SkillDto> getOfferedSkills(@PathVariable @NotNull@Positive long userId) {
+        return skillService.getOfferedSkills(userId);
     }
 }

@@ -32,6 +32,5 @@ public class RecommendationDto {
     @Valid
     private List<@Valid SkillOfferDto> skillOffers;
 
-
     private LocalDateTime createdAt;
 }

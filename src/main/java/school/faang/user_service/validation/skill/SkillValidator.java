@@ -8,12 +8,12 @@ import school.faang.user_service.repository.SkillRepository;
 
 @Component
 @RequiredArgsConstructor
-public class SkillValidation {
+public class SkillValidator {
     private final SkillRepository skillRepository;
 
     public void validateDuplicate(Skill skill) {
         if(skillRepository.existsByTitle(skill.getTitle())) {
-            throw new SkillDuplicateException("Такой навык уже существует");
+            throw new SkillDuplicateException("Skill with title " + skill.getTitle() + " already exists");
         }
     }
 

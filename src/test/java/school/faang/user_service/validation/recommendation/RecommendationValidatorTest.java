@@ -16,7 +16,7 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.validation.skill.SkillValidation;
+import school.faang.user_service.validation.skill.SkillValidator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,7 +33,7 @@ class RecommendationValidatorTest {
     private SkillOfferRepository skillOfferRepository;
 
     @Mock
-    private SkillValidation skillValidation;
+    private SkillValidator skillValidator;
 
     @Mock
     private RecommendationRepository recommendationRepository;
@@ -78,7 +78,7 @@ class RecommendationValidatorTest {
 
     @Test
     void testSkillNotExists() {
-        when(skillValidation.validateSkillExists(Mockito.anyLong())).thenReturn(false);
+        when(skillValidator.validateSkillExists(Mockito.anyLong())).thenReturn(false);
 
         assertThrows(DataValidationException.class, () -> recommendationValidator.validateSkillExists(dto));
     }
