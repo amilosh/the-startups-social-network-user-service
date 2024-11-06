@@ -1,6 +1,6 @@
 package school.faang.user_service.controller;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
@@ -10,7 +10,7 @@ import school.faang.user_service.service.SubscriptionService;
 import java.util.List;
 
 @Controller
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
