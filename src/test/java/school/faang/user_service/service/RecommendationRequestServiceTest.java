@@ -16,6 +16,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.RecommendationRequestValidationException;
 import school.faang.user_service.exception.RejectRequestFailedException;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
@@ -84,29 +85,6 @@ public class RecommendationRequestServiceTest {
     }
 
     @Test
-    public void testCreateRecRequestSendingRequestNotAllowed() {
-        RecommendationRequestDto dto = createRecommendationRequestDto(1L, 2L);
-        dto.setCreatedAt(LocalDateTime.of(2024, 6, 30, 12, 22));
-        User requester = createUser(dto.getRequesterId());
-        User receiver = createUser(dto.getReceiverId());
-        RecommendationRequest recommendationRequest = createRecommendationRequest(requester, receiver, dto.getCreatedAt());
-        when(userRepository.findById(1L)).thenReturn(Optional.of(requester));
-        when(userRepository.findById(2L)).thenReturn(Optional.of(receiver));
-        when(recommendationRequestMapper.toEntity(dto)).thenReturn(recommendationRequest);
-        when(recommendationRequestRepository.findAll()).thenReturn(List.of(recommendationRequest));
-
-        RecommendationRequestDto newRequestDto = createRecommendationRequestDto(1L, 2L);
-        newRequestDto.setCreatedAt(LocalDateTime.of(2024, 11, 4, 12, 22));
-
-        assertThrows(RecommendationRequestValidationException.class, () -> recommendationRequestService.create(newRequestDto));
-
-        verify(userRepository, times(1)).findById(1L);
-        verify(userRepository, times(1)).findById(2L);
-        verify(recommendationRequestRepository, times(1)).findAll();
-        verifyNoMoreInteractions(userRepository, recommendationRequestRepository);
-    }
-
-    @Test
     public void testCreateRecRequestWhenSkillsNotFound() {
         RecommendationRequestDto dto = createRecommendationRequestDto(1L, 2L);
         dto.setCreatedAt(LocalDateTime.of(2024, 3, 30, 12, 22));
@@ -131,6 +109,53 @@ public class RecommendationRequestServiceTest {
     }
 
     @Test
+    public void testCreateRecommendationRequestMessageIsEmpty() {
+        User requester = createUser(1L);
+        User receiver = createUser(2L);
+        LocalDateTime now = LocalDateTime.now();
+        List<Skill> skills = List.of(createSkill(1L), createSkill(2L));
+        RecommendationRequestDto dto = createRecommendationRequestDto(requester.getId(), receiver.getId());
+        dto.setMessage("");
+        dto.setSkillIds(List.of(1L, 2L));
+        RecommendationRequest recommendationRequest = createRecommendationRequest(requester, receiver, now);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(requester));
+        when(userRepository.findById(2L)).thenReturn(Optional.of(receiver));
+        when(recommendationRequestMapper.toEntity(dto)).thenReturn(recommendationRequest);
+        when(recommendationRequestRepository.findAll()).thenReturn(List.of(recommendationRequest));
+        when(skillRepository.findAllById(dto.getSkillIds())).thenReturn(skills);
+
+        assertThrows(RecommendationRequestValidationException.class, () -> recommendationRequestService.create(dto));
+
+        verify(userRepository, times(1)).findById(1L);
+        verify(userRepository, times(1)).findById(2L);
+        verify(skillRepository, times(1)).findAllById(dto.getSkillIds());
+        verifyNoMoreInteractions(userRepository, skillRepository);
+    }
+
+    @Test
+    public void testCreateRecRequestSendingRequestNotAllowed() {
+        RecommendationRequestDto dto = createRecommendationRequestDto(1L, 2L);
+        dto.setCreatedAt(LocalDateTime.of(2024, 6, 30, 12, 22));
+        User requester = createUser(dto.getRequesterId());
+        User receiver = createUser(dto.getReceiverId());
+        RecommendationRequest recommendationRequest = createRecommendationRequest(requester, receiver, dto.getCreatedAt());
+        when(userRepository.findById(1L)).thenReturn(Optional.of(requester));
+        when(userRepository.findById(2L)).thenReturn(Optional.of(receiver));
+        when(recommendationRequestMapper.toEntity(dto)).thenReturn(recommendationRequest);
+        when(recommendationRequestRepository.findAll()).thenReturn(List.of(recommendationRequest));
+
+        RecommendationRequestDto newRequestDto = createRecommendationRequestDto(1L, 2L);
+        newRequestDto.setCreatedAt(LocalDateTime.of(2024, 11, 4, 12, 22));
+
+        assertThrows(RecommendationRequestValidationException.class, () -> recommendationRequestService.create(newRequestDto));
+
+        verify(userRepository, times(1)).findById(1L);
+        verify(userRepository, times(1)).findById(2L);
+        verify(recommendationRequestRepository, times(1)).findAll();
+        verifyNoMoreInteractions(userRepository, recommendationRequestRepository);
+    }
+
+        @Test
     public void testCreateRecommendationRequestSuccessfully() {
         RecommendationRequestDto dto = createRecommendationRequestDto(1L, 2L);
         User requester = createUser(dto.getRequesterId());

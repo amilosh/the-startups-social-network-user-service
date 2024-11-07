@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.View;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
@@ -46,7 +45,8 @@ public class RecommendationRequestService {
         List<Skill> skills = skillRepository.findAllById(recommendationRequest.getSkillIds());
 
         if (!canSendRecommendationRequest(recommendationRequest.getRequesterId(), recommendationRequest.getReceiverId())
-                || !skillExists(skills, recommendationRequest)) {
+                || !skillExists(skills, recommendationRequest)
+                || isMessageEmpty(recommendationRequest)) {
             log.error("Your request has failed due to the following reasons: You can only send requests once in 6 months or skills you provided are not found in the Database!");
             throw new RecommendationRequestValidationException("Your request did not meet the validation requirements!");
         }

@@ -24,9 +24,7 @@ public class RecommendationRequestController {
     @ResponseStatus(HttpStatus.CREATED)
     public RecommendationRequestDto requestRecommendation(@Validated(RecommendationRequestDto.Before.class) @RequestBody RecommendationRequestDto recommendationRequest) {
         log.info("A request has been received to create a recommendation request");
-        if (!recommendationRequestService.isMessageEmpty(recommendationRequest)) {
-            recommendationRequestService.create(recommendationRequest);
-        }
+        recommendationRequestService.create(recommendationRequest);
         return recommendationRequest;
     }
 
@@ -46,7 +44,7 @@ public class RecommendationRequestController {
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public RejectionDto rejectRequest(@PathVariable long  id, RejectionDto rejection) {
+    public RejectionDto rejectRequest(@PathVariable long  id, @RequestBody RejectionDto rejection) {
         log.info("A request has been received to reject the recommendation request with ID: {}", id);
         return recommendationRequestService.rejectRequest(id, rejection);
     }
