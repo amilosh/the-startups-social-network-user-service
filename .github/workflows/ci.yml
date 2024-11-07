@@ -1,6 +1,10 @@
 name: Java CI with Gradle For Medusa Stream 7
 
-on: [ pull_request ]
+on:
+  push:
+    branches: [ "feature/pipline-BC-BJS2-40768" ]
+  pull_request:
+    branches: [ "feature/pipline-BC-BJS2-40768" ]
 
 jobs:
   build_and_run_tests:
@@ -10,12 +14,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
 
-      - name: Set up Java
+      - name: Set up JDK 17
         uses: actions/setup-java@v4.5.0
         with:
           java-version: '17'
           distribution: 'corretto'
-      - name: Build
+      - name: Build With Gradle
         run: ./gradlew build --no-daemon
-      - name: Build and Run Tests With Gradle
+
+      - name: Build and Run All Tests With Gradle
         run: ./gradlew test --no-daemon
