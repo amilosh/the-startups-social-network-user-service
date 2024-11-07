@@ -71,5 +71,4 @@ public class UserSkillGuaranteeServiceTest {
         verify(userSkillGuaranteeRepository).findMaxGuarantorId();
         verify(userSkillGuaranteeRepository).create(userId, skillId, 1L);
     }
-
 }
