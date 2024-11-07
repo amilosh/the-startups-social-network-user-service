@@ -6,6 +6,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 
+import java.util.List;
+
 @Repository
 public interface SkillRequestRepository extends CrudRepository<SkillRequest, Long> {
 
@@ -15,4 +17,6 @@ public interface SkillRequestRepository extends CrudRepository<SkillRequest, Lon
             """)
     @Modifying
     SkillRequest create(long requestId, long skillId);
+
+    List<SkillRequest> findByRequestId(long requestId);
 }
