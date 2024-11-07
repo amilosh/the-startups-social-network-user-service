@@ -1,6 +1,8 @@
-name: CI
+name: CI for user_service Manticore
 
 on:
+  push:
+    branches: [ "feature-pipline-BC-BJS2-40752" ]
   pull_request:
     branches: [ "feature-pipline-BC-BJS2-40752" ]
 
@@ -19,6 +21,16 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5
-      - name: Execute Test
+        uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582
+      - name: Run all tests
         run: ./gradlew test
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Build the project
+        run: ./gradlew clean build
