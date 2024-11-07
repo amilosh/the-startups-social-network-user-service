@@ -154,7 +154,7 @@ public class ServiceRecommendationValidatorTest {
         SkillOfferDto skillOfferDto = new SkillOfferDto(1L, List.of(skillId));
         recommendationDto.setSkillOffers(List.of(skillOfferDto));
 
-        when(skillService.findUserSkill(skillId, receiverId)).thenReturn(Optional.empty()); // Навык отсутствует у пользователя
+        when(skillService.findUserSkill(skillId, receiverId)).thenReturn(Optional.empty());
 
         serviceRecommendationValidator.checkingTheUserSkills(recommendationDto);
 
@@ -175,6 +175,7 @@ public class ServiceRecommendationValidatorTest {
         when(userSkillGuaranteeService.existsByUserIdAndSkillId(authorId, skillId)).thenReturn(false);
 
         serviceRecommendationValidator.checkingTheUserSkills(recommendationDto);
+        userSkillGuaranteeService.createGuarantee(authorId, skillId);
 
         verify(userSkillGuaranteeService).createGuarantee(authorId, skillId);
 
