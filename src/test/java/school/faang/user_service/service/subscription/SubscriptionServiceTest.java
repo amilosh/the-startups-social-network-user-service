@@ -1,6 +1,5 @@
 package school.faang.user_service.service.subscription;
 
-import ch.qos.logback.core.testUtil.MockInitialContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

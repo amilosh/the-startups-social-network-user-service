@@ -69,7 +69,7 @@ class SubscriptionControllerTest {
     }
 
     @Test
-    void unfollowUserThrowsDataValidationExceptionTest() throws Exception {
+    void unfollowUserThrowsDataValidationExceptionTest() {
         Long followerId = 1L;
         Long followeeId = 1L;
 
