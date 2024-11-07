@@ -1,4 +1,4 @@
-name: Java CI with Gradle For Medusa Stream 7
+name: CI for user_service
 
 on:
   push:
