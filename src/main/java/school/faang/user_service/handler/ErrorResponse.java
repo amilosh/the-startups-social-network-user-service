@@ -1,4 +1,4 @@
-package school.faang.user_service.exception.handler;
+package school.faang.user_service.handler;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
