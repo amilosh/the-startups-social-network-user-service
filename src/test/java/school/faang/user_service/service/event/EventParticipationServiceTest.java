@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.event;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,6 +10,8 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
+import school.faang.user_service.service.EventParticipationService;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +31,7 @@ public class EventParticipationServiceTest {
     private EventParticipationService eventParticipationService;
 
     @Test
-    public void registerParticipantTest() {
+    public void testRegisterParticipant() {
         Mockito.when(eventParticipationRepository.existsById(1L)).thenReturn(true);
         Mockito.when(eventParticipationRepository.findAllParticipantsByEventId(1L)).thenReturn(Collections.emptyList());
         eventParticipationService.registerParticipant(1L, 10L);
@@ -37,7 +39,7 @@ public class EventParticipationServiceTest {
     }
 
     @Test
-    public void unregisterParticipantTest() {
+    public void testUnregisterParticipant() {
         User user = User.builder().id(1L).username("name").build();
         Mockito.when(eventParticipationRepository.findAllParticipantsByEventId(1L)).thenReturn(List.of(user));
         eventParticipationService.unregisterParticipant(1L, 1L);
@@ -45,7 +47,7 @@ public class EventParticipationServiceTest {
     }
 
     @Test
-    public void registerParticipantThrowExceptionTest() {
+    public void testRegisterParticipantThrowException() {
         User user = User.builder().id(1L).username("name").build();
         Mockito.when(eventParticipationRepository.existsById(1L)).thenReturn(true);
         Mockito.when(eventParticipationRepository.findAllParticipantsByEventId(1L)).thenReturn(List.of(user));
@@ -54,13 +56,13 @@ public class EventParticipationServiceTest {
     }
 
     @Test
-    public void unregisterParticipantUserNotRegisteredThrowsUserNotRegisteredAtEventExceptionTest() {
-        assertThrows(IllegalArgumentException.class,
-                () -> eventParticipationService.unregisterParticipant(1L, 2L));
+    public void testUnregisterParticipantThrowsException() {
+            assertThrows(IllegalArgumentException.class,
+                    () -> eventParticipationService.unregisterParticipant(1L, 2L));
     }
 
     @Test
-    public void getParticipantTest() {
+    public void testGetParticipant() {
         User user = User.builder().id(1L).username("name").build();
         UserDto userDto = UserDto.builder().id(1L).username("name").email("mail").build();
         Mockito.when(eventParticipationRepository.existsById(1L)).thenReturn(true);

@@ -142,5 +142,4 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private Premium premium;
-
 }
