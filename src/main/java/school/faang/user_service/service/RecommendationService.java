@@ -18,7 +18,6 @@ import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.mapper.SkillOfferMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 import school.faang.user_service.util.CollectionUtils;
 import school.faang.user_service.util.SkillUtils;
 import school.faang.user_service.validator.RecommendationValidator;
@@ -33,6 +32,7 @@ import java.util.Set;
 @Slf4j
 public class RecommendationService {
     private static final long REQUIRED_DURATION_IN_DAYS = 6 * 30;
+    public static final String THE_REQUIRED_PERIOD_HAS_NOT_PASSED = "Less than 6 months since last referral";
 
     private final RecommendationRepository recommendationRepo;
     private final UserService userService;
@@ -49,7 +49,6 @@ public class RecommendationService {
         validateRecommendation(recommendation);
         processSkillDependencies(recommendation);
         recommendation = recommendationRepo.save(recommendation);
-
         log.info("Recommendation created successfully with id: {}", recommendation.getId());
         return recommendationMapper.toDto(recommendation);
     }
@@ -211,7 +210,7 @@ public class RecommendationService {
                 Duration.ofDays(REQUIRED_DURATION_IN_DAYS))) {
             log.warn("Validation failed: Less than 6 months since last referral for receiver: {}",
                     newRecommendation.getReceiver().getId());
-            throw new DataValidationException("Less than 6 months since last referral");
+            throw new DataValidationException(THE_REQUIRED_PERIOD_HAS_NOT_PASSED);
         }
     }
 
