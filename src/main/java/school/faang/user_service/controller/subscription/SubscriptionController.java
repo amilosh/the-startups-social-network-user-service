@@ -48,4 +48,10 @@ public class SubscriptionController {
                 .body(subscriptionService.getFollowers(followeeId, filter));
     }
 
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getFollowersCount(Long followerId) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(subscriptionService.getFollowersCount(followerId));
+    }
 }

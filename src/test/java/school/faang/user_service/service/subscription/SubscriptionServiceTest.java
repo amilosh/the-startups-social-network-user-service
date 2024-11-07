@@ -1,21 +1,18 @@
 package school.faang.user_service.service.subscription;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.web.client.ExpectedCount;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
-import springfox.documentation.schema.ModelKey;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -140,7 +137,8 @@ class SubscriptionServiceTest {
 
         Mockito.when(mapper.toDto(alexander)).thenReturn(alexanderDto);
         Mockito.when(mapper.toDto(alexey)).thenReturn(alexeyDto);
-//        кидает ошибку и пишет что unnecessary stubbing, но откуда я знаю что он не пройдет? Скорее это "фича" мокито, тут ничего не сделаешь
+//        throws an exception и and say that unnecessary stubbing, but I can't know whether current user pass the filter.
+//        Apparently it's a feature of Mockito, can't do anything with that
 //        Mockito.when(mapper.toDto(petr)).thenReturn(petrDto);
 
         // must return Alexander and Alexey ignoring case
@@ -171,5 +169,48 @@ class SubscriptionServiceTest {
                 .existsById(followeeId);
         Mockito.verify(subscriptionRepository, Mockito.times(0))
                 .findByFolloweeId(followeeId);
+    }
+
+    @Test
+    void getFollowersCount() {
+        Long followerId = 1L;
+
+        Integer expectedFollowersAmount = 10;
+
+        Mockito.when(subscriptionRepository.existsById(followerId))
+                .thenReturn(true);
+        Mockito.when(subscriptionRepository.findFollowersAmountByFolloweeId(followerId))
+                .thenReturn(expectedFollowersAmount);
+
+        Integer actualFollowersAmount = subscriptionService.getFollowersCount(followerId);
+
+        assertEquals(expectedFollowersAmount, actualFollowersAmount);
+
+
+        Mockito.verify(subscriptionRepository, Mockito.times(1))
+                .existsById(followerId);
+        Mockito.verify(subscriptionRepository, Mockito.times(1))
+                .findFollowersAmountByFolloweeId(followerId);
+    }
+
+    @Test
+    void getFollowersCountThrowsNoSuchElementException() {
+        Long followerId = 1L;
+
+        String expectedExceptionMessage = "Cannot find follower by id " + followerId;
+
+        Mockito.when(subscriptionRepository.existsById(followerId))
+                .thenReturn(false);
+
+        String actualExceptionMessage = assertThrows(NoSuchElementException.class,
+                () -> subscriptionService.getFollowersCount(followerId))
+                .getMessage();
+
+        assertEquals(expectedExceptionMessage, actualExceptionMessage);
+
+        Mockito.verify(subscriptionRepository, Mockito.times(1))
+                .existsById(followerId);
+        Mockito.verify(subscriptionRepository, Mockito.times(0))
+                .findFollowersAmountByFolloweeId(followerId);
     }
 }
