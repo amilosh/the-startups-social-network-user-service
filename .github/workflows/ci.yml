@@ -1,4 +1,4 @@
-name: CI for user_service
+name: CIForMedusaMaster
 
 on:
   push:
