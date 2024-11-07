@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exceptions.EntityNotFoundException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.event.EventParticipationRepository;
-import school.faang.user_service.validation.EventParticipationServiceValidator;
+import school.faang.user_service.validator.EventParticipationServiceValidator;
 
 import java.util.List;
 

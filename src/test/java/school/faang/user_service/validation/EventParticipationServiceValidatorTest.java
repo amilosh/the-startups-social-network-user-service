@@ -2,6 +2,7 @@ package school.faang.user_service.validation;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import school.faang.user_service.validator.EventParticipationServiceValidator;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
