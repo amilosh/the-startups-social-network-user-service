@@ -1,9 +1,6 @@
 name: Java CI with Gradle For Medusa Stream 7
 
-on:
-  pull_request:
-    branches:
-      Medusa-master-stream7
+on: [ pull_request ]
 
 jobs:
   build_and_run_tests:
