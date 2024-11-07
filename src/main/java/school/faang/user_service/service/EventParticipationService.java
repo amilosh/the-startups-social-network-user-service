@@ -36,8 +36,8 @@ public class EventParticipationService {
         return userMapper.toDtos(eventParticipationRepository.findAllParticipantsByEventId(eventDto.id()));
     }
 
-    public int getParticipantsCount(Long eventDto) {
-        return eventParticipationRepository.countParticipants(eventDto);
+    public int getParticipantsCount(EventDto eventDto) {
+        return eventParticipationRepository.countParticipants(eventDto.id());
     }
 
     private boolean isParticipantRegistered(UserDto userDto, EventDto eventDto) {
