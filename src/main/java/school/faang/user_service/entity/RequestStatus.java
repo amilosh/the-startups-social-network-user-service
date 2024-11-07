@@ -1,6 +1,6 @@
 package school.faang.user_service.entity;
 
-public enum RequestStatusDto {
+public enum RequestStatus {
     PENDING,
     ACCEPTED,
     REJECTED
