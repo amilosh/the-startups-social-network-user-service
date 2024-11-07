@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class failTest {
 
     @Test
-    public void createSkillWithEmptyTitleTest() {
+    public void failSumTest() {
         assertEquals(5, 2 + 3);
     }
 }
