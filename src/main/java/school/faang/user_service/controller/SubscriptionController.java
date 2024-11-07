@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import school.faang.user_service.dto.UserDTO;
-import school.faang.user_service.dto.UserFilterDTO;
+import school.faang.user_service.dto.subscribe.UserDTO;
+import school.faang.user_service.dto.subscribe.UserFilterDTO;
 import school.faang.user_service.service.SubscriptionService;
 
 import java.util.List;
