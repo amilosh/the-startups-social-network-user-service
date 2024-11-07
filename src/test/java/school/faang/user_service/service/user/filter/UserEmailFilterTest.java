@@ -1,15 +1,14 @@
-package school.faang.user_service.filter;
+package school.faang.user_service.service.user.filter;
 
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.filter.user.UserEmailFilter;
 
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
-public class UserEmailUserFilterTest extends UserFilterTest {
+public class UserEmailFilterTest extends UserFilterTest {
     private final UserEmailFilter userEmailFilter = new UserEmailFilter();
 
     @Test

@@ -1,10 +1,9 @@
-package school.faang.user_service.filter;
+package school.faang.user_service.service.user.filter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.filter.user.UserFilter;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;

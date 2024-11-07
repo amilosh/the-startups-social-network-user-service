@@ -10,7 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserFilterDto;
-import school.faang.user_service.filter.user.UserFilter;
+import school.faang.user_service.service.user.filter.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.validator.subscription.SubscriptionValidator;

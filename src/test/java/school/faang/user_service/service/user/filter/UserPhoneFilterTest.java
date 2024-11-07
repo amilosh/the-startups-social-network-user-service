@@ -1,8 +1,7 @@
-package school.faang.user_service.filter;
+package school.faang.user_service.service.user.filter;
 
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.filter.user.UserPhoneFilter;
 
 import java.util.stream.Stream;
 
