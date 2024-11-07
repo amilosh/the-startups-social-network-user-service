@@ -38,6 +38,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core")
     implementation("redis.clients:jedis:4.3.2")
     runtimeOnly("org.postgresql:postgresql")
+    testImplementation("com.h2database:h2")
 
     /**
      * Amazon S3
@@ -74,7 +75,6 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("com.redis.testcontainers:testcontainers-redis-junit-jupiter:1.4.6")
-    testImplementation("com.h2database:h2")
 
     /**
      * Tests
