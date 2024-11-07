@@ -88,7 +88,6 @@ public class RecommendationServiceTest {
             recommendationService.giveRecommendation(recommendationDto);
         });
 
-        // Проверяем, что остальные методы не вызываются после исключения
         verify(serviceRecommendationValidator, never()).checkingTheSkillsOfRecommendation(any());
         verify(serviceRecommendationValidator, never()).checkingTheUserSkills(any());
         verify(recommendationRepository, never()).create(anyLong(), anyLong(), any());
@@ -227,7 +226,4 @@ public class RecommendationServiceTest {
 
         verify(recommendationRepository).findAllByAuthorId(authorId, pageable);
     }
-
-
-
 }
