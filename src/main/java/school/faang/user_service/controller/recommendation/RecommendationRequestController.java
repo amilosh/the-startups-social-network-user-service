@@ -30,23 +30,23 @@ public class RecommendationRequestController {
         return recommendationRequest;
     }
 
-    @GetMapping
+    @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public List<RecommendationRequestDto> getRecommendationRequests(@RequestBody RequestFilterDto filter) {
         log.info("A request has been received to get the list of recommendation requests");
         return recommendationRequestService.getRequests(filter);
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public RecommendationRequestDto getRecommendationRequest(@RequestBody RequestFilterDto filter) {
-        log.info("A request has been received to get the recommendation request with ID: {}", filter.getId());
-        return recommendationRequestService.getRequest(filter);
+    public RecommendationRequestDto getRecommendationRequest(@PathVariable long id) {
+        log.info("A request has been received to get the recommendation request with ID: {}", id);
+        return recommendationRequestService.getRequest(id);
     }
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public RejectionDto rejectRequest(long id, RejectionDto rejection) {
+    public RejectionDto rejectRequest(@PathVariable long  id, RejectionDto rejection) {
         log.info("A request has been received to reject the recommendation request with ID: {}", id);
         return recommendationRequestService.rejectRequest(id, rejection);
     }
