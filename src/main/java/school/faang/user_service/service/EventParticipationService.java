@@ -5,11 +5,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @ControllerAdvice
 @Component
 @RequiredArgsConstructor
@@ -18,11 +20,19 @@ public class EventParticipationService {
     private final UserMapper userMapper;
 
     public void registerParticipant(Long eventId, Long userId) {
-        validateUserId(userId);
-        validateEventId(eventId);
-        List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
-        boolean userAlreadyRegistered = users.stream().anyMatch(user -> user.getId().equals(userId));
+        if (eventId == null) {
+            throw new IllegalArgumentException("There is not event with this ID!");
+        }
+        if (userId == null) {
+            throw new IllegalArgumentException("There is not event with this ID!");
+        }
+        boolean userAlreadyRegistered = eventParticipationRepository.existsByEventIdAndUserId(userId, eventId);
         if (userAlreadyRegistered) {
+            throw new IllegalArgumentException("Пользователь уже зарегистрирован.");
+        }
+        List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
+        boolean isUserRegisteredInList = users.stream().anyMatch(user -> user.getId().equals(userId));
+        if (isUserRegisteredInList) {
             throw new IllegalArgumentException("Пользователь уже зарегистрирован.");
         }
         eventParticipationRepository.register(eventId, userId);
@@ -32,13 +42,12 @@ public class EventParticipationService {
         if (checkThereIsUserInEvent(eventId, userId)) {
             eventParticipationRepository.unregister(eventId, userId);
         } else {
-            throw new IllegalArgumentException("Пользователь не зарегистрирован на событие");
+            throw new DataValidationException("Пользователь не зарегистрирован на событие");
         }
     }
 
     public boolean checkThereIsUserInEvent(long eventId, long userId) {
-        return eventParticipationRepository.findAllParticipantsByEventId(eventId).stream()
-                .anyMatch(user -> user.getId() == userId);
+        return eventParticipationRepository.existsByEventIdAndUserId(eventId,userId);
     }
 
     public List<UserDto> getListOfParticipant(Long eventId) {
