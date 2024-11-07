@@ -15,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GoalInvitationValidator {
 
+    private static final int MAX_GOALS_PER_USER = 3;
     private final GoalService goalService;
 
     public void validateDto(GoalInvitationDto invitation) {
@@ -43,19 +44,20 @@ public class GoalInvitationValidator {
     }
 
     public void validateGoalInvitationAcceptance(GoalInvitation goalInvitation) {
+
         User invited = goalInvitation.getInvited();
         Goal goal = goalInvitation.getGoal();
         List<Goal> goalsByInvited = invited.getGoals();
 
-        if (goalsByInvited.size() >= 3) {
+        goalService.findGoalById(goal.getId());
+
+        if (goalsByInvited.size() >= MAX_GOALS_PER_USER) {
             throw new DataValidationException("Max goals need be less 3");
         }
 
         if (goalsByInvited.contains(goal)) {
             throw new DataValidationException("User already have this goal");
         }
-
-        goalService.findGoalById(goal.getId());
     }
 
     public void validateGoalInvitationRejection(GoalInvitation goalInvitation) {

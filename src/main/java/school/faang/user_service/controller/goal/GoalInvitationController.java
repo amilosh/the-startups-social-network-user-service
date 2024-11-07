@@ -1,15 +1,16 @@
 package school.faang.user_service.controller.goal;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import org.springframework.validation.annotation.Validated;
+import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.GoalInvitationFilterDto;
 import school.faang.user_service.service.goal.GoalInvitationService;
 import school.faang.user_service.validator.goal.GoalInvitationValidator;
 
-@Component
+import java.util.List;
+
+@Controller
 @RequiredArgsConstructor
-@Validated
 public class GoalInvitationController {
     private final GoalInvitationService goalInvitationService;
     private final GoalInvitationValidator goalInvitationValidator;
@@ -19,14 +20,17 @@ public class GoalInvitationController {
         return goalInvitationService.createInvitation(invitation);
     }
 
-    public void acceptGoalInvitation(long id) {
+    public GoalInvitationDto acceptGoalInvitation(long id) {
         goalInvitationValidator.validateId(id);
-        goalInvitationService.acceptGoalInvitation(id);
+        return goalInvitationService.acceptGoalInvitation(id);
     }
 
-    public void rejectGoalInvitation(long id) {
+    public GoalInvitationDto rejectGoalInvitation(long id) {
         goalInvitationValidator.validateId(id);
-        goalInvitationService.rejectGoalInvitation(id);
+        return goalInvitationService.rejectGoalInvitation(id);
     }
 
+    public List<GoalInvitationDto> getInvitations(GoalInvitationFilterDto filter) {
+        return goalInvitationService.getInvitations(filter);
+    }
 }

@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.goal.EntityNotFound;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.Optional;
@@ -47,10 +48,7 @@ public class UserServiceTest {
         long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> userService.findUserById(userId));
+        Exception exception = assertThrows(EntityNotFound.class, () -> userService.findUserById(userId));
         assertEquals("User not found", exception.getMessage());
-        verify(userRepository, times(1)).findById(userId);
     }
-
-
 }

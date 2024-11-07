@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.exception.goal.EntityNotFound;
 import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.util.Optional;
@@ -46,7 +47,7 @@ public class GoalServiceTest {
         long goalId = 1L;
         when(goalRepository.findById(goalId)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> goalService.findGoalById(goalId));
+        Exception exception = assertThrows(EntityNotFound.class, () -> goalService.findGoalById(goalId));
         assertEquals("Goal not found", exception.getMessage());
         verify(goalRepository, times(1)).findById(goalId);
     }

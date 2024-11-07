@@ -4,13 +4,13 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class GoalInvitationEqualsExceptionTest {
+public class EntityNotFoundTest {
 
     @Test
     public void testExceptionMessage() {
         String message = "exception message";
-        DataValidationException goalInvitationEqualsException = new DataValidationException(message);
+        EntityNotFound entityNotFound = new EntityNotFound(message);
 
-        assertEquals(message, goalInvitationEqualsException.getMessage());
+        assertEquals(message, entityNotFound.getMessage());
     }
 }
