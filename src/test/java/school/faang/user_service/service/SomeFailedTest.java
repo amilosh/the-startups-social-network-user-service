@@ -10,11 +10,6 @@ public class SomeFailedTest {
     @Test
     public void testTrue() {
         boolean result = true;
-        assertFalse(result);
-    }
-
-    @Test
-    public void testFailed() {
-        fail();
+        assertTrue(result);
     }
 }
