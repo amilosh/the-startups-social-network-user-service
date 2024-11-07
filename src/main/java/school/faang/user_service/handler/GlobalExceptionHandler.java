@@ -7,10 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import school.faang.user_service.exceptions.subscribe.InvalidUserIdException;
-import school.faang.user_service.exceptions.subscribe.ParticipantRegistrationException;
-import school.faang.user_service.exceptions.subscribe.SubscriptionAlreadyExistsException;
-import school.faang.user_service.exceptions.subscribe.SubscriptionNotFoundException;
+import school.faang.user_service.exceptions.InvalidUserIdException;
+import school.faang.user_service.exceptions.ParticipantRegistrationException;
+import school.faang.user_service.exceptions.SubscriptionAlreadyExistsException;
+import school.faang.user_service.exceptions.SubscriptionNotFoundException;
 
 @RestControllerAdvice
 @Slf4j
