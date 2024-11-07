@@ -7,8 +7,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class SomeFailedTest {
     @Test
-    public void testFailed() {
+    public void testTrue() {
         boolean result = true;
         assertTrue(result);
+    }
+
+    @Test
+    public void testFailed() {
+        fail();
     }
 }
