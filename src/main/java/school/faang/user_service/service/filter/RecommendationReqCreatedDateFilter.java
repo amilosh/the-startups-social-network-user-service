@@ -2,7 +2,6 @@ package school.faang.user_service.service.filter;
 
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-
 import java.util.stream.Stream;
 
 public class RecommendationReqCreatedDateFilter implements RecommendationRequestFilter {
