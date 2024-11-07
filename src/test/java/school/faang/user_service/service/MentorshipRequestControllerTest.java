@@ -52,7 +52,7 @@ public class MentorshipRequestControllerTest {
 
     @Test
     public void testRequestMentorship_BadRequest() throws Exception {
-        MentorshipRequestDto requestDto = new MentorshipRequestDto( "less25symbols",1L, 1L);
+        MentorshipRequestDto requestDto = new MentorshipRequestDto( "less25symbols", 1L, 1L);
 
         mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.REQUEST + UrlUtils.CREATE)
                         .contentType(MediaType.APPLICATION_JSON)
