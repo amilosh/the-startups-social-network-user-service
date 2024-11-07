@@ -46,7 +46,7 @@ public class SubscriptionService {
         }
 
         return subscriptionRepository.findByFolloweeId(followeeId)
-                .filter(user -> filterUser(filter, user))
+                .filter(followee -> filterUser(filter, followee))
                 .map(userMapper::toDto)
                 .toList();
     }
@@ -57,6 +57,17 @@ public class SubscriptionService {
         }
 
         return subscriptionRepository.findFollowersAmountByFolloweeId(followerId);
+    }
+
+    public List<UserDto> getFollowing(Long followeeId, UserFilterDto userFilterDto) {
+        if (!subscriptionRepository.existsById(followeeId)) {
+            throw new NoSuchElementException("Cannot find followee by id " + followeeId);
+        }
+
+        return subscriptionRepository.findByFolloweeId(followeeId)
+                .filter(followee -> filterUser(userFilterDto, followee))
+                .map(userMapper::toDto)
+                .toList();
     }
 
     private Boolean filterUser(UserFilterDto filter, User user) {
@@ -151,5 +162,4 @@ public class SubscriptionService {
 
         return false;
     }
-
 }

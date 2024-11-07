@@ -8,6 +8,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.subscription.SubscriptionService;
@@ -113,5 +114,36 @@ class SubscriptionControllerTest {
 
         Mockito.verify(subscriptionService, Mockito.times(1))
                 .getFollowersCount(followerId);
+    }
+
+    @Test
+    void getFollowing() {
+        Long followeeId = 1L;
+        UserFilterDto userFilterDto = new UserFilterDto();
+
+        UserDto user1 = new UserDto();
+        UserDto user2 = new UserDto();
+        UserDto user3 = new UserDto();
+
+        user1.setUsername("Sean");
+        user2.setUsername("Mark");
+        user3.setUsername("Mitch");
+
+        List<UserDto> expectedUserDtoList = List.of(
+                user1,
+                user2,
+                user3
+        );
+
+        Mockito.when(subscriptionService.getFollowing(followeeId, userFilterDto))
+                .thenReturn(expectedUserDtoList);
+
+        ResponseEntity<List<UserDto>> response = subscriptionController.getFollowing(followeeId, userFilterDto);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedUserDtoList, response.getBody());
+
+        Mockito.verify(subscriptionService, Mockito.times(1))
+                .getFollowing(followeeId, userFilterDto);
     }
 }

@@ -6,7 +6,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.web.client.ExpectedCount;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
@@ -212,5 +211,90 @@ class SubscriptionServiceTest {
                 .existsById(followerId);
         Mockito.verify(subscriptionRepository, Mockito.times(0))
                 .findFollowersAmountByFolloweeId(followerId);
+    }
+
+    @Test
+    void getFollowingTest() {
+        // init data
+        Long followeeId = 1L;
+        UserFilterDto userFilterDto = new UserFilterDto();
+
+        userFilterDto.setAboutMePattern("er");
+
+        // users
+        User user1 = new User();
+        User user2 = new User();
+        User user3 = new User();
+
+        user1.setAboutMe("farmer");
+        user1.setUsername("Michael");
+
+        user2.setAboutMe("hiker");
+        user2.setUsername("George");
+        user3.setAboutMe("millennial");
+
+        Stream<User> followeeStream = Stream.of(
+                user1,
+                user2,
+                user3
+        );
+
+
+        // dtos
+        UserDto user1Dto = new UserDto();
+        UserDto user2Dto = new UserDto();
+        // third is not going to pass a filter
+
+        user1Dto.setUsername(user1.getUsername());
+        user2Dto.setUsername(user2.getUsername());
+
+        List<UserDto> expectedUserDtoList = List.of(
+                user1Dto,
+                user2Dto
+        );
+
+
+        // mocking
+        Mockito.when(subscriptionRepository.existsById(followeeId))
+                .thenReturn(true);
+        Mockito.when(subscriptionRepository.findByFolloweeId(followeeId))
+                .thenReturn(followeeStream);
+        Mockito.when(mapper.toDto(user1)).thenReturn(user1Dto);
+        Mockito.when(mapper.toDto(user2)).thenReturn(user2Dto);
+
+
+        // result
+        List<UserDto> actualUserDtoList = subscriptionService.getFollowing(followeeId, userFilterDto);
+
+        // assertions
+        assertEquals(expectedUserDtoList, actualUserDtoList);
+
+        // verifies
+        Mockito.verify(subscriptionRepository, Mockito.times(1))
+                .existsById(followeeId);
+        Mockito.verify(subscriptionRepository, Mockito.times(1))
+                .findByFolloweeId(followeeId);
+    }
+
+    @Test
+    void getFollowingThrowsNoSuchElementException() {
+        Long followeeId = 1L;
+        UserFilterDto userFilterDto = new UserFilterDto();
+
+        String expectedExceptionMessage = "Cannot find followee by id " + followeeId;
+
+        Mockito.when(subscriptionRepository.existsById(followeeId))
+                .thenReturn(false);
+
+        String actualExceptionMessage = assertThrows(NoSuchElementException.class,
+                () -> subscriptionService.getFollowing(followeeId, userFilterDto))
+                .getMessage();
+
+        assertEquals(expectedExceptionMessage, actualExceptionMessage);
+
+        Mockito.verify(subscriptionRepository, Mockito.times(1))
+                .existsById(followeeId);
+        Mockito.verify(subscriptionRepository, Mockito.times(0))
+                .findByFolloweeId(followeeId);
     }
 }

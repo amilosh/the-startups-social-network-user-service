@@ -54,4 +54,11 @@ public class SubscriptionController {
                 .status(HttpStatus.OK)
                 .body(subscriptionService.getFollowersCount(followerId));
     }
+
+    @GetMapping("/following")
+    public ResponseEntity<List<UserDto>> getFollowing(Long followeeId, UserFilterDto userFilterDto) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(subscriptionService.getFollowing(followeeId, userFilterDto));
+    }
 }
