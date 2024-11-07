@@ -40,7 +40,12 @@ public class GoalService {
     private int maxActiveGoalsCount;
 
     public GoalDto createGoal(Long userId, GoalDto goalDto) {
-        User user = findUserById(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("User with ID {} not found", userId);
+                    return new ResourceNotFoundException("User not found by Id: " + userId);
+                });
+
         checkMaxActiveGoals(userId);
 
         Goal goalToSave = goalMapper.toGoal(goalDto);
@@ -108,14 +113,6 @@ public class GoalService {
                 .reduce(goals, (currentGoals, filter) -> filter.apply(currentGoals, filterDto), (s1, s2) -> s1)
                 .map(goalMapper::toGoalDto)
                 .toList();
-    }
-
-    private User findUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.error("User with ID {} not found", userId);
-                    return new ResourceNotFoundException("User not found by Id: " + userId);
-                });
     }
 
     private void checkMaxActiveGoals(Long userId) {
