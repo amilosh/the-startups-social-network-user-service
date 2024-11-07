@@ -26,7 +26,7 @@ public class EventParticipationService {
     }
 
     public void unregisterParticipant(UserDto userDto, EventDto eventDto) {
-        if (!isParticipantRegistered(userDto, eventDto)) {
+        if (isParticipantNotRegistered(userDto, eventDto)) {
             throw new DataValidationException("Пользователь не был зарегистрирован на событие");
         }
         eventParticipationRepository.unregister(userDto.id(), eventDto.id());
@@ -36,8 +36,8 @@ public class EventParticipationService {
         return userMapper.toDtos(eventParticipationRepository.findAllParticipantsByEventId(eventDto.id()));
     }
 
-    public int getParticipantsCount(EventDto eventDto) {
-        return eventParticipationRepository.countParticipants(eventDto.id());
+    public int getParticipantsCount(Long eventDto) {
+        return eventParticipationRepository.countParticipants(eventDto);
     }
 
     private boolean isParticipantRegistered(UserDto userDto, EventDto eventDto) {
@@ -46,5 +46,9 @@ public class EventParticipationService {
                 .map(User::getId)
                 .toList();
         return participantsIds.contains(user.getId());
+    }
+
+    private boolean isParticipantNotRegistered(UserDto userDto, EventDto eventDto) {
+        return !isParticipantRegistered(userDto, eventDto);
     }
 }
