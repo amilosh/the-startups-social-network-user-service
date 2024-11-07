@@ -1,5 +1,6 @@
 package school.faang.user_service.service.subscription;
 
+import ch.qos.logback.core.testUtil.MockInitialContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -296,5 +297,48 @@ class SubscriptionServiceTest {
                 .existsById(followeeId);
         Mockito.verify(subscriptionRepository, Mockito.times(0))
                 .findByFolloweeId(followeeId);
+    }
+
+    @Test
+    void getFollowingCount() {
+        Long followerId = 1L;
+
+        Integer expectedFollowingCount = 41;
+
+        Mockito.when(subscriptionRepository.existsById(followerId))
+                .thenReturn(true);
+        Mockito.when(subscriptionRepository.findFolloweesAmountByFollowerId(followerId))
+                .thenReturn(expectedFollowingCount);
+
+        Integer actualFollowingCount = subscriptionService.getFollowingCount(followerId);
+
+        assertEquals(expectedFollowingCount, actualFollowingCount);
+
+        Mockito.verify(subscriptionRepository, Mockito.times(1))
+                .existsById(followerId);
+        Mockito.verify(subscriptionRepository, Mockito.times(1))
+                .findFolloweesAmountByFollowerId(followerId);
+    }
+
+    @Test
+    void getFollowingCountThrowsNoSuchElementException() {
+        Long followerId = 1L;
+
+        String expectedExceptionMessage = "Cannot find followee by id " + followerId;
+
+        Mockito.when(subscriptionRepository.existsById(followerId))
+                .thenReturn(false);
+
+        String actualExceptionMessage = assertThrows(NoSuchElementException.class,
+                () -> subscriptionService.getFollowingCount(followerId))
+                .getMessage();
+
+        assertEquals(expectedExceptionMessage, actualExceptionMessage);
+
+        Mockito.verify(subscriptionRepository, Mockito.times(1))
+                .existsById(followerId);
+        Mockito.verify(subscriptionRepository, Mockito.times(0))
+                .findFolloweesAmountByFollowerId(followerId);
+
     }
 }

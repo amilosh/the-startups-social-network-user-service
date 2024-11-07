@@ -70,6 +70,14 @@ public class SubscriptionService {
                 .toList();
     }
 
+    public Integer getFollowingCount(Long followerId) {
+        if (!subscriptionRepository.existsById(followerId)) {
+            throw new NoSuchElementException("Cannot find followee by id " + followerId);
+        }
+
+        return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
+    }
+
     private Boolean filterUser(UserFilterDto filter, User user) {
         /**
          * Filter user by {@link filter}

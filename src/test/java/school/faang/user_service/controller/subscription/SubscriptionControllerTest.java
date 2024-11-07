@@ -146,4 +146,21 @@ class SubscriptionControllerTest {
         Mockito.verify(subscriptionService, Mockito.times(1))
                 .getFollowing(followeeId, userFilterDto);
     }
+
+    @Test
+    void getFollowingCount() {
+        Long followerId = 1L;
+        Integer expectedFollowingCount = 32;
+
+        Mockito.when(subscriptionService.getFollowingCount(followerId))
+                .thenReturn(expectedFollowingCount);
+
+        ResponseEntity<Integer> response = subscriptionController.getFollowingCount(followerId);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedFollowingCount, response.getBody());
+
+        Mockito.verify(subscriptionService, Mockito.times(1))
+                .getFollowingCount(followerId);
+    }
 }
