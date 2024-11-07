@@ -2,9 +2,9 @@ name: CI for user_service
 
 on:
   push:
-    branches: [ "feature/pipline-BC-BJS2-40768" ]
+    branches: [ "Medusa-master-stream7" ]
   pull_request:
-    branches: [ "feature/pipline-BC-BJS2-40768" ]
+    branches: [ "Medusa-master-stream7" ]
 
 jobs:
   build_and_run_tests:
