@@ -1,4 +1,4 @@
-package school.faang.user_service.exception;
+package school.faang.user_service.exceptions.subscribe;
 
 public class ParticipantRegistrationException extends RuntimeException {
     public ParticipantRegistrationException(String message) {
