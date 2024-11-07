@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.MenteesDto;
 import school.faang.user_service.dto.MentorsDto;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
+@Log4j2
 public class MentorshipService {
 
     private final MenteesMapper menteesMapper;
@@ -27,7 +29,7 @@ public class MentorshipService {
         if (user.isPresent() && !user.get().getMentees().isEmpty()) {
             return menteesMapper.toDto(user.get().getMentees());
         } else {
-            System.out.println("User_id " + userId + " has no mentees");
+            log.info("User_id {} has no mentees", userId);
             return new ArrayList<>();
         }
     }
@@ -38,7 +40,7 @@ public class MentorshipService {
         if (user.isPresent() && !user.get().getMentors().isEmpty()) {
             return mentorsMapper.toDto(user.get().getMentors());
         } else {
-            System.out.println("User_id " + userId + " has no mentors");
+            log.info("User_id {} has no mentors", userId);
             return new ArrayList<>();
         }
     }
@@ -49,7 +51,7 @@ public class MentorshipService {
         if (mentor.isPresent() && !mentor.get().getMentees().isEmpty()) {
             mentor.get().getMentees().removeIf(user -> user.getId().equals(menteeId));
         } else {
-            System.out.println("Mentee " + menteeId + " for delete not found");
+            log.info("Mentee {} for delete not found", menteeId);
         }
     }
 
@@ -59,20 +61,21 @@ public class MentorshipService {
         if (mentee.isPresent() && !mentee.get().getMentees().isEmpty()) {
             mentee.get().getMentees().removeIf(user -> user.getId().equals(mentorId));
         } else {
-            System.out.println("Mentor " + mentorId + " for delete not found");
+            log.info("Mentor {} for delete not found", mentorId);
         }
     }
 
     private Optional<User> getUser(long userId) {
         try {
             if (userRepository.findById(userId).isEmpty()) {
-                System.out.println((userId + " not found in DB"));
+                log.info("{} not found in DB", userId);
+                throw new RuntimeException(userId + " not found in DB");
             } else {
                 return userRepository.findUserById(userId);
             }
         } catch (Exception e) {
-            System.out.println("Exception " + e.getMessage());
+            log.error("Exception {}", e.getMessage());
+            throw new RuntimeException("Exception " + e.getMessage());
         }
-        return Optional.empty();
     }
 }
