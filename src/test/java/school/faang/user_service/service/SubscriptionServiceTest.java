@@ -1,4 +1,4 @@
-package school.faang.user_service.subscribe.services;
+package school.faang.user_service.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,14 +7,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import school.faang.user_service.dto.UserDTO;
 import school.faang.user_service.dto.UserFilterDTO;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.subscribe.InvalidUserIdException;
 import school.faang.user_service.exceptions.subscribe.SubscriptionNotFoundException;
 import school.faang.user_service.repository.SubscriptionRepository;
-import school.faang.user_service.services.subscribe.SubscriptionService;
 
 import java.util.Arrays;
 import java.util.List;
