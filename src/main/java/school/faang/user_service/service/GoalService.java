@@ -25,13 +25,19 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 
+import static school.faang.user_service.logging.goal.GoalMessages.GOAL_COMPLETED_ERROR;
+import static school.faang.user_service.logging.goal.GoalMessages.GOAL_IS_ALREADY_COMPLETED_FOR_GOAL_WITH_ID;
+import static school.faang.user_service.logging.goal.GoalMessages.GOAL_NOT_FOUND;
+import static school.faang.user_service.logging.goal.GoalMessages.MAXIMUM_NUMBER_OF_GOALS_ERROR;
+import static school.faang.user_service.logging.goal.GoalMessages.NO_SKILLS_FOUND;
+import static school.faang.user_service.logging.goal.GoalMessages.NUMBER_OF_ACTIVE_GOALS_REACHED_FOR_A_USER_IN_GOAL_WITH_ID;
+import static school.faang.user_service.logging.goal.GoalMessages.SUCCESSFULLY_DELETED_GOAL_AND_ALL_ITS_CHILDREN;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class GoalService {
     private static final int MAX_NUM_ACTIVE_GOALS = 3;
-    private static final String GOAL_COMPLETED_ERROR = "Goal is already completed";
-    public static final String MAXIMUM_NUMBER_OF_GOALS_ERROR = "The user has the maximum number of goals";
 
     private final GoalRepository goalRepo;
     private final GoalMapper goalMapper;
@@ -40,11 +46,13 @@ public class GoalService {
 
     @Transactional
     public GoalResponseDto create(CreateGoalDto createGoalDto) {
+        log.info("Creating new goal with title: {}", createGoalDto.title());
         Goal transientGoal = createInitialGoal(createGoalDto);
         establishAllRelations(transientGoal, createGoalDto);
         validateMaxActiveGoalsLimit(transientGoal);
 
         Goal persistantGoal = goalRepo.save(transientGoal);
+        log.info("Successfully created goal with id: {}", persistantGoal.getId());
         return goalMapper.toResponseDto(persistantGoal);
     }
 
@@ -55,11 +63,13 @@ public class GoalService {
     }
 
     private void establishAllRelations(Goal goal, CreateGoalDto dto) {
+        log.debug("Establishing relations for goal with title: {}", goal.getTitle());
         setParentGoalIfProvided(goal, dto.parentId());
         setMentorIfProvided(goal, dto.mentorId());
 
         List<User> users = userService.getAllUsersByIds(dto.usersId());
         if (users.isEmpty()) {
+            log.warn("No users found for provided IDs: {}", dto.usersId());
             throw new ResourceNotFoundException("User", "id", dto.usersId());
         }
         goal.setUsers(users);
@@ -67,6 +77,7 @@ public class GoalService {
 
         List<Skill> skills = skillService.getAllSkillsByIds(dto.skillsToAchieveIds());
         if (skills.isEmpty()) {
+            log.warn(NO_SKILLS_FOUND, dto.skillsToAchieveIds());
             throw new ResourceNotFoundException("Skill", "id", dto.skillsToAchieveIds());
         }
         goal.setSkillsToAchieve(skills);
@@ -75,13 +86,18 @@ public class GoalService {
 
     @Transactional
     public void delete(long goalId) {
+        log.info("Deleting goal with id: {}", goalId);
         deleteGoalWithChildren(goalId);
+        log.info(SUCCESSFULLY_DELETED_GOAL_AND_ALL_ITS_CHILDREN, goalId);
     }
 
     private void deleteGoalWithChildren(Long goalId) {
         Deque<Goal> goalsToDelete = new ArrayDeque<>();
         Goal rootGoal = goalRepo.findById(goalId)
-                .orElseThrow(() -> new ResourceNotFoundException("Goal", "id", goalId));
+                .orElseThrow(() -> {
+                    log.warn(GOAL_NOT_FOUND, goalId);
+                    return new ResourceNotFoundException("Goal", "id", goalId);
+                });
         goalsToDelete.push(rootGoal);
 
         while (!goalsToDelete.isEmpty()) {
@@ -90,14 +106,14 @@ public class GoalService {
 
             if (children.isEmpty()) {
                 Goal goalToDelete = goalsToDelete.pop();
+                log.debug("Deleting goal with id: {}", goalToDelete.getId());
                 removeGoalReferences(goalToDelete);
                 goalRepo.delete(goalToDelete);
             } else {
                 goalsToDelete.addAll(children);
             }
         }
-
-        log.info("Successfully deleted goal with id {} and all its children", goalId);
+        log.info(SUCCESSFULLY_DELETED_GOAL_AND_ALL_ITS_CHILDREN, goalId);
     }
 
     private void removeGoalReferences(Goal goal) {
@@ -107,8 +123,12 @@ public class GoalService {
 
     @Transactional
     public GoalResponseDto update(Long goalId, UpdateGoalDto updateGoalDto) {
+        log.info("Updating goal with id: {}", goalId);
         Goal persistanceGoal = goalRepo.findById(goalId)
-                .orElseThrow(() -> new ResourceNotFoundException("Goal", "id", goalId));
+                .orElseThrow(() -> {
+                    log.warn(GOAL_NOT_FOUND, goalId);
+                    return new ResourceNotFoundException("Goal", "id", goalId);
+                });
         validateGoalNotCompleted(persistanceGoal);
 
         updateBasicProperties(persistanceGoal, updateGoalDto);
@@ -116,10 +136,12 @@ public class GoalService {
 
         validateMaxActiveGoalsLimit(persistanceGoal);
         persistanceGoal = goalRepo.save(persistanceGoal);
+        log.info("Successfully updated goal with id: {}", persistanceGoal.getId());
         return goalMapper.toResponseDto(persistanceGoal);
     }
 
     private void updateBasicProperties(Goal goal, UpdateGoalDto dto) {
+        log.debug("Updating basic properties for goal with id: {}", goal.getId());
         goal.setStatus(GoalStatus.valueOf(dto.status().name()));
         goal.setTitle(dto.title());
         goal.setDescription(dto.description());
@@ -127,6 +149,7 @@ public class GoalService {
     }
 
     private void updateRelations(Goal goal, UpdateGoalDto dto) {
+        log.debug("Updating relations for goal with id: {}", goal.getId());
         setParentGoalIfProvided(goal, dto.parentId());
         setMentorIfProvided(goal, dto.mentorId());
         updateUsersInGoal(goal, dto);
@@ -134,8 +157,10 @@ public class GoalService {
     }
 
     private void updateSkillsToAchieveInGoal(Goal persistanceGoal, UpdateGoalDto updateGoalDto) {
+        log.debug("Updating skills for goal with id: {}", persistanceGoal.getId());
         List<Skill> updatedSkills = skillService.getAllSkillsByIds(updateGoalDto.skillsToAchieveIds());
         if (updatedSkills.isEmpty()) {
+            log.warn(NO_SKILLS_FOUND, updateGoalDto.skillsToAchieveIds());
             throw new ResourceNotFoundException("Skill", "id", updateGoalDto.skillsToAchieveIds());
         }
         List<Skill> oldSkills = persistanceGoal.getSkillsToAchieve();
@@ -148,8 +173,10 @@ public class GoalService {
     }
 
     private void updateUsersInGoal(Goal persistanceGoal, UpdateGoalDto updateGoalDto) {
+        log.debug("Updating users for goal with id: {}", persistanceGoal.getId());
         List<User> updatedUsers = userService.getAllUsersByIds(updateGoalDto.userIds());
         if (updatedUsers.isEmpty()) {
+            log.warn("No users found for provided IDs: {}", updateGoalDto.userIds());
             throw new ResourceNotFoundException("User", "id", updateGoalDto.userIds());
         }
         List<User> oldUsers = persistanceGoal.getUsers();
@@ -163,14 +190,19 @@ public class GoalService {
 
     private void setParentGoalIfProvided(Goal goal, Long parentId) {
         if (parentId != null) {
+            log.debug("Setting parent goal for goal with id: {}", goal.getId());
             Goal parentGoal = goalRepo.findById(parentId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Goal", "id", parentId));
+                    .orElseThrow(() -> {
+                        log.warn("Parent goal not found with id: {}", parentId);
+                        return new ResourceNotFoundException("Goal", "id", parentId);
+                    });
             goal.setParent(parentGoal);
         }
     }
 
     private void setMentorIfProvided(Goal goal, Long mentorId) {
         if (mentorId != null) {
+            log.debug("Setting mentor for goal with id: {}", goal.getId());
             User user = userService.getUserById(mentorId);
             goal.setMentor(user);
         }
@@ -190,12 +222,14 @@ public class GoalService {
         boolean isAnyUserHasMaxNumOfGoals = goal.getUsers().stream()
                 .anyMatch(user -> user.hasMaxNumOfGoals(MAX_NUM_ACTIVE_GOALS));
         if (isAnyUserHasMaxNumOfGoals) {
+            log.warn(NUMBER_OF_ACTIVE_GOALS_REACHED_FOR_A_USER_IN_GOAL_WITH_ID, goal.getId());
             throw new DataValidationException(MAXIMUM_NUMBER_OF_GOALS_ERROR);
         }
     }
 
     private void validateGoalNotCompleted(Goal goal) {
         if (goal.getStatus() == GoalStatus.COMPLETED) {
+            log.warn(GOAL_IS_ALREADY_COMPLETED_FOR_GOAL_WITH_ID, goal.getId());
             throw new DataValidationException(GOAL_COMPLETED_ERROR);
         }
     }

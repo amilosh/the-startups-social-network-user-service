@@ -21,6 +21,8 @@ public class GoalSpecification {
     public static final String DEADLINE_FIELD = "deadline";
     public static final String SKILLS_JOIN = "skillsToAchieve";
     public static final String USERS_JOIN = "users";
+    public static final String SKILL_ID_FIELD = "id";
+    public static final String USER_ID_FIELD = "id";
 
     public static Specification<Goal> build(GoalFilterDto filter) {
         return Specification.where(hasTitle(filter.title()))
@@ -61,7 +63,7 @@ public class GoalSpecification {
                 return cb.conjunction();
             }
             Join<Goal, Long> skillJoin = root.join(SKILLS_JOIN);
-            return skillJoin.get("id").in(skillIds);
+            return skillJoin.get(SKILL_ID_FIELD).in(skillIds);
         };
     }
 
@@ -71,7 +73,7 @@ public class GoalSpecification {
                 return cb.conjunction();
             }
             Join<Goal, User> userJoin = root.join(USERS_JOIN);
-            return userJoin.get("id").in(userIds);
+            return userJoin.get(USER_ID_FIELD).in(userIds);
         };
     }
 }
