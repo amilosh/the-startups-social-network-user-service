@@ -55,4 +55,9 @@ public class Skill {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Override
+    public String toString() {
+        return String.format(("Skill(id=%d, title=%s)"), id, title);
+    }
 }

@@ -1,8 +1,10 @@
 package school.faang.user_service.service;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.dto.EventFilterDto;
 import school.faang.user_service.dto.SkillDto;
@@ -19,12 +21,12 @@ import school.faang.user_service.repository.event.EventRepository;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Validated
 public class EventService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
@@ -38,25 +40,21 @@ public class EventService {
         log.info("Creating event:{}", eventDto.toLogString());
         User userOwner = userService.getUserById(eventDto.ownerId());
 
-        log.debug("Validating user skills for owner in createEvent: {}", userOwner.getId());
-        validateUserSkillsForEvent(userOwner, eventDto);
+        log.debug("Validating user skills for owner in createEvent: {}", userOwner.toLogString());
+        throwUserSkillsNotRequiredException(userOwner, eventDto);
 
         Event event = eventMapper.toEntity(eventDto);
         event.setOwner(userOwner);
 
         if (eventExists(event)) {
+            log.error("{} already exists in the database", event.toLogString());
             throw new DataValidationException("You do not create event, because this event already create");
         }
 
-        Event savedEvent = eventRepository.save(event);
-        log.info("Event saved with ID: {}", savedEvent.getId());
+        eventRepository.save(event);
+        log.info("Event saved with : {}", event.toLogString());
 
-        return eventMapper.toDto(savedEvent);
-    }
-
-    public Event getEventById(Long id) {
-        return eventRepository.findById(id).orElseThrow(() -> new
-                DataValidationException("Event do not found"));
+        return eventMapper.toDto(event);
     }
 
     public EventDto getEvent(Long eventId) {
@@ -100,11 +98,12 @@ public class EventService {
         log.info("Event with ID: {} deleted", eventId);
     }
 
+
     public EventDto updateEvent(EventDto eventDto) {
         User userOwner = userService.getUserById(eventDto.ownerId());
 
         log.debug("Validating user skills for owner in updateEvent: {}", userOwner.getId());
-        validateUserSkillsForEvent(userOwner, eventDto);
+        throwUserSkillsNotRequiredException(userOwner, eventDto);
 
         Event event = getEventById(eventDto.id());
 
@@ -118,7 +117,7 @@ public class EventService {
         event.setMaxAttendees(eventDto.maxAttendees());
 
         Event updatedSavedEvent = eventRepository.save(event);
-        log.info("Event are updated");
+        log.info("Event {} are updated", event.getTitle());
 
         return eventMapper.toDto(updatedSavedEvent);
     }
@@ -135,20 +134,35 @@ public class EventService {
         return eventMapper.toDtoList(participatedEvents);
     }
 
-    private void validateUserSkillsForEvent(User userOwner, EventDto eventDto) {
-        Set<SkillDto> relatedSkills = new HashSet<>(eventDto.relatedSkills());
-        Set<Skill> userOwnerSkills = new HashSet<>(userOwner.getSkills());
-        Set<SkillDto> collectUserSkillsDto = userOwnerSkills.stream()
-                .map(skillMapper::toDto).collect(Collectors.toSet());
+    public Event getEventById(Long id) {
+        return eventRepository.findById(id).orElseThrow(() -> new
+                DataValidationException("Event do not found"));
+    }
+
+    private void throwUserSkillsNotRequiredException(User userOwner, EventDto eventDto) {
+        if (!isUserHaveSkillsForEvent(userOwner, eventDto)) {
+            log.error("{} don't have required skills to create event: {}", userOwner.toLogString(), eventDto.toLogString());
+            throw new DataValidationException("User don't have required skills to create event");
+        }
+    }
+
+    public boolean isUserHaveSkillsForEvent(@NotNull User userOwner, @NotNull EventDto eventDto) {
+        Set<SkillDto> relatedSkills = eventDto.relatedSkills() != null ? new HashSet<>(eventDto.relatedSkills()) : new HashSet<>();
+
+        List<Skill> skills = userOwner.getSkills();
+        List<SkillDto> skillDtoList = skillMapper.toDtoList(skills);
+
+        Set<SkillDto> userSkillsDto = skillDtoList != null ? new HashSet<>(skillDtoList) : new HashSet<>();
 
         log.debug("Checking if user has required skills: {}", relatedSkills);
-
-        if (!collectUserSkillsDto.containsAll(relatedSkills)) {
-            log.error("User {} doesn't have required skills to create event", userOwner.getId());
-            throw new DataValidationException("User don't have required skills to create event");
+        if (!userSkillsDto.containsAll(relatedSkills)) {
+            log.error("User {} doesn't have all required skills ({}) to create event: {} "
+                    , userOwner.getId(), eventDto.relatedSkills(), eventDto.toLogString());
+            return false;
         }
 
         log.info("User {} has all required skills to create event", userOwner.getId());
+        return true;
     }
 
     private boolean eventExists(Event event) {

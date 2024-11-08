@@ -96,4 +96,8 @@ public class Event {
         }
         return location.equals(sameLocation);
     }
+
+    public String toLogString(){
+        return String.format("Event(id=%d, title=%s, owner=%s)", id, title, owner.getId());
+    }
 }

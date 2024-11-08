@@ -151,4 +151,8 @@ public class User {
     public void removeOwnedEvent(Event event){
         ownedEvents.remove(event);
     }
+
+    public String toLogString(){
+        return String.format("User %s with id %d", username, id);
+    }
 }
