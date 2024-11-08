@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.controller.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -15,6 +15,7 @@ import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.service.MentorshipRequestService;
 import school.faang.user_service.utilities.UrlUtils;
 
 import java.util.List;
@@ -36,7 +37,7 @@ public class MentorshipRequestControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Test
     public void testCreateRequestMentorshipSuccess() throws Exception {

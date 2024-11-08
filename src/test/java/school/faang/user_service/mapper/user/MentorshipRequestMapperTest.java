@@ -1,11 +1,10 @@
-package school.faang.user_service.service;
+package school.faang.user_service.mapper.user;
 
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import org.springframework.boot.test.context.SpringBootTest;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.entity.MentorshipRequest;
-import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 
@@ -19,6 +18,7 @@ public class MentorshipRequestMapperTest {
     @Test
     public void testToDto() {
         MentorshipRequest mentorshipRequest = new MentorshipRequest();
+
         User requester = new User();
         requester.setId(1L);
         mentorshipRequest.setRequester(requester);
@@ -26,10 +26,7 @@ public class MentorshipRequestMapperTest {
         User receiver = new User();
         receiver.setId(2L);
         mentorshipRequest.setReceiver(receiver);
-
         mentorshipRequest.setDescription("Description");
-        mentorshipRequest.setId(10L);
-        mentorshipRequest.setStatus(RequestStatus.PENDING);
 
         MentorshipRequestDto dto = mapper.toDto(mentorshipRequest);
 
@@ -39,7 +36,6 @@ public class MentorshipRequestMapperTest {
         assertThat(dto.description()).isEqualTo("Description");
 
     }
-
     @Test
     public void testToEntity() {
         MentorshipRequestDto mentorshipRequestDTO = new MentorshipRequestDto("Description", 1L, 2L);
@@ -49,7 +45,5 @@ public class MentorshipRequestMapperTest {
         assertThat(mentorshipRequest.getRequester().getId()).isEqualTo(1L);
         assertThat(mentorshipRequest.getReceiver().getId()).isEqualTo(2L);
         assertThat(mentorshipRequest.getDescription()).isEqualTo("Description");
-        assertThat(mentorshipRequest.getId()).isEqualTo(10L);
-        assertThat(mentorshipRequest.getStatus()).isEqualTo(RequestStatus.PENDING);
     }
 }
