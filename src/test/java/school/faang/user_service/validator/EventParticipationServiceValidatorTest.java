@@ -1,4 +1,4 @@
-package school.faang.user_service.validation;
+package school.faang.user_service.validator;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
