@@ -16,13 +16,13 @@ import java.util.List;
 public class MentorshipController {
     private final MentorshipService mentorshipService;
 
-    @GetMapping
-    public List<UserDto> getMentees(long userId) {
+    @GetMapping("/{Id}/mentees/get")
+    public List<UserDto> getMentees(@PathVariable("Id") long userId) {
         return mentorshipService.getMentees(userId);
     }
 
-    @GetMapping
-    public List<UserDto> getMentors(long userId) {
+    @GetMapping("/{Id}/mentors/get")
+    public List<UserDto> getMentors(@PathVariable("Id") long userId) {
         return mentorshipService.getMentors(userId);
     }
 
