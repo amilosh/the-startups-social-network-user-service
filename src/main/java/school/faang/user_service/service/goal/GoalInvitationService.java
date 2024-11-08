@@ -54,9 +54,6 @@ public class GoalInvitationService {
                 }).orElseThrow(() -> new EntityNotFound("Invitation not found for id: " + id));
     }
 
-
-
-
     public GoalInvitationDto rejectGoalInvitation(long id) {
         goalInvitationValidator.validateId(id);
         return goalInvitationRepository.getById(id)
