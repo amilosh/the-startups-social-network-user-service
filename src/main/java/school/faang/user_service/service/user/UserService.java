@@ -46,7 +46,7 @@ public class UserService {
         Stream<User> notPremiumUsers = userValidator.validateNotPremiumUsers();
 
         List<UserDto> filteredUsers = filter(notPremiumUsers, filterDto);
-        log.info("Getting {} filtered users, by filter {}", filteredUsers.size(), filterDto);
+        log.info("Got {} filtered users, by filter {}", filteredUsers.size(), filterDto);
         return filteredUsers;
     }
 
@@ -55,7 +55,7 @@ public class UserService {
         Stream<User> users = userRepository.findPremiumUsers();
 
         List<UserDto> filteredUsers = filter(users, filterDto);
-        log.info("Getting {} filtered premium users, by filter {}", filteredUsers.size(), filterDto);
+        log.info("Got {} filtered premium users, by filter {}", filteredUsers.size(), filterDto);
         return filteredUsers;
     }
 

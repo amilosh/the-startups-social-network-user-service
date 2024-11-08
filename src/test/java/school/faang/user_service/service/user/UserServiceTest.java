@@ -138,4 +138,43 @@ class UserServiceTest {
 
         assertEquals(expectedUsersDto, actualUsersDto);
     }
+
+    @Test
+    void getUsersTest() {
+        long firstUserId = 1L;
+        long secondUserId = 2L;
+
+        User firstUser = User.builder()
+                .id(firstUserId)
+                .username("firstUser")
+                .email("first@email.com")
+                .build();
+
+        User secondUser = User.builder()
+                .id(secondUserId)
+                .username("secondUser")
+                .email("second@email.com")
+                .build();
+
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com");
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com");
+
+        Stream<User> users = Stream.of(firstUser, secondUser);
+        List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
+        UserFilterDto filterDto = new UserFilterDto();
+
+        when(userValidator.validateNotPremiumUsers()).thenReturn(users);
+        when(userFilters.get(0).isApplicable(filterDto)).thenReturn(true);
+        when(userFilters.get(0).apply(users, filterDto)).thenReturn(users);
+        when(userFilters.get(1).isApplicable(filterDto)).thenReturn(false);
+
+        List<UserDto> actualUsersDto = userService.getUsers(filterDto);
+
+        verify(userValidator).validateNotPremiumUsers();
+        verify(userFilters.get(0)).isApplicable(filterDto);
+        verify(userFilters.get(1)).isApplicable(filterDto);
+        verify(userFilters.get(0)).apply(users, filterDto);
+
+        assertEquals(expectedUsersDto, actualUsersDto);
+    }
 }

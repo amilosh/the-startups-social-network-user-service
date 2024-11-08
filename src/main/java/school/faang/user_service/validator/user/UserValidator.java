@@ -28,7 +28,8 @@ public class UserValidator {
     public Stream<User> validateNotPremiumUsers() {
         Stream<User> users = userRepository.findAll().stream();
 
-        return users.filter(user -> user.getPremium().getEndDate() == null
+        return users.filter(user -> user.getPremium() == null
+                || user.getPremium().getEndDate() == null
                 || user.getPremium().getEndDate().isBefore(LocalDateTime.now()));
     }
 }
