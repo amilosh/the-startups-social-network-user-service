@@ -15,8 +15,8 @@ import school.faang.user_service.filter.user.UserNameFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.repository.SubscriptionRepository;
-import school.faang.user_service.validator.SubscriptionValidator;
-import school.faang.user_service.validator.UserValidator;
+import school.faang.user_service.validator.subscription.SubscriptionValidator;
+import school.faang.user_service.validator.user.UserValidator;
 
 import java.util.ArrayList;
 import java.util.List;
