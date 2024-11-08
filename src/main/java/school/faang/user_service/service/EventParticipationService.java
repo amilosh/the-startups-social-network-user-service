@@ -1,23 +1,15 @@
 package school.faang.user_service.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ControllerAdvice;
-import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.EventNotFoundException;
 import school.faang.user_service.exception.ParticipationException;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.service.userService.UserService;
-
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
 
 @ControllerAdvice
