@@ -1,15 +1,20 @@
 package school.faang.user_service.dto;
 
 import jakarta.validation.constraints.NotNull;
-import org.aspectj.lang.annotation.After;
-import org.aspectj.lang.annotation.Before;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-public record UserDTO(
-        @NotNull(groups = After.class)
-        Long id,
-        @NotNull(groups = Before.class)
-        String username,
-        @NotNull(groups = Before.class)
-        String email
-) {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserDTO {
+    @NotNull
+    private Long id;
+
+    @NotNull
+    private String username;
+
+    @NotNull
+    private String email;
 }

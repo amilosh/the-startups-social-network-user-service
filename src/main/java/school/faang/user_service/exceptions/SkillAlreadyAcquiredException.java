@@ -1,4 +1,4 @@
-package school.faang.user_service.exception;
+package school.faang.user_service.exceptions;
 
 public class SkillAlreadyAcquiredException extends RuntimeException {
     public SkillAlreadyAcquiredException(String message) {
