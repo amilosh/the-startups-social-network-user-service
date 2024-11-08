@@ -1,8 +1,11 @@
 name: CI Pipeline
-
-on: [ pull_request ]
-
-
+on:
+  push:
+    branches:
+      - Murloc-master-stream7
+  pull_request:
+    branches:
+      - Murloc-master-stream7
 jobs:
   test:
     runs-on: ubuntu-latest
