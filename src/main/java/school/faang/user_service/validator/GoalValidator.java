@@ -3,9 +3,14 @@ package school.faang.user_service.validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -32,24 +37,27 @@ public class GoalValidator {
         }
     }
 
-    public void validateUsersAndGoals(long id) {
-        if (userRepository.getReferenceById(id).getGoals().size() >= MAX_NUMBER_TARGET) {
-            throw new IllegalArgumentException("У вас максимальное количество пользователей");
+    public void validateUsersAndGoals(GoalInvitation goalInvitation) {
+        User invited = goalInvitation.getInvited();
+        Goal goal = goalInvitation.getGoal();
+        List<Goal> goals = invited.getGoals();
+
+
+        if (!goalRepository.existsById(goal.getId())) {
+            throw new IllegalArgumentException("Цели не существует");
         }
 
-        if (userRepository.existsById(id)) {
+        if (goals.size() >= 3) {
+            throw new IllegalArgumentException("У вас максимальное количество целей");
+        }
+
+        if (goals.contains(goal)) {
             throw new IllegalArgumentException("Вы уже работаете над целью");
         }
-
-        checkGoalExist(id);
     }
 
-    public void validateTarget(long id) {
-        checkGoalExist(id);
-    }
-
-    private void checkGoalExist(long id) {
-        if (!goalRepository.existsById(id)) {
+    public void validateExistGoal(long id) {
+        if (!invitationRepository.existsById(id)) {
             throw new IllegalArgumentException("Цели не существует");
         }
     }

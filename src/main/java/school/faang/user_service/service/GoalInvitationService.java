@@ -3,13 +3,19 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.InvitationFilterDto;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
+import school.faang.user_service.service.filter.InvitationFilter;
 import school.faang.user_service.validator.GoalValidator;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -19,6 +25,7 @@ public class GoalInvitationService {
     private final GoalValidator validator;
     private final UserRepository userRepository;
     private final GoalRepository goalRepository;
+    private final List<InvitationFilter> invitationFilters;
 
     public GoalInvitationDto creatInvitation(GoalInvitationDto invitationDto) {
         validator.validateCorrectnessPlayers(invitationDto);
@@ -36,14 +43,31 @@ public class GoalInvitationService {
     }
 
     public void acceptGoalInvitation(long id) {
-        validator.validateUsersAndGoals(id);
+        GoalInvitation goalInvitation = invitationRepository.getReferenceById(id);
+        validator.validateUsersAndGoals(goalInvitation);
 
-        userRepository.getReferenceById(id).getGoals().add((int) id, goalRepository.getReferenceById(id));
+        goalInvitation.setStatus(RequestStatus.ACCEPTED);
+        invitationRepository.save(goalInvitation);
     }
 
     public void rejectGoalInvitation(long id) {
-        validator.validateTarget(id);
+        validator.validateExistGoal(id);
 
-        goalRepository.getReferenceById(id).setStatus(GoalStatus.COMPLETED);
+        GoalInvitation goalInvitation = invitationRepository.getReferenceById(id);
+        goalInvitation.setStatus(RequestStatus.REJECTED);
+
+        invitationRepository.save(goalInvitation);
+    }
+
+    public List<GoalInvitationDto> getInvitations(InvitationFilterDto filterDto) {
+        Stream<GoalInvitation> invitations = invitationRepository.findAll().stream();
+        invitationFilters.stream()
+                .filter(invitation -> invitation.isApplicable(filterDto))
+                .forEach(invitation -> invitation.apply(invitations, filterDto));
+        List<GoalInvitationDto> invitationDtos = invitations
+                .map(invitation -> mapper.entityToDto(invitation))
+                .collect(Collectors.toList());
+
+        return invitationDtos;
     }
 }

@@ -1,6 +1,5 @@
 package school.faang.user_service.mapper;
 
-import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -14,6 +13,5 @@ public interface GoalMapper {
     @Mapping(source = "invited.id", target = "invitedUserId")
     GoalInvitationDto entityToDto(GoalInvitation invitation);
 
-    @InheritInverseConfiguration
     GoalInvitation dtoToEntity(GoalInvitationDto invitationDto);
 }
