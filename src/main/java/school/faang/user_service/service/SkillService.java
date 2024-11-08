@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.SkillCandidateDto;
 import school.faang.user_service.dto.SkillDto;
@@ -11,13 +12,12 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillCandidateMapper;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SkillService {
@@ -32,7 +32,10 @@ public class SkillService {
         if (!skillRepository.existsByTitle(skill.getTitle())) {
             Skill skillEntity = skillMapper.toEntity(skill);
             return skillMapper.toDto(skillRepository.save(skillEntity));
-        } else throw new DataValidationException("Пользователь с этим именем уже существует.");
+        } else {
+            log.error("Имя умения занято.");
+            throw new DataValidationException("Умение с таким именем уже существует.");
+        }
     }
 
     public List<SkillDto> getUserSkills(long userId){
