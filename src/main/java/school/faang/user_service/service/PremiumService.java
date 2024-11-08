@@ -1,6 +1,5 @@
 package school.faang.user_service.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -51,7 +50,7 @@ public class PremiumService {
 
         if (body.status().equals(PaymentStatus.SUCCESS)) {
             Premium newPremium = new Premium();
-            newPremium.setUser(userService.findById(userId).orElseThrow(EntityNotFoundException::new));
+            newPremium.setUser(userService.getUserById(userId));
             newPremium.setStartDate(LocalDateTime.now());
             newPremium.setEndDate(LocalDateTime.now().plusDays(premiumPeriod.getDays()));
 

@@ -1,14 +1,20 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
 
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -22,9 +28,12 @@ public class UserServiceTest {
 
     private long userId;
 
+    private User user;
+
     @BeforeEach
     void setUp() {
         userId = 1L;
+        user = new User();
     }
 
     @Test
@@ -37,5 +46,18 @@ public class UserServiceTest {
     public void testNotExistsUserById() {
         when(userRepository.existsById(userId)).thenReturn(false);
         assertFalse(userService.existsById(userId));
+    }
+
+    @Test
+    public void testGetUserById() {
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        assertEquals(user, userService.getUserById(userId));
+    }
+
+    @Test
+    public void testThrowExceptionGetUserById() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class,
+                () -> userService.getUserById(userId));
     }
 }
