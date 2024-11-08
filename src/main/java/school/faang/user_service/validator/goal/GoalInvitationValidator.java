@@ -19,19 +19,6 @@ public class GoalInvitationValidator {
     private final GoalService goalService;
 
     public void validateDto(GoalInvitationDto invitation) {
-
-        if (invitation.getInviterId() == null || invitation.getInviterId() <= 0) {
-            throw new DataValidationException("Inviter id must be a positive number");
-        }
-
-        if (invitation.getInvitedUserId() == null || invitation.getInvitedUserId() <= 0) {
-            throw new DataValidationException("Invited id must be a positive number");
-        }
-
-        if (invitation.getGoalId() == null || invitation.getGoalId() <= 0) {
-            throw new DataValidationException("Goal id must be a positive number");
-        }
-
         if (invitation.getInviterId().equals(invitation.getInvitedUserId())) {
             throw new DataValidationException("You can't invited yourself");
         }
@@ -44,12 +31,9 @@ public class GoalInvitationValidator {
     }
 
     public void validateGoalInvitationAcceptance(GoalInvitation goalInvitation) {
-
         User invited = goalInvitation.getInvited();
         Goal goal = goalInvitation.getGoal();
         List<Goal> goalsByInvited = invited.getGoals();
-
-        goalService.findGoalById(goal.getId());
 
         if (goalsByInvited.size() >= MAX_GOALS_PER_USER) {
             throw new DataValidationException("Max goals need be less 3");

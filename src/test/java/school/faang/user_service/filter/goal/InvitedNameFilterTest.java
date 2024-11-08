@@ -1,6 +1,7 @@
 package school.faang.user_service.filter.goal;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import school.faang.user_service.dto.goal.GoalInvitationFilterDto;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
-public class InvitedNameFilterTest {
+class InvitedNameFilterTest {
 
     private InvitedNameFilter invitedNameFilter;
 
@@ -34,7 +35,8 @@ public class InvitedNameFilterTest {
     }
 
     @Test
-    public void testIsApplicableTrue() {
+    @DisplayName("Test isApplicable True")
+    void testIsApplicableTrue() {
         String invitedNamePattern = "notNull";
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .invitedNamePattern(invitedNamePattern)
@@ -46,7 +48,8 @@ public class InvitedNameFilterTest {
     }
 
     @Test
-    public void testIsApplicableFalse() {
+    @DisplayName("Test isApplicable False")
+    void testIsApplicableFalse() {
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .build();
 
@@ -56,7 +59,8 @@ public class InvitedNameFilterTest {
     }
 
     @Test
-    public void testApplyFilterPositiveShouldReturnAllInvitationsMatchingPattern() {
+    @DisplayName("Test applyFilter Positive Should Return All Invitations Matching Pattern")
+    void testApplyFilterPositiveShouldReturnAllInvitationsMatchingPattern() {
         String invitedNamePattern = "john";
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .invitedNamePattern(invitedNamePattern)
@@ -76,7 +80,8 @@ public class InvitedNameFilterTest {
     }
 
     @Test
-    public void testApplyFilterPositiveShouldReturnEmptyStreamWhenNoInvitationsMatchPattern() {
+    @DisplayName("Test applyFilter Positive Should Return Empty Stream When No Invitations Match Pattern")
+    void testApplyFilterPositiveShouldReturnEmptyStreamWhenNoInvitationsMatchPattern() {
         String invitedNamePattern = "nonePattern";
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .invitedNamePattern(invitedNamePattern)

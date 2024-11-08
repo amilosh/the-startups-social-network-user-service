@@ -2,6 +2,7 @@ package school.faang.user_service.service.goal;
 
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.GoalInvitationFilterDto;
@@ -19,6 +20,7 @@ import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GoalInvitationService {
 
     private final GoalInvitationRepository goalInvitationRepository;
@@ -29,12 +31,15 @@ public class GoalInvitationService {
     private final List<Filter<GoalInvitation, GoalInvitationFilterDto>> filters;
 
     public GoalInvitationDto createInvitation(GoalInvitationDto invitation) {
+        goalInvitationValidator.validateDto(invitation);
         GoalInvitation goalInvitation = initializeGoalInvitation(invitation);
         goalInvitation = goalInvitationRepository.save(goalInvitation);
+        log.info("Created invitation with id: {}", goalInvitation.getId());
         return goalInvitationMapper.toDto(goalInvitation);
     }
 
     public GoalInvitationDto acceptGoalInvitation(long id) {
+        goalInvitationValidator.validateId(id);
         return goalInvitationRepository.getById(id)
                 .map(invitation -> {
                     goalInvitationValidator.validateGoalInvitationAcceptance(invitation);
@@ -43,30 +48,39 @@ public class GoalInvitationService {
                     invitation.getInvited()
                             .getGoals()
                             .add(invitation.getGoal());
-
-                    return goalInvitationMapper.toDto(goalInvitationRepository.save(invitation));
+                    GoalInvitationDto dto = goalInvitationMapper.toDto(goalInvitationRepository.save(invitation));
+                    log.info("User {} accepted invitation with id: {}", invitation.getInvited().getUsername(), id);
+                    return dto;
                 }).orElseThrow(() -> new EntityNotFound("Invitation not found for id: " + id));
     }
 
+
+
+
     public GoalInvitationDto rejectGoalInvitation(long id) {
+        goalInvitationValidator.validateId(id);
         return goalInvitationRepository.getById(id)
                 .map(invitation -> {
                     goalInvitationValidator.validateGoalInvitationRejection(invitation);
 
                     invitation.setStatus(RequestStatus.REJECTED);
 
-                    return goalInvitationMapper.toDto(goalInvitationRepository.save(invitation));
+                    GoalInvitationDto dto = goalInvitationMapper.toDto(goalInvitationRepository.save(invitation));
+                    log.info("Rejected invitation with id: {}", id);
+                    return dto;
                 }).orElseThrow(() -> new EntityNotFound("Invitation not found for id: " + id));
     }
 
     public List<GoalInvitationDto> getInvitations(GoalInvitationFilterDto filterDto) {
         Stream<GoalInvitation> invitations = goalInvitationRepository.findAll().stream();
 
-        return filters.stream().filter(filter -> filter.isApplicable(filterDto))
+        List<GoalInvitationDto> invitationDtoList = filters.stream().filter(filter -> filter.isApplicable(filterDto))
                 .reduce(invitations, (streamGoalInvitation, filter) ->
                         filter.apply(streamGoalInvitation, filterDto), (s1, s2) -> s1)
                 .map(goalInvitationMapper::toDto)
                 .toList();
+        log.info("Found {} invitations", invitationDtoList.size());
+        return invitationDtoList;
     }
 
     private GoalInvitation initializeGoalInvitation(GoalInvitationDto invitation) {
@@ -74,6 +88,7 @@ public class GoalInvitationService {
         goalInvitation.setInviter(userService.findUserById(invitation.getInviterId()));
         goalInvitation.setInvited(userService.findUserById(invitation.getInvitedUserId()));
         goalInvitation.setGoal(goalService.findGoalById(invitation.getGoalId()));
+        goalInvitation.setStatus(RequestStatus.PENDING);
         return goalInvitation;
     }
 }

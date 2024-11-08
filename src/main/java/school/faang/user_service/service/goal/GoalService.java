@@ -12,6 +12,6 @@ public class GoalService {
     private final GoalRepository goalRepository;
 
     public Goal findGoalById(Long id) {
-        return goalRepository.findById(id).orElseThrow(() -> new EntityNotFound("Goal not found"));
+        return goalRepository.findById(id).orElseThrow(() -> new EntityNotFound(String.format("Goal not found by id: %s", id)));
     }
 }

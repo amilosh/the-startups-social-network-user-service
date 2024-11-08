@@ -1,6 +1,7 @@
 package school.faang.user_service.filter.goal;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import school.faang.user_service.dto.goal.GoalInvitationFilterDto;
@@ -34,6 +35,7 @@ public class InvitedIdFilterTest {
     }
 
     @Test
+    @DisplayName("Test isApplicable True")
     public void testIsApplicableTrue() {
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .invitedId(1L)
@@ -45,6 +47,7 @@ public class InvitedIdFilterTest {
     }
 
     @Test
+    @DisplayName("Test isApplicable False")
     public void testIsApplicableFalse() {
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .build();
@@ -55,6 +58,7 @@ public class InvitedIdFilterTest {
     }
 
     @Test
+    @DisplayName("Test applyFilter Matching Pattern")
     public void testApplyFilterSameInvitationsMatchingPattern() {
         Long invitedIdPattern = 1L;
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
@@ -76,6 +80,7 @@ public class InvitedIdFilterTest {
     }
 
     @Test
+    @DisplayName("Test applyFilter No Matching Pattern")
     public void testApplyFilterShouldReturnEmptyStreamWhenNoInvitationsMatchPattern() {
         Long invitedIdPattern = 3L;
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()

@@ -1,6 +1,7 @@
 package school.faang.user_service.filter.goal;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import school.faang.user_service.dto.goal.GoalInvitationFilterDto;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
-public class InviterIdFilterTest {
+class InviterIdFilterTest {
 
     private InviterIdFilter inviterIdFilter;
 
@@ -35,7 +36,8 @@ public class InviterIdFilterTest {
     }
 
     @Test
-    public void testIsApplicableTrue() {
+    @DisplayName("Test isApplicable True")
+    void testIsApplicableTrue() {
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .inviterId(1L)
                 .build();
@@ -46,7 +48,8 @@ public class InviterIdFilterTest {
     }
 
     @Test
-    public void testIsApplicableFalse() {
+    @DisplayName("Test isApplicable False")
+    void testIsApplicableFalse() {
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .build();
 
@@ -56,7 +59,8 @@ public class InviterIdFilterTest {
     }
 
     @Test
-    public void testApplyFilterSameInvitationsMatchingPattern() {
+    @DisplayName("Test applyFilter Matching Pattern")
+    void testApplyFilterSameInvitationsMatchingPattern() {
         Long inviterIdPattern = 1L;
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .inviterId(inviterIdPattern)
@@ -77,7 +81,8 @@ public class InviterIdFilterTest {
     }
 
     @Test
-    public void testApplyFilterShouldReturnEmptyStreamWhenNoInvitationsMatchPattern() {
+    @DisplayName("Test applyFilter No Matching Pattern")
+    void testApplyFilterShouldReturnEmptyStreamWhenNoInvitationsMatchPattern() {
         Long inviterIdPattern = 3L;
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .inviterId(inviterIdPattern)

@@ -1,6 +1,6 @@
 package school.faang.user_service.validator.goal;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-public class GoalInvitationValidatorTest {
+class GoalInvitationValidatorTest {
 
     @Mock
     private GoalService goalService;
@@ -33,7 +33,8 @@ public class GoalInvitationValidatorTest {
     private GoalInvitationDto goalInvitationDto;
 
     @Test
-    public void testValidateDtoPositive() {
+    @DisplayName("Test Validate Dto Positive")
+    void testValidateDtoPositive() {
         goalInvitationDto = GoalInvitationDto.builder()
                 .inviterId(1L)
                 .invitedUserId(2L)
@@ -43,56 +44,10 @@ public class GoalInvitationValidatorTest {
         assertDoesNotThrow(() -> goalInvitationValidator.validateDto(goalInvitationDto));
     }
 
-    @Test
-    public void testDtoInviterIdNull() {
-        goalInvitationDto = GoalInvitationDto.builder()
-                .inviterId(null)
-                .build();
-        assertThrows(DataValidationException.class, () -> goalInvitationValidator.validateDto(goalInvitationDto));
-    }
 
     @Test
-    public void testDtoInviterIdNonPositiveNumber() {
-        goalInvitationDto = GoalInvitationDto.builder()
-                .inviterId(0L)
-                .build();
-        assertThrows(DataValidationException.class, () -> goalInvitationValidator.validateDto(goalInvitationDto));
-    }
-
-    @Test
-    public void testDtoInvitedIdNull() {
-        goalInvitationDto = GoalInvitationDto.builder()
-                .invitedUserId(null)
-                .build();
-        assertThrows(DataValidationException.class, () -> goalInvitationValidator.validateDto(goalInvitationDto));
-    }
-
-    @Test
-    public void testDtoInvitedIdNonPositiveNumber() {
-        goalInvitationDto = GoalInvitationDto.builder()
-                .invitedUserId(0L)
-                .build();
-        assertThrows(DataValidationException.class, () -> goalInvitationValidator.validateDto(goalInvitationDto));
-    }
-
-    @Test
-    public void testDtoGoalIdNull() {
-        goalInvitationDto = GoalInvitationDto.builder()
-                .goalId(null)
-                .build();
-        assertThrows(DataValidationException.class, () -> goalInvitationValidator.validateDto(goalInvitationDto));
-    }
-
-    @Test
-    public void testDtoGoalIdNonPositiveNumber() {
-        goalInvitationDto = GoalInvitationDto.builder()
-                .goalId(0L)
-                .build();
-        assertThrows(DataValidationException.class, () -> goalInvitationValidator.validateDto(goalInvitationDto));
-    }
-
-    @Test
-    public void testDtoInviterEqualInvited() {
+    @DisplayName("Test Validate Dto Inviter Equal Invited")
+    void testDtoInviterEqualInvited() {
         goalInvitationDto = GoalInvitationDto.builder()
                 .invitedUserId(1L)
                 .inviterId(1L)
@@ -101,21 +56,24 @@ public class GoalInvitationValidatorTest {
     }
 
     @Test
-    public void testValidateIdNull() {
+    @DisplayName("Test Validate Dto Id Null")
+    void testValidateIdNull() {
         Long id = null;
 
         assertThrows(DataValidationException.class, () -> goalInvitationValidator.validateId(id));
     }
 
     @Test
-    public void testValidateIdNonPositive() {
+    @DisplayName("Test Validate Dto Id Non Positive")
+    void testValidateIdNonPositive() {
         Long id = 0L;
 
         assertThrows(DataValidationException.class, () -> goalInvitationValidator.validateId(id));
     }
 
     @Test
-    public void testValidateUserAcceptancePositive() {
+    @DisplayName("Test Validate User Acceptance Positive")
+    void testValidateUserAcceptancePositive() {
         User invited = User.builder()
                 .id(1L)
                 .goals(new ArrayList<>())
@@ -126,14 +84,13 @@ public class GoalInvitationValidatorTest {
         GoalInvitation goalInvitation = new GoalInvitation();
         goalInvitation.setInvited(invited);
         goalInvitation.setGoal(goal);
-        Mockito.when(goalService.findGoalById(goal.getId())).thenReturn(goal);
 
         assertDoesNotThrow(() -> goalInvitationValidator.validateGoalInvitationAcceptance(goalInvitation));
-        Mockito.verify(goalService, Mockito.times(1)).findGoalById(goal.getId());
     }
 
     @Test
-    public void testValidateUserAcceptanceMaxGoalsMoreOrEqualThree() {
+    @DisplayName("Test Validate User Acceptance Max Goals More Or Equal Three")
+    void testValidateUserAcceptanceMaxGoalsMoreOrEqualThree() {
         User invited = User.builder()
                 .id(1L)
                 .goals(new ArrayList<>(List.of(new Goal(), new Goal(), new Goal())))
@@ -151,7 +108,8 @@ public class GoalInvitationValidatorTest {
     }
 
     @Test
-    public void testValidateUserAcceptanceInvitedAlreadyHaveCurrentGoal() {
+    @DisplayName("Test Validate User Acceptance Invited Already Have Current Goal")
+    void testValidateUserAcceptanceInvitedAlreadyHaveCurrentGoal() {
         Goal goal = Goal.builder()
                 .id(1L)
                 .build();
@@ -169,7 +127,8 @@ public class GoalInvitationValidatorTest {
     }
 
     @Test
-    public void testValidateUserRejectionPositive() {
+    @DisplayName("Test Validate User Rejection Positive")
+    void testValidateUserRejectionPositive() {
         User invited = User.builder()
                 .id(1L)
                 .goals(new ArrayList<>())

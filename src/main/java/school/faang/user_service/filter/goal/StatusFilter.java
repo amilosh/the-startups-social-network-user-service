@@ -18,7 +18,6 @@ public class StatusFilter implements Filter<GoalInvitation, GoalInvitationFilter
     @Override
     public Stream<GoalInvitation> apply(Stream<GoalInvitation> goalInvitations, GoalInvitationFilterDto filter) {
         return goalInvitations.filter(invitation -> invitation
-                .getStatus()
-                .equals(filter.getStatus()));
+                .getStatus() == filter.getStatus());
     }
 }

@@ -1,6 +1,7 @@
 package school.faang.user_service.service.goal;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,7 +37,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class GoalInvitationServiceTest {
+class GoalInvitationServiceTest {
 
     @Mock
     private GoalInvitationRepository goalInvitationRepository;
@@ -73,7 +74,8 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testCreateInvitation() {
+    @DisplayName("Test createInvitation")
+    void testCreateInvitation() {
         preparationData();
         when(goalInvitationMapper.toEntity(any())).thenReturn(goalInvitation);
         when(goalInvitationMapper.toDto(any())).thenReturn(dto);
@@ -94,30 +96,34 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testRejectGoalInvitationSuccess() {
+    @DisplayName("Test rejectGoalInvitation Success")
+    void testRejectGoalInvitationSuccess() {
         long invitationId = 1L;
-        GoalInvitation goalInvitation = new GoalInvitation();
-        goalInvitation.setStatus(RequestStatus.PENDING);
+        GoalInvitation invitation = new GoalInvitation();
+        invitation.setStatus(RequestStatus.PENDING);
         GoalInvitationDto goalInvitationDto = GoalInvitationDto.builder()
                 .id(invitationId)
                 .status(RequestStatus.REJECTED)
                 .build();
-        when(goalInvitationRepository.getById(invitationId)).thenReturn(Optional.of(goalInvitation));
-        doNothing().when(goalInvitationValidator).validateGoalInvitationRejection(goalInvitation);
-        when(goalInvitationRepository.save(any(GoalInvitation.class))).thenReturn(goalInvitation);
-        when(goalInvitationMapper.toDto(goalInvitation)).thenReturn(goalInvitationDto);
+
+        doNothing().when(goalInvitationValidator).validateId(invitationId);
+        when(goalInvitationRepository.getById(invitationId)).thenReturn(Optional.of(invitation));
+        doNothing().when(goalInvitationValidator).validateGoalInvitationRejection(invitation);
+        when(goalInvitationRepository.save(any(GoalInvitation.class))).thenReturn(invitation);
+        when(goalInvitationMapper.toDto(invitation)).thenReturn(goalInvitationDto);
 
         GoalInvitationDto result = goalInvitationService.rejectGoalInvitation(invitationId);
 
         verify(goalInvitationRepository, times(1)).getById(invitationId);
-        verify(goalInvitationValidator, times(1)).validateGoalInvitationRejection(goalInvitation);
-        verify(goalInvitationRepository, times(1)).save(goalInvitation);
-        verify(goalInvitationMapper, times(1)).toDto(goalInvitation);
+        verify(goalInvitationValidator, times(1)).validateGoalInvitationRejection(invitation);
+        verify(goalInvitationRepository, times(1)).save(invitation);
+        verify(goalInvitationMapper, times(1)).toDto(invitation);
         assertEquals(RequestStatus.REJECTED, result.getStatus());
     }
 
     @Test
-    public void testRejectGoalInvitationInvitationNotFound() {
+    @DisplayName("Test rejectGoalInvitation Invitation Not Found")
+    void testRejectGoalInvitationInvitationNotFound() {
         long invalidId = 99L;
         when(goalInvitationRepository.getById(invalidId)).thenReturn(Optional.empty());
 
@@ -129,7 +135,8 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testGetInvitationShouldReturnFilteredList() {
+    @DisplayName("Test getInvitation Should Return FilteredList")
+    void testGetInvitationShouldReturnFilteredList() {
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .invitedId(1L)
                 .build();
@@ -159,7 +166,8 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    public void testGetInvitationShouldReturnEmptyList() {
+    @DisplayName("Test getInvitation Should Return EmptyList")
+    void testGetInvitationShouldReturnEmptyList() {
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .build();
         assertTrue(goalInvitationService.getInvitations(goalInvitationFilterDto).isEmpty());

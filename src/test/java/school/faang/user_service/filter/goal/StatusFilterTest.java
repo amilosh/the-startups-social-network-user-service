@@ -1,6 +1,7 @@
 package school.faang.user_service.filter.goal;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import school.faang.user_service.dto.goal.GoalInvitationFilterDto;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
-public class StatusFilterTest {
+class StatusFilterTest {
 
     private StatusFilter statusFilter;
 
@@ -30,7 +31,8 @@ public class StatusFilterTest {
     }
 
     @Test
-    public void testIsApplicableTrue() {
+    @DisplayName("Test isApplicable True")
+    void testIsApplicableTrue() {
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .status(RequestStatus.ACCEPTED)
                 .build();
@@ -41,7 +43,8 @@ public class StatusFilterTest {
     }
 
     @Test
-    public void testIsApplicableFalse() {
+    @DisplayName("Test isApplicable False")
+    void testIsApplicableFalse() {
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .build();
 
@@ -51,7 +54,8 @@ public class StatusFilterTest {
     }
 
     @Test
-    public void testApplyFilterAllInvitationsMatchingPattern() {
+    @DisplayName("Test applyFilter All Invitations Matching Pattern")
+    void testApplyFilterAllInvitationsMatchingPattern() {
         RequestStatus requestStatus = RequestStatus.ACCEPTED;
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .status(requestStatus)
@@ -68,7 +72,8 @@ public class StatusFilterTest {
     }
 
     @Test
-    public void testApplyFilterShouldReturnEmptyStreamWhenNoInvitationsMatchPattern() {
+    @DisplayName("Test applyFilter No Matching Pattern")
+    void testApplyFilterShouldReturnEmptyStreamWhenNoInvitationsMatchPattern() {
         RequestStatus requestStatus = RequestStatus.REJECTED;
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .status(requestStatus)

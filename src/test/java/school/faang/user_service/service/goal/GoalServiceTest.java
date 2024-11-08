@@ -1,5 +1,6 @@
 package school.faang.user_service.service.goal;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,7 +20,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class GoalServiceTest {
+class GoalServiceTest {
 
     @Mock
     private GoalRepository goalRepository;
@@ -28,7 +29,8 @@ public class GoalServiceTest {
     private GoalService goalService;
 
     @Test
-    public void testFindGoalByIdPositive() {
+    @DisplayName("Test FindById Positive")
+    void testFindGoalByIdPositive() {
         long goalId = 1L;
         Goal goal = Goal.builder()
                 .id(1L)
@@ -43,12 +45,13 @@ public class GoalServiceTest {
     }
 
     @Test
-    public void testFindByIdNegative() {
+    @DisplayName("Test FindById Negative")
+    void testFindByIdNegative() {
         long goalId = 1L;
         when(goalRepository.findById(goalId)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(EntityNotFound.class, () -> goalService.findGoalById(goalId));
-        assertEquals("Goal not found", exception.getMessage());
+        assertEquals(String.format("Goal not found by id: %s", goalId), exception.getMessage());
         verify(goalRepository, times(1)).findById(goalId);
     }
 }

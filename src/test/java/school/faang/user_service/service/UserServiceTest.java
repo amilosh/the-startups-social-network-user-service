@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,7 +21,7 @@ import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -29,7 +30,8 @@ public class UserServiceTest {
     private UserService userService;
 
     @Test
-    public void testFindByIdPositive() {
+    @DisplayName("Test FindById")
+    void testFindByIdPositive() {
         long userId = 1L;
         User user = User.builder()
                 .id(1L)
@@ -44,11 +46,12 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testFindByIdNegative() {
+    @DisplayName("Test FindById Negative")
+    void testFindByIdNegative() {
         long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(EntityNotFound.class, () -> userService.findUserById(userId));
-        assertEquals("User not found", exception.getMessage());
+        assertEquals(String.format("User not found by id: %s", userId), exception.getMessage());
     }
 }
