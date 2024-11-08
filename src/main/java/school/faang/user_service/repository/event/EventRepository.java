@@ -1,5 +1,6 @@
 package school.faang.user_service.repository.event;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -22,4 +23,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             WHERE ue.user_id = :userId
             """)
     List<Event> findParticipatedEventsByUserId(long userId);
+
+    boolean existsById(@NotNull Long id);
 }
