@@ -51,10 +51,10 @@ public class EventService {
             throw new DataValidationException("You do not create event, because this event already create");
         }
 
-        eventRepository.save(event);
+        Event savedEvent = eventRepository.save(event);
         log.info("Event saved with : {}", event.toLogString());
 
-        return eventMapper.toDto(event);
+        return eventMapper.toDto(savedEvent);
     }
 
     public EventDto getEvent(Long eventId) {
@@ -124,7 +124,7 @@ public class EventService {
 
     public List<EventDto> getOwnedEvents(long userId) {
         List<Event> ownedEvents = userService.getUserById(userId).getOwnedEvents();
-        log.info("Owned Events found by {}", userId);
+        log.info("Owned Events found by User {}", userId);
         return eventMapper.toDtoList(ownedEvents);
     }
 
@@ -156,8 +156,6 @@ public class EventService {
 
         log.debug("Checking if user has required skills: {}", relatedSkills);
         if (!userSkillsDto.containsAll(relatedSkills)) {
-            log.error("User {} doesn't have all required skills ({}) to create event: {} "
-                    , userOwner.getId(), eventDto.relatedSkills(), eventDto.toLogString());
             return false;
         }
 
