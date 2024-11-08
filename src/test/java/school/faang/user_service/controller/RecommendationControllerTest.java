@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.dto.SkillOfferDto;
 import school.faang.user_service.service.RecommendationService;
-import school.faang.user_service.validation.recommendation.RecommendationValidator;
+import school.faang.user_service.validator.RecommendationValidator;
 
 import java.util.List;
 

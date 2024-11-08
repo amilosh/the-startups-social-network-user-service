@@ -10,7 +10,7 @@ import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.dto.SkillOfferDto;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.validation.recommendation.RecommendationValidator;
+import school.faang.user_service.validator.RecommendationValidator;
 
 import java.util.List;
 

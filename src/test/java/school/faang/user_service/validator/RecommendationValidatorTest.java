@@ -1,4 +1,4 @@
-package school.faang.user_service.validation.recommendation;
+package school.faang.user_service.validator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,6 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.validation.skill.SkillValidator;
 
 import java.time.LocalDateTime;
 import java.util.List;

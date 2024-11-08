@@ -7,6 +7,8 @@ import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -28,5 +30,25 @@ public class UserService {
 
     public void saveUser(User user) {
         userRepository.save(user);
+    }
+
+    /**
+     * Get a user by its ID.
+     *
+     * @param userId the ID of the user
+     * @return the user, or null if the user does not exist
+     */
+    public Optional<User> getUserById(Long userId) {
+        return userRepository.findById(userId);
+    }
+
+    /**
+     * Checks if a user with the given ID exists in the database.
+     *
+     * @param userId the ID of the user to check
+     * @return true if the user exists, false otherwise
+     */
+    public boolean checkUserExistence(Long userId) {
+        return userRepository.existsById(userId);
     }
 }

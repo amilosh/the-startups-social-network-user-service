@@ -1,9 +1,9 @@
-package school.faang.user_service.validation.skill;
+package school.faang.user_service.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.exception.skill.SkillDuplicateException;
+import school.faang.user_service.exception.SkillDuplicateException;
 import school.faang.user_service.repository.SkillRepository;
 
 @Component
