@@ -30,7 +30,9 @@ public interface EventParticipationRepository extends CrudRepository<User, Long>
             SELECT COUNT(ue.id) FROM user_event ue
             WHERE ue.event_id = :eventId
             """)
+
     int countParticipants(long eventId);
 
+    List<User> findUsersByEventId(long eventId);
     boolean existsByEventIdAndUserId(Long eventId, Long userId);
 }

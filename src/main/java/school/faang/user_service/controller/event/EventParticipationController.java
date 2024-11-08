@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.service.EventParticipationService;
 
 import java.util.List;
@@ -22,27 +23,42 @@ public class EventParticipationController {
 
     private final EventParticipationService eventParticipationService;
 
-    @PostMapping("/register")
-    public ResponseEntity<String> registerParticipation(@RequestParam Long eventId, @RequestParam Long userId) {
-        eventParticipationService.registerParticipant(eventId, userId);
-        return ResponseEntity.ok("Пользователь успешно зарегистрирован на событие");
+    @PostMapping("/registerParticipant")
+    public String registerParticipation(@RequestParam Long eventId, @RequestParam Long userId) {
+        try {
+            eventParticipationService.registerParticipant(eventId, userId);
+            return "Пользователь успешно зарегистрирован на событие";
+        } catch (Exception e) {
+            return "Ошибка регистрации: " + e.getMessage();
+        }
     }
 
     @DeleteMapping("/{eventId}/unregister/{userId}")
-    public ResponseEntity<String> unregisterParticipant(@PathVariable Long eventId, @PathVariable Long userId) {
-        eventParticipationService.unregisterParticipant(eventId, userId);
-        return ResponseEntity.ok("Пользователь отписан от события.");
+    public String unregisterParticipant(@PathVariable Long eventId, @PathVariable Long userId) {
+        try {
+            eventParticipationService.unregisterParticipant(eventId, userId);
+            return "Пользователь отписан от события";
+        } catch (Exception e) {
+            return "Ошибка отписки: " + e.getMessage();
+        }
+
     }
 
     @GetMapping("/{eventId}/participants")
-    public ResponseEntity<List<UserDto>> getParticipants(@PathVariable Long eventId) {
-        List<UserDto> participants = eventParticipationService.getListOfParticipant(eventId);
-        return ResponseEntity.ok(participants);
+    public List<User> getParticipants(@PathVariable Long eventId) {
+        try {
+            return eventParticipationService.getParticipant(eventId);
+        } catch (Exception e) {
+            return List.of();
+        }
     }
 
     @GetMapping("/{eventId}/participants/count")
-    public ResponseEntity<Integer> getParticipantsCount(@PathVariable Long eventId) {
-        int count = eventParticipationService.getCountRegisteredParticipant(eventId);
-        return ResponseEntity.ok(count);
+    public int getParticipantsCount(@PathVariable Long eventId) {
+        try {
+            return eventParticipationService.getParticipantsCount(eventId);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }

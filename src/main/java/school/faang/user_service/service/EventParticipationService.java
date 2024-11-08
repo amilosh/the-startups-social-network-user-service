@@ -1,14 +1,22 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EventNotFoundException;
+import school.faang.user_service.exception.ParticipationException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
+import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.service.userService.UserService;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,65 +24,41 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class EventParticipationService {
+
     private final EventParticipationRepository eventParticipationRepository;
     private final UserMapper userMapper;
+    private final EventRepository eventRepository;
 
-    public void registerParticipant(Long eventId, Long userId) {
-        if (eventId == null) {
-            throw new IllegalArgumentException("There is not event with this ID!");
-        }
-        if (userId == null) {
-            throw new IllegalArgumentException("There is not event with this ID!");
-        }
-        boolean userAlreadyRegistered = eventParticipationRepository.existsByEventIdAndUserId(userId, eventId);
-        if (userAlreadyRegistered) {
-            throw new IllegalArgumentException("Пользователь уже зарегистрирован.");
-        }
-        List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
-        boolean isUserRegisteredInList = users.stream().anyMatch(user -> user.getId().equals(userId));
-        if (isUserRegisteredInList) {
-            throw new IllegalArgumentException("Пользователь уже зарегистрирован.");
+    @Transactional
+    public void registerParticipant(long eventId, long userId) {
+        if (eventParticipationRepository.existsByEventIdAndUserId(eventId, userId)) {
+            throw new ParticipationException("Пользователь уже зарегистрирован на это событие.");
         }
         eventParticipationRepository.register(eventId, userId);
     }
 
-    public void unregisterParticipant(Long eventId, Long userId) {
-        if (checkThereIsUserInEvent(eventId, userId)) {
-            eventParticipationRepository.unregister(eventId, userId);
-        } else {
-            throw new DataValidationException("Пользователь не зарегистрирован на событие");
+    public void unregisterParticipant(long eventId, long userId) {
+        if (!eventParticipationRepository.existsByEventIdAndUserId(eventId, userId)) {
+            throw new ParticipationException("Пользователь не зарегистрирован на это событие.");
         }
+        eventParticipationRepository.unregister(eventId, userId);
     }
 
-    public boolean checkThereIsUserInEvent(long eventId, long userId) {
-        return eventParticipationRepository.existsByEventIdAndUserId(eventId,userId);
-    }
-
-    public List<UserDto> getListOfParticipant(Long eventId) {
-        validateEventId(eventId);
-        List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
-        List<UserDto> userDto = new ArrayList<>();
-        for (User user : users) {
-            userDto.add(userMapper.toDto(user));
+    public List<User> getParticipant(long eventId) {
+        if (!eventRepository.existsById(eventId)) {
+            throw new EventNotFoundException("Event with ID " + eventId + " does not exist");
         }
-        return userDto;
+        return eventParticipationRepository.findUsersByEventId(eventId);
     }
 
-    public int getCountRegisteredParticipant(Long eventId) {
-        validateEventId(eventId);
-        return eventParticipationRepository.countParticipants(eventId);
-    }
-
-    private void validateEventId(Long eventId) {
-        if (!eventParticipationRepository.existsById(eventId)) {
-            throw new IllegalArgumentException("There is not event with this ID!");
+    public int getParticipantsCount(long eventId) {
+        if (!eventRepository.existsById(eventId)) {
+            throw new EventNotFoundException("Event with ID " + eventId + " does not exist");
         }
-    }
-
-    public void validateUserId(Long userId) {
-        if (userId == null) {
-            throw new IllegalArgumentException("User ID cannot be null");
+        int participantsCount = eventParticipationRepository.countParticipants(eventId);
+        if (participantsCount == 0) {
+            throw new EventNotFoundException("No participants found for the event with ID " + eventId);
         }
+        return participantsCount;
     }
-
 }
