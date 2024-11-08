@@ -1,10 +1,8 @@
   name: CI pipline minotaur
 
   on:
-    push:
-      branches: [ "feature/pipline-BC-BJS2-40770" ]
     pull_request:
-      branches: [ "feature/pipline-BC-BJS2-40770" ]
+      branches: [ "Minotaur-master-stream7" ]
 
   jobs:
     test:
