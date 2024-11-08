@@ -19,7 +19,6 @@ import school.faang.user_service.mapper.PremiumMapperImpl;
 import school.faang.user_service.repository.premium.PremiumRepository;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -85,12 +84,11 @@ public class PremiumServiceTest {
 
         when(paymentServiceClient.sendPayment(any())).thenReturn(response);
         when(response.getBody()).thenReturn(paymentResponse);
-        when(userService.findById(1L)).thenReturn(Optional.of(new User()));
+        when(userService.getUserById(1L)).thenReturn(new User());
 
         premiumService.buyPremium(PremiumPeriod.YEAR);
 
         verify(premiumRepository).save(any());
-
     }
 
     private void setupMocks(boolean existsByUserId) {
