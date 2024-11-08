@@ -15,6 +15,7 @@ import school.faang.user_service.filter.user.UserNameFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.validator.user.UserValidator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,6 +39,9 @@ class UserServiceTest {
     @Spy
     UserMapper userMapper;
 
+    @Mock
+    UserValidator userValidator;
+
     private UserService userService;
     private List<UserFilter> userFilters;
 
@@ -48,7 +52,7 @@ class UserServiceTest {
         userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
         userMapper = new UserMapperImpl();
 
-        userService = new UserService(userRepository, userFilters, userMapper);
+        userService = new UserService(userRepository, userFilters, userMapper, userValidator);
     }
 
     @Test

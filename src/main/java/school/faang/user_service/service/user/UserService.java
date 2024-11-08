@@ -10,6 +10,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.validator.user.UserValidator;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +24,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final List<UserFilter> userFilters;
     private final UserMapper userMapper;
+    private final UserValidator userValidator;
 
     @Transactional
     public boolean existsById(long userId) {
@@ -40,11 +42,20 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserDto> getPremiumUsers(UserFilterDto filter) {
+    public List<UserDto> getUsers(UserFilterDto filterDto) {
+        Stream<User> notPremiumUsers = userValidator.validateNotPremiumUsers();
+
+        List<UserDto> filteredUsers = filter(notPremiumUsers, filterDto);
+        log.info("Getting {} filtered users, by filter {}", filteredUsers.size(), filterDto);
+        return filteredUsers;
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserDto> getPremiumUsers(UserFilterDto filterDto) {
         Stream<User> users = userRepository.findPremiumUsers();
 
-        List<UserDto> filteredUsers = filter(users, filter);
-        log.info("Getting {} filtered premium users, by filter {}", filteredUsers.size(), filter);
+        List<UserDto> filteredUsers = filter(users, filterDto);
+        log.info("Getting {} filtered premium users, by filter {}", filteredUsers.size(), filterDto);
         return filteredUsers;
     }
 

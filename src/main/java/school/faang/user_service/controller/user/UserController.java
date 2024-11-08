@@ -29,6 +29,11 @@ public class UserController {
         return ResponseEntity.ok(notExistingUserIds);
     }
 
+    @GetMapping()
+    public List<UserDto> getUsers(UserFilterDto filters) {
+        return userService.getUsers(filters);
+    }
+
     @GetMapping("/premium")
     public List<UserDto> getPremiumUsers(UserFilterDto filters) {
         return userService.getPremiumUsers(filters);
