@@ -10,10 +10,10 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.mapper.Recommendation.RecommendationMapper;
+import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.service.Recommendation.RecommendationService;
-import school.faang.user_service.validator.Recommendation.RecommendationDtoValidator;
+import school.faang.user_service.repository.recommendation.SkillOfferRepository;
+import school.faang.user_service.validator.recommendation.RecommendationDtoValidator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,6 +37,9 @@ public class RecommendationServiceTest {
 
     @Mock
     private RecommendationDtoValidator recommendationDtoValidator;
+
+    @Mock
+    private SkillOfferRepository skillOfferRepository;
 
     @Spy
     private RecommendationMapper recommendationMapper = Mappers.getMapper(RecommendationMapper.class);
@@ -54,7 +58,7 @@ public class RecommendationServiceTest {
 
     @Test
     @DisplayName("Successful creation of a recommendation")
-    public void testCreateSuccess() {
+    public void createSuccessTest() {
         RecommendationDto recDto = getDataRecDto();
         Recommendation recommendation = recommendationMapper.toEntity(recDto);
 
@@ -70,11 +74,12 @@ public class RecommendationServiceTest {
 
     @Test
     @DisplayName("Successful update of a recommendation")
-    public void testUpdateThenSuccess() {
+    public void updateThenSuccessTest() {
         RecommendationDto recDto = getDataRecDto();
         Recommendation recommendation = recommendationMapper.toEntity(recDto);
 
         when(recommendationRepository.save(recommendation)).thenReturn(recommendation);
+        doNothing().when(skillOfferRepository).deleteAllByRecommendationId(recDto.getId());
 
         RecommendationDto result = recommendationService.update(recDto);
 
@@ -89,14 +94,14 @@ public class RecommendationServiceTest {
 
     @Test
     @DisplayName("Delete recommendation")
-    void deleteRecommendation() {
+    void deleteRecommendationTest() {
         recommendationService.delete(1L);
         verify(recommendationRepository).deleteById(1L);
     }
 
     @Test
     @DisplayName("Successfully get all users")
-    public void whenSuccessfullyGetAllUserRecommendations() {
+    public void whenSuccessfullyGetAllUserRecommendationsTest() {
         List<Recommendation> recommendations = List.of(new Recommendation(), new Recommendation());
 
         when(recommendationRepository.findListByReceiverId(1L))
@@ -112,7 +117,7 @@ public class RecommendationServiceTest {
 
     @Test
     @DisplayName("Successfully get all author's recommendations")
-    public void whenSuccessfullyGetAllGivenRecommendations() {
+    public void whenSuccessfullyGetAllGivenRecommendationsTest() {
         List<Recommendation> recommendations = List.of(new Recommendation(), new Recommendation());
 
         when(recommendationRepository.findListByReceiverId(1L))

@@ -1,4 +1,4 @@
-package school.faang.user_service.service.Recommendation;
+package school.faang.user_service.service.recommendation;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +11,12 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.ErrorMessage;
-import school.faang.user_service.mapper.Recommendation.RecommendationMapper;
+import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.validator.Recommendation.RecommendationDtoValidator;
+import school.faang.user_service.validator.recommendation.RecommendationDtoValidator;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -25,52 +25,52 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class RecommendationService {
-    private final RecommendationRepository recRepository;
+    private final RecommendationRepository recommendationRepository;
     private final SkillOfferRepository skillOfferRepository;
     private final SkillRepository skillRepository;
     private final UserRepository userRepository;
-    private final RecommendationMapper recMapper;
-    private final RecommendationDtoValidator recDtoValidator;
+    private final RecommendationMapper recommendationMapper;
+    private final RecommendationDtoValidator recommendationDtoValidator;
 
 
     public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
-        List<Recommendation> recommendations = recRepository.findListByReceiverId(receiverId);
+        List<Recommendation> recommendations = recommendationRepository.findListByReceiverId(receiverId);
         log.info("Found {} recommendations for user with id - {}", recommendations.size(), receiverId);
-        return recMapper.toDtoList(recommendations);
+        return recommendationMapper.toDtoList(recommendations);
     }
 
     public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
-        List<Recommendation> recommendations = recRepository.findListByAuthorId(authorId);
+        List<Recommendation> recommendations = recommendationRepository.findListByAuthorId(authorId);
         log.info("User with id - {} created {} recommendations", authorId, recommendations.size());
-        return recMapper.toDtoList(recommendations);
+        return recommendationMapper.toDtoList(recommendations);
     }
 
     @Transactional
     public RecommendationDto create(RecommendationDto recDto) {
-        recDtoValidator.validateExistedSkillsAndDate(recDto);
+        recommendationDtoValidator.validateExistedSkillsAndDate(recDto);
         addSkillOffersAndGuarantee(recDto);
-        Recommendation result = recRepository.save(recMapper.toEntity(recDto));
+        Recommendation result = recommendationRepository.save(recommendationMapper.toEntity(recDto));
         log.info("Recommendation with id - {} successfully saved", result.getId());
 
-        return recMapper.toDto(result);
+        return recommendationMapper.toDto(result);
 
     }
 
     @Transactional
     public RecommendationDto update(RecommendationDto recDto) {
-        recDtoValidator.validateExistedSkillsAndDate(recDto);
+        recommendationDtoValidator.validateExistedSkillsAndDate(recDto);
         addSkillOffersAndGuarantee(recDto);
         log.info("Updating recommendation with id - {}", recDto.getId());
 
-//        skillOfferRepository.deleteAllByRecommendationId(recDto.getId());
-        Recommendation result = recRepository.save(recMapper.toEntity(recDto));
+        skillOfferRepository.deleteAllByRecommendationId(recDto.getId());
+        Recommendation result = recommendationRepository.save(recommendationMapper.toEntity(recDto));
 
-        return recMapper.toDto(result);
+        return recommendationMapper.toDto(result);
     }
 
     @Transactional
     public void delete(long id) {
-        recRepository.deleteById(id);
+        recommendationRepository.deleteById(id);
         log.info("Recommendation successfully deleted - {}", id);
     }
 

@@ -1,4 +1,4 @@
-package school.faang.user_service.validator.Recommendation;
+package school.faang.user_service.validator.recommendation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import java.util.NoSuchElementException;
 @Component
 @RequiredArgsConstructor
 public class RecommendationDtoValidator {
-    private static final int DIFFERENCE_BETWEEN_DATE_IN_MONTH = 6;
+    private static final int MONTH_DELAY_BETWEEN_RECOMMENDATIONS = 6;
     private final RecommendationRepository recRepository;
     private final SkillRepository skillRepository;
 
@@ -46,9 +46,9 @@ public class RecommendationDtoValidator {
     private void checkDateTimeRecommendationOlderSixMonth(RecommendationDto recDto) {
         recRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(recDto.getAuthorId(),
                 recDto.getReceiverId()).ifPresent(recommendation -> {
-            if (recommendation.getCreatedAt().isAfter(recDto.getCreatedAt().minusMonths(DIFFERENCE_BETWEEN_DATE_IN_MONTH))) {
+            if (recommendation.getCreatedAt().isAfter(recDto.getCreatedAt().minusMonths(MONTH_DELAY_BETWEEN_RECOMMENDATIONS))) {
                 throw new DataValidationException(String.format(ErrorMessage.RECOMMENDATION_WRONG_TIME,
-                        recDto.getAuthorId(), recDto.getReceiverId(), DIFFERENCE_BETWEEN_DATE_IN_MONTH));
+                        recDto.getAuthorId(), recDto.getReceiverId(), MONTH_DELAY_BETWEEN_RECOMMENDATIONS));
             }
         });
     }

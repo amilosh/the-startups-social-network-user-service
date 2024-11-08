@@ -1,4 +1,4 @@
-package school.faang.user_service.mapper.Recommendation;
+package school.faang.user_service.mapper.recommendation;
 
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;

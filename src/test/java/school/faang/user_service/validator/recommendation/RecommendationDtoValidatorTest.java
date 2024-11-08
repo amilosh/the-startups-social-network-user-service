@@ -1,4 +1,4 @@
-package school.faang.user_service.service.recommendation;
+package school.faang.user_service.validator.recommendation;
 
 
 import org.junit.jupiter.api.DisplayName;
@@ -13,7 +13,6 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.validator.Recommendation.RecommendationDtoValidator;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -56,7 +55,7 @@ public class RecommendationDtoValidatorTest {
 
     @Test
     @DisplayName("Throws exception if skill offers is null")
-    public void whenSkillOffersIsNullThenThrowException() {
+    public void whenSkillOffersIsNullThenThrowExceptionTest() {
         RecommendationDto recDto = RecommendationDto.builder()
                 .skillOffers(null)
                 .build();
@@ -67,7 +66,7 @@ public class RecommendationDtoValidatorTest {
 
     @Test
     @DisplayName("Throws exception if skill offers is empty")
-    public void whenSkillOffersIsEmptyThenThrowException() {
+    public void whenSkillOffersIsEmptyThenThrowExceptionTest() {
         RecommendationDto recDto = RecommendationDto.builder()
                 .skillOffers(List.of())
                 .build();
@@ -78,7 +77,7 @@ public class RecommendationDtoValidatorTest {
 
     @Test
     @DisplayName("Success if skill offers is not empty")
-    public void whenSkillOffersIsNotEmpty() {
+    public void whenSkillOffersIsNotEmptyTest() {
         RecommendationDto recDto = getTestRecommendationData();
 
         when(skillRepository.existsByTitle(EXISTING_SKILL_TITLE)).thenReturn(true);
@@ -91,7 +90,7 @@ public class RecommendationDtoValidatorTest {
 
     @Test
     @DisplayName("Throws exception if a skill title does not exist")
-    public void whenSkillTitleDoesNotExistThenThrowException() {
+    public void whenSkillTitleDoesNotExistThenThrowExceptionTest() {
         RecommendationDto recDto = getTestRecommendationData();
         when(skillRepository.existsByTitle(EXISTING_SKILL_TITLE)).thenReturn(true);
         when(skillRepository.existsByTitle(NO_EXISTING_SKILL_TITLE)).thenReturn(false);
@@ -102,7 +101,7 @@ public class RecommendationDtoValidatorTest {
 
     @Test
     @DisplayName("Success if all skill titles validate")
-    public void whenSkillTitlesExist() {
+    public void whenSkillTitlesExistTest() {
         RecommendationDto recDto = getTestRecommendationData();
         when(skillRepository.existsByTitle(EXISTING_SKILL_TITLE)).thenReturn(true);
         when(skillRepository.existsByTitle(NO_EXISTING_SKILL_TITLE)).thenReturn(true);
@@ -115,7 +114,7 @@ public class RecommendationDtoValidatorTest {
 
     @Test
     @DisplayName("Throws exception if the given recommendation is earlier than 6 months")
-    public void whenValidateWrongDateMonthThenThrowException() {
+    public void whenValidateWrongDateMonthThenThrowExceptionTest() {
         RecommendationDto recDto = getTestRecommendationData();
 
         assertThrows(DataValidationException.class,
@@ -125,7 +124,7 @@ public class RecommendationDtoValidatorTest {
 
     @Test
     @DisplayName("Success if the given recommendation is after 6 months")
-    public void whenValidateCorrectDateMonth() {
+    public void whenValidateCorrectDateMonthTest() {
         RecommendationDto recDto = getTestRecommendationData();
 
         Recommendation recommendation = Recommendation.builder()
