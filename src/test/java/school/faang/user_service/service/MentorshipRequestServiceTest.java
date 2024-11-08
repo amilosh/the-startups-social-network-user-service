@@ -1,19 +1,18 @@
 package school.faang.user_service.service;
 
 import lombok.extern.log4j.Log4j2;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.RequestStatusDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
@@ -23,7 +22,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @Log4j2
 @ExtendWith(MockitoExtension.class)
@@ -57,7 +57,7 @@ class MentorshipRequestServiceTest {
 
 
     @Test
-    void testRequestMentorship_SuccessfulRequest() {
+    void testRequestMentorshipSuccessfulRequest() {
         MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto("Request description", 2L, 3L);
 
         when(userRepository.existsById(2L)).thenReturn(true);
@@ -70,7 +70,7 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    void testRequestMentorship_RequestWithinThreeMonths_ThrowsException() {
+    void testRequestMentorshipLastRequestDateLess3MonthsShouldFail() {
         MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto("Request description", 2L, 3L);
         MentorshipRequest lastRequest = new MentorshipRequest();
         lastRequest.setCreatedAt(LocalDateTime.now().minusMonths(2));
@@ -85,7 +85,7 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    void testRequestMentorship_InvalidUser_ThrowsException() {
+    void requestMentorshipForNonExistantRequesterIdShouldFail() {
         MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto("Request description", 2L, 3L);
 
         when(userRepository.existsById(2L)).thenReturn(false);
@@ -96,8 +96,8 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    void testGetRequest_FiltersApplied() {
-        RequestFilterDto filter = new RequestFilterDto(null, 1L, 2L, RequestStatus.PENDING);
+    void testGetRequestFiltersApplied() {
+        RequestFilterDto filter = new RequestFilterDto(null, 1L, 2L, RequestStatusDto.PENDING);
         MentorshipRequest mentorshipRequest = new MentorshipRequest();
         mentorshipRequest.setDescription("desc");
         User user1 = new User();
@@ -118,7 +118,7 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    void testAcceptRequest_RequestExists_Success() {
+    void testAcceptRequestRequestExistsSuccess() {
         MentorshipRequest mentorshipRequest = generateMentorshipRequest();
 
         User requester = mentorshipRequest.getRequester();
@@ -132,7 +132,7 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    void testAcceptRequest_RequestNotExists_ThrowsException() {
+    void testAcceptRequestRequestNotExistsShouldFail() {
         when(mentorshipRequestRepository.findById(1L)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> mentorshipRequestService.acceptRequest(1L));
@@ -141,7 +141,7 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    void testRejectRequest_RequestExists_Success() {
+    void testRejectRequestRequestExistsSuccess() {
         MentorshipRequest mentorshipRequest = new MentorshipRequest();
 
         when(mentorshipRequestRepository.findById(1L)).thenReturn(Optional.of(mentorshipRequest));
@@ -153,7 +153,7 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    void testRejectRequest_RequestNotExists_ThrowsException() {
+    void testRejectRequestRequestNotExistsShouldFail() {
         when(mentorshipRequestRepository.findById(1L)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> mentorshipRequestService.rejectRequest(1L, "Not interested"));

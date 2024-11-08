@@ -5,11 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
@@ -68,34 +68,26 @@ public class MentorshipRequestService {
                                 (filter.receiverId() == null ||
                                         request.getReceiver().getId().equals(filter.receiverId())) &&
                                 (filter.status() == null ||
-                                        request.getStatus().equals(filter.status())))
+                                        request.getStatus().toString().equals(filter.status().toString())))
                 .map(mentorshipRequestMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public void acceptRequest(long id) {
-        mentorshipRequestRepository.findById(id)
-                .ifPresentOrElse(
-                        mentorshipRequest -> {
-                            User requester = mentorshipRequest.getRequester();
-                            if (requester.getMentors().contains(mentorshipRequest.getReceiver())) {
-                                log.error(mentorshipRequest.getReceiver().toString()
-                                        + "is a mentor for this requester");
-                                throw new IllegalArgumentException(
-                                        String.format(mentorshipRequest.getReceiver().toString()
-                                                + "is a mentor for this requester"));
-                            } else {
-                                requester.getMentors().add(mentorshipRequest.getReceiver());
-                                mentorshipRequest.setStatus(RequestStatus.ACCEPTED);
-                            }
-                        },
-                        () ->
-                        {
-                            log.error("Request with id: %s does not exist" + id);
-                            throw new IllegalArgumentException(String.format("Request with id: %s does not exist", id));
-                        }
-                );
+        User requester = getRequesterByIdRequest(id);
+        User receiver = getReceiverByIdRequest(id);
+
+        if (requester.getMentors().contains(receiver)) {
+            log.error(receiver.toString()
+                    + "is a mentor for this requester");
+            throw new IllegalArgumentException(
+                    String.format(receiver
+                            + "is a mentor for this requester"));
+        } else {
+            requester.getMentors().add(receiver);
+            mentorshipRequestRepository.findById(id).get().setStatus(RequestStatus.ACCEPTED);
+        }
     }
 
     @Transactional
@@ -112,5 +104,15 @@ public class MentorshipRequestService {
                             throw new IllegalArgumentException(String.format("Request with id: %s does not exist", id));
                         }
                 );
+    }
+    private User getRequesterByIdRequest(long id) {
+        return mentorshipRequestRepository.findById(id)
+                .map(MentorshipRequest::getRequester)
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Request with id: %s does not exist", id)));
+    }
+    private User getReceiverByIdRequest(long id) {
+        return mentorshipRequestRepository.findById(id)
+                .map(MentorshipRequest::getReceiver)
+                .orElseThrow(() -> new IllegalArgumentException(String.format("Request with id: %s does not exist", id)));
     }
 }

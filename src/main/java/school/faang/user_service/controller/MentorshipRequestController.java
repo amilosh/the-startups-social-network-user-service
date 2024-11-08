@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(UrlUtils.MAIN_URL + UrlUtils.REQUEST)
+@RequestMapping(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.MENTORSHIP + UrlUtils.REQUEST)
 public class MentorshipRequestController {
 
     private final MentorshipRequestService mentorshipRequestService;
