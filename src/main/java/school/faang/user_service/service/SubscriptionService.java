@@ -2,12 +2,12 @@ package school.faang.user_service.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.ShortUserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filters.UserFilter;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.ShortUserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
-    private final UserMapper userMapper;
+    private final ShortUserMapper shortUserMapper;
     private final List<UserFilter> userFilters;
 
     public void followUser(long followerId, long followeeId) {
@@ -39,11 +39,11 @@ public class SubscriptionService {
         subscriptionRepository.unfollowUser(followerId, followeeId);
     }
 
-    public List<UserDto> getFollowers(long followeeId, UserFilterDto filterDto) {
+    public List<ShortUserDto> getFollowers(long followeeId, UserFilterDto filterDto) {
         Stream<User> users = subscriptionRepository.findByFolloweeId(followeeId);
 
         return users.filter(user -> UserFilter.applyAllFilters(userFilters, user, filterDto))
-                .map(userMapper::toDto)
+                .map(shortUserMapper::toDto)
                 .toList();
     }
 
@@ -51,11 +51,11 @@ public class SubscriptionService {
         return subscriptionRepository.findFolloweesAmountByFollowerId(followeeId);
     }
 
-    public List<UserDto> getFollowing(long followerId, UserFilterDto filterDto) {
+    public List<ShortUserDto> getFollowing(long followerId, UserFilterDto filterDto) {
         Stream<User> users = subscriptionRepository.findByFollowerId(followerId);
 
         return users.filter(user -> UserFilter.applyAllFilters(userFilters, user, filterDto))
-                .map(userMapper::toDto)
+                .map(shortUserMapper::toDto)
                 .toList();
     }
 
