@@ -1,12 +1,10 @@
 package school.faang.user_service.service.subscription;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserFilterDto;
@@ -31,16 +29,13 @@ public class SubscriptionServiceTest {
     private SubscriptionValidator subscriptionValidator;
     @Spy
     private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+    @Mock
+    private List<UserFilter> filters;
+    @Mock
+    private UserFilter filter;
 
     private final long followerId = 4L;
     private final long followeeId = 3L;
-
-    @BeforeEach
-    public void init() {
-        UserFilter filter = Mockito.mock(UserFilter.class);
-        List<UserFilter> filters = List.of(filter);
-        subscriptionService = new SubscriptionService(subscriptionValidator, subscriptionRepository, userMapper, filters);
-    }
 
 
     @Test
@@ -67,6 +62,7 @@ public class SubscriptionServiceTest {
 
     @Test
     public void testGetFollowers() {
+        filters = List.of(filter);
         subscriptionService.getFollowers(followeeId, new UserFilterDto());
 
         verify(subscriptionRepository, times(1)).findByFolloweeId(followeeId);
@@ -74,6 +70,7 @@ public class SubscriptionServiceTest {
 
     @Test
     public void testGetFollowing() {
+        filters = List.of(filter);
         subscriptionService.getFollowing(followeeId, new UserFilterDto());
 
         verify(subscriptionRepository, times(1)).findByFollowerId(followeeId);
