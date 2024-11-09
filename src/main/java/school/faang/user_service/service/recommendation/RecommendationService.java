@@ -95,7 +95,7 @@ public class RecommendationService {
         Page<Recommendation> recommendationsPage = recommendationRepository.findAllByAuthorId(authorId, pageable);
         return recommendationsPage.getContent().stream()
                 .map(recommendationMapper::toDto)
-                 .collect(Collectors.toList());
+                 .toList();
     }
 }
 

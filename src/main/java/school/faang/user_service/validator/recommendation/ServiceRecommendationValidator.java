@@ -3,6 +3,7 @@ package school.faang.user_service.validator.recommendation;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
@@ -22,7 +23,7 @@ import java.time.LocalDate;
 import static java.lang.Math.abs;
 
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
 public class ServiceRecommendationValidator {
     private final SkillService skillService;

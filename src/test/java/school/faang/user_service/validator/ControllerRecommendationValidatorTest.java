@@ -2,6 +2,7 @@ package school.faang.user_service.validator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import school.faang.user_service.exeption.DataValidationException;
 import school.faang.user_service.validator.recommendation.ControllerRecommendationValidator;
 
@@ -9,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ControllerRecommendationValidatorTest {
+    @Mock
     ControllerRecommendationValidator controllerRecommendationValidator;
 
     @BeforeEach
