@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -19,7 +20,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,6 +44,8 @@ public class MentorshipServiceTest {
     private final long NON_EXIST_USER_ID = 123456L;
     private User userWithEmptyListOfMenteesAndMentors;
     private User userWithMenteesAndMentors;
+
+
 
     @BeforeEach
     void initData() {
@@ -168,5 +175,16 @@ public class MentorshipServiceTest {
         verify(repository).findById(CORRECT_ID_1);
         verify(repository, never()).save(any());
         assertEquals(expectedList, realList);
+    }
+
+    @Test
+    void testStopMentorshipSuccess() {
+        service.stopMentorship(userWithMenteesAndMentors);
+
+        assertTrue(userWithEmptyListOfMenteesAndMentors.getMentors().isEmpty(),
+                "Mentee's mentors list should be empty after stopping mentorship");
+
+        verify(repository).save(userWithEmptyListOfMenteesAndMentors);
+        verify(repository).save(userWithMenteesAndMentors);
     }
 }

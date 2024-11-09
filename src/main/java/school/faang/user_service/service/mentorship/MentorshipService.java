@@ -69,5 +69,22 @@ public class MentorshipService {
     private void saveChangesOfUserInDB(User user) {
         userRepository.save(user);
     }
-}
 
+    public void stopMentorship(User mentor) {
+        if (mentor.getMentees() != null) {
+            mentor.getMentees().forEach(mentee -> {
+                if (mentee.getMentors() != null) {
+                    mentee.getMentors().remove(mentor);
+                }
+                if (mentee.getSetGoals() != null) {
+                    mentee.getSetGoals().forEach(goal -> goal.setMentor(null));
+                }
+                userRepository.save(mentee);
+                log.info("Mentorship between mentor ID {} and mentee ID {} stopped", mentor.getId(), mentee.getId());
+            });
+        }
+
+        userRepository.save(mentor);
+        log.info("Mentor with ID {} saved after stopping all mentorships", mentor.getId());
+    }
+}
