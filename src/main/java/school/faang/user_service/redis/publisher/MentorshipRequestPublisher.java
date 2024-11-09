@@ -23,7 +23,7 @@ public class MentorshipRequestPublisher extends AbstractEventPublisher<Mentorshi
     }
 
     @AfterReturning(
-            pointcut = "@annotation(school.faang.user_service.annotation.SendMentorshipRequestReceived)",
+            pointcut = "@annotation(school.faang.user_service.annotation.event.SendMentorshipRequestReceived)",
             returning = "returnValue"
     )
     public void publishPostEvent(Object returnValue) {
