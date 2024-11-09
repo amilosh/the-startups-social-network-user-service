@@ -7,6 +7,6 @@ import lombok.Data;
 @Data
 @Builder
 public class RejectionDto {
-    @NotBlank(message = "Нужно указать причину отклонения запроса на рекомендацию")
+    @NotBlank(message = "Rejection reason must be filled")
     private String reason;
 }

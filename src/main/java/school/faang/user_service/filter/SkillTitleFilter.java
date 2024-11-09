@@ -19,8 +19,9 @@ public class SkillTitleFilter implements RequestFilter {
     public Stream<RecommendationRequest> apply(Stream<RecommendationRequest> stream, RequestFilterDto filter) {
         List<String> skillTitles = filter.getSkillTitles();
         return stream.filter(request ->
-                request.getSkills().stream()
-                        .anyMatch(skillRequest -> skillTitles.contains(skillRequest.getSkill().getTitle()))
+                request.getSkills() != null &&
+                        request.getSkills().stream()
+                                .anyMatch(skillRequest -> skillTitles.contains(skillRequest.getSkill().getTitle()))
         );
     }
 }

@@ -2,12 +2,12 @@ package school.faang.user_service.controller.recommendation;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,15 +19,16 @@ import school.faang.user_service.service.RecommendationRequestService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/recommendations")
+@RequestMapping("/api/v1/recommendations")
 @RequiredArgsConstructor
 public class RecommendationRequestController {
     private final RecommendationRequestService recommendationRequestService;
 
-    @PostMapping("/request")
-    public RecommendationRequestDto requestRecommendation(
+    @PostMapping
+    public ResponseEntity<RecommendationRequestDto> requestRecommendation(
             @Valid @RequestBody RecommendationRequestDto recommendationRequestDto) {
-        return recommendationRequestService.create(recommendationRequestDto);
+        RecommendationRequestDto createdRequest = recommendationRequestService.create(recommendationRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdRequest);
     }
 
     @GetMapping
@@ -43,11 +44,10 @@ public class RecommendationRequestController {
         return ResponseEntity.ok(dto);
     }
 
-    @PatchMapping("/{id}/reject")
+    @PutMapping("/{id}/reject")
     public ResponseEntity<RecommendationRequestDto> rejectRequest(
             @PathVariable Long id, @Valid @RequestBody RejectionDto rejection) {
         RecommendationRequestDto dto = recommendationRequestService.rejectRequest(id, rejection);
         return ResponseEntity.ok(dto);
     }
-
 }

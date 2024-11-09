@@ -12,8 +12,9 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.RecommendationRequestNotFoundException;
-import school.faang.user_service.filter.RecommendationRequestFilterManager;
+import school.faang.user_service.filter.RequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -63,11 +64,21 @@ class RecommendationRequestServiceTest {
     private SkillValidator skillValidator;
 
     @Mock
-    private RecommendationRequestFilterManager filterManager;
+    private RequestFilter endDateFilter;
+    @Mock
+    private RequestFilter receiverIdFilter;
+    @Mock
+    private RequestFilter requesterIdFilter;
+    @Mock
+    private RequestFilter skillTitleFilter;
+    @Mock
+    private RequestFilter startDateFilter;
+    @Mock
+    private RequestFilter statusFilter;
 
     @InjectMocks
     private RecommendationRequestService recommendationRequestService;
-
+    private RequestFilterDto filterDto;
     private RecommendationRequestValidator recommendationRequestValidator;
 
     private User requester;
@@ -82,17 +93,21 @@ class RecommendationRequestServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        RecommendationRequestValidator realValidator = new RecommendationRequestValidator(recommendationRequestRepository);
+        RecommendationRequestValidator realValidator = new RecommendationRequestValidator(recommendationRequestRepository, skillValidator);
         recommendationRequestValidator = spy(realValidator);
 
         recommendationRequestService = new RecommendationRequestService(
                 recommendationRequestRepository,
                 recommendationRequestMapper,
                 skillRequestService,
-                skillValidator,
                 userService,
-                filterManager,
-                recommendationRequestValidator
+                recommendationRequestValidator,
+                List.of(endDateFilter,
+                        receiverIdFilter,
+                        requesterIdFilter,
+                        skillTitleFilter,
+                        startDateFilter,
+                        statusFilter)
         );
 
         requester = User.builder()
@@ -283,7 +298,6 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     void testGetRequests_WithAllFilters() {
         RequestFilterDto filter = RequestFilterDto.builder()
                 .status(RequestStatus.PENDING)
@@ -297,122 +311,129 @@ class RecommendationRequestServiceTest {
         RecommendationRequest requestOne = RecommendationRequest.builder()
                 .id(1L)
                 .status(RequestStatus.PENDING)
+                .requester(User.builder().id(1L).build())
+                .receiver(User.builder().id(2L).build())
                 .createdAt(LocalDateTime.of(2024, 8, 21, 12, 0))
-                .requester(requester)
-                .receiver(receiver)
-                .message("Пожалуйста, дай мне рекомендацию")
+                .skills(List.of(
+                        SkillRequest.builder().skill(Skill.builder().title("Java").build()).build(),
+                        SkillRequest.builder().skill(Skill.builder().title("Spring").build()).build()
+                ))
                 .build();
 
-        RecommendationRequestDto dtoOne = RecommendationRequestDto.builder()
-                .id(1L)
-                .status(RequestStatus.PENDING)
-                .createdAt(LocalDateTime.of(2024, 8, 21, 12, 0))
-                .requesterId(1L)
-                .receiverId(2L)
-                .message("Пожалуйста, дай мне рекомендацию")
-                .skills(Arrays.asList(1L, 2L))
-                .build();
+        when(recommendationRequestRepository.findAll()).thenReturn(List.of(requestOne));
 
-        List<RecommendationRequest> requestsList = Arrays.asList(requestOne);
+        when(statusFilter.isApplicable(filter)).thenReturn(true);
+        when(statusFilter.apply(any(), eq(filter))).thenReturn(Stream.of(requestOne));
 
-        when(recommendationRequestRepository.findAll()).thenReturn(requestsList);
-        when(filterManager.applyFilters(any(Stream.class), eq(filter))).thenReturn(requestsList.stream());
-        when(recommendationRequestMapper.toDto(requestOne)).thenReturn(dtoOne);
+        when(startDateFilter.isApplicable(filter)).thenReturn(true);
+        when(startDateFilter.apply(any(), eq(filter))).thenReturn(Stream.of(requestOne));
+
+        when(endDateFilter.isApplicable(filter)).thenReturn(true);
+        when(endDateFilter.apply(any(), eq(filter))).thenReturn(Stream.of(requestOne));
+
+        when(requesterIdFilter.isApplicable(filter)).thenReturn(true);
+        when(requesterIdFilter.apply(any(), eq(filter))).thenReturn(Stream.of(requestOne));
+
+        when(receiverIdFilter.isApplicable(filter)).thenReturn(true);
+        when(receiverIdFilter.apply(any(), eq(filter))).thenReturn(Stream.of(requestOne));
+
+        when(skillTitleFilter.isApplicable(filter)).thenReturn(true);
+        when(skillTitleFilter.apply(any(), eq(filter))).thenReturn(Stream.of(requestOne));
+
+        when(recommendationRequestMapper.toDto(requestOne)).thenReturn(
+                RecommendationRequestDto.builder()
+                        .id(requestOne.getId())
+                        .message("Пожалуйста, дай мне рекомендацию")
+                        .status(RequestStatus.PENDING)
+                        .skills(List.of(1L, 2L))
+                        .requesterId(1L)
+                        .receiverId(2L)
+                        .createdAt(requestOne.getCreatedAt())
+                        .updatedAt(LocalDateTime.of(2024, 8, 21, 12, 30))
+                        .rejectionReason(null)
+                        .build()
+        );
 
         List<RecommendationRequestDto> result = recommendationRequestService.getRequests(filter);
+
+        assertNotNull(result);
+        assertEquals(requestOne.getId(), result.get(0).getId());
+
+        verify(recommendationRequestRepository, times(1)).findAll();
+        verify(statusFilter, times(1)).apply(any(), eq(filter));
+        verify(startDateFilter, times(1)).apply(any(), eq(filter));
+        verify(endDateFilter, times(1)).apply(any(), eq(filter));
+        verify(requesterIdFilter, times(1)).apply(any(), eq(filter));
+        verify(receiverIdFilter, times(1)).apply(any(), eq(filter));
+        verify(skillTitleFilter, times(1)).apply(any(), eq(filter));
+    }
+
+    @Test
+    void testGetRequests_NoFilters() {
+        filterDto = RequestFilterDto.builder().build();
+
+        RecommendationRequest recommendationRequest = RecommendationRequest.builder()
+                .id(1L)
+                .status(RequestStatus.PENDING)
+                .requester(User.builder().id(1L).build())
+                .receiver(User.builder().id(2L).build())
+                .build();
+
+        List<RecommendationRequest> requestsList = List.of(recommendationRequest);
+
+        when(statusFilter.isApplicable(filterDto)).thenReturn(false);
+        when(startDateFilter.isApplicable(filterDto)).thenReturn(false);
+        when(endDateFilter.isApplicable(filterDto)).thenReturn(false);
+        when(requesterIdFilter.isApplicable(filterDto)).thenReturn(false);
+        when(receiverIdFilter.isApplicable(filterDto)).thenReturn(false);
+        when(skillTitleFilter.isApplicable(filterDto)).thenReturn(false);
+
+        when(recommendationRequestRepository.findAll()).thenReturn(requestsList);
+        when(recommendationRequestMapper.toDto(any(RecommendationRequest.class))).thenReturn(recommendationRequestDto);
+
+        List<RecommendationRequestDto> result = recommendationRequestService.getRequests(filterDto);
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals(dtoOne.getId(), result.get(0).getId());
+        assertEquals(recommendationRequestDto.getId(), result.get(0).getId());
 
-        verify(recommendationRequestRepository, times(1)).findAll();
-        verify(filterManager, times(1)).applyFilters(any(Stream.class), eq(filter));
-        verify(recommendationRequestMapper, times(1)).toDto(requestOne);
+        verify(statusFilter, never()).apply(any(), eq(filterDto));
+        verify(startDateFilter, never()).apply(any(), eq(filterDto));
+        verify(endDateFilter, never()).apply(any(), eq(filterDto));
+        verify(requesterIdFilter, never()).apply(any(), eq(filterDto));
+        verify(receiverIdFilter, never()).apply(any(), eq(filterDto));
+        verify(skillTitleFilter, never()).apply(any(), eq(filterDto));
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    void testGetRequests_NoFilters() {
-        RecommendationRequest requestOne = RecommendationRequest.builder()
-                .id(1L)
-                .status(RequestStatus.ACCEPTED)
-                .createdAt(LocalDateTime.now())
-                .requester(requester)
-                .receiver(receiver)
-                .message("Пожалуйста, дай мне рекомендацию")
-                .build();
-
-        RecommendationRequest requestTwo = RecommendationRequest.builder()
-                .id(2L)
-                .status(RequestStatus.REJECTED)
-                .createdAt(LocalDateTime.now().minusDays(10))
-                .requester(requester)
-                .receiver(receiver)
-                .message("Пожалуйста, дай мне рекомендацию")
-                .build();
-
-        RecommendationRequestDto dtoOne = RecommendationRequestDto.builder()
-                .id(1L)
-                .status(RequestStatus.ACCEPTED)
-                .createdAt(requestOne.getCreatedAt())
-                .requesterId(1L)
-                .receiverId(2L)
-                .message("Пожалуйста, дай мне рекомендацию")
-                .skills(Arrays.asList(1L, 2L))
-                .build();
-
-        RecommendationRequestDto dtoTwo = RecommendationRequestDto.builder()
-                .id(2L)
-                .status(RequestStatus.REJECTED)
-                .createdAt(requestTwo.getCreatedAt())
-                .requesterId(1L)
-                .receiverId(2L)
-                .message("Пожалуйста, дай мне рекомендацию")
-                .skills(Arrays.asList(1L, 2L))
-                .build();
-
-        List<RecommendationRequest> requestsList = Arrays.asList(requestOne, requestTwo);
-
-        when(recommendationRequestRepository.findAll()).thenReturn(requestsList);
-        when(filterManager.applyFilters(any(Stream.class), any(RequestFilterDto.class)))
-                .thenReturn(requestsList.stream());
-        when(recommendationRequestMapper.toDto(requestOne)).thenReturn(dtoOne);
-        when(recommendationRequestMapper.toDto(requestTwo)).thenReturn(dtoTwo);
-
-        RequestFilterDto filter = RequestFilterDto.builder().build();
-        List<RecommendationRequestDto> result = recommendationRequestService.getRequests(filter);
-
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertEquals(dtoOne.getId(), result.get(0).getId());
-        assertEquals(dtoTwo.getId(), result.get(1).getId());
-
-        verify(recommendationRequestRepository, times(1)).findAll();
-        verify(filterManager, times(1)).applyFilters(any(Stream.class), eq(filter));
-        verify(recommendationRequestMapper, times(1)).toDto(requestOne);
-        verify(recommendationRequestMapper, times(1)).toDto(requestTwo);
-    }
-
-    @Test
-    @SuppressWarnings("unchecked")
     void testGetRequests_NoResults() {
-        RequestFilterDto filter = RequestFilterDto.builder()
-                .status(RequestStatus.REJECTED)
-                .build();
+        RequestFilterDto filterDto = RequestFilterDto.builder().status(RequestStatus.REJECTED).build();
 
-        List<RecommendationRequest> requestsList = Arrays.asList();
+        when(recommendationRequestRepository.findAll()).thenReturn(List.of());
 
-        when(recommendationRequestRepository.findAll()).thenReturn(requestsList);
-        when(filterManager.applyFilters(any(Stream.class), eq(filter))).thenReturn(requestsList.stream());
+        when(statusFilter.isApplicable(filterDto)).thenReturn(true);
+        when(statusFilter.apply(any(), eq(filterDto))).thenReturn(Stream.empty());
 
-        List<RecommendationRequestDto> result = recommendationRequestService.getRequests(filter);
+        when(startDateFilter.isApplicable(filterDto)).thenReturn(false);
+        when(endDateFilter.isApplicable(filterDto)).thenReturn(false);
+        when(requesterIdFilter.isApplicable(filterDto)).thenReturn(false);
+        when(receiverIdFilter.isApplicable(filterDto)).thenReturn(false);
+        when(skillTitleFilter.isApplicable(filterDto)).thenReturn(false);
+
+        List<RecommendationRequestDto> result = recommendationRequestService.getRequests(filterDto);
 
         assertNotNull(result);
-        assertTrue(result.isEmpty());
+        assertTrue(result.isEmpty(), "Expected no results, but found some");
 
         verify(recommendationRequestRepository, times(1)).findAll();
-        verify(filterManager, times(1)).applyFilters(any(Stream.class), eq(filter));
-        verify(recommendationRequestMapper, never()).toDto(any());
+        verify(statusFilter, times(1)).isApplicable(filterDto);
+        verify(statusFilter, times(1)).apply(any(), eq(filterDto));
+
+        verify(startDateFilter, times(1)).isApplicable(filterDto);
+        verify(endDateFilter, times(1)).isApplicable(filterDto);
+        verify(requesterIdFilter, times(1)).isApplicable(filterDto);
+        verify(receiverIdFilter, times(1)).isApplicable(filterDto);
+        verify(skillTitleFilter, times(1)).isApplicable(filterDto);
     }
 
     @Test

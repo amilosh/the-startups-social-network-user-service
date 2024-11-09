@@ -12,7 +12,7 @@ public class EndDateFilter implements RequestFilter {
 
     @Override
     public boolean isApplicable(RequestFilterDto filter) {
-        return filter.getEndDate() != null;
+        return filter != null && filter.getEndDate() != null;
     }
 
     @Override

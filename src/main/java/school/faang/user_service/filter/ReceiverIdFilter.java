@@ -17,6 +17,8 @@ public class ReceiverIdFilter implements RequestFilter {
     @Override
     public Stream<RecommendationRequest> apply(Stream<RecommendationRequest> stream, RequestFilterDto filter) {
         Long receiverId = filter.getReceiverId();
-        return stream.filter(request -> request.getReceiver().getId().equals(receiverId));
+        return stream.filter(request ->
+                request.getReceiver() != null && receiverId.equals(request.getReceiver().getId())
+        );
     }
 }

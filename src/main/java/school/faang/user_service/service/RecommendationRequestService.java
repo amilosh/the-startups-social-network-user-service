@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RejectionDto;
@@ -11,11 +12,10 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
-import school.faang.user_service.filter.RecommendationRequestFilterManager;
+import school.faang.user_service.filter.RequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.validator.RecommendationRequestValidator;
-import school.faang.user_service.validator.SkillValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +28,11 @@ public class RecommendationRequestService {
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final RecommendationRequestMapper recommendationRequestMapper;
     private final SkillRequestService skillRequestService;
-    private final SkillValidator skillValidator;
     private final UserService userService;
-    private final RecommendationRequestFilterManager recommendationRequestFilterManager;
     private final RecommendationRequestValidator recommendationRequestValidator;
+    private final List<RequestFilter> filters;
 
+    @Autowired
     @Transactional
     public RecommendationRequestDto create(RecommendationRequestDto dto) {
         User requester = userService.getUserById(dto.getRequesterId());
@@ -40,11 +40,7 @@ public class RecommendationRequestService {
 
         recommendationRequestValidator.validateUsersExistence(requester, receiver);
         recommendationRequestValidator.validateRequestFrequency(dto.getRequesterId(), dto.getReceiverId());
-
-        List<Long> skillsIds = dto.getSkills();
-        if (skillsIds != null && !skillsIds.isEmpty()) {
-            skillValidator.validateSkills(skillsIds);
-        }
+        recommendationRequestValidator.validateSkillsExistence(dto.getSkills());
 
         RecommendationRequest recommendationRequest = recommendationRequestMapper.toEntity(dto);
 
@@ -58,8 +54,8 @@ public class RecommendationRequestService {
 
         RecommendationRequest savedRequest = recommendationRequestRepository.save(recommendationRequest);
 
-        if (skillsIds != null && !skillsIds.isEmpty()) {
-            List<Skill> skills = skillRequestService.getSkillsByIds(skillsIds);
+        if (dto.getSkills() != null && !dto.getSkills().isEmpty()) {
+            List<Skill> skills = skillRequestService.getSkillsByIds(dto.getSkills());
             for (Skill skill : skills) {
                 SkillRequest skillRequest = skillRequestService.createSkillRequest(skill, savedRequest);
                 savedRequest.getSkills().add(skillRequest);
@@ -69,12 +65,14 @@ public class RecommendationRequestService {
         return recommendationRequestMapper.toDto(savedRequest);
     }
 
-    public List<RecommendationRequestDto> getRequests(RequestFilterDto filter) {
-        List<RecommendationRequest> requests = recommendationRequestRepository.findAll();
+    public List<RecommendationRequestDto> getRequests(RequestFilterDto filterDto) {
+        Stream<RecommendationRequest> stream = recommendationRequestRepository.findAll().stream();
 
-        Stream<RecommendationRequest> stream = requests.stream();
-
-        stream = recommendationRequestFilterManager.applyFilters(stream, filter);
+        for (RequestFilter filter : filters) {
+            if (filter.isApplicable(filterDto)) {
+                stream = filter.apply(stream, filterDto);
+            }
+        }
 
         return stream
                 .map(recommendationRequestMapper::toDto)

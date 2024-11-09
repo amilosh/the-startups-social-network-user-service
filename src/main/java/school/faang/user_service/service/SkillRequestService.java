@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.exception.SkillNotFoundException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 
@@ -29,6 +30,6 @@ public class SkillRequestService {
 
     public Skill getSkillById(Long skillId) {
         return skillRepository.findById(skillId)
-                .orElseThrow(() -> new IllegalArgumentException("В базе данных нет скилла с id: " + skillId));
+                .orElseThrow(() -> new SkillNotFoundException(skillId));
     }
 }

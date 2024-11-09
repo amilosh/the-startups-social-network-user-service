@@ -9,6 +9,7 @@ import school.faang.user_service.exception.RecommendationRequestNotFoundExceptio
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -16,6 +17,7 @@ import java.util.Optional;
 public class RecommendationRequestValidator {
 
     private final RecommendationRequestRepository recommendationRequestRepository;
+    private final SkillValidator skillValidator;
 
     public void validateUsersExistence(User requester, User receiver) {
         if (requester == null) {
@@ -24,6 +26,12 @@ public class RecommendationRequestValidator {
 
         if (receiver == null) {
             throw new IllegalArgumentException("Пользователя, получающего рекомендацию не существует");
+        }
+    }
+
+    public void validateSkillsExistence(List<Long> skillsIds) {
+        if (skillsIds != null && !skillsIds.isEmpty()) {
+            skillValidator.validateSkills(skillsIds);
         }
     }
 

@@ -8,7 +8,6 @@ import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface RecommendationRequestMapper {
@@ -31,6 +30,6 @@ public interface RecommendationRequestMapper {
         }
         return skillRequests.stream()
                 .map(skillRequest -> skillRequest.getSkill().getId())
-                .collect(Collectors.toList());
+                .toList();
     }
 }
