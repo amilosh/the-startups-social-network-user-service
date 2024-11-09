@@ -6,5 +6,4 @@ import school.faang.user_service.entity.promotion.UserPromotion;
 
 @Repository
 public interface UserPromotionRepository extends JpaRepository<UserPromotion, Long> {
-    boolean existsByUserId(long userId);
 }

@@ -6,5 +6,4 @@ import school.faang.user_service.entity.promotion.EventPromotion;
 
 @Repository
 public interface EventPromotionRepository extends JpaRepository<EventPromotion, Long> {
-    boolean existsByEventId(long eventId);
 }
