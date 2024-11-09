@@ -36,7 +36,7 @@ import static org.mockito.Mockito.when;
 class SkillServiceTest {
 
     @InjectMocks
-    private SkillServiceImpl skillService;
+    private SkillService skillService;
 
     @Mock
     private SkillRepository skillRepository;
