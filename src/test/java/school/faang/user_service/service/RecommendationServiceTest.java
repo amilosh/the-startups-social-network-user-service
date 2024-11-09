@@ -98,9 +98,11 @@ public class RecommendationServiceTest {
         doThrow(new DataValidationException("Invalid skills"))
                 .when(serviceRecommendationValidator).checkingTheSkillsOfRecommendation(any());
 
-        assertThrows(DataValidationException.class, () -> {
+        DataValidationException dataValidationException = assertThrows(DataValidationException.class, () -> {
             recommendationService.giveRecommendation(recommendationDto);
         });
+
+        assertEquals("Invalid skills", dataValidationException.getMessage());
 
         verify(serviceRecommendationValidator).checkingThePeriodOfFasting(
                 recommendationDto.getAuthorId(), recommendationDto.getReceiverId());
@@ -115,9 +117,11 @@ public class RecommendationServiceTest {
         doThrow(new DataValidationException("Invalid user skills"))
                 .when(serviceRecommendationValidator).checkingTheUserSkills(any());
 
-        assertThrows(DataValidationException.class, () -> {
+        DataValidationException dataValidationException = assertThrows(DataValidationException.class, () -> {
             recommendationService.giveRecommendation(recommendationDto);
         });
+
+        assertEquals("Invalid user skills", dataValidationException.getMessage());
 
         verify(serviceRecommendationValidator).checkingThePeriodOfFasting(
                 recommendationDto.getAuthorId(), recommendationDto.getReceiverId());
@@ -137,14 +141,14 @@ public class RecommendationServiceTest {
 
     @Test
     void deleteRecommendation_shouldThrowExceptionIfValidatorFails() {
-        doThrow(new IllegalArgumentException("Validation failed"))
+        doThrow(new DataValidationException("Validation failed"))
                 .when(serviceRecommendationValidator).preparingBeforeDelete(recommendationDto);
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+        DataValidationException dataValidationException = assertThrows(DataValidationException.class, () -> {
             recommendationService.deleteRecommendation(recommendationDto);
         });
 
-        assertEquals("Validation failed", exception.getMessage());
+        assertEquals("Validation failed", dataValidationException.getMessage());
 
         verify(recommendationRepository, never()).deleteById(anyLong());
     }

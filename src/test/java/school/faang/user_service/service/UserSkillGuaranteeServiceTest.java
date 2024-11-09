@@ -26,7 +26,6 @@ public class UserSkillGuaranteeServiceTest {
 
     @Test
     public void testCreateGuarantee_GuaranteeDoesNotExist_CreatesNewGuarantee() {
-        // Гарантия отсутствует
         when(userSkillGuaranteeRepository.existsByUserIdAndSkillId(userId, skillId)).thenReturn(false);
         when(userSkillGuaranteeRepository.findMaxGuarantorId()).thenReturn(10L); // Максимальное значение гарантии — 10
         when(userSkillGuaranteeRepository.create(userId, skillId, 11L)).thenReturn(11L); // Ожидаем создание новой с ID = 11
@@ -43,7 +42,7 @@ public class UserSkillGuaranteeServiceTest {
 
     @Test
     public void testCreateGuarantee_GuaranteeAlreadyExists_ReturnsNull() {
-        // Гарантия уже существует
+
         when(userSkillGuaranteeRepository.existsByUserIdAndSkillId(userId, skillId)).thenReturn(true);
 
         Long result = userSkillGuaranteeService.createGuarantee(userId, skillId);
@@ -57,7 +56,6 @@ public class UserSkillGuaranteeServiceTest {
 
     @Test
     public void testCreateGuarantee_MaxGuarantorIdIsNull_CreatesNewGuaranteeWithIdOne() {
-        // `maxGuarantorId` отсутствует, и новая гарантия создается с `newGuarantorId = 1`
         when(userSkillGuaranteeRepository.existsByUserIdAndSkillId(userId, skillId)).thenReturn(false);
         when(userSkillGuaranteeRepository.findMaxGuarantorId()).thenReturn(null);
         when(userSkillGuaranteeRepository.create(userId, skillId, 1L)).thenReturn(1L);
