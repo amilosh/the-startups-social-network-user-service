@@ -7,7 +7,7 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=postgres
     ports:
-      - '5432:5432'
+      - '5455:5455'
   master_redis:
     image: redis/redis-stack:latest
     ports:
