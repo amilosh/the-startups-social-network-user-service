@@ -173,7 +173,7 @@ class GoalInvitationServiceTest {
         assertTrue(goalInvitationService.getInvitations(goalInvitationFilterDto).isEmpty());
     }
 
-    public void preparationData() {
+    private void preparationData() {
         dto = GoalInvitationDto.builder()
                 .id(1L)
                 .inviterId(1L)

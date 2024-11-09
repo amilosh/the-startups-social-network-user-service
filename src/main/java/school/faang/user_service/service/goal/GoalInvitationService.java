@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.GoalInvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
@@ -38,6 +39,7 @@ public class GoalInvitationService {
         return goalInvitationMapper.toDto(goalInvitation);
     }
 
+    @Transactional
     public GoalInvitationDto acceptGoalInvitation(long id) {
         goalInvitationValidator.validateId(id);
         return goalInvitationRepository.getById(id)
@@ -54,6 +56,7 @@ public class GoalInvitationService {
                 }).orElseThrow(() -> new EntityNotFound("Invitation not found for id: " + id));
     }
 
+    @Transactional
     public GoalInvitationDto rejectGoalInvitation(long id) {
         goalInvitationValidator.validateId(id);
         return goalInvitationRepository.getById(id)

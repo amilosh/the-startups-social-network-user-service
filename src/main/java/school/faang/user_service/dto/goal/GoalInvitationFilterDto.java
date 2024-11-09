@@ -12,10 +12,10 @@ public class GoalInvitationFilterDto {
 
     private String invitedNamePattern;
 
-    @Positive(message = "Inviter ID must be positive number")
+    @Positive(message = "Inviter ID must be a positive number")
     private Long inviterId;
 
-    @Positive(message = "Inviter ID must be positive number")
+    @Positive(message = "Inviter ID must be a positive number")
     private Long invitedId;
 
     private RequestStatus status;
