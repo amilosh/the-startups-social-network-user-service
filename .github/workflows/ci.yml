@@ -58,7 +58,7 @@ jobs:
           DB_USER: user
           DB_PASSWORD: password
           DB_NAME: postgres
-        run: ./gradlew test --no-daemon -x MapperEventTest
+        run: ./gradlew test --no-daemon #-x MapperEventTest
 #      - name: Run tests
 #        run: ./gradlew test --no-daemon -x testClassName=UserMapperTest
 
