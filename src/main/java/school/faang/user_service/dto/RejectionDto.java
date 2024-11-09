@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 public class RejectionDto {
-    @NotBlank(message = "Rejection reason must be filled")
+
+    @NotBlank(message = "Reason must not be empty or blank.")
     private String reason;
 }
