@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.RequestStatus;
@@ -19,6 +20,7 @@ import java.util.List;
 @Builder
 @Entity
 @Table(name = "recommendation_request")
+@Accessors(chain = true)
 public class RecommendationRequest {
 
     @Id
