@@ -7,6 +7,7 @@ import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.filter.RequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -23,6 +24,7 @@ public class RecommendationRequestService {
     private final RecommendationRequestMapper mapper;
     private final SkillRequestRepository skillRequestRepository;
     private final UserRepository userRepository;
+    private final List<RequestFilter> requestFilters;
 
 
     public void create(RecommendationRequestDto recommendationRequestDto) {
@@ -47,9 +49,12 @@ public class RecommendationRequestService {
         recommendationRequestRepository.save(entityRecommendationRequest);
     }
 
-    public List<RecommendationRequestDto> getRequests(RequestFilterDto filter){
+    public List<RecommendationRequestDto> getRequests(RequestFilterDto filter) {
         List<RecommendationRequest> recommendationRequestsAll = recommendationRequestRepository.findAll();
-
-        return null;
+        List<RecommendationRequest> recommendationRequestsFiltered = recommendationRequestsAll.stream()
+                .filter(recommendationRequest -> requestFilters.stream()
+                        .allMatch(requestFilter -> requestFilter.apply(recommendationRequest, filter)))
+                .toList();
+        return mapper.allToDTO(recommendationRequestsFiltered);
     }
 }

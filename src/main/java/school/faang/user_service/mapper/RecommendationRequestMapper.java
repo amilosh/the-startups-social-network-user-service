@@ -31,4 +31,9 @@ public interface RecommendationRequestMapper {
                 .toList();
     }
 
+    @Mapping(source = "skills", target = "skillIds", qualifiedByName = "mapSkillRequestToSkillId")
+    @Mapping(source = "receiver.id", target = "receiverId")
+    @Mapping(source = "requester.id", target = "requesterId")
+    List<RecommendationRequestDto> allToDTO(List<RecommendationRequest> recommendationRequest);
+
 }

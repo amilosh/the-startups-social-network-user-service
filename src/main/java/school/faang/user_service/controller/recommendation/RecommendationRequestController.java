@@ -19,7 +19,7 @@ public class RecommendationRequestController {
         return recommendationRequest;
     }
 
-    List<RecommendationRequestDto> getRecommendationRequests(RequestFilterDto filter){
+    List<RecommendationRequestDto> getRecommendationRequests(@Valid RequestFilterDto filter){
         return recommendationRequestService.getRequests(filter);
     }
 }
