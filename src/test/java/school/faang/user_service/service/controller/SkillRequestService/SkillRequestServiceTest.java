@@ -20,8 +20,10 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 public class SkillRequestServiceTest {
@@ -92,5 +94,7 @@ public class SkillRequestServiceTest {
 
         assertEquals("Skill with ID " + missingSkillId + " not found" + missingSkillId,
                 dataValidationException.getMessage());
+
+        verify(skillRequestRepository, never()).saveAll(any(List.class));
     }
 }

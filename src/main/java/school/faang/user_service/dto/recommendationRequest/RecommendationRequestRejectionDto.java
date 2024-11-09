@@ -9,6 +9,6 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-public class RejectionDto {
+public class RecommendationRequestRejectionDto {
     private String rejectionReason;
 }

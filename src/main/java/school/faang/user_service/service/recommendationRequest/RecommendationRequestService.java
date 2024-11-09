@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendationRequest.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendationRequest.RecommendationRequestFilterDto;
-import school.faang.user_service.dto.recommendationRequest.RejectionDto;
+import school.faang.user_service.dto.recommendationRequest.RecommendationRequestRejectionDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.recommendationRequest.RecommendationRequestFilter;
@@ -79,14 +79,14 @@ public class RecommendationRequestService {
         return recommendationRequestMapper.toDto(recommendationRequest);
     }
 
-    public RecommendationRequestDto rejectRequest(long id, RejectionDto rejectionDto) {
+    public RecommendationRequestDto rejectRequest(long id, RecommendationRequestRejectionDto recommendationRequestRejectionDto) {
         log.info("Rejecting recommendation request with ID: {}", id);
 
         RecommendationRequest recommendationRequest = recommendationRequestValidator.validateRequestExists(id,
                 recommendationRequestRepository);
 
         recommendationRequest.setStatus(REJECTED);
-        recommendationRequest.setRejectionReason(rejectionDto.getRejectionReason());
+        recommendationRequest.setRejectionReason(recommendationRequestRejectionDto.getRejectionReason());
         recommendationRequestRepository.save(recommendationRequest);
         log.info("Recommendation request with ID: {} successfully rejected", id);
 

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RecommendationRequestValidator {
 
-    private static final int SIX_MONTHS_AGO = 6;
+    private static final int MONTHS_TO_REPEAT_REQUEST = 6;
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final UserRepository userRepository;
     private final SkillRepository skillRepository;
@@ -42,7 +42,7 @@ public class RecommendationRequestValidator {
                 .findLatestPendingRequest(recommendationRequestDto.getRequesterId(), recommendationRequestDto.getReceiverId())
                 .orElseThrow(() -> new DataValidationException("No existing request found"));
 
-        if (ChronoUnit.MONTHS.between(latestPendingRequest.getCreatedAt(), recommendationRequestDto.getCreatedAt()) < SIX_MONTHS_AGO) {
+        if (ChronoUnit.MONTHS.between(latestPendingRequest.getCreatedAt(), recommendationRequestDto.getCreatedAt()) < MONTHS_TO_REPEAT_REQUEST) {
             log.error("Recent recommendation request exists for Requester ID: {} and Recipient ID: {}",
                     recommendationRequestDto.getRequesterId(), recommendationRequestDto.getReceiverId());
             throw new DataValidationException("Request for recommendation can only be submitted once every 6 months");

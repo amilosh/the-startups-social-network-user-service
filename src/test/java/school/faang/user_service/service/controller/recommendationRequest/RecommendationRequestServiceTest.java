@@ -10,7 +10,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendationRequest.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendationRequest.RecommendationRequestFilterDto;
-import school.faang.user_service.dto.recommendationRequest.RejectionDto;
+import school.faang.user_service.dto.recommendationRequest.RecommendationRequestRejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
@@ -162,7 +162,7 @@ public class RecommendationRequestServiceTest {
     @Test
     @DisplayName("Declining a recommendation request from another user")
     public void rejectingARequestFromAnotherUserTest() {
-        RejectionDto rejectionDto = RejectionDto.builder()
+        RecommendationRequestRejectionDto recommendationRequestRejectionDto = RecommendationRequestRejectionDto.builder()
                 .rejectionReason("Reason")
                 .build();
 
@@ -171,7 +171,7 @@ public class RecommendationRequestServiceTest {
         when(recommendationRequestMapper.toDto(recommendationRequest))
                 .thenReturn(recommendationRequestDto);
 
-        recommendationRequestService.rejectRequest(recommendationRequestDto.getId(), rejectionDto);
+        recommendationRequestService.rejectRequest(recommendationRequestDto.getId(), recommendationRequestRejectionDto);
 
         assertEquals(RequestStatus.REJECTED, recommendationRequest.getStatus());
         assertEquals("Reason", recommendationRequest.getRejectionReason());

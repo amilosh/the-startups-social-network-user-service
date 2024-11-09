@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendationRequest.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendationRequest.RecommendationRequestFilterDto;
-import school.faang.user_service.dto.recommendationRequest.RejectionDto;
+import school.faang.user_service.dto.recommendationRequest.RecommendationRequestRejectionDto;
 import school.faang.user_service.service.recommendationRequest.RecommendationRequestService;
 
 import java.util.List;
@@ -33,8 +33,8 @@ public class RecommendationRequestController {
         return recommendationRequestService.getRequest(id);
     }
 
-    public RecommendationRequestDto rejectRequest(long id, @Valid RejectionDto rejectionDto) {
-        log.info("Rejecting recommendation request with id: {} and reason: {}", id, rejectionDto);
-        return recommendationRequestService.rejectRequest(id, rejectionDto);
+    public RecommendationRequestDto rejectRequest(long id, @Valid RecommendationRequestRejectionDto recommendationRequestRejectionDto) {
+        log.info("Rejecting recommendation request with id: {} and reason: {}", id, recommendationRequestRejectionDto);
+        return recommendationRequestService.rejectRequest(id, recommendationRequestRejectionDto);
     }
 }
