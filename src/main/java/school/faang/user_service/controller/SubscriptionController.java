@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.ShortUserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SubscriptionService;
@@ -26,8 +26,8 @@ public class SubscriptionController {
         return ResponseEntity.noContent().build();
     }
 
-    public ResponseEntity<List<UserDto>> getFollowers(long followeeId, UserFilterDto filter) {
-        List<UserDto> users = subscriptionService.getFollowers(followeeId, filter);
+    public ResponseEntity<List<ShortUserDto>> getFollowers(long followeeId, UserFilterDto filter) {
+        List<ShortUserDto> users = subscriptionService.getFollowers(followeeId, filter);
         return ResponseEntity.ok(users);
     }
 
@@ -36,8 +36,8 @@ public class SubscriptionController {
         return ResponseEntity.ok(followersCount);
     }
 
-    public ResponseEntity<List<UserDto>> getFollowing(long followerId, UserFilterDto filter) {
-        List<UserDto> users = subscriptionService.getFollowing(followerId, filter);
+    public ResponseEntity<List<ShortUserDto>> getFollowing(long followerId, UserFilterDto filter) {
+        List<ShortUserDto> users = subscriptionService.getFollowing(followerId, filter);
         return ResponseEntity.ok(users);
     }
 

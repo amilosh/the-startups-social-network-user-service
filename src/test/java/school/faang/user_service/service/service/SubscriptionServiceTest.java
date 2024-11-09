@@ -7,12 +7,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.ShortUserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filters.UserFilter;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.ShortUserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.SubscriptionService;
 
@@ -33,7 +33,7 @@ class SubscriptionServiceTest {
     @Mock
     private SubscriptionRepository subscriptionRepository;
     @Mock
-    private UserMapper userMapper;
+    private ShortUserMapper shortUserMapper;
     @Mock
     private List<UserFilter> userFilters;
     @InjectMocks
@@ -85,14 +85,14 @@ class SubscriptionServiceTest {
     @Test
     void testGetFollowers() {
         Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(Stream.of(new User(), new User()));
-        Mockito.when(userMapper.toDto(any())).thenReturn(new UserDto(1L, "", ""));
+        Mockito.when(shortUserMapper.toDto(any())).thenReturn(new ShortUserDto(1L, "", ""));
         Mockito.when(userFilters.iterator()).thenReturn(Collections.emptyIterator());
 
-        List<UserDto> followers = subscriptionService.getFollowers(followeeId, new UserFilterDto());
+        List<ShortUserDto> followers = subscriptionService.getFollowers(followeeId, new UserFilterDto());
 
         assertEquals(2, followers.size());
         verify(subscriptionRepository, times(1)).findByFolloweeId(followeeId);
-        verify(userMapper, times(2)).toDto(any());
+        verify(shortUserMapper, times(2)).toDto(any());
     }
 
     @Test
@@ -105,14 +105,14 @@ class SubscriptionServiceTest {
     @Test
     void testGetFollowing() {
         Mockito.when(subscriptionRepository.findByFollowerId(followerId)).thenReturn(Stream.of(new User(), new User()));
-        Mockito.when(userMapper.toDto(any())).thenReturn(new UserDto(1L, "", ""));
+        Mockito.when(shortUserMapper.toDto(any())).thenReturn(new ShortUserDto(1L, "", ""));
         Mockito.when(userFilters.iterator()).thenReturn(Collections.emptyIterator());
 
-        List<UserDto> followers = subscriptionService.getFollowing(followerId, new UserFilterDto());
+        List<ShortUserDto> followers = subscriptionService.getFollowing(followerId, new UserFilterDto());
 
         assertEquals(2, followers.size());
         verify(subscriptionRepository, times(1)).findByFollowerId(followerId);
-        verify(userMapper, times(2)).toDto(any());
+        verify(shortUserMapper, times(2)).toDto(any());
     }
 
     @Test
