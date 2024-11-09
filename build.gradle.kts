@@ -105,6 +105,7 @@ tasks.bootJar {
  * JaCoCo settings
  */
 val jacocoInclude = listOf(
+        "**/validator/**",
         "**/service/**"
 )
 jacoco {
