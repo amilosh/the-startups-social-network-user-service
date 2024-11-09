@@ -1,4 +1,4 @@
-package school.faang.user_service.web.dto.mapper;
+package school.faang.user_service.mapper;
 
 public interface Mappable<E, D> {
 

@@ -1,4 +1,4 @@
-package school.faang.user_service.web.controller;
+package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.SkillService;
-import school.faang.user_service.web.dto.skill.SkillCandidateDto;
-import school.faang.user_service.web.dto.skill.SkillDto;
+import school.faang.user_service.dto.skill.SkillCandidateDto;
+import school.faang.user_service.dto.skill.SkillDto;
 
 import java.util.List;
 
