@@ -23,6 +23,9 @@ public class RedisTopicsFactory {
     @Value("${spring.data.redis.channel-topics.mentorship.request_received}")
     private String mentorshipRequestReceivedTopicName;
 
+    @Value("${spring.data.redis.channel-topics.mentorship.request_accepted}")
+    private String mentorshipRequestAcceptedTopicName;
+
     @Bean
     public Topic eventStartTopic() {
         return new ChannelTopic(eventStartTopicName);
@@ -46,5 +49,10 @@ public class RedisTopicsFactory {
     @Bean
     public Topic mentorshipRequestReceivedTopicName() {
         return new ChannelTopic(mentorshipRequestReceivedTopicName);
+    }
+
+    @Bean
+    public Topic mentorshipRequestAcceptedTopicName() {
+        return new ChannelTopic(mentorshipRequestAcceptedTopicName);
     }
 }

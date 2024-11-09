@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.annotation.SendMentorshipRequestReceived;
+import school.faang.user_service.annotation.event.SendMentorshipRequestAcceptedEvent;
 import school.faang.user_service.dto.mentorship_request.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.User;
@@ -48,6 +49,7 @@ public class MentorshipRequestService {
                 .toList();
     }
 
+    @SendMentorshipRequestAcceptedEvent
     @Transactional
     public MentorshipRequest acceptRequest(long id) {
         MentorshipRequest mentorshipRequest = findMentorshipRequestById(id);
