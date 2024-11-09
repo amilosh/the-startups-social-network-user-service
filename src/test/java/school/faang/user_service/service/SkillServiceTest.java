@@ -16,9 +16,9 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.web.dto.mapper.SkillMapperImpl;
-import school.faang.user_service.web.dto.skill.SkillCandidateDto;
-import school.faang.user_service.web.dto.skill.SkillDto;
+import school.faang.user_service.mapper.SkillMapperImpl;
+import school.faang.user_service.dto.skill.SkillCandidateDto;
+import school.faang.user_service.dto.skill.SkillDto;
 
 import java.util.List;
 import java.util.Optional;

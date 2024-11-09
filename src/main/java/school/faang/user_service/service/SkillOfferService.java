@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
-import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
@@ -21,15 +20,13 @@ public class SkillOfferService {
     public void saveSkillOffers(List<SkillOfferDto> skillOfferList, Long recommendId) {
         List<Long> skillOfferIds = new ArrayList<>();
 
-        skillOfferList.forEach(skillOffer -> skillOfferIds.add(skillOfferRepository.create(skillOffer.skillId(), recommendId)));
+        skillOfferList.stream()
+                .filter(skillOfferDto -> skillOfferDto.skillId() != null && skillOfferDto.skillId() <= 0)
+                .forEach(skillOffer -> skillOfferIds.add(skillOfferRepository.create(skillOffer.skillId(), recommendId)));
 
         if(skillOfferList.size() != skillOfferIds.size()) {
             throw new DataValidationException("Error save skillOffers");
         }
-    }
-
-    public List<SkillOffer> findAllOffersOfSkillByUserId(Long skillId, Long userId) {
-        return skillOfferRepository.findAllOffersOfSkill(skillId, userId);
     }
 
     public void deleteAllSkillOffers(Long recommendationId) {

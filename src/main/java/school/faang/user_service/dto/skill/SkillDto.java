@@ -1,26 +1,23 @@
 package school.faang.user_service.dto.skill;
 
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Objects;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SkillDto {
-    @NotNull
-    private Long id;
-    @NotNull
-    private String title;
-    @Nullable
-    private List<Long> userIds;
-    @Nullable
-    private List<Long> guaranteeIds;
 
-    public SkillDto(@NotNull Long id, @NotNull String title, @Nullable List<Long> userIds, @Nullable List<Long> guaranteeIds) {
-        this.id = Objects.requireNonNull(id, "Skill id is null");
-        this.title = Objects.requireNonNull(title, "Skill title is null");
-        this.userIds = userIds;
-        this.guaranteeIds = guaranteeIds;
-    }
+    private Long id;
+
+    @Min(0)
+    @Max(300)
+    private String title;
+
+    private List<Long> userIds;
 }

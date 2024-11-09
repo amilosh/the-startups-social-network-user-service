@@ -17,12 +17,12 @@ public class RecommendationController {
     }
 
     public RecommendationDto giveRecommendation(RecommendationDto recommendation) {
-        recommendationValidator(recommendation);
+        validateRecommendation(recommendation);
         return recommendationService.create(recommendation);
     }
 
     public RecommendationDto updateRecommendation(RecommendationDto updatedRecommend) {
-        recommendationValidator(updatedRecommend);
+        validateRecommendation(updatedRecommend);
 
         return recommendationService.update(updatedRecommend);
     }
@@ -32,14 +32,14 @@ public class RecommendationController {
     }
 
     public List<RecommendationDto> getAllUserRecommendation(long receiverId) {
-       return recommendationService.getAllUserRecommendation(receiverId);
+       return recommendationService.getAllUserRecommendations(receiverId);
     }
 
     public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
         return recommendationService.getAllGivenRecommendations(authorId);
     }
 
-    private void recommendationValidator(RecommendationDto recommendation) {
+    private void validateRecommendation(RecommendationDto recommendation) {
         if(recommendation.authorId() <= 0) {
             throw new DataValidationException("Incorrect authorId");
         }
