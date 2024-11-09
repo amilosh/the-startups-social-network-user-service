@@ -18,7 +18,6 @@ public class SkillController {
     private final SkillService skillService;
 
     public SkillDto create(SkillDto skill) {
-        validateSkill(skill);
         return skillService.create(skill);
     }
 
@@ -34,14 +33,5 @@ public class SkillController {
         return skillService.acquireSkillFromOffers(skillId, userId);
     }
 
-    private void validateSkill(SkillDto skill) {
-        if (skill.getTitle() == null) {
-            log.error("Имя умения содержит null.");
-            throw new DataValidationException("Имя умения не должно быть null.");
-        }
-        if (skill.getTitle().isEmpty()){
-            log.error("Имя умения содержит пустую строку.");
-            throw new DataValidationException("Имя умения не должно быть пустым.");
-        }
-    }
+
 }

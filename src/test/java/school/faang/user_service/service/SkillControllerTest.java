@@ -30,20 +30,6 @@ public class SkillControllerTest {
     }
 
     @Test
-    public void testCreateSkillEmpty() {
-        SkillDto skillDto = anySkillDto("");
-
-        assertThrows(DataValidationException.class, () -> skillController.create(skillDto));
-    }
-
-    @Test
-    public void testCreateSkillNull() {
-        SkillDto skillDto = anySkillDto(null);
-
-        assertThrows(DataValidationException.class, () -> skillController.create(skillDto));
-    }
-
-    @Test
     public void testCreateSkillPositive() {
 
         SkillDto skillDto = anySkillDto("title");

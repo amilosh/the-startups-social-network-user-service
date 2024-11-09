@@ -48,15 +48,15 @@ public class SkillServiceTest {
     @InjectMocks
     private SkillService skillService;
 
-    public static SkillDto anySkillDto() {
+    public static SkillDto anySkillDto(String title) {
         SkillDto skill = new SkillDto();
-        skill.setTitle("title");
+        skill.setTitle(title);
         return skill;
     }
 
     @Test
     public void testCreateExistsByTitle() {
-        SkillDto skill = anySkillDto();
+        SkillDto skill = anySkillDto("title");
         when(skillRepository.existsByTitle(skill.getTitle())).thenReturn(true);
 
         assertThrows(DataValidationException.class, () -> skillService.create(skill));
@@ -64,7 +64,7 @@ public class SkillServiceTest {
 
     @Test
     public void testCreateNotExisting() {
-        SkillDto skill = anySkillDto();
+        SkillDto skill = anySkillDto("title");
         when(skillRepository.existsByTitle(skill.getTitle())).thenReturn(false);
 
         skillService.create(skill);
@@ -108,4 +108,6 @@ public class SkillServiceTest {
 
         assertEquals(Optional.empty(), result);
     }
+
+
 }

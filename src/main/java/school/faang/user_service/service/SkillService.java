@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.SkillCandidateDto;
 import school.faang.user_service.dto.SkillDto;
@@ -29,6 +30,7 @@ public class SkillService {
     private final UserService userService;
 
     public SkillDto create(SkillDto skill) {
+        validateSkill(skill);
         if (!skillRepository.existsByTitle(skill.getTitle())) {
             Skill skillEntity = skillMapper.toEntity(skill);
             return skillMapper.toDto(skillRepository.save(skillEntity));
@@ -66,5 +68,12 @@ public class SkillService {
             return Optional.of(skillMapper.toDto(guaranteeSkill.get()));
         }
         return Optional.empty();
+    }
+
+    private void validateSkill(SkillDto skill) {
+        if (Strings.isBlank(skill.getTitle())) {
+            log.error("Пустое имя умения.");
+            throw new DataValidationException("Имя умения не должно быть пустым.");
+        }
     }
 }
