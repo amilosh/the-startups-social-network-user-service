@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
@@ -18,10 +19,16 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.GoalInvitationService;
+import school.faang.user_service.service.filter.goal.InvitationFilter;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -39,15 +46,20 @@ public class GoalInvitationServiceTest {
     @Mock
     private GoalRepository goalRepository;
 
+    @Mock
+    private List<InvitationFilter> invitationFilters;
+
     @Spy
     private GoalMapperImpl mapper;
     private GoalInvitationDto goalInvitationDto;
     private GoalInvitation invitation;
+    private InvitationFilterDto filterDto;
 
     @BeforeEach
     void setUp() {
         goalInvitationDto = new GoalInvitationDto();
         invitation = new GoalInvitation();
+        filterDto = new InvitationFilterDto();
     }
 
     @Test
@@ -109,7 +121,62 @@ public class GoalInvitationServiceTest {
     }
 
     @Test
-    void testGetInvitation() {
+    void testGetInvitationSuccess() {
+        GoalInvitation invitation1 = new GoalInvitation();
+        invitation1.setId(1L);
+        invitation1.setStatus(RequestStatus.PENDING);
+        GoalInvitation invitation2 = new GoalInvitation();
+        invitation2.setId(2L);
+        invitation2.setStatus(RequestStatus.ACCEPTED);
 
+        List<GoalInvitation> invitations = Arrays.asList(invitation1, invitation2);
+
+        when(invitationRepository.findAll()).thenReturn(invitations);
+
+        InvitationFilter filter = mock(InvitationFilter.class);
+        when(filter.isApplicable(any(InvitationFilterDto.class))).thenReturn(true);
+        when(filter.apply(any(Stream.class), any(InvitationFilterDto.class))).thenReturn(invitations.stream());
+
+        when(invitationFilters.stream()).thenReturn(Stream.of(filter));
+
+        List<GoalInvitationDto> result = invitationService.getInvitations(filterDto);
+
+        assertEquals(2, result.size());
+        verify(invitationRepository, times(1)).findAll();
+
+        verify(invitationFilters, times(1)).stream();
+        verify(filter, times(1)).isApplicable(any(InvitationFilterDto.class));
+        verify(filter, times(1)).apply(any(Stream.class), any(InvitationFilterDto.class));
+    }
+    
+    @Test
+    void testGetInvitationWithEmptyFilters() {
+        GoalInvitation invitation1 = new GoalInvitation();
+        invitation1.setId(1L);
+        invitation1.setStatus(RequestStatus.PENDING);
+        GoalInvitation invitation2 = new GoalInvitation();
+        invitation2.setId(2L);
+        invitation2.setStatus(RequestStatus.ACCEPTED);
+
+        List<GoalInvitation> invitations = Arrays.asList(invitation1, invitation2);
+
+        when(invitationRepository.findAll()).thenReturn(invitations);
+        when(invitationFilters.stream()).thenReturn(Stream.empty());
+
+        List<GoalInvitationDto> result = invitationService.getInvitations(filterDto);
+
+        assertEquals(2, result.size());
+        verify(invitationRepository, times(1)).findAll();
+        verify(invitationFilters, times(1)).stream();
+    }
+
+    @Test
+    void testGetInvitationWithEmptyResults() {
+        when(invitationRepository.findAll()).thenReturn(Collections.emptyList());
+
+        List<GoalInvitationDto> result = invitationService.getInvitations(filterDto);
+
+        assertTrue(result.isEmpty());
+        verify(invitationRepository, times(1)).findAll();
     }
 }

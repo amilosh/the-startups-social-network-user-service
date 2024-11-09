@@ -10,12 +10,10 @@ import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
-import school.faang.user_service.service.filter.InvitationFilter;
+import school.faang.user_service.service.filter.goal.InvitationFilter;
 import school.faang.user_service.validator.GoalValidator;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -60,14 +58,12 @@ public class GoalInvitationService {
     }
 
     public List<GoalInvitationDto> getInvitations(InvitationFilterDto filterDto) {
-        Stream<GoalInvitation> invitations = invitationRepository.findAll().stream();
-        invitationFilters.stream()
-                .filter(invitation -> invitation.isApplicable(filterDto))
-                .forEach(invitation -> invitation.apply(invitations, filterDto));
-        List<GoalInvitationDto> invitationDtos = invitations
-                .map(invitation -> mapper.entityToDto(invitation))
-                .collect(Collectors.toList());
-
-        return invitationDtos;
+        List<GoalInvitation> invitations = invitationRepository.findAll();
+        return invitationFilters.stream()
+                .filter(f -> f.isApplicable(filterDto))
+                .reduce(invitations.stream(), (stream, filter) -> filter
+                        .apply(stream, filterDto), (s1, s2) -> s1)
+                .map(mapper::entityToDto)
+                .toList();
     }
 }
