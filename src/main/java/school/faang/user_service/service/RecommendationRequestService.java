@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
@@ -44,5 +45,11 @@ public class RecommendationRequestService {
         entitySkillRequests.forEach(entityRecommendationRequest::addSkillRequest);
 
         recommendationRequestRepository.save(entityRecommendationRequest);
+    }
+
+    public List<RecommendationRequestDto> getRequests(RequestFilterDto filter){
+        List<RecommendationRequest> recommendationRequestsAll = recommendationRequestRepository.findAll();
+
+        return null;
     }
 }
