@@ -1,4 +1,5 @@
 name: CI Pipeline
+
 on:
   push:
     branches:
@@ -6,6 +7,7 @@ on:
   pull_request:
     branches:
       - Murloc-master-stream7
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -23,6 +25,7 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -41,18 +44,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
-          docker-compose --version
-
-      - name: Set up Docker Compose
-        run: docker-compose -f docker-compose.yaml up -d
-
       - name: Wait for PostgreSQL to be ready
         run: |
-          until docker-compose exec db pg_isready -U user; do
+          until pg_isready -h localhost -p 5432 -U test_user; do
             echo "Waiting for PostgreSQL..."
             sleep 2
           done
@@ -61,14 +55,10 @@ jobs:
         env:
           DB_HOST: localhost
           DB_PORT: 5432
-          DB_USER: user
-          DB_PASSWORD: password
-          DB_NAME: postgres
+          DB_USER: test_user
+          DB_PASSWORD: test_password
+          DB_NAME: test_db
         run: ./gradlew test --no-daemon #-x MapperEventTest
-#      - name: Run tests
-#        run: ./gradlew test --no-daemon -x testClassName=UserMapperTest
-
-
 
       - name: Upload test results
         if: always() # Ensures this step runs even if tests fail
@@ -79,4 +69,3 @@ jobs:
 
       - name: Build the project
         run: ./gradlew clean build --no-daemon
-
