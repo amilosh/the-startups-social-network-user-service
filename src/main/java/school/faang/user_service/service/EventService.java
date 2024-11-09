@@ -41,7 +41,7 @@ public class EventService {
         User userOwner = userService.getUserById(eventDto.ownerId());
 
         log.debug("Validating user skills for owner in createEvent: {}", userOwner.toLogString());
-        throwUserSkillsNotRequiredException(userOwner, eventDto);
+        validateUserHaveSkillsForEvent(userOwner, eventDto);
 
         Event event = eventMapper.toEntity(eventDto);
         event.setOwner(userOwner);
@@ -103,7 +103,7 @@ public class EventService {
         User userOwner = userService.getUserById(eventDto.ownerId());
 
         log.debug("Validating user skills for owner in updateEvent: {}", userOwner.getId());
-        throwUserSkillsNotRequiredException(userOwner, eventDto);
+        validateUserHaveSkillsForEvent(userOwner, eventDto);
 
         Event event = getEventById(eventDto.id());
 
@@ -139,14 +139,7 @@ public class EventService {
                 DataValidationException("Event do not found"));
     }
 
-    private void throwUserSkillsNotRequiredException(User userOwner, EventDto eventDto) {
-        if (!isUserHaveSkillsForEvent(userOwner, eventDto)) {
-            log.error("{} don't have required skills to create event: {}", userOwner.toLogString(), eventDto.toLogString());
-            throw new DataValidationException("User don't have required skills to create event");
-        }
-    }
-
-    public boolean isUserHaveSkillsForEvent(@NotNull User userOwner, @NotNull EventDto eventDto) {
+    private void validateUserHaveSkillsForEvent(@NotNull User userOwner, @NotNull EventDto eventDto) {
         Set<SkillDto> relatedSkills = eventDto.relatedSkills() != null ? new HashSet<>(eventDto.relatedSkills()) : new HashSet<>();
 
         List<Skill> skills = userOwner.getSkills();
@@ -154,13 +147,14 @@ public class EventService {
 
         Set<SkillDto> userSkillsDto = skillDtoList != null ? new HashSet<>(skillDtoList) : new HashSet<>();
 
-        log.debug("Checking if user has required skills: {}", relatedSkills);
+        log.debug("Checking " +
+                "if user has required skills: {}", relatedSkills);
         if (!userSkillsDto.containsAll(relatedSkills)) {
-            return false;
+            log.error("{} don't have required skills to create event: {}", userOwner.toLogString(), eventDto.toLogString());
+            throw new DataValidationException("User don't have required skills to create event");
         }
 
         log.info("User {} has all required skills to create event", userOwner.getId());
-        return true;
     }
 
     private boolean eventExists(Event event) {
