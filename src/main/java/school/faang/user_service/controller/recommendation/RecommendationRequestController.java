@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.service.RecommendationRequestService;
 
@@ -19,11 +20,15 @@ public class RecommendationRequestController {
         return recommendationRequest;
     }
 
-    List<RecommendationRequestDto> getRecommendationRequests(@Valid RequestFilterDto filter) {
+    public List<RecommendationRequestDto> getRecommendationRequests(@Valid RequestFilterDto filter) {
         return recommendationRequestService.getRequests(filter);
     }
 
-    RecommendationRequestDto getRecommendationRequest(long id) {
+    public RecommendationRequestDto getRecommendationRequest(long id) {
         return recommendationRequestService.getRequest(id);
+    }
+
+    public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection) {
+        return recommendationRequestService.rejectRequest(id, rejection);
     }
 }

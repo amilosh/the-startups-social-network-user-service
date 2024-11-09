@@ -3,7 +3,9 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
@@ -16,7 +18,6 @@ import school.faang.user_service.repository.recommendation.SkillRequestRepositor
 import school.faang.user_service.validator.RecommendationRequestServiceValidator;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -61,10 +62,24 @@ public class RecommendationRequestService {
     }
 
     public RecommendationRequestDto getRequest(Long id) {
-        Optional<RecommendationRequest> recommendationRequest = recommendationRequestRepository.findById(id);
-        if (recommendationRequest.isEmpty()) {
-            throw new DataValidationException("The RecommendationRequest for this id-" + id + " will not be found in the database");
+        RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
+                .orElseThrow(() -> new DataValidationException("The RecommendationRequest for this id-"
+                        + id + " will not be found in the database"));
+        return mapper.toDTO(recommendationRequest);
+    }
+
+    public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection) {
+        RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
+                .orElseThrow(() -> new DataValidationException("The RecommendationRequest for this id-"
+                        + id + " will not be found in the database"));
+
+        RequestStatus status = recommendationRequest.getStatus();
+        if (status != RequestStatus.PENDING) {
+            throw new DataValidationException("the status of the RecommendationRequest by id-" + id + ", not pending");
         }
-        return mapper.toDTO(recommendationRequest.get());
+        recommendationRequest.setStatus(RequestStatus.REJECTED);
+        recommendationRequest.setRejectionReason(rejection.getReason());
+
+        return mapper.toDTO(recommendationRequest);
     }
 }
