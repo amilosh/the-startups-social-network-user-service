@@ -7,6 +7,7 @@ import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.RequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.UserRepository;
@@ -15,6 +16,7 @@ import school.faang.user_service.repository.recommendation.SkillRequestRepositor
 import school.faang.user_service.validator.RecommendationRequestServiceValidator;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -56,5 +58,13 @@ public class RecommendationRequestService {
                         .allMatch(requestFilter -> requestFilter.apply(recommendationRequest, filter)))
                 .toList();
         return mapper.allToDTO(recommendationRequestsFiltered);
+    }
+
+    public RecommendationRequestDto getRequest(Long id) {
+        Optional<RecommendationRequest> recommendationRequest = recommendationRequestRepository.findById(id);
+        if (recommendationRequest.isEmpty()) {
+            throw new DataValidationException("The RecommendationRequest for this id-" + id + " will not be found in the database");
+        }
+        return mapper.toDTO(recommendationRequest.get());
     }
 }
