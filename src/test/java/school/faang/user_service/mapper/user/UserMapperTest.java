@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 @SpringBootTest
-@ActiveProfiles("test")
+//@ActiveProfiles("test")
 public class UserMapperTest {
     private final User john = User.builder()
             .id(1L)
