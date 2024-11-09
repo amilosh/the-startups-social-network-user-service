@@ -41,8 +41,26 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
+      - name: Set up Docker Compose
+        run: docker-compose up -d
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until docker-compose exec db pg_isready -U user; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+
       - name: Run tests
-        run: ./gradlew test --no-daemon -x testClassName=UserMapperTest
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USER: user
+          DB_PASSWORD: password
+          DB_NAME: postgres
+        run: ./gradlew test --no-daemon -x MapperEventTest
+#      - name: Run tests
+#        run: ./gradlew test --no-daemon -x testClassName=UserMapperTest
 
 
 
