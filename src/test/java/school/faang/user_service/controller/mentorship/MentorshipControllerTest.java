@@ -3,19 +3,21 @@ package school.faang.user_service.controller.mentorship;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.mentorship.MentorshipService;
-import school.faang.user_service.validation.Validation;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -26,9 +28,6 @@ public class MentorshipControllerTest {
 
     @InjectMocks
     private MentorshipController mentorshipController;
-
-    @Mock
-    private Validation validation;
 
     @Mock
     private MentorshipService mentorshipService;
@@ -45,7 +44,14 @@ public class MentorshipControllerTest {
                 new UserDto(2L),
                 new UserDto(3L));
         userId = user.getId();
-        doNothing().when(validation).validateIdCorrect(any(Long.class));
+    }
+
+    @ParameterizedTest
+    @ValueSource(longs = {0L, -1L})
+    public void testValidateIdCorrect(long id) {
+        assertThrows(DataValidationException.class,
+                () -> mentorshipController.getMentees(id),
+                "Incorrect id");
     }
 
     @Test
@@ -54,7 +60,6 @@ public class MentorshipControllerTest {
                 .thenReturn(usersDto);
         List<UserDto> resultList = mentorshipController.getMentees(userId);
 
-        verify(validation, times(1)).validateIdCorrect(userId);
         assertEquals(usersDto, resultList);
     }
 
@@ -64,7 +69,6 @@ public class MentorshipControllerTest {
                 .thenReturn(usersDto);
         List<UserDto> resultList = mentorshipController.getMentors(userId);
 
-        verify(validation, times(1)).validateIdCorrect(userId);
         assertEquals(usersDto, resultList);
     }
 
@@ -74,7 +78,6 @@ public class MentorshipControllerTest {
         doNothing().when(mentorshipService).deleteMentee(userId, secondUserId);
         mentorshipController.deleteMentee(userId, secondUserId);
 
-        verify(validation, times(2)).validateIdCorrect(any(Long.class));
         verify(mentorshipService, times(1)).deleteMentee(userId, secondUserId);
     }
 
@@ -84,7 +87,6 @@ public class MentorshipControllerTest {
         doNothing().when(mentorshipService).deleteMentor(userId, secondUserId);
         mentorshipController.deleteMentor(userId, secondUserId);
 
-        verify(validation, times(2)).validateIdCorrect(any(Long.class));
         verify(mentorshipService, times(1)).deleteMentor(userId, secondUserId);
     }
 }
