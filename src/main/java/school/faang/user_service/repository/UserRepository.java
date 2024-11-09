@@ -29,9 +29,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByUsernameLike(String username);
 
-    @Query(nativeQuery = true, value = """
-            SELECT u.* FROM users u
-            WHERE u.user_id = :userId
-            """)
-    Optional<User> findUserById(long userId);
 }

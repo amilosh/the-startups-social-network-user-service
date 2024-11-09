@@ -1,5 +1,6 @@
 package school.faang.user_service.mapper;
 
+import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -15,5 +16,6 @@ public interface MenteesMapper {
     @Mapping(source = "id", target = "id")
     List<MenteesDto> toDto(List<User> mentees);
 
+    @InheritInverseConfiguration
     List<User> toEntity(List<MenteesDto> menteesDtos);
 }
