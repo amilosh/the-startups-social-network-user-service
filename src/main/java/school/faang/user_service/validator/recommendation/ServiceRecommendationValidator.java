@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
