@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.goal;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
 
+@Tag(name = "Goals", description = "API for managing user goals.")
 @RestController
 @RequestMapping("/goals")
 @RequiredArgsConstructor
