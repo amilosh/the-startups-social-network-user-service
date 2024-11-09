@@ -38,9 +38,10 @@ public class RecommendationRequestService {
         User entityRequester = userRepository.findById(recommendationRequestDto.getRequesterId()).get();
         User entityReceiver = userRepository.findById(recommendationRequestDto.getReceiverId()).get();
 
-        entityRecommendationRequest.setSkills(entitySkillRequests)
+        entityRecommendationRequest
                 .setRequester(entityRequester)
                 .setReceiver(entityReceiver);
+        entitySkillRequests.forEach(entityRecommendationRequest::addSkillRequest);
 
         recommendationRequestRepository.save(entityRecommendationRequest);
     }

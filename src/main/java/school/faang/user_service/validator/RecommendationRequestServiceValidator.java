@@ -1,11 +1,10 @@
 package school.faang.user_service.validator;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.exception.RequestFrequencyException;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -26,10 +25,10 @@ public class RecommendationRequestServiceValidator {
         Long requesterId = recommendationRequest.getRequesterId();
         Long receiverId = recommendationRequest.getReceiverId();
         if (!userRepository.existsById(requesterId)) {
-            throw new EntityNotFoundException("requester with ID " + requesterId + " not found in database");
+            throw new DataValidationException("requester with ID " + requesterId + " not found in database");
         }
         if (!userRepository.existsById(receiverId)) {
-            throw new EntityNotFoundException("receiver with ID " + receiverId + " not found in database");
+            throw new DataValidationException("receiver with ID " + receiverId + " not found in database");
         }
     }
 
@@ -44,7 +43,7 @@ public class RecommendationRequestServiceValidator {
             long betweenMonths = ChronoUnit.MONTHS.between(createdAt, now);
             int minLimitMonths = 6;
             if (betweenMonths < minLimitMonths) {
-                throw new RequestFrequencyException("no more than 6 months have passed since the last request with status 1, " +
+                throw new DataValidationException("no more than 6 months have passed since the last request with status 1, " +
                         "between months: " + betweenMonths + ", ID RecommendationRequest: " + recommendationRequest.getId());
             }
         }
@@ -56,7 +55,7 @@ public class RecommendationRequestServiceValidator {
                 .distinct()
                 .toList();
         if (!skillsNotDatabase.isEmpty()) {
-            throw new EntityNotFoundException("The following skills were not found in the database: " + skillsNotDatabase);
+            throw new DataValidationException("The following skills were not found in the database: " + skillsNotDatabase);
         }
     }
 }
