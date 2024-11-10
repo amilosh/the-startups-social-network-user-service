@@ -27,7 +27,7 @@ public class ExceptionApiHandler {
     public ResponseEntity<ErrorMessage> handleValidationException(ValidationException exception) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorMessage(exception.  getMessage()));
+                .body(new ErrorMessage(exception.getMessage()));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
