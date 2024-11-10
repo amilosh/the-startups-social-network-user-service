@@ -2,6 +2,9 @@ package school.faang.user_service.filter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.event.EventStatus;
@@ -15,13 +18,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 public class EventStatusFilterTest {
+    @InjectMocks
     private EventStatusFilter filter;
+
     private EventFilterDto filterDto;
 
     @BeforeEach
     void setUp() {
-        filter = EventStatusFilter.STATUS;
         filterDto = EventFilterDto.builder().build();
     }
 

@@ -7,9 +7,7 @@ import school.faang.user_service.entity.event.Event;
 import java.util.stream.Stream;
 
 @Component
-public enum EventTypeFilter implements EventFilter {
-    TYPE;
-
+public class EventTypeFilter implements EventFilter {
     @Override
     public boolean isApplicable(EventFilterDto filter) {
         return filter.getEventType() != null;

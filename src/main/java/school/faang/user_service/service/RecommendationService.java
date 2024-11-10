@@ -10,9 +10,8 @@ import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.validation.recommendation.RecommendationValidator;
-import school.faang.user_service.validation.user.UserValidator;
+import school.faang.user_service.validator.RecommendationValidator;
+import school.faang.user_service.validator.UserValidator;
 
 import java.util.List;
 

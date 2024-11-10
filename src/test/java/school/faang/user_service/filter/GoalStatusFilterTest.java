@@ -1,4 +1,4 @@
-package school.faang.user_service.service.goal;
+package school.faang.user_service.filter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -7,43 +7,45 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.service.goal.GoalStatusFilter;
 
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class GoalTitleFilterTest {
+class GoalStatusFilterTest {
     private final GoalFilterDto filter = new GoalFilterDto();
 
     @InjectMocks
-    private GoalTitleFilter goalTitleFilter;
+    private GoalStatusFilter goalStatusFilter;
 
     @BeforeEach
     void setUp() {
-        filter.setTitle("Test Goal 2");
+        filter.setStatus(GoalStatus.ACTIVE);
     }
 
     @Test
     public void testIsApplicableTrue() {
-        assertTrue(goalTitleFilter.isApplicable(filter));
+        assertTrue(goalStatusFilter.isApplicable(filter));
     }
 
     @Test
     public void testIsApplicableFalse() {
-        filter.setTitle(null);
-        assertFalse(goalTitleFilter.isApplicable(filter));
+        filter.setStatus(null);
+        assertFalse(goalStatusFilter.isApplicable(filter));
     }
 
     @Test
     public void apply() {
         Goal firstGoal = new Goal();
-        firstGoal.setTitle("Test Goal");
+        firstGoal.setStatus(GoalStatus.ACTIVE);
         Goal secondGoal = new Goal();
-        secondGoal.setTitle("Test Goal 2");
+        secondGoal.setStatus(GoalStatus.COMPLETED);
 
         Stream<Goal> goals = Stream.of(firstGoal, secondGoal);
-        Stream<Goal> filteredGoals = goalTitleFilter.apply(goals, filter);
+        Stream<Goal> filteredGoals = goalStatusFilter.apply(goals, filter);
 
         assertEquals(1, filteredGoals.count());
     }

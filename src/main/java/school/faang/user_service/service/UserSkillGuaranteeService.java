@@ -6,9 +6,8 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
-import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.validation.recommendation.RecommendationValidator;
-import school.faang.user_service.validation.skill.SkillValidator;
+import school.faang.user_service.validator.RecommendationValidator;
+import school.faang.user_service.validator.SkillValidator;
 
 @Component
 @RequiredArgsConstructor

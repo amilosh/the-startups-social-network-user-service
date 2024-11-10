@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,11 +15,12 @@ import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.validation.skill.SkillValidator;
+import school.faang.user_service.validator.SkillValidator;
 
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
@@ -112,5 +114,52 @@ class SkillServiceTest {
 
         verify(userSkillGuaranteeService, times(1)).addSkillGuarantee(skill, recommendation);
         verify(skillRepository, times(1)).save(skill);
+    }
+
+    @Test
+    void testCheckIfSkillExistsById_SkillExists() {
+        Long skillId = 1L;
+        when(skillRepository.existsById(skillId)).thenReturn(true);
+
+        boolean exists = skillService.checkIfSkillExistsById(skillId);
+
+        assertThat(exists).isTrue();
+        verify(skillRepository, times(1)).existsById(skillId);
+    }
+
+    @Test
+    void testCheckIfSkillExistsById_SkillDoesNotExist() {
+        Long skillId = 1L;
+        when(skillRepository.existsById(skillId)).thenReturn(false);
+
+        boolean exists = skillService.checkIfSkillExistsById(skillId);
+
+        assertThat(exists).isFalse();
+        verify(skillRepository, times(1)).existsById(skillId);
+    }
+
+    @Test
+    void testGetSkillById_SkillExists() {
+        Long skillId = 1L;
+        Skill skill = new Skill();
+        skill.setId(skillId);
+        skill.setTitle("Test Skill");
+        when(skillRepository.getReferenceById(skillId)).thenReturn(skill);
+
+        Skill retrievedSkill = skillService.getSkillById(skillId);
+
+        assertThat(retrievedSkill).isNotNull();
+        assertThat(retrievedSkill.getId()).isEqualTo(skillId);
+        verify(skillRepository, times(1)).getReferenceById(skillId);
+    }
+
+    @Test
+    void testGetSkillById_SkillDoesNotExist() {
+        Long skillId = 1L;
+        when(skillRepository.getReferenceById(skillId)).thenThrow(new EntityNotFoundException());
+
+        assertThatThrownBy(() -> skillService.getSkillById(skillId))
+                .isInstanceOf(EntityNotFoundException.class);
+        verify(skillRepository, times(1)).getReferenceById(skillId);
     }
 }
