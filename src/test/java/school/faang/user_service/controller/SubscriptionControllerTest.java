@@ -16,7 +16,7 @@ import school.faang.user_service.datatest.DataSubscription;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.extention.DataValidationException;
-import school.faang.user_service.extention.ErrorMessage;
+import school.faang.user_service.extention.ErrorMessages;
 import school.faang.user_service.service.SubscriptionService;
 import school.faang.user_service.utilities.UrlServiceParameters;
 
@@ -79,7 +79,7 @@ class SubscriptionControllerTest {
         DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> subscriptionController.followUser(testIdUser1, testIdUser1),
                 "Expected followUser to throw, however it does not happened");
-        assertEquals(ErrorMessage.M_FOLLOW_YOURSELF, exception.getMessage(), "SCT001 - the message is different");
+        assertEquals(ErrorMessages.M_FOLLOW_YOURSELF, exception.getMessage(), "SCT001 - the message is different");
         verify(subscriptionService, never()).followUser(testIdUser1, testIdUser1);
     }
 
@@ -89,7 +89,7 @@ class SubscriptionControllerTest {
         DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> subscriptionController.unfollowUser(testIdUser1, testIdUser1),
                 "Expected unfollowUser to throw, however it does not happened");
-        assertEquals(ErrorMessage.M_UNFOLLOW_YOURSELF, exception.getMessage(), "SCT002 - the message is different");
+        assertEquals(ErrorMessages.M_UNFOLLOW_YOURSELF, exception.getMessage(), "SCT002 - the message is different");
         verify(subscriptionService, never()).unfollowUser(testIdUser1, testIdUser1);
     }
 

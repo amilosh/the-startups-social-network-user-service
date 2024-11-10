@@ -6,7 +6,7 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.extention.DataValidationException;
-import school.faang.user_service.extention.ErrorMessage;
+import school.faang.user_service.extention.ErrorMessages;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
@@ -18,7 +18,6 @@ import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
-//public class SubscriptionServiceImpl implements SubscriptionService {
 public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final UserMapper userMapper;
@@ -27,7 +26,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     public void followUser(long followerId, long followeeId) {
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            throw new DataValidationException(ErrorMessage.M_FOLLOW_EXIST);
+            throw new DataValidationException(ErrorMessages.M_FOLLOW_EXIST);
         }
         subscriptionRepository.followUser(followerId, followeeId);
     }
@@ -35,7 +34,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     @Override
     public void unfollowUser(long followerId, long followeeId) {
         if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            throw new DataValidationException(ErrorMessage.M_FOLLOW_DOES_NOT_EXIST);
+            throw new DataValidationException(ErrorMessages.M_FOLLOW_DOES_NOT_EXIST);
         }
 
         subscriptionRepository.unfollowUser(followerId, followeeId);
@@ -57,7 +56,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                     .limit(filter.getPageSize());
         }
 
-        return userMapper.listUserToListUsersDto(userStream.collect(Collectors.toList()));
+        return userMapper.userListToUserDtoList(userStream.collect(Collectors.toList()));
     }
 
     @Override

@@ -12,7 +12,7 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.extention.DataValidationException;
-import school.faang.user_service.extention.ErrorMessage;
+import school.faang.user_service.extention.ErrorMessages;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.SubscriptionRepository;
@@ -61,7 +61,7 @@ class SubscriptionServiceImplTest {
 
         DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> subscriptionService.followUser(TEST_ID_USER1, TEST_ID_USER2));
-        assertEquals(exception.getMessage(), ErrorMessage.M_FOLLOW_EXIST);
+        assertEquals(exception.getMessage(), ErrorMessages.M_FOLLOW_EXIST);
         verify(subscriptionRepository, never()).followUser(TEST_ID_USER1, TEST_ID_USER2);
     }
 
@@ -78,7 +78,7 @@ class SubscriptionServiceImplTest {
 
         DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> subscriptionService.unfollowUser(TEST_ID_USER1, TEST_ID_USER2));
-        assertEquals(exception.getMessage(), ErrorMessage.M_FOLLOW_DOES_NOT_EXIST);
+        assertEquals(exception.getMessage(), ErrorMessages.M_FOLLOW_DOES_NOT_EXIST);
         verify(subscriptionRepository, never()).unfollowUser(TEST_ID_USER1, TEST_ID_USER2);
     }
 

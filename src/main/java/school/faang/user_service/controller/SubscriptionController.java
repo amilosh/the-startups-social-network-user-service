@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.extention.DataValidationException;
-import school.faang.user_service.extention.ErrorMessage;
+import school.faang.user_service.extention.ErrorMessages;
 import school.faang.user_service.service.SubscriptionService;
 import school.faang.user_service.utilities.UrlServiceParameters;
 
@@ -32,7 +32,7 @@ public class SubscriptionController {
         if (followerId != followeeId) {
             subscriptionService.followUser(followerId, followeeId);
         } else {
-            throw new DataValidationException(ErrorMessage.M_FOLLOW_YOURSELF);
+            throw new DataValidationException(ErrorMessages.M_FOLLOW_YOURSELF);
         }
     }
 
@@ -43,7 +43,7 @@ public class SubscriptionController {
         if (followerId != followeeId) {
             subscriptionService.unfollowUser(followerId, followeeId);
         } else {
-            throw new DataValidationException(ErrorMessage.M_UNFOLLOW_YOURSELF);
+            throw new DataValidationException(ErrorMessages.M_UNFOLLOW_YOURSELF);
         }
     }
 
