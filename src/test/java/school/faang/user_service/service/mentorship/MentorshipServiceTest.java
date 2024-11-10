@@ -5,11 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
@@ -27,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class MentorshipServiceTest {
@@ -40,9 +38,6 @@ public class MentorshipServiceTest {
     @Spy
     private UserMapperImpl userMapper;
 
-    @Captor
-    private ArgumentCaptor<User> captorUser;
-
     User user;
     List<User> users = new ArrayList<>();
 
@@ -53,9 +48,11 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    public void testValidateUserData() {
+    public void testGetThrow() {
         long id = Long.MAX_VALUE;
-        Mockito.when(mentorshipRepository.findById(id)).thenReturn(Optional.empty());
+        when(mentorshipRepository.findById(id))
+                .thenReturn(Optional.empty());
+
         assertThrows(DataValidationException.class,
                 () -> mentorshipService.getMentees(id),
                 "User by ID is not found");
@@ -75,6 +72,8 @@ public class MentorshipServiceTest {
         List<UserDto> menteesDto = user.getMentees().stream()
                 .map(userMapper::toDto)
                 .toList();
+        when(mentorshipRepository.findById(user.getId()))
+                .thenReturn(Optional.of(user));
 
         List<UserDto> usersDto = mentorshipService.getMentees(user.getId());
 
@@ -87,6 +86,8 @@ public class MentorshipServiceTest {
         List<UserDto> menteesDto = user.getMentees().stream()
                 .map(userMapper::toDto)
                 .toList();
+        when(mentorshipRepository.findById(user.getId()))
+                .thenReturn(Optional.of(user));
 
         List<UserDto> resultListUserDto = mentorshipService.getMentees(user.getId());
 
@@ -99,6 +100,8 @@ public class MentorshipServiceTest {
         List<UserDto> mentorsDto = user.getMentors().stream()
                 .map(userMapper::toDto)
                 .toList();
+        when(mentorshipRepository.findById(user.getId()))
+                .thenReturn(Optional.of(user));
 
         List<UserDto> resultListUserDto = mentorshipService.getMentors(user.getId());
 
@@ -120,6 +123,8 @@ public class MentorshipServiceTest {
         List<UserDto> mentorsDto = user.getMentors().stream()
                 .map(userMapper::toDto)
                 .toList();
+        when(mentorshipRepository.findById(user.getId()))
+                .thenReturn(Optional.of(user));
 
         List<UserDto> resultListUserDto = mentorshipService.getMentors(user.getId());
 
@@ -135,12 +140,12 @@ public class MentorshipServiceTest {
         secondUser.setId(30L);
         users.add(secondUser);
         user.setMentees(users);
+        when(mentorshipRepository.findById(user.getId()))
+                .thenReturn(Optional.of(user));
 
         mentorshipService.deleteMentee(firstUser.getId(), user.getId());
-        verify(mentorshipRepository, times(1)).save(captorUser.capture());
-        User resultUser = captorUser.getValue();
+        verify(mentorshipRepository, times(1)).save(user);
 
-        assertEquals(user, resultUser);
         assertFalse(user.getMentees().contains(firstUser));
     }
 
@@ -153,12 +158,12 @@ public class MentorshipServiceTest {
         secondUser.setId(30L);
         users.add(secondUser);
         user.setMentors(users);
+        when(mentorshipRepository.findById(user.getId()))
+                .thenReturn(Optional.of(user));
 
         mentorshipService.deleteMentor(firstUser.getId(), user.getId());
-        verify(mentorshipRepository, times(1)).save(captorUser.capture());
-        User resultUser = captorUser.getValue();
+        verify(mentorshipRepository, times(1)).save(user);
 
-        assertEquals(user, resultUser);
         assertFalse(user.getMentors().contains(firstUser));
     }
 }

@@ -78,7 +78,8 @@ public class MentorshipControllerTest {
         doNothing().when(mentorshipService).deleteMentee(userId, secondUserId);
         mentorshipController.deleteMentee(userId, secondUserId);
 
-        verify(mentorshipService, times(1)).deleteMentee(userId, secondUserId);
+        verify(mentorshipService, times(1))
+                .deleteMentee(userId, secondUserId);
     }
 
     @Test
@@ -87,6 +88,7 @@ public class MentorshipControllerTest {
         doNothing().when(mentorshipService).deleteMentor(userId, secondUserId);
         mentorshipController.deleteMentor(userId, secondUserId);
 
-        verify(mentorshipService, times(1)).deleteMentor(userId, secondUserId);
+        verify(mentorshipService, times(1))
+                .deleteMentor(userId, secondUserId);
     }
 }
