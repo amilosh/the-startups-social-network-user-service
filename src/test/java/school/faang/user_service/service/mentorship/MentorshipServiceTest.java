@@ -45,7 +45,6 @@ public class MentorshipServiceTest {
     private User userWithEmptyListOfMenteesAndMentors;
     private User userWithMenteesAndMentors;
 
-
     @BeforeEach
     void initData() {
         userWithEmptyListOfMenteesAndMentors = User.builder()
