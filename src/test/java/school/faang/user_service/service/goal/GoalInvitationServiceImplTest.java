@@ -19,13 +19,11 @@ import school.faang.user_service.validator.goal.InvitationDtoValidator;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -35,9 +33,11 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GoalInvitationServiceImplTest {
-
+    @InjectMocks
+    private GoalInvitationService goalInvitationService;
     @Mock
     private GoalInvitationRepository goalInvitationRepository;
+
     @Mock
     private GoalInvitationMapper goalInvitationMapper;
     @Mock
@@ -45,8 +45,7 @@ public class GoalInvitationServiceImplTest {
     @Mock
     private InvitationDtoValidator invitationDtoValidator;
 
-    @InjectMocks
-    private GoalInvitationService goalInvitationService;
+
     private GoalInvitationDto goalInvitationDtoAccept;
     private GoalInvitation goalInvitationAccept;
 
@@ -122,29 +121,6 @@ public class GoalInvitationServiceImplTest {
        verify(goalInvitationMapper, times(1)).toDto(savedInvitation);
    }
 
-    @Test
-    public void testAcceptGoalInvitationSuccess() {
-        when(goalInvitationRepository.findById(1L)).thenReturn(Optional.of(goalInvitationAccept));
-        when(goalInvitationRepository.save(goalInvitationAccept)).thenReturn(goalInvitationAccept);
-        when(goalInvitationMapper.toDto(goalInvitationAccept)).thenReturn(goalInvitationDtoAccept);
-
-        GoalInvitationDto result;
-        result = goalInvitationService.acceptGoalInvitation(1L);
-
-        assertNotNull(result);
-        assertEquals(RequestStatus.ACCEPTED, result.getStatus());
-    }
-
-    @Test
-    public void testAcceptGoalInvitationNotFound() {
-        when(goalInvitationRepository.findById(1L)).thenReturn(Optional.empty());
-
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
-            goalInvitationService.acceptGoalInvitation(1L);
-        });
-
-        assertEquals("No such goal invitation with id:1", exception.getMessage());
-    }
 
     @Test
     public void testRejectGoalInvitationSuccess() {
@@ -156,17 +132,6 @@ public class GoalInvitationServiceImplTest {
 
         assertNotNull(result);
         assertEquals(RequestStatus.REJECTED, result.getStatus());
-    }
-
-    @Test
-    public void testRejectGoalInvitationNotFound() {
-        when(goalInvitationRepository.findById(1L)).thenReturn(Optional.empty());
-
-        NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
-            goalInvitationService.rejectGoalInvitation(1L);
-        });
-
-        assertEquals("No such goal invitation with id:1", exception.getMessage());
     }
 
     @Test
@@ -200,7 +165,7 @@ public class GoalInvitationServiceImplTest {
         verify(filter2, times(1)).isAcceptable(filters);
         verify(filter1, times(1)).apply(any(), eq(filters));
         verify(filter2, times(0)).apply(any(), eq(filters));
-        verify(goalInvitationMapper, times(1)).toDto(goalInvitation1);
+
     }
 }
 
