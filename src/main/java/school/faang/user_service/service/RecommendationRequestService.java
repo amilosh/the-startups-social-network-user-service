@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RejectionDto;
@@ -21,6 +22,7 @@ import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RecommendationRequestService {
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final RecommendationRepository recommendationRepository;
@@ -49,7 +51,7 @@ public class RecommendationRequestService {
         boolean usersExist = recommendationRequestRepository.checkTheUsersExistInDb(
                 recRequestDto.getRequesterId(), recRequestDto.getReceiverId());
         if (!usersExist) {
-            System.err.println("The users don't exist in database");
+            log.error("The users don't exist in database");
         }
         return usersExist;
     }
@@ -108,7 +110,7 @@ public class RecommendationRequestService {
             recommendationRequestRepository.rejectRequest(id, rejectionDto.getReason());
             recRequest.setRejectionReason(rejectionDto.getReason());
         } else {
-            System.err.println("Request already rejected");
+            log.error("Request already rejected");
         }
         return recRequest;
     }
