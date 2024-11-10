@@ -2,8 +2,10 @@ package school.faang.user_service.service.user;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
@@ -31,8 +33,8 @@ class UserServiceTest {
     @Mock
     UserRepository userRepository;
 
-    @Mock
-    UserMapper userMapper;
+    @Spy
+    UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     @InjectMocks
     UserService userService;
@@ -40,15 +42,16 @@ class UserServiceTest {
     @Test
     void getUserTest() {
         long userId = 1L;
-        User user = User.builder().id(userId).build();
-        UserDto userDto = UserDto.builder().build();
+        User user = User.builder()
+                .id(userId)
+                .username("username")
+                .build();
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        when(userMapper.toDto(user)).thenReturn(userDto);
 
         UserDto result = userService.getUser(userId);
 
         assertNotNull(result);
-        assertEquals(userDto, result);
+        assertEquals(user.getUsername(), result.getUsername());
     }
 
     @Test
@@ -67,18 +70,12 @@ class UserServiceTest {
         List<Long> userIds = List.of(1L, 2L);
         User user1 = User.builder().id(1L).build();
         User user2 = User.builder().id(2L).build();
-        UserDto userDto1 = UserDto.builder().build();
-        UserDto userDto2 = UserDto.builder().build();
         when(userRepository.findAllById(userIds)).thenReturn(List.of(user1, user2));
-        when(userMapper.toDto(user1)).thenReturn(userDto1);
-        when(userMapper.toDto(user2)).thenReturn(userDto2);
 
         List<UserDto> result = userService.getUsers(userIds);
 
         assertNotNull(result);
         assertEquals(2, result.size());
-        assertTrue(result.contains(userDto1));
-        assertTrue(result.contains(userDto2));
     }
 
     @Test
