@@ -40,3 +40,4 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+  name: PaymentService

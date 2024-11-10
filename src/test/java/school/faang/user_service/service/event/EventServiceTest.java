@@ -1,4 +1,4 @@
-package school.faang.user_service.service.service.event;
+package school.faang.user_service.service.event;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,6 @@ import school.faang.user_service.exception.EntityNotFoundExceptionWithID;
 import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.service.event.filter.EventFilter;
 import school.faang.user_service.service.event.filter.EventTitleFilter;
 import school.faang.user_service.service.event.filter.EventUserIdFilter;
