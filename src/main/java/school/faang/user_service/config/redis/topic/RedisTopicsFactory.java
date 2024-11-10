@@ -20,6 +20,9 @@ public class RedisTopicsFactory {
     @Value("${app.premium-redis-config.premium_bought_event_topic}")
     private String premiumBoughtEvent;
 
+    @Value("${spring.data.redis.channel-topics.mentorship.request_received}")
+    private String mentorshipRequestReceivedTopicName;
+
     @Value("${spring.data.redis.channel-topics.mentorship.request_accepted}")
     private String mentorshipRequestAcceptedTopicName;
 
@@ -41,6 +44,11 @@ public class RedisTopicsFactory {
     @Bean
     public ChannelTopic premiumBoughtEventTopic() {
         return new ChannelTopic(premiumBoughtEvent);
+    }
+
+    @Bean
+    public Topic mentorshipRequestReceivedTopicName() {
+        return new ChannelTopic(mentorshipRequestReceivedTopicName);
     }
 
     @Bean
