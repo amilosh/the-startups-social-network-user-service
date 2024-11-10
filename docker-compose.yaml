@@ -2,6 +2,7 @@
 services:
   master_postgres:
     image: postgres:13.3
+    restart: always
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password

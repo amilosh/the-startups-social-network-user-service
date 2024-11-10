@@ -40,6 +40,7 @@ jobs:
         run: |
           docker-compose down
           docker-compose build
+          docker-compose run --rm master_postgres bundle exec master_postgres db:reset
           docker-compose up
           
       - name: Wait for PostgreSQL to be ready
