@@ -44,8 +44,8 @@ class SubscriptionControllerTest {
     private SubscriptionService subscriptionService;
     @InjectMocks
     private SubscriptionController subscriptionController;
-    private final long testIdUser1 = 1L;
-    private final long testIdUser2 = 2L;
+    private final static long TEST_ID_USER1  = 1L;
+    private final static long TEST_ID_USER2 = 2L;
 
     @BeforeEach
     void setUp() {
@@ -54,47 +54,50 @@ class SubscriptionControllerTest {
     }
 
     @Test
-    void followUserExpectedOK() throws Exception {
-        doNothing().when(subscriptionService).followUser(testIdUser1, testIdUser2);
+    void followUserSuccess() throws Exception {
+        doNothing().when(subscriptionService).followUser(TEST_ID_USER1, TEST_ID_USER2);
+        System.out.println(UrlServiceParameters.FOLLOWING_SERVICE_URL +
+                UrlServiceParameters.FOLLOWING_ADD +
+                "followerId=" + TEST_ID_USER1 + "&followeeId=" + TEST_ID_USER2);
         mockMvc.perform(MockMvcRequestBuilders.post(UrlServiceParameters.FOLLOWING_SERVICE_URL +
                         UrlServiceParameters.FOLLOWING_ADD +
-                        "followerId=" + testIdUser1 + "&followeeId=" + testIdUser2))
+                        "followerId=" + TEST_ID_USER1 + "&followeeId=" + TEST_ID_USER2))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
 
     @Test
-    void unfollowUserPositive() throws Exception {
-        doNothing().when(subscriptionService).unfollowUser(testIdUser1, testIdUser2);
+    void unfollowUserSuccess() throws Exception {
+        doNothing().when(subscriptionService).unfollowUser(TEST_ID_USER1, TEST_ID_USER2);
         mockMvc.perform(MockMvcRequestBuilders.post(UrlServiceParameters.FOLLOWING_SERVICE_URL +
                         UrlServiceParameters.FOLLOWING_DELETE +
-                        "followerId=" + testIdUser1 + "&followeeId=" + testIdUser2))
+                        "followerId=" + TEST_ID_USER1 + "&followeeId=" + TEST_ID_USER2))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
 
     @Test
-    void followUserShouldThrowDataValidationExceptionWhenFollowingSelf() {
-        doNothing().when(subscriptionService).followUser(testIdUser1, testIdUser1);
+    void followUserFollowingSelfFailTest() {
+        doNothing().when(subscriptionService).followUser(TEST_ID_USER1, TEST_ID_USER1);
         DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> subscriptionController.followUser(testIdUser1, testIdUser1),
+                () -> subscriptionController.followUser(TEST_ID_USER1, TEST_ID_USER1),
                 "Expected followUser to throw, however it does not happened");
         assertEquals(ErrorMessages.M_FOLLOW_YOURSELF, exception.getMessage(), "SCT001 - the message is different");
-        verify(subscriptionService, never()).followUser(testIdUser1, testIdUser1);
+        verify(subscriptionService, never()).followUser(TEST_ID_USER1, TEST_ID_USER1);
     }
 
     @Test
-    void unfollowUserShouldThrowDataValidationExceptionWhenFollowingSelf() {
-        doNothing().when(subscriptionService).unfollowUser(testIdUser1, testIdUser1);
+    void unfollowUserFollowingSelfFailTest() {
+        doNothing().when(subscriptionService).unfollowUser(TEST_ID_USER1, TEST_ID_USER1);
         DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> subscriptionController.unfollowUser(testIdUser1, testIdUser1),
+                () -> subscriptionController.unfollowUser(TEST_ID_USER1, TEST_ID_USER1),
                 "Expected unfollowUser to throw, however it does not happened");
         assertEquals(ErrorMessages.M_UNFOLLOW_YOURSELF, exception.getMessage(), "SCT002 - the message is different");
-        verify(subscriptionService, never()).unfollowUser(testIdUser1, testIdUser1);
+        verify(subscriptionService, never()).unfollowUser(TEST_ID_USER1, TEST_ID_USER1);
     }
 
     @Test
-    void getFollowers() throws Exception {
+    void getFollowersSuccess() throws Exception {
         List<UserDto> dtoList = DataSubscription.getUserDtoList(10);
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoInitValues(2,2);
         int followeeId = 1;
@@ -112,7 +115,7 @@ class SubscriptionControllerTest {
     }
 
     @Test
-    void getFollowingCount() throws Exception {
+    void getFollowingCountSuccess() throws Exception {
         int followerId = 1;
         int followerCount = 1;
 

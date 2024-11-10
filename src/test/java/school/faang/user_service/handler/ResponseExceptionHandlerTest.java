@@ -19,6 +19,7 @@ class ResponseExceptionHandlerTest {
     private MockMvc mockMvc;
     @InjectMocks
     private ExceptionApiHandler responseExceptionHandler;
+    private final static long TEST_ID_USER1 = 1L;
 
     @BeforeEach
     void setUp() {
@@ -27,10 +28,10 @@ class ResponseExceptionHandlerTest {
     }
 
     @Test
-    void handleElementNotFindExceptionAddFollowingUsersSelf() throws Exception {
-        long testIdUser1 = 1L;
+    void handleElementNotFindExceptionAddFollowingUsersSelfFailTest() throws Exception {
+
         mockMvc.perform(MockMvcRequestBuilders.post(UrlServiceParameters.FOLLOWING_SERVICE_URL +
-                        UrlServiceParameters.FOLLOWING_ADD + "followerId=" + testIdUser1 + "&followeeId=" + testIdUser1))
+                        UrlServiceParameters.FOLLOWING_ADD + "followerId=" + TEST_ID_USER1 + "&followeeId=" + TEST_ID_USER1))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
