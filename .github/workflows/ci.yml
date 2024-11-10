@@ -43,7 +43,7 @@ jobs:
           
       - name: Wait for PostgreSQL to be ready
         run: |
-          until pg_isready -h host.docker.internal/postgres -p 5432 -U user; do
+          until pg_isready -h 0.0.0.0 -p 5432 -U user; do
             echo "Waiting for PostgreSQL..."
             sleep 2
           done
