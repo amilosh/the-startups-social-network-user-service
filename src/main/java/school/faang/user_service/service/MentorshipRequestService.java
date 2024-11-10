@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.RequestStatusDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -37,11 +37,17 @@ public class MentorshipRequestService {
 
 
     public void validateRequesterReceiver(long idRequester, long idReceiver) {
-        if (!userRepository.existsById(idRequester)
-                || !userRepository.existsById(idReceiver)
-                || idRequester == idReceiver) {
-            log.error("Requester or Receiver not found or the both is the same person: idReq - " + idRequester + "idRec - " + idReceiver);
-            throw new IllegalArgumentException(String.format("Requester or Receiver not found or the both is the same person", idRequester + idReceiver));
+        if (!userRepository.existsById(idRequester)) {
+            log.error("Requester not found: idReq - " + idRequester);
+            throw new IllegalArgumentException(String.format("Requester id=%s not found", idRequester));
+        }
+        if (!userRepository.existsById(idReceiver)) {
+            log.error("Receiver not found: idRec - " + idReceiver);
+            throw new IllegalArgumentException(String.format("Receiver id=%s not found", idReceiver));
+        }
+        if (idRequester == idReceiver) {
+            log.error("Requester and Receiver are the same person: idReq - " + idRequester + "idRec - " + idReceiver);
+            throw new IllegalArgumentException(String.format("Requester id=%s or Receiver id=%s are the same person", idRequester, idReceiver));
         }
     }
 
@@ -52,23 +58,23 @@ public class MentorshipRequestService {
             if (!lastRequest.get().getCreatedAt()
                     .isBefore(LocalDateTime.now().minusMonths(3))) {
                 log.error("Last request has date less 3 months: " + lastRequest.get().getCreatedAt());
-                throw new IllegalArgumentException(String.format("Last request has date less 3 months", lastRequest.get().getCreatedAt()));
+                throw new IllegalArgumentException(String.format("Last request has date less 3 months, %s", lastRequest.get().getCreatedAt()));
             }
         }
     }
 
-    public List<MentorshipRequestDto> getRequest(RequestFilterDto filter) {
+    public List<MentorshipRequestDto> getRequest(String description, Long requesterId, Long receiverId, RequestStatusDto status) {
         List<MentorshipRequest> allMentorshipRequest = mentorshipRequestRepository.findAll();
         return allMentorshipRequest.stream()
                 .filter(request ->
-                        (filter.description() == null ||
-                                request.getDescription().contains(filter.description())) &&
-                                (filter.requesterId() == null ||
-                                        request.getRequester().getId().equals(filter.requesterId())) &&
-                                (filter.receiverId() == null ||
-                                        request.getReceiver().getId().equals(filter.receiverId())) &&
-                                (filter.status() == null ||
-                                        request.getStatus().toString().equals(filter.status().toString())))
+                        (description == null ||
+                                request.getDescription().contains(description)) &&
+                                (requesterId == null ||
+                                        request.getRequester().getId().equals(requesterId)) &&
+                                (receiverId == null ||
+                                        request.getReceiver().getId().equals(receiverId)) &&
+                                (status == null ||
+                                        request.getStatus().toString().equals(status.toString())))
                 .map(mentorshipRequestMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -79,11 +85,10 @@ public class MentorshipRequestService {
         User receiver = getReceiverByIdRequest(id);
 
         if (requester.getMentors().contains(receiver)) {
-            log.error(receiver.toString()
+            log.error(receiver
                     + "is a mentor for this requester");
-            throw new IllegalArgumentException(
-                    String.format(receiver
-                            + "is a mentor for this requester"));
+            throw new IllegalArgumentException(receiver
+                    + "is a mentor for this requester");
         } else {
             requester.getMentors().add(receiver);
             mentorshipRequestRepository.findById(id).get().setStatus(RequestStatus.ACCEPTED);
@@ -100,16 +105,18 @@ public class MentorshipRequestService {
                         },
                         () ->
                         {
-                            log.error("Request with id: %s does not exist");
+                            log.error(String.format("Request with id: %s does not exist", id));
                             throw new IllegalArgumentException(String.format("Request with id: %s does not exist", id));
                         }
                 );
     }
+
     private User getRequesterByIdRequest(long id) {
         return mentorshipRequestRepository.findById(id)
                 .map(MentorshipRequest::getRequester)
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Request with id: %s does not exist", id)));
     }
+
     private User getReceiverByIdRequest(long id) {
         return mentorshipRequestRepository.findById(id)
                 .map(MentorshipRequest::getReceiver)

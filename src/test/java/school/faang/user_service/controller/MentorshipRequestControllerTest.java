@@ -1,4 +1,4 @@
-package school.faang.user_service.controller.event;
+package school.faang.user_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -10,10 +10,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.controller.MentorshipRequestController;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RejectionDto;
-import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.dto.RequestStatusDto;
 import school.faang.user_service.service.MentorshipRequestService;
 import school.faang.user_service.utilities.UrlUtils;
@@ -40,22 +38,22 @@ public class MentorshipRequestControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Test
-    public void testCreateRequestMentorshipSuccess() throws Exception {
+    public void createRequestMentorshipSuccessTest() throws Exception {
         MentorshipRequestDto requestDto = new MentorshipRequestDto("sdfsddsfadsfdafefdferw213213qdfdsfsdfadfadsf", 3L, 4L);
 
-        mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.MENTORSHIP + UrlUtils.REQUEST + UrlUtils.CREATE)
+        mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.MENTORSHIP + UrlUtils.REQUEST)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         verify(mentorshipRequestService).requestMentorship(requestDto);
     }
 
     @Test
-    public void testRequestMentorshipBadRequestFieldDescriptionLess25Symbols() throws Exception {
+    public void createRequestMentorshipWithFieldDescriptionLess25SymbolsFailTest() throws Exception {
         MentorshipRequestDto requestDto = new MentorshipRequestDto("less25symbols", 1L, 1L);
 
-        mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.MENTORSHIP + UrlUtils.REQUEST + UrlUtils.CREATE)
+        mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.MENTORSHIP + UrlUtils.REQUEST)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isBadRequest());
@@ -64,22 +62,24 @@ public class MentorshipRequestControllerTest {
     }
 
     @Test
-    public void testGetRequests() throws Exception {
-        RequestFilterDto filter = new RequestFilterDto("sdf", 1L, 2L, RequestStatusDto.PENDING);
-        List<MentorshipRequestDto> responseList = List.of(new MentorshipRequestDto("test", 3L, 4L));
-        when(mentorshipRequestService.getRequest(filter)).thenReturn(responseList);
+    public void testGetRequestsSuccessTest() throws Exception {
+        List<MentorshipRequestDto> responseList = List.of(new MentorshipRequestDto("test", 1L, 2L));
 
+        when(mentorshipRequestService.getRequest("test", 1L, 2L, RequestStatusDto.PENDING)).thenReturn(responseList);
         mockMvc.perform(get(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.MENTORSHIP + UrlUtils.REQUEST)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(filter)))
+                        .param("description", "test")
+                        .param("requesterId", "1")
+                        .param("receiverId", "2")
+                        .param("status", "PENDING"))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(responseList)));
 
-        verify(mentorshipRequestService).getRequest(filter);
+        verify(mentorshipRequestService).getRequest("test", 1L, 2L, RequestStatusDto.PENDING);
     }
 
     @Test
-    public void testAcceptRequest() throws Exception {
+    public void testAcceptRequestSuccessTest() throws Exception {
         long requestId = 1L;
 
         mockMvc.perform(put(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.MENTORSHIP + UrlUtils.REQUEST + UrlUtils.ID + UrlUtils.ACCEPT, requestId))
@@ -89,7 +89,7 @@ public class MentorshipRequestControllerTest {
     }
 
     @Test
-    public void testRejectRequest() throws Exception {
+    public void testRejectRequestSuccessTest() throws Exception {
         long requestId = 1L;
         RejectionDto rejectionDto = new RejectionDto("Reason for rejection");
         doNothing().when(mentorshipRequestService).rejectRequest(anyLong(), anyString());

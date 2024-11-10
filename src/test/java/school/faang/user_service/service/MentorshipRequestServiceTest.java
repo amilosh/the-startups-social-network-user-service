@@ -57,7 +57,7 @@ class MentorshipRequestServiceTest {
 
 
     @Test
-    void testRequestMentorshipSuccessfulRequest() {
+    void createRequestMentorshipSuccessTest() {
         MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto("Request description", 2L, 3L);
 
         when(userRepository.existsById(2L)).thenReturn(true);
@@ -66,11 +66,11 @@ class MentorshipRequestServiceTest {
 
         mentorshipRequestService.requestMentorship(mentorshipRequestDto);
 
-        verify(mentorshipRequestRepository).create(2L,3L, "Request description");
+        verify(mentorshipRequestRepository).create(2L, 3L, "Request description");
     }
 
     @Test
-    void testRequestMentorshipLastRequestDateLess3MonthsShouldFail() {
+    void createRequestMentorshipForLastRequestDateLess3MonthsFailTest() {
         MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto("Request description", 2L, 3L);
         MentorshipRequest lastRequest = new MentorshipRequest();
         lastRequest.setCreatedAt(LocalDateTime.now().minusMonths(2));
@@ -85,19 +85,18 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    void requestMentorshipForNonExistantRequesterIdShouldFail() {
+    void createRequestMentorshipForNonExistantRequesterIdFailTest() {
         MentorshipRequestDto mentorshipRequestDto = new MentorshipRequestDto("Request description", 2L, 3L);
 
         when(userRepository.existsById(2L)).thenReturn(false);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> mentorshipRequestService.requestMentorship(mentorshipRequestDto));
 
-        assertTrue(exception.getMessage().contains("Requester or Receiver not found"));
+        assertTrue(exception.getMessage().contains("Requester id=2 not found"));
     }
 
     @Test
-    void testGetRequestFiltersApplied() {
-        RequestFilterDto filter = new RequestFilterDto(null, 1L, 2L, RequestStatusDto.PENDING);
+    void getRequestFiltersAppliedSuccessTest() {
         MentorshipRequest mentorshipRequest = new MentorshipRequest();
         mentorshipRequest.setDescription("desc");
         User user1 = new User();
@@ -109,16 +108,16 @@ class MentorshipRequestServiceTest {
         mentorshipRequest.setStatus(RequestStatus.PENDING);
 
         when(mentorshipRequestRepository.findAll()).thenReturn(List.of(mentorshipRequest));
-        when(mentorshipRequestMapper.toDto(mentorshipRequest)).thenReturn(new MentorshipRequestDto( "desc", 2L, 3L));
+        when(mentorshipRequestMapper.toDto(mentorshipRequest)).thenReturn(new MentorshipRequestDto("desc", 2L, 3L));
 
-        List<MentorshipRequestDto> result = mentorshipRequestService.getRequest(filter);
+        List<MentorshipRequestDto> result = mentorshipRequestService.getRequest(null, 1L, 2L, RequestStatusDto.PENDING);
 
         assertEquals(1, result.size());
         assertEquals("desc", result.get(0).description());
     }
 
     @Test
-    void testAcceptRequestRequestExistsSuccess() {
+    void acceptRequestRequestExistsSuccessTest() {
         MentorshipRequest mentorshipRequest = generateMentorshipRequest();
 
         User requester = mentorshipRequest.getRequester();
@@ -132,7 +131,7 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    void testAcceptRequestRequestNotExistsShouldFail() {
+    void acceptRequestRequestNotExistsFailTest() {
         when(mentorshipRequestRepository.findById(1L)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> mentorshipRequestService.acceptRequest(1L));
@@ -141,7 +140,7 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    void testRejectRequestRequestExistsSuccess() {
+    void rejectRequestRequestExistsSuccessTest() {
         MentorshipRequest mentorshipRequest = new MentorshipRequest();
 
         when(mentorshipRequestRepository.findById(1L)).thenReturn(Optional.of(mentorshipRequest));
@@ -153,7 +152,7 @@ class MentorshipRequestServiceTest {
     }
 
     @Test
-    void testRejectRequestRequestNotExistsShouldFail() {
+    void rejectRequestRequestNotExistsShouldFailTest() {
         when(mentorshipRequestRepository.findById(1L)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> mentorshipRequestService.rejectRequest(1L, "Not interested"));

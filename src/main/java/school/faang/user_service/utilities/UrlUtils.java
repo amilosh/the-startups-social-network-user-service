@@ -10,10 +10,8 @@ public class UrlUtils {
     public static final String ID = "/{id}";
     public static final String PARTICIPANTS = "/participants";
     public static final String AMOUNT = "/amount";
-    public static final String MENTORSHIP = "/MENTORSHIP";
-
+    public static final String MENTORSHIP = "/mentorship";
     public static final String REQUEST = "/request";
-    public static final String CREATE = "/create";
     public static final String ACCEPT = "/accept";
     public static final String REJECT = "/reject";
 }
