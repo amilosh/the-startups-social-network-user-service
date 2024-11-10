@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,11 +9,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.EventDto;
+import school.faang.user_service.dto.EventFilterDto;
 import school.faang.user_service.dto.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.UserRepository;
@@ -22,16 +25,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static java.util.Optional.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Slf4j
 @ExtendWith(MockitoExtension.class)
 class EventServiceTest {
 
@@ -48,25 +56,29 @@ class EventServiceTest {
     private EventMapper eventMapper;
 
     @Mock
-    SkillMapper skillMapper;
+    private SkillMapper skillMapper;
 
     @InjectMocks
     private EventService eventService;
 
-    EventDto eventDto;
-    Event event;
-    User user;
-    SkillDto skillDto1;
-    SkillDto skillDto2;
-    Skill skill1;
-    Skill skill2;
-    List<Skill> skills;
-    List<SkillDto> skillsDtos;
-    List<Event> ownedEvents;
-    List<EventDto> ownedEventsDto;
+    private EventDto eventDto;
+    private Event event;
+    private User user;
+    private SkillDto skillDto1;
+    private SkillDto skillDto2;
+    private Skill skill1;
+    private Skill skill2;
+    private List<Skill> skills;
+    private List<SkillDto> skillsDtos;
+    private List<Event> ownedEvents;
+    private List<EventDto> ownedEventsDto;
+    private EventFilter mockFilter;
 
     @BeforeEach
     public void setUp() {
+        mockFilter = mock(EventFilter.class);
+        eventService = new EventService(eventRepository, userRepository, userService, eventMapper, skillMapper, List.of(mockFilter));
+
         skillDto1 = SkillDto.builder().id(1L).title("Java").build();
         skillDto2 = SkillDto.builder().id(2L).title("Spring").build();
 
@@ -100,31 +112,28 @@ class EventServiceTest {
                 .id(22L)
                 .ownerId(user.getId())
                 .title("Java Conference 2024")
-                .relatedSkills(List.of(
-                        new SkillDto(1L, "Java"),
-                        new SkillDto(2L, "Spring")))
+                .relatedSkills(skillsDtos)
                 .build();
-
     }
 
     @Test
-    void testCreateEventSuccess() {
+    void testCreateEventSaveCorrectEvent() {
         when(userService.getUserById(100L)).thenReturn(user);
         when(eventMapper.toEntity(eventDto)).thenReturn(event);
-        when(skillMapper.toDtoList(user.getSkills())).thenReturn(Arrays.asList(skillDto1, skillDto2));
+        when(skillMapper.toDtoList(user.getSkills()))
+                .thenReturn(Arrays.asList(skillDto1, skillDto2));
         when(eventRepository.save(event)).thenReturn(event);
         when(eventMapper.toDto(event)).thenReturn(eventDto);
 
         EventDto result = eventService.create(eventDto);
 
         assertNotNull(result);
-        Mockito.verify(eventRepository, times(1))
-                .save(event);
+        assertEquals(eventDto, result);
+        Mockito.verify(eventRepository, times(1)).save(event);
     }
 
     @Test
     void testCreateEventUserDoNotHaveRequiredSkills() {
-
         SkillDto sqlDto = SkillDto.builder().id(2L).title("SQL").build();
         User user2 = User.builder()
                 .id(100L)
@@ -136,10 +145,11 @@ class EventServiceTest {
 
 
         when(userService.getUserById(100L)).thenReturn(user2);
-        when(skillMapper.toDtoList(user2.getSkills())).thenReturn(Arrays.asList(skillDto1, sqlDto));
+        when(skillMapper.toDtoList(user2.getSkills()))
+                .thenReturn(Arrays.asList(skillDto1, sqlDto));
 
         assertThrows(DataValidationException.class, () -> eventService.create(eventDto));
-        verify(eventRepository, never()).save(Mockito.any(Event.class));
+        verify(eventRepository, never()).save(any(Event.class));
     }
 
     @Test
@@ -155,9 +165,10 @@ class EventServiceTest {
 
     @Test
     void testGetEventWithNonExistentEvent() {
-        when(eventRepository.findById(11L)).thenReturn(empty());
+        when(eventRepository.findById(anyLong())).thenReturn(empty());
 
-        assertThrows(DataValidationException.class, () -> eventService.getEventById(11L));
+        assertThrows(DataValidationException.class,
+                () -> eventService.getEventById(anyLong()));
     }
 
     @Test
@@ -194,12 +205,11 @@ class EventServiceTest {
         ownedEvents = new ArrayList<>();
         user.setOwnedEvents(ownedEvents);
         event.setAttendees(new ArrayList<>()); // Пустой список участников
+        when(eventRepository.findById(event.getId())).thenReturn(of(event));
 
-        when(eventRepository.findById(22L)).thenReturn(of(event));
+        eventService.deleteEvent(event.getId());
 
-        eventService.deleteEvent(22L);
-
-        verify(eventRepository, times(1)).deleteById(22L);
+        verify(eventRepository, times(1)).deleteById(event.getId());
         verify(userRepository, times(1)).save(user);
     }
 
@@ -207,11 +217,9 @@ class EventServiceTest {
     void testGetOwnedEventsWithUserId() {
         ownedEventsDto = new ArrayList<>();
         ownedEventsDto.add(eventDto);
-
         ownedEvents = new ArrayList<>();
         ownedEvents.add(event);
         user.setOwnedEvents(ownedEvents);
-
         when(userService.getUserById(100L)).thenReturn(user);
         when(eventMapper.toDtoList(ownedEvents)).thenReturn(ownedEventsDto);
 
@@ -221,23 +229,169 @@ class EventServiceTest {
     }
 
     @Test
-    void testGetOwnedWithoutUserId() {
-        when(userService.getUserById(10000L)).
+    void testGetOwnedWithoutUser() {
+        when(userService.getUserById(anyLong())).
                 thenThrow(DataValidationException.class);
 
         assertThrows(DataValidationException.class,
-                () -> eventService.getOwnedEvents(10000L));
+                () -> eventService.getOwnedEvents(anyLong()));
     }
 
     @Test
     void testGetOwnedEventsWhenNoOwnedEvents() {
         User user = mock(User.class);
-        when(userService.getUserById(10000L)).thenReturn(user);
+        when(userService.getUserById(anyLong())).thenReturn(user);
         when(user.getOwnedEvents()).thenReturn(Collections.emptyList());
 
-        List<EventDto> result = eventService.getOwnedEvents(10000L);
+        List<EventDto> result = eventService.getOwnedEvents(anyLong());
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testGetParticipatedEventsWithExistingUser() {
+        User user = mock(User.class);
+        user.setId(1L);
+        List<Event> participatedEvents = new ArrayList<>();
+        participatedEvents.add(Event.builder().id(1L).build());
+        participatedEvents.add(Event.builder().id(2L).build());
+        List<EventDto> participatedEventsDto = new ArrayList<>();
+        participatedEventsDto.add(EventDto.builder().id(1L).build());
+        participatedEventsDto.add(EventDto.builder().id(2L).build());
+        user.setParticipatedEvents(participatedEvents);
+        when(userService.getUserById(user.getId())).thenReturn(user);
+        when((user.getParticipatedEvents())).thenReturn(participatedEvents);
+        when(eventMapper.toDtoList(participatedEvents)).thenReturn(participatedEventsDto);
+
+        List<EventDto> result = eventService.getParticipatedEvents(user.getId());
+
+        assertNotNull(result);
+        assertEquals(participatedEventsDto, result);
+    }
+
+    @Test
+    void testGetParticipatedEventsWithoutUser() {
+        when(userService.getUserById(anyLong())).
+                thenThrow(DataValidationException.class);
+
+        assertThrows(DataValidationException.class,
+                () -> eventService.getParticipatedEvents(anyLong()));
+    }
+
+    @Test
+    void testGetParticipatedEventsWhenNoEvents() {
+        User user = mock(User.class);
+        when(userService.getUserById(anyLong())).thenReturn(user);
+        when(user.getParticipatedEvents()).thenReturn(Collections.emptyList());
+
+        List<EventDto> result = eventService.getParticipatedEvents(anyLong());
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testGetEventByIdWithExistingEvent() {
+        when(eventRepository.findById(event.getId())).thenReturn(of(event));
+
+        Event result = eventService.getEventById(event.getId());
+
+        assertNotNull(result);
+        assertEquals(event, result);
+    }
+
+    @Test
+    void testGetEventByIdWithNonExistingEvent() {
+        when(eventRepository.findById(anyLong())).thenThrow(DataValidationException.class);
+
+        assertThrows(DataValidationException.class, () -> eventService.getEventById(anyLong()));
+    }
+
+    @Test
+    void testUpdateEventWhenUserDoNotHaveSkills() {
+        event.getRelatedSkills().add(Skill.builder().title("SQL").build());
+        when(userService.getUserById(user.getId())).thenReturn(user);
+
+        assertThrows(DataValidationException.class, () -> eventService.updateEvent(eventDto));
+        verify(eventRepository, times(0)).save(event);
+    }
+
+    @Test
+    void testUpdateWithCorrectData() {
+        EventDto updateEventDto = EventDto.builder()
+                .id(event.getId())
+                .title("SQL CONF")
+                .ownerId(user.getId())
+                .relatedSkills(skillsDtos)
+                .build();
+
+        Event updatedEvent = event;
+        updatedEvent.setTitle("SQL CONF");
+
+        when(userService.getUserById(user.getId())).thenReturn(user);
+        when(eventRepository.findById(updateEventDto.id()))
+                .thenReturn(Optional.ofNullable(event));
+        when(skillMapper.toDtoList(user.getSkills()))
+                .thenReturn(Arrays.asList(skillDto1, skillDto2));
+        when(eventRepository.save(event)).thenReturn(updatedEvent);
+        when(eventMapper.toDto(event)).thenReturn(updateEventDto);
+
+        EventDto result = eventService.updateEvent(updateEventDto);
+
+        assertNotNull(result);
+        assertEquals(updateEventDto.title(), result.title());
+        verify(eventRepository, times(1)).save(updatedEvent);
+    }
+
+    @Test
+    void testEventsByFilterWithCorrectData() {
+        EventFilterDto filterDto = EventFilterDto.builder()
+                .title("Java Conference 2024")
+                .ownerId(user.getId())
+                .location("Moscow")
+                .build();
+        Event sqlEvent = Event.builder()
+                .title("Sql Conf")
+                .owner(new User())
+                .location("Paris")
+                .build();
+        Event javaEvent = Event.builder()
+                .title("Java Conference 2024")
+                .owner(user)
+                .location("Moscow")
+                .build();
+        EventDto javaEventDto = EventDto.builder()
+                .title("Java Conference 2024")
+                .ownerId(user.getId())
+                .location("Moscow")
+                .build();
+
+        List<Event> allEvents = new ArrayList<>();
+        allEvents.add(sqlEvent);
+        allEvents.add(javaEvent);
+        allEvents.add(event);
+        List<Event> filteredEvents = new ArrayList<>();
+        filteredEvents.add(javaEvent);
+        filteredEvents.add(event);
+        List<EventDto> eventDtosFilter = new ArrayList<>();
+        eventDtosFilter.add(javaEventDto);
+        eventDtosFilter.add(eventDto);
+        when(eventRepository.findAll()).thenReturn(allEvents);
+        when(mockFilter.isApplicable(filterDto)).thenReturn(true);
+        lenient().when(mockFilter.apply(allEvents.stream(), filterDto)).thenReturn(filteredEvents.stream());
+        when(eventMapper.toDtoList(anyList())).thenReturn(eventDtosFilter);
+
+        List<EventDto> result = eventService.getEventsByFilter(filterDto);
+
+        assertEquals(eventDtosFilter, result);
+        assertEquals(2, result.size(),
+                "Only one event should match the filter (the Java Conference 2024)");
+        assertEquals("Java Conference 2024", result.get(0).title(),
+                "The event title should match the filter title");
+        assertEquals("Java Conference 2024", result.get(1).title(),
+                "The event title should match the filter title");
+        verify(eventRepository).findAll();
+        verify(eventMapper).toDtoList(anyList());
     }
 }

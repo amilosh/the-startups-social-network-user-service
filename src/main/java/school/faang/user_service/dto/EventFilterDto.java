@@ -1,8 +1,8 @@
 package school.faang.user_service.dto;
 
-import school.faang.user_service.entity.User;
+import lombok.Builder;
 
-
+@Builder
 public record EventFilterDto(String title, Long ownerId, String location) {
 
 }

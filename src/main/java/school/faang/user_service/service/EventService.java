@@ -20,6 +20,7 @@ import school.faang.user_service.repository.event.EventRepository;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -147,8 +148,7 @@ public class EventService {
 
         Set<SkillDto> userSkillsDto = skillDtoList != null ? new HashSet<>(skillDtoList) : new HashSet<>();
 
-        log.debug("Checking " +
-                "if user has required skills: {}", relatedSkills);
+        log.debug("Checking " + "if user has required skills: {}", relatedSkills);
         if (!userSkillsDto.containsAll(relatedSkills)) {
             log.error("{} don't have required skills to create event: {}", userOwner.toLogString(), eventDto.toLogString());
             throw new DataValidationException("User don't have required skills to create event");
@@ -156,6 +156,7 @@ public class EventService {
 
         log.info("User {} has all required skills to create event", userOwner.getId());
     }
+
 
     private boolean eventExists(Event event) {
         return eventRepository.existsByTitleAndStartDateAndEndDateAndOwnerAndLocationAndMaxAttendees(
