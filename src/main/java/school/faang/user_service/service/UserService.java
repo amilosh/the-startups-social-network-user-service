@@ -32,23 +32,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    /**
-     * Get a user by its ID.
-     *
-     * @param userId the ID of the user
-     * @return the user, or null if the user does not exist
-     */
     public Optional<User> getUserById(Long userId) {
         return userRepository.findById(userId);
-    }
-
-    /**
-     * Checks if a user with the given ID exists in the database.
-     *
-     * @param userId the ID of the user to check
-     * @return true if the user exists, false otherwise
-     */
-    public boolean checkUserExistence(Long userId) {
-        return userRepository.existsById(userId);
     }
 }

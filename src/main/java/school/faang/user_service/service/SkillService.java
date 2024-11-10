@@ -68,18 +68,17 @@ public class SkillService {
                     skillRepository.save(skill);
                 });
     }
-
-    private boolean filterSkillsForGuarantee(Skill skill, List<Long> recommendedSkillsIds, Recommendation
-            recommendation) {
-        return recommendedSkillsIds.contains(skill.getId()) &&
-                !getSkillGuaranteeIds(skill).contains(recommendation.getAuthor().getId());
-    }
-
     public boolean checkIfSkillExistsById(Long skillId) {
         return skillRepository.existsById(skillId);
     }
 
     public Skill getSkillById(Long skillId) {
         return skillRepository.getReferenceById(skillId);
+    }
+
+    private boolean filterSkillsForGuarantee(Skill skill, List<Long> recommendedSkillsIds, Recommendation
+            recommendation) {
+        return recommendedSkillsIds.contains(skill.getId()) &&
+                !getSkillGuaranteeIds(skill).contains(recommendation.getAuthor().getId());
     }
 }
