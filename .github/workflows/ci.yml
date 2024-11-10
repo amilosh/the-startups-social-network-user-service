@@ -39,7 +39,7 @@ jobs:
       - name: Set up PostgreSQL with Docker Compose
         run: |
           docker-compose down
-          docker-compose up
+          docker-compose up -d
           
       - name: Wait for PostgreSQL to be ready
         run: |
