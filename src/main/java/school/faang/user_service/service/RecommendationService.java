@@ -44,13 +44,11 @@ public class RecommendationService {
     @Transactional
     public RecommendationDto create(RecommendationDto recommendationDto) {
         log.info("Creating new recommendation for receiverId: {}", recommendationDto.receiverId());
-
         Recommendation recommendation = recommendationMapper.toEntity(recommendationDto);
         establishRelations(recommendation, recommendationDto);
         validateRecommendation(recommendation);
         processSkillDependencies(recommendation);
         recommendation = recommendationRepo.save(recommendation);
-
         log.info("Recommendation created successfully with id: {}", recommendation.getId());
         return recommendationMapper.toDto(recommendation);
     }
@@ -72,7 +70,6 @@ public class RecommendationService {
     @Transactional
     public void delete(long recommendationId) {
         log.info("Deleting recommendation with id: {}", recommendationId);
-
         Recommendation recommendation = recommendationRepo.findById(recommendationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Recommendation", "id", recommendationId));
         List<Skill> offeredSkills = SkillUtils.toSkillList(recommendation.getSkillOffers());
@@ -81,7 +78,6 @@ public class RecommendationService {
         removeUserSkillIfNoOtherGuarantees(recommendation, offeredSkills);
         unlinkUsersFromRecommendation(recommendation);
         recommendationRepo.delete(recommendation);
-
         log.info("Recommendation with id: {} deleted successfully", recommendationId);
     }
 
@@ -95,7 +91,6 @@ public class RecommendationService {
     @Transactional
     public RecommendationDto update(long recommendationId, RecommendationDto recommendationDto) {
         log.info("Updating recommendation with id: {}", recommendationId);
-
         Recommendation recommendation = recommendationRepo.findById(recommendationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Recommendation", "id", recommendationId));
         validateRecommendation(recommendation);
@@ -107,7 +102,6 @@ public class RecommendationService {
 
         processSkillChanges(recommendation, skillChanges);
         Recommendation updatedRecommendation = recommendationRepo.save(recommendation);
-
         log.info("Recommendation with id: {} updated successfully", recommendationId);
         return recommendationMapper.toDto(updatedRecommendation);
     }

@@ -27,4 +27,8 @@ public class SkillService {
                 .map(skillOfferDto -> getSkillById(skillOfferDto.skillId()))
                 .toList();
     }
+
+    public List<Skill> getAllSkillsByIds(List<Long> skillIds) {
+        return skillRepo.findAllById(skillIds);
+    }
 }

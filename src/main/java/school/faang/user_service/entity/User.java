@@ -158,4 +158,16 @@ public class User {
     public void removeSkill(Skill skill) {
         skills.remove(skill);
     }
+
+    public void addGoal(Goal goal) {
+        goals.add(goal);
+    }
+
+    public void removeGoal(Goal goal) {
+        goals.remove(goal);
+    }
+
+    public boolean hasMaxNumOfGoals(int maxNumOfGoals) {
+        return goals.size() > maxNumOfGoals;
+    }
 }
