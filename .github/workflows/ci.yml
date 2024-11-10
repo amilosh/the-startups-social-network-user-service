@@ -40,7 +40,7 @@ jobs:
         run: |
           docker-compose down
           docker-compose build
-          docker-compose run --rm rails bundle exec rails db:reset
+        #docker-compose run --rm rails bundle exec rails db:reset
           docker-compose up
           
 
