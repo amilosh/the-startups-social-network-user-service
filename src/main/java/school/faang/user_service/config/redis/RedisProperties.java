@@ -27,6 +27,7 @@ public class RedisProperties {
         private Channel projectChannel;
         private Channel mentorshipStartEvent;
         private Channel goalSetChannel;
+        private Channel userBanChannel;
 
         @Getter
         @Setter
