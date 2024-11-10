@@ -10,8 +10,8 @@ public class UsernamePatternFilter implements SubscriptionRequestFilter {
 
     @Override
     public Boolean applyFilter(SubscriptionUserFilterDto userFilter, User user) {
-        String username = user.getUsername().toLowerCase();
-        String namePattern = userFilter.getNamePattern().toLowerCase();
+        String username = user.getUsername().toLowerCase().trim();
+        String namePattern = userFilter.getNamePattern().toLowerCase().trim();
 
         return username.matches(".*" + namePattern + ".*");
     }

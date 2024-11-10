@@ -1,5 +1,6 @@
 package school.faang.user_service.service.subscription;
 
+import ch.qos.logback.core.testUtil.MockInitialContext;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +14,10 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.service.subscription.filter.*;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
@@ -30,13 +34,10 @@ class SubscriptionServiceTest {
     UserMapper mapper;
 
     @Mock
-    // mock filters list
+    List<SubscriptionRequestFilter> requestFilters;
 
     @InjectMocks
     SubscriptionService subscriptionService;
-
-
-    @BeforeAll
 
 
     @Test
@@ -126,6 +127,14 @@ class SubscriptionServiceTest {
                 .thenReturn(true);
         Mockito.when(subscriptionRepository.findByFolloweeId(followeeId))
                 .thenReturn(userStream);
+
+        List<SubscriptionRequestFilter> subscriptionFilters = List.of(
+                                new UsernamePatternFilter(),
+                                new AboutMePatternFilter()
+        );
+
+        Mockito.when(requestFilters.iterator())
+                .thenAnswer(invocationOnMock -> subscriptionFilters.iterator());
 
         SubscriptionUserDto alexanderDto = new SubscriptionUserDto();
         SubscriptionUserDto alexeyDto = new SubscriptionUserDto();
@@ -238,6 +247,8 @@ class SubscriptionServiceTest {
 
         user2.setAboutMe("hiker");
         user2.setUsername("George");
+
+        user3.setUsername("Beau");
         user3.setAboutMe("millennial");
 
         Stream<User> followeeStream = Stream.of(
@@ -266,6 +277,14 @@ class SubscriptionServiceTest {
                 .thenReturn(true);
         Mockito.when(subscriptionRepository.findByFolloweeId(followeeId))
                 .thenReturn(followeeStream);
+
+        List<SubscriptionRequestFilter> requestFilterList = List.of(
+                        new EmailPatternFilter(),
+                        new AboutMePatternFilter());
+
+        Mockito.when(requestFilters.iterator())
+                .thenAnswer(invocationOnMock -> requestFilterList.iterator());
+
         Mockito.when(mapper.toDto(user1)).thenReturn(user1Dto);
         Mockito.when(mapper.toDto(user2)).thenReturn(user2Dto);
 
@@ -281,6 +300,8 @@ class SubscriptionServiceTest {
                 .existsById(followeeId);
         Mockito.verify(subscriptionRepository, Mockito.times(1))
                 .findByFolloweeId(followeeId);
+        Mockito.verify(requestFilters, Mockito.times(3))
+                .iterator();
     }
 
     @Test
