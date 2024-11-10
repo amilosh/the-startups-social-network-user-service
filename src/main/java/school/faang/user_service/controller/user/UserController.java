@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,13 +28,13 @@ public class UserController {
         return ResponseEntity.ok(notExistingUserIds);
     }
 
-    @GetMapping()
-    public List<UserDto> getUsers(UserFilterDto filters) {
-        return userService.getUsers(filters);
+    @PostMapping("/not-premium")
+    public List<UserDto> getNotPremiumUsers(@RequestBody UserFilterDto filters) {
+        return userService.getNotPremiumUsers(filters);
     }
 
-    @GetMapping("/premium")
-    public List<UserDto> getPremiumUsers(UserFilterDto filters) {
+    @PostMapping("/premium")
+    public List<UserDto> getPremiumUsers(@RequestBody UserFilterDto filters) {
         return userService.getPremiumUsers(filters);
     }
 }

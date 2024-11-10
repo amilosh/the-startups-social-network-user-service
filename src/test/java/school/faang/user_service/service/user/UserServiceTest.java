@@ -140,7 +140,7 @@ class UserServiceTest {
     }
 
     @Test
-    void getUsersTest() {
+    void getNotPremiumUsersTest() {
         long firstUserId = 1L;
         long secondUserId = 2L;
 
@@ -168,7 +168,7 @@ class UserServiceTest {
         when(userFilters.get(0).apply(users, filterDto)).thenReturn(users);
         when(userFilters.get(1).isApplicable(filterDto)).thenReturn(false);
 
-        List<UserDto> actualUsersDto = userService.getUsers(filterDto);
+        List<UserDto> actualUsersDto = userService.getNotPremiumUsers(filterDto);
 
         verify(userValidator).validateNotPremiumUsers();
         verify(userFilters.get(0)).isApplicable(filterDto);

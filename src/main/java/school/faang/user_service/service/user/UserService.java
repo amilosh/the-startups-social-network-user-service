@@ -42,7 +42,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserDto> getUsers(UserFilterDto filterDto) {
+    public List<UserDto> getNotPremiumUsers(UserFilterDto filterDto) {
         Stream<User> notPremiumUsers = userValidator.validateNotPremiumUsers();
 
         List<UserDto> filteredUsers = filter(notPremiumUsers, filterDto);
