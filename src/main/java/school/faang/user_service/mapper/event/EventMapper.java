@@ -4,6 +4,7 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.promotion.PromotedEventResponseDto;
 import school.faang.user_service.entity.event.Event;
@@ -13,7 +14,8 @@ import school.faang.user_service.mapper.skill.SkillMapper;
 import java.util.List;
 import java.util.Optional;
 
-@Mapper(componentModel = "spring", uses = SkillMapper.class, injectionStrategy = InjectionStrategy.CONSTRUCTOR)
+@Mapper(componentModel = "spring", uses = SkillMapper.class, injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface EventMapper {
     @Mapping(source = "ownerId", target = "owner.id")
     @Mapping(source = "relatedSkills", target = "relatedSkills")
@@ -23,6 +25,7 @@ public interface EventMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "type", ignore = true)
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "promotion", ignore = true)
     Event toEntity(EventDto eventDto);
 
     List<Event> toEntity(List<EventDto> eventsDto);
@@ -34,30 +37,29 @@ public interface EventMapper {
     List<EventDto> toDto(List<Event> events);
 
     @Mapping(source = "owner.id", target = "ownerId")
-    @Mapping(source = "promotions", target = "promotionTariff", qualifiedByName = "mapTariff")
-    @Mapping(source = "promotions", target = "numberOfViews", qualifiedByName = "mapNumberOfViews")
+    @Mapping(source = "promotion", target = "promotionTariff", qualifiedByName = "mapTariff")
+    @Mapping(source = "promotion", target = "numberOfViews", qualifiedByName = "mapNumberOfViews")
     PromotedEventResponseDto toPromotedEventResponseDto(Event event);
 
     @Named("mapTariff")
-    default String mapTariff(List<EventPromotion> eventPromotions) {
-        Optional<EventPromotion> promotionOpt = getActivePromotion(eventPromotions);
-        return promotionOpt
-                .map(eventPromotion -> eventPromotion.getPromotionTariff().toString())
+    default String mapTariff(EventPromotion eventPromotion) {
+        return Optional.ofNullable(eventPromotion)
+                .filter(promotion -> promotion.getNumberOfViews() > 0)
+                .map(promotion -> promotion.getPromotionTariff().toString())
                 .orElse(null);
     }
 
     @Named("mapNumberOfViews")
-    default Integer mapNumberOfViews(List<EventPromotion> eventPromotions) {
-        Optional<EventPromotion> promotionOpt = getActivePromotion(eventPromotions);
-        return promotionOpt
+    default Integer mapNumberOfViews(EventPromotion eventPromotion) {
+        return Optional.ofNullable(eventPromotion)
+                .filter(promotion -> promotion.getNumberOfViews() > 0)
                 .map(EventPromotion::getNumberOfViews)
                 .orElse(null);
     }
 
-    private Optional<EventPromotion> getActivePromotion(List<EventPromotion> eventPromotions) {
-        return eventPromotions
-                .stream()
-                .filter(promotion -> promotion.getNumberOfViews() > 0)
-                .findFirst();
+    default Optional<EventPromotion> getActivePromotion(EventPromotion eventPromotion) {
+        return Optional.ofNullable(eventPromotion)
+                .filter(promotion -> promotion.getNumberOfViews() > 0);
     }
+
 }
