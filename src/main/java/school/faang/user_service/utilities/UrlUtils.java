@@ -2,10 +2,6 @@ package school.faang.user_service.utilities;
 
 import lombok.experimental.UtilityClass;
 
-/**
- * Класс содержит константы для формирования url.
- *
- */
 @UtilityClass
 public class UrlUtils {
     public static final String MAIN_URL = "/api/user-service";
@@ -14,4 +10,8 @@ public class UrlUtils {
     public static final String ID = "/{id}";
     public static final String PARTICIPANTS = "/participants";
     public static final String AMOUNT = "/amount";
+    public static final String MENTORSHIP = "/mentorship";
+    public static final String REQUEST = "/request";
+    public static final String ACCEPT = "/accept";
+    public static final String REJECT = "/reject";
 }
