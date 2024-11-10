@@ -1,4 +1,4 @@
-package school.faang.user_service.controller;
+package school.faang.user_service.handler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,18 +8,18 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import school.faang.user_service.dto.ExceptionBaseStructure;
 import school.faang.user_service.extention.DataValidationException;
 import school.faang.user_service.extention.ErrorCode;
-import school.faang.user_service.util.ServiceMethods;
-import school.faang.user_service.util.ServiceParameters;
+import school.faang.user_service.utilities.ServiceMethods;
+import school.faang.user_service.utilities.UrlServiceParameters;
 
 @RestControllerAdvice
-public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
+public class ExceptionApiHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(DataValidationException.class)
     public ResponseEntity<ExceptionBaseStructure> handleElementNotFindException(Exception exception) {
         return new ResponseEntity<>(new ExceptionBaseStructure(exception.getMessage(),
                 ErrorCode.INVALID_FOLLOW,
                 ServiceMethods.getTimeIsoOffsetDateTime(),
-                ServiceParameters.SYSTEM_ID
-        ), HttpStatus.NOT_FOUND);
+                UrlServiceParameters.SYSTEM_ID
+        ), HttpStatus.BAD_REQUEST);
     }
 }

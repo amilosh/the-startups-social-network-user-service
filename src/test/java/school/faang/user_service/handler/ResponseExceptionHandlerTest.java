@@ -1,4 +1,4 @@
-package school.faang.user_service.controller;
+package school.faang.user_service.handler;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import school.faang.user_service.util.ServiceParameters;
+import school.faang.user_service.utilities.UrlServiceParameters;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -18,7 +18,7 @@ class ResponseExceptionHandlerTest {
     @Autowired
     private MockMvc mockMvc;
     @InjectMocks
-    private ResponseExceptionHandler responseExceptionHandler;
+    private ExceptionApiHandler responseExceptionHandler;
 
     @BeforeEach
     void setUp() {
@@ -29,8 +29,8 @@ class ResponseExceptionHandlerTest {
     @Test
     void handleElementNotFindExceptionAddFollowingUsersSelf() throws Exception {
         long testIdUser1 = 1L;
-        mockMvc.perform(MockMvcRequestBuilders.post(ServiceParameters.FOLLOWING_SERVICE_URL +
-                        ServiceParameters.FOLLOWING_ADD + "followerId=" + testIdUser1 + "&followeeId=" + testIdUser1))
+        mockMvc.perform(MockMvcRequestBuilders.post(UrlServiceParameters.FOLLOWING_SERVICE_URL +
+                        UrlServiceParameters.FOLLOWING_ADD + "followerId=" + testIdUser1 + "&followeeId=" + testIdUser1))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }
