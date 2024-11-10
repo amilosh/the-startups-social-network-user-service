@@ -41,9 +41,9 @@ jobs:
         env:
           DB_HOST: localhost
           DB_PORT: 5432
-          DB_USER: test_user
-          DB_PASSWORD: test_password
-          DB_NAME: test_db
+          DB_USER: user
+          DB_PASSWORD: password
+          DB_NAME: postgres
         run: ./gradlew test --no-daemon #-x MapperEventTest
 
       - name: Upload test results
