@@ -4,7 +4,6 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
 
-import java.util.List;
 import java.util.stream.Stream;
 
 @Component
@@ -18,14 +17,9 @@ public class UserPremiumFilter implements UserFilter {
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filter) {
-        return Stream.empty();
+        return users
+                .filter(user -> user.getPremium() != null);
+
     }
 
-
-    @Override
-    public List<User> apply(List<User> users, UserFilterDto filters) {
-        return users.stream()
-                .filter(user -> user.getPremium() != null)
-                .toList();
-    }
 }

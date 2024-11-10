@@ -17,7 +17,7 @@ public class UserController {
 
     @GetMapping(value = "premium")
     public List<UserDto> getUsers(@RequestBody UserFilterDto filterDto) {
-        return userService.getPremiumUsers(filterDto).toList();
+        return userService.getUser(filterDto).toList();
     }
 
 }

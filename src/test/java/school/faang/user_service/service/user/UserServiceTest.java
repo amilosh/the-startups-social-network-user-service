@@ -18,7 +18,12 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,52 +37,49 @@ public class UserServiceTest {
     @Mock
     private UserFilter userFilter;
 
-    private User userJohn = new User("John");
-    private User userJane = new User("Jane");
-
-    private UserDto userDtoJohn = new UserDto("John");
-    private UserDto userDtoJane = new UserDto("Jane");
-    private  UserFilterDto filterDto = new UserFilterDto();
     @BeforeEach
     public void setUp() {
         userService = new UserService(userRepository, userMapper, List.of(userFilter));
     }
 
     @Test
-    public void testGetPremiumUsersWithApplicableFilter() {
-        List<User> users = List.of(userJohn, userJane);
-        List<UserDto> userDtos = List.of(userDtoJohn, userDtoJane);
-        when(userRepository.findAll()).thenReturn(users);
-        when(userFilter.isApplicable(filterDto)).thenReturn(false);
-        when(userMapper.toListDto(users)).thenReturn(userDtos);
-
-
-        Stream<UserDto> result = userService.getPremiumUsers(filterDto);
-
-        assertEquals(2, result.count());
-        assertTrue(result.anyMatch(dto -> dto.getUsername().equals("John")));
-        assertTrue(result.anyMatch(dto -> dto.getUsername().equals("Jane")));
-   }
-
-    @Test
-    public void testGetPremiumUsers_WithNonApplicableFilter() {
-
+    public void testGetUserWithApplicableFilter() {
         UserFilterDto filterDto = new UserFilterDto();
-        List<User> users = List.of(userJohn, userJane);
-        List<UserDto> userDtos = List.of(userDtoJohn, userDtoJane);
+        User user = new User();
+        UserDto userDto = new UserDto();
 
-        when(userRepository.findAll()).thenReturn(users);
-        when(userFilter.isApplicable(filterDto)).thenReturn(false);
-        when(userMapper.toListDto(users)).thenReturn(userDtos);
+        when(userRepository.findAll()).thenReturn(List.of(user));
+        when(userFilter.isApplicable(filterDto)).thenReturn(true);
 
-        Stream<UserDto> result = userService.getPremiumUsers(filterDto);
+        when(userFilter.apply(any(Stream.class), eq(filterDto))).thenAnswer(invocation -> invocation.getArgument(0));
+        lenient().when(userMapper.toDto(user)).thenReturn(userDto);
 
+        Stream<UserDto> result = userService.getUser(filterDto);
 
-        assertEquals(2, result.count());
-        assertEquals(true, result.anyMatch(dto -> dto.getExperience().equals("John")));
-        assertTrue(result.anyMatch(dto -> dto.getExperience().equals("Jane")));
+        assertEquals(1, result.count());
+        verify(userRepository, times(1)).findAll();
+        verify(userFilter, times(1)).isApplicable(filterDto);
+        verify(userFilter, times(1)).apply(any(Stream.class), eq(filterDto));
+
     }
 
+    @Test
+    public void testGetUser_WithNonApplicableFilter() {
 
+        UserFilterDto filterDto = new UserFilterDto();
+        User user = new User();
+        UserDto userDto = new UserDto();
+
+        when(userRepository.findAll()).thenReturn(List.of(user));
+        when(userFilter.isApplicable(filterDto)).thenReturn(false);
+        lenient().when(userMapper.toDto(user)).thenReturn(userDto);
+
+        Stream<UserDto> result = userService.getUser(filterDto);
+
+        assertEquals(1, result.count());
+        verify(userRepository, times(1)).findAll();
+        verify(userFilter, times(1)).isApplicable(filterDto);
+        verify(userFilter, never()).apply(any(Stream.class), eq(filterDto));
+    }
 }
 
