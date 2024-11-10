@@ -15,6 +15,9 @@ import school.faang.user_service.service.payment.PaymentService;
 import school.faang.user_service.validator.premium.PremiumValidator;
 import school.faang.user_service.validator.user.UserValidator;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -44,5 +47,16 @@ public class PremiumService {
         log.debug("Premium saved for userId: {} with paymentNumber: {}", userId, paymentResponse.getPaymentNumber());
 
         return premiumMapper.toDto(premium);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Premium> findAllByEndDateBefore(LocalDateTime endDate) {
+        return premiumRepository.findAllByEndDateBefore(endDate);
+    }
+
+    @Transactional
+    public void deleteAllPremiumsById(List<Premium> premiums) {
+        log.info("Delete all premiums");
+        premiumRepository.deleteAllInBatch(premiums);
     }
 }

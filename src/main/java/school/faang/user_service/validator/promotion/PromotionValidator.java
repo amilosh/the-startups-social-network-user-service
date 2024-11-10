@@ -7,9 +7,15 @@ import school.faang.user_service.dto.payment.PaymentResponseDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.payment.PaymentStatus;
+import school.faang.user_service.entity.promotion.EventPromotion;
 import school.faang.user_service.entity.promotion.PromotionTariff;
+import school.faang.user_service.entity.promotion.UserPromotion;
 import school.faang.user_service.exception.payment.UnSuccessPaymentException;
 import school.faang.user_service.exception.promotion.PromotionValidationException;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static school.faang.user_service.exception.premium.PremiumErrorMessage.NO_RESPONSE;
 import static school.faang.user_service.exception.promotion.PromotionErrorMessages.EVENT_ALREADY_HAS_PROMOTION;
@@ -37,6 +43,26 @@ public class PromotionValidator {
             throw new PromotionValidationException(EVENT_ALREADY_HAS_PROMOTION, event.getId(),
                     event.getPromotion().getNumberOfViews());
         }
+    }
+
+    public List<UserPromotion> getActiveUserPromotions(List<User> users) {
+        return Optional.ofNullable(users)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(user -> Optional.ofNullable(user.getPromotion()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
+    }
+
+    public List<EventPromotion> getActiveEventPromotions(List<Event> events) {
+        return Optional.ofNullable(events)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(event -> Optional.ofNullable(event.getPromotion()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
     }
 
     public void checkPromotionPaymentResponse(PaymentResponseDto paymentResponse, long id, PromotionTariff tariff,
