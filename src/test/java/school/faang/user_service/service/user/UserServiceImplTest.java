@@ -96,16 +96,17 @@ public class UserServiceImplTest {
     @BeforeEach
     public void setup() {
         service = new UserServiceImpl(
-            repository,
-            null,
-            mapper,
-            imageProcessor,
-            s3Service,
-            null,
-            null,
-            profileViewEventPublisher,
-            userContext,
-            premiumBoughtEventPublisher
+                repository,
+                null,
+                mapper,
+                imageProcessor,
+                s3Service,
+                null,
+                null,
+                profileViewEventPublisher,
+                userContext,
+                premiumBoughtEventPublisher,
+                profilePicEventPublisher
         );
     }
 

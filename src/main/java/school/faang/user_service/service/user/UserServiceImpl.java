@@ -26,6 +26,7 @@ import school.faang.user_service.publisher.MessagePublisher;
 import school.faang.user_service.publisher.PremiumBoughtEventPublisher;
 import school.faang.user_service.publisher.AbstractEventPublisher;
 import school.faang.user_service.publisher.MessagePublisher;
+import school.faang.user_service.publisher.ProfilePicEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.avatar.AvatarService;
 import school.faang.user_service.service.image.AvatarSize;
@@ -64,7 +65,6 @@ public class UserServiceImpl implements UserService {
     private final MessagePublisher<ProfileViewEvent> profileViewEventPublisher;
     private final UserContext userContext;
     private final MessagePublisher<PremiumBoughtEvent> premiumBoughtEventPublisher;
-    private final ProfilePicEventPublisher profilePicEventPublisher;
     private final AbstractEventPublisher<ProfilePicEventDto> profilePicEventPublisher;
 
     @Override

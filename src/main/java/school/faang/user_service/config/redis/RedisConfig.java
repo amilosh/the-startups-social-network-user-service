@@ -108,12 +108,6 @@ public class RedisConfig {
         return template;
     }
 
-    @Bean(value = "userBanChannel")
-    public ChannelTopic userBanChannel(
-            @Value("${spring.data.redis.channels.user-ban-channel.name}") String userBanTopicName) {
-        return new ChannelTopic(userBanTopicName);
-    }
-
     @Bean(value = "eventTopic")
     public ChannelTopic eventTopic(@Value("${spring.data.redis.channels.event-event-channel.name}") String topic) {
         return new ChannelTopic(topic);
