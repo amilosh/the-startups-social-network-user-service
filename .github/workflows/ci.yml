@@ -40,10 +40,8 @@ jobs:
         run: |
           docker-compose down
           docker-compose build
-        #docker-compose run --rm rails bundle exec rails db:reset
           docker-compose up
           
-#dfsa
       - name: Wait for PostgreSQL to be ready
         run: |
           until pg_isready -h localhost -p 5432 -U test_user; do
