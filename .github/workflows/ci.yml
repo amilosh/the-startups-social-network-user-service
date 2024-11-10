@@ -49,13 +49,13 @@ jobs:
           done
 
       - name: Run tests
-        env:
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_USER: user
-          DB_PASSWORD: password
-          DB_NAME: postgres
-        run: ./gradlew test --no-daemon #-x MapperEventTest
+#        env:
+#          DB_HOST: localhost
+#          DB_PORT: 5432
+#          DB_USER: user
+#          DB_PASSWORD: password
+#          DB_NAME: postgres
+        run: ./gradlew test --no-daemon
 
       - name: Upload test results
         if: always() # Ensures this step runs even if tests fail
