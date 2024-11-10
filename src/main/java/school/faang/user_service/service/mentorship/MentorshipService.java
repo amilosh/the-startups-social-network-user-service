@@ -71,6 +71,10 @@ public class MentorshipService {
     }
 
     public void stopMentorship(User mentor) {
+        if(mentor == null) {
+            throw new IllegalArgumentException("Mentor can't be empty");
+        }
+
         if (mentor.getMentees() != null) {
             mentor.getMentees().forEach(mentee -> {
                 if (mentee.getMentors() != null) {
@@ -83,8 +87,5 @@ public class MentorshipService {
                 log.info("Mentorship between mentor ID {} and mentee ID {} stopped", mentor.getId(), mentee.getId());
             });
         }
-
-        userRepository.save(mentor);
-        log.info("Mentor with ID {} saved after stopping all mentorships", mentor.getId());
     }
 }

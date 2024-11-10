@@ -29,6 +29,7 @@ public class UserService {
         goalRepository.findGoalsByUserId(userId).forEach(goal -> {
             if (goalRepository.findUsersByGoalId(goal.getId()).size() == 1) {
                 goalRepository.deleteById(goal.getId());
+                goalRepository.removeUserFromGoal(userId, goal.getId());
                 log.info("Goal with ID {} deleted for user with ID {} ", goal.getId(), userId);
             }
         });

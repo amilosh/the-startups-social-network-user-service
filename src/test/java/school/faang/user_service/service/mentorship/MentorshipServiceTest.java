@@ -46,7 +46,6 @@ public class MentorshipServiceTest {
     private User userWithMenteesAndMentors;
 
 
-
     @BeforeEach
     void initData() {
         userWithEmptyListOfMenteesAndMentors = User.builder()
@@ -178,13 +177,37 @@ public class MentorshipServiceTest {
     }
 
     @Test
-    void testStopMentorshipSuccess() {
-        service.stopMentorship(userWithMenteesAndMentors);
+    void testThrowExceptionWhenMentorIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> service.stopMentorship(null));
+    }
 
-        assertTrue(userWithEmptyListOfMenteesAndMentors.getMentors().isEmpty(),
+    @Test
+    void testStopMentorshipSuccess() {
+        User mentee = User.builder()
+                .id(CORRECT_ID_1)
+                .username("MenteeUser")
+                .email("mentee@mail.com")
+                .city("CityMentee")
+                .mentees(new ArrayList<>())
+                .mentors(new ArrayList<>())
+                .build();
+
+        User mentor = User.builder()
+                .id(CORRECT_ID_2)
+                .username("MentorUser")
+                .email("mentor@mail.com")
+                .city("CityMentor")
+                .mentees(new ArrayList<>(Collections.singletonList(mentee)))
+                .mentors(new ArrayList<>())
+                .build();
+
+        when(repository.save(mentee)).thenReturn(mentee);
+
+        service.stopMentorship(mentor);
+
+        assertTrue(mentee.getMentors().isEmpty(),
                 "Mentee's mentors list should be empty after stopping mentorship");
 
-        verify(repository).save(userWithEmptyListOfMenteesAndMentors);
-        verify(repository).save(userWithMenteesAndMentors);
+        verify(repository).save(mentee);
     }
 }
