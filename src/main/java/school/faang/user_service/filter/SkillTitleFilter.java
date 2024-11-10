@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @Component
-public class SkillTitleFilter implements RequestFilter {
+public class SkillTitleFilter implements Filter<RecommendationRequest, RequestFilterDto> {
 
     @Override
     public boolean isApplicable(RequestFilterDto filter) {

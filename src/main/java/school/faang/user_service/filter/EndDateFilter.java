@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.stream.Stream;
 
 @Component
-public class EndDateFilter implements RequestFilter {
+public class EndDateFilter implements Filter<RecommendationRequest, RequestFilterDto> {
 
     @Override
     public boolean isApplicable(RequestFilterDto filter) {

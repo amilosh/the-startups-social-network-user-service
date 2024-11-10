@@ -14,7 +14,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.RecommendationRequestNotFoundException;
-import school.faang.user_service.filter.RequestFilter;
+import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -64,17 +64,17 @@ class RecommendationRequestServiceTest {
     private SkillValidator skillValidator;
 
     @Mock
-    private RequestFilter endDateFilter;
+    private Filter<RecommendationRequest, RequestFilterDto> endDateFilter;
     @Mock
-    private RequestFilter receiverIdFilter;
+    private Filter<RecommendationRequest, RequestFilterDto> receiverIdFilter;
     @Mock
-    private RequestFilter requesterIdFilter;
+    private Filter<RecommendationRequest, RequestFilterDto> requesterIdFilter;
     @Mock
-    private RequestFilter skillTitleFilter;
+    private Filter<RecommendationRequest, RequestFilterDto> skillTitleFilter;
     @Mock
-    private RequestFilter startDateFilter;
+    private Filter<RecommendationRequest, RequestFilterDto> startDateFilter;
     @Mock
-    private RequestFilter statusFilter;
+    private Filter<RecommendationRequest, RequestFilterDto> statusFilter;
 
     @InjectMocks
     private RecommendationRequestService recommendationRequestService;

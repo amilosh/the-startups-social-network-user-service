@@ -12,7 +12,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
-import school.faang.user_service.filter.RequestFilter;
+import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.validator.RecommendationRequestValidator;
@@ -30,7 +30,7 @@ public class RecommendationRequestService {
     private final SkillRequestService skillRequestService;
     private final UserService userService;
     private final RecommendationRequestValidator recommendationRequestValidator;
-    private final List<RequestFilter> filters;
+    private final List<Filter<RecommendationRequest, RequestFilterDto>> filters;
 
     @Autowired
     @Transactional
@@ -68,7 +68,7 @@ public class RecommendationRequestService {
     public List<RecommendationRequestDto> getRequests(RequestFilterDto filterDto) {
         Stream<RecommendationRequest> stream = recommendationRequestRepository.findAll().stream();
 
-        for (RequestFilter filter : filters) {
+        for (Filter<RecommendationRequest, RequestFilterDto> filter : filters) {
             if (filter.isApplicable(filterDto)) {
                 stream = filter.apply(stream, filterDto);
             }

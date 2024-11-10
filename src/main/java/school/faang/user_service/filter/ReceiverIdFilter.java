@@ -7,7 +7,7 @@ import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import java.util.stream.Stream;
 
 @Component
-public class ReceiverIdFilter implements RequestFilter {
+public class ReceiverIdFilter implements Filter<RecommendationRequest, RequestFilterDto> {
 
     @Override
     public boolean isApplicable(RequestFilterDto filter) {
