@@ -1,13 +1,13 @@
 package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.subscription.SubscriptionUserDto;
 import school.faang.user_service.entity.User;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    User toEntity(UserDto userDto);
+    User toEntity(SubscriptionUserDto subscriptionUserDto);
 
-    UserDto toDto(User user);
+    SubscriptionUserDto toDto(User user);
 }

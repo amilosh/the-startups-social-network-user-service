@@ -3,12 +3,10 @@ package school.faang.user_service.controller.subscription;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.UserFilterDto;
+import org.springframework.web.bind.annotation.*;
+import school.faang.user_service.dto.subscription.SubscriptionRequestDto;
+import school.faang.user_service.dto.subscription.SubscriptionUserDto;
+import school.faang.user_service.dto.subscription.SubscriptionUserFilterDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.subscription.SubscriptionService;
 
@@ -22,49 +20,38 @@ public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     @PostMapping("/follow")
-    public ResponseEntity<?> followUser(Long followerId, Long followeeId) throws DataValidationException {
+    public SubscriptionRequestDto followUser(Long followerId, Long followeeId) {
         if (Objects.equals(followerId, followeeId)) {
             throw new DataValidationException("You cannot follow yourself");
         }
-        subscriptionService.followUser(followerId, followeeId);
-
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return subscriptionService.followUser(followerId, followeeId);
     }
 
-    @PostMapping("/unfollow")
-    public ResponseEntity<?> unfollowUser(Long followerId, Long followeeId) throws DataValidationException {
+    @DeleteMapping("/unfollow")
+    public SubscriptionRequestDto unfollowUser(Long followerId, Long followeeId) {
         if (Objects.equals(followerId, followeeId)) {
             throw new DataValidationException("You cannot unfollow yourself");
         }
-        subscriptionService.unfollowUser(followerId, followeeId);
-
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return subscriptionService.unfollowUser(followerId, followeeId);
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> getFollowers(Long followeeId, UserFilterDto filter) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(subscriptionService.getFollowers(followeeId, filter));
+    public List<SubscriptionUserDto> getFollowers(Long followeeId, SubscriptionUserFilterDto filter) {
+        return subscriptionService.getFollowers(followeeId, filter);
     }
 
-    @GetMapping("/followers_count")
-    public ResponseEntity<Integer> getFollowersCount(Long followerId) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(subscriptionService.getFollowersCount(followerId));
+    @GetMapping("/followers-count")
+    public Integer getFollowersCount(Long followerId) {
+        return subscriptionService.getFollowersCount(followerId);
     }
 
     @GetMapping("/following")
-    public ResponseEntity<List<UserDto>> getFollowing(Long followeeId, UserFilterDto userFilterDto) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(subscriptionService.getFollowing(followeeId, userFilterDto));
+    public List<SubscriptionUserDto> getFollowing(Long followeeId, SubscriptionUserFilterDto subscriptionUserFilterDto) {
+        return subscriptionService.getFollowing(followeeId, subscriptionUserFilterDto);
     }
 
-    @GetMapping("following_count")
-    public ResponseEntity<Integer> getFollowingCount(Long followerId) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(subscriptionService.getFollowingCount(followerId));
+    @GetMapping("following-count")
+    public Integer getFollowingCount(Long followerId) {
+        return subscriptionService.getFollowingCount(followerId);
     }
 }

@@ -1,13 +1,14 @@
 package school.faang.user_service.service.subscription;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.subscription.SubscriptionUserDto;
+import school.faang.user_service.dto.subscription.SubscriptionUserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
@@ -28,8 +29,14 @@ class SubscriptionServiceTest {
     @Mock
     UserMapper mapper;
 
+    @Mock
+    // mock filters list
+
     @InjectMocks
     SubscriptionService subscriptionService;
+
+
+    @BeforeAll
 
 
     @Test
@@ -112,24 +119,24 @@ class SubscriptionServiceTest {
         );
 
         Long followeeId = 1L;
-        UserFilterDto userFilterDto = new UserFilterDto();
-        userFilterDto.setNamePattern("ale");
+        SubscriptionUserFilterDto subscriptionUserFilterDto = new SubscriptionUserFilterDto();
+        subscriptionUserFilterDto.setNamePattern("ale");
 
         Mockito.when(subscriptionRepository.existsById(followeeId))
                 .thenReturn(true);
         Mockito.when(subscriptionRepository.findByFolloweeId(followeeId))
                 .thenReturn(userStream);
 
-        UserDto alexanderDto = new UserDto();
-        UserDto alexeyDto = new UserDto();
-        UserDto petrDto = new UserDto();
+        SubscriptionUserDto alexanderDto = new SubscriptionUserDto();
+        SubscriptionUserDto alexeyDto = new SubscriptionUserDto();
+        SubscriptionUserDto petrDto = new SubscriptionUserDto();
 
         alexanderDto.setUsername(alexander.getUsername());
         alexeyDto.setUsername(alexey.getUsername());
         petrDto.setUsername(petr.getUsername());
 
 
-        List<UserDto> expectedUserDtoList = List.of(
+        List<SubscriptionUserDto> expectedSubscriptionUserDtoList = List.of(
                 alexanderDto,
                 alexeyDto
         );
@@ -141,9 +148,9 @@ class SubscriptionServiceTest {
 //        Mockito.when(mapper.toDto(petr)).thenReturn(petrDto);
 
         // must return Alexander and Alexey ignoring case
-        List<UserDto> actualUserDtoList = subscriptionService.getFollowers(followeeId, userFilterDto);
+        List<SubscriptionUserDto> actualSubscriptionUserDtoList = subscriptionService.getFollowers(followeeId, subscriptionUserFilterDto);
 
-        assertEquals(expectedUserDtoList, actualUserDtoList);
+        assertEquals(expectedSubscriptionUserDtoList, actualSubscriptionUserDtoList);
 
         Mockito.verify(subscriptionRepository, Mockito.times(1))
                 .existsById(followeeId);
@@ -154,13 +161,13 @@ class SubscriptionServiceTest {
     @Test
     void getFollowersThrowsNoSuchElementException() {
         Long followeeId = 1L;
-        UserFilterDto userFilterDto = new UserFilterDto();
+        SubscriptionUserFilterDto subscriptionUserFilterDto = new SubscriptionUserFilterDto();
 
         Mockito.when(subscriptionRepository.existsById(followeeId))
                 .thenReturn(false);
 
         Exception exception = assertThrows(NoSuchElementException.class,
-                () -> subscriptionService.getFollowers(followeeId, userFilterDto));
+                () -> subscriptionService.getFollowers(followeeId, subscriptionUserFilterDto));
 
         assertEquals("Cannot find followee by id " + followeeId, exception.getMessage());
 
@@ -217,9 +224,9 @@ class SubscriptionServiceTest {
     void getFollowingTest() {
         // init data
         Long followeeId = 1L;
-        UserFilterDto userFilterDto = new UserFilterDto();
+        SubscriptionUserFilterDto subscriptionUserFilterDto = new SubscriptionUserFilterDto();
 
-        userFilterDto.setAboutMePattern("er");
+        subscriptionUserFilterDto.setAboutMePattern("er");
 
         // users
         User user1 = new User();
@@ -241,14 +248,14 @@ class SubscriptionServiceTest {
 
 
         // dtos
-        UserDto user1Dto = new UserDto();
-        UserDto user2Dto = new UserDto();
+        SubscriptionUserDto user1Dto = new SubscriptionUserDto();
+        SubscriptionUserDto user2Dto = new SubscriptionUserDto();
         // third is not going to pass a filter
 
         user1Dto.setUsername(user1.getUsername());
         user2Dto.setUsername(user2.getUsername());
 
-        List<UserDto> expectedUserDtoList = List.of(
+        List<SubscriptionUserDto> expectedSubscriptionUserDtoList = List.of(
                 user1Dto,
                 user2Dto
         );
@@ -264,10 +271,10 @@ class SubscriptionServiceTest {
 
 
         // result
-        List<UserDto> actualUserDtoList = subscriptionService.getFollowing(followeeId, userFilterDto);
+        List<SubscriptionUserDto> actualSubscriptionUserDtoList = subscriptionService.getFollowing(followeeId, subscriptionUserFilterDto);
 
         // assertions
-        assertEquals(expectedUserDtoList, actualUserDtoList);
+        assertEquals(expectedSubscriptionUserDtoList, actualSubscriptionUserDtoList);
 
         // verifies
         Mockito.verify(subscriptionRepository, Mockito.times(1))
@@ -279,7 +286,7 @@ class SubscriptionServiceTest {
     @Test
     void getFollowingThrowsNoSuchElementException() {
         Long followeeId = 1L;
-        UserFilterDto userFilterDto = new UserFilterDto();
+        SubscriptionUserFilterDto subscriptionUserFilterDto = new SubscriptionUserFilterDto();
 
         String expectedExceptionMessage = "Cannot find followee by id " + followeeId;
 
@@ -287,7 +294,7 @@ class SubscriptionServiceTest {
                 .thenReturn(false);
 
         String actualExceptionMessage = assertThrows(NoSuchElementException.class,
-                () -> subscriptionService.getFollowing(followeeId, userFilterDto))
+                () -> subscriptionService.getFollowing(followeeId, subscriptionUserFilterDto))
                 .getMessage();
 
         assertEquals(expectedExceptionMessage, actualExceptionMessage);

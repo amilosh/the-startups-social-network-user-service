@@ -8,8 +8,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.subscription.SubscriptionRequestDto;
+import school.faang.user_service.dto.subscription.SubscriptionUserDto;
+import school.faang.user_service.dto.subscription.SubscriptionUserFilterDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.subscription.SubscriptionService;
 
@@ -28,40 +29,56 @@ class SubscriptionControllerTest {
 
 
     @Test
-    void followUserTest() throws DataValidationException {
+    void followUserTest() {
         Long followerId = 1L;
         Long followeeId = 2L;
+        SubscriptionRequestDto expectedSubscriptionRequestDto = new SubscriptionRequestDto(
+                followerId,
+                followeeId
+        );
 
-        ResponseEntity<?> responseEntity = subscriptionController.followUser(followerId, followeeId);
+        Mockito.when(subscriptionService.followUser(followerId, followeeId))
+                .thenReturn(expectedSubscriptionRequestDto);
 
-        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
-        assertNull(responseEntity.getBody());
+        SubscriptionRequestDto actualSubscriptionRequestDto = subscriptionController.followUser(followerId, followeeId);
+
+        assertEquals(expectedSubscriptionRequestDto, actualSubscriptionRequestDto);
 
         Mockito.verify(subscriptionService, Mockito.times(1))
                 .followUser(Mockito.anyLong(), Mockito.anyLong());
     }
 
     @Test
-    void followUserThrowsDataValidationExceptionTest() throws Exception {
+    void followUserThrowsDataValidationExceptionTest() {
         Long followerId = 1L;
         Long followeeId = 1L;
+        String expectedExceptionMessage = "You cannot follow yourself";
 
-        assertThrows(DataValidationException.class,
-                () -> subscriptionController.followUser(followerId, followeeId));
+         String actualExceptionMessage = assertThrows(DataValidationException.class,
+                () -> subscriptionController.followUser(followerId, followeeId))
+                 .getMessage();
+
+         assertEquals(expectedExceptionMessage, actualExceptionMessage);
 
         Mockito.verify(subscriptionService, Mockito.times(0))
                         .followUser(Mockito.anyLong(), Mockito.anyLong());
     }
 
     @Test
-    void unfollowUserTest() throws DataValidationException {
+    void unfollowUserTest() {
         Long followerId = 1L;
         Long followeeId = 2L;
+        SubscriptionRequestDto expectedSubscriptionRequestDto = new SubscriptionRequestDto(
+                followerId,
+                followeeId
+        );
 
-        ResponseEntity<?> responseEntity = subscriptionController.unfollowUser(followerId, followeeId);
+        Mockito.when(subscriptionService.unfollowUser(followerId, followeeId))
+                .thenReturn(expectedSubscriptionRequestDto);
 
-        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
-        assertNull(responseEntity.getBody());
+        SubscriptionRequestDto actualSubscriptionRequestDto = subscriptionController.unfollowUser(followerId, followeeId);
+
+        assertEquals(expectedSubscriptionRequestDto, actualSubscriptionRequestDto);
 
         Mockito.verify(subscriptionService, Mockito.times(1))
                 .unfollowUser(Mockito.anyLong(), Mockito.anyLong());
@@ -72,9 +89,14 @@ class SubscriptionControllerTest {
     void unfollowUserThrowsDataValidationExceptionTest() {
         Long followerId = 1L;
         Long followeeId = 1L;
+        String expectedExceptionMessage = "You cannot unfollow yourself";
 
-        assertThrows(DataValidationException.class,
-                () -> subscriptionController.unfollowUser(followerId, followeeId));
+
+        String actualExceptionMessage = assertThrows(DataValidationException.class,
+                () -> subscriptionController.unfollowUser(followerId, followeeId))
+                .getMessage();
+
+        assertEquals(expectedExceptionMessage, actualExceptionMessage);
 
         Mockito.verify(subscriptionService, Mockito.times(0))
                 .unfollowUser(Mockito.anyLong(), Mockito.anyLong());
@@ -83,19 +105,21 @@ class SubscriptionControllerTest {
     @Test
     void getFollowersTest(){
 
-        UserFilterDto userFilterDto = new UserFilterDto();
+        SubscriptionUserFilterDto subscriptionUserFilterDto = new SubscriptionUserFilterDto();
         Long followeeId = 1L;
 
-        Mockito.when(subscriptionService.getFollowers(followeeId, userFilterDto))
-                .thenReturn(List.of());
+        List<SubscriptionUserDto> expectedSubscriptionUserDtosList = List.of();
 
-        ResponseEntity<?> responseEntity = subscriptionController.getFollowers(followeeId, userFilterDto);
+        Mockito.when(subscriptionService.getFollowers(followeeId, subscriptionUserFilterDto))
+                .thenReturn(expectedSubscriptionUserDtosList);
 
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(List.of(), responseEntity.getBody());
+        List<SubscriptionUserDto> actualSubscriptionUserDtosList = subscriptionController.getFollowers(followeeId, subscriptionUserFilterDto);
+
+        assertEquals(expectedSubscriptionUserDtosList, actualSubscriptionUserDtosList);
+
 
         Mockito.verify(subscriptionService, Mockito.times(1))
-                .getFollowers(followeeId, userFilterDto);
+                .getFollowers(followeeId, subscriptionUserFilterDto);
     }
 
     @Test
@@ -107,10 +131,9 @@ class SubscriptionControllerTest {
         Mockito.when(subscriptionService.getFollowersCount(followerId))
                 .thenReturn(expectedFollowersAmount);
 
-        ResponseEntity<Integer> responseEntity = subscriptionController.getFollowersCount(followerId);
+        Integer actualFollowersAmount = subscriptionController.getFollowersCount(followerId);
 
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(expectedFollowersAmount, responseEntity.getBody());
+        assertEquals(expectedFollowersAmount, actualFollowersAmount);
 
         Mockito.verify(subscriptionService, Mockito.times(1))
                 .getFollowersCount(followerId);
@@ -119,32 +142,31 @@ class SubscriptionControllerTest {
     @Test
     void getFollowing() {
         Long followeeId = 1L;
-        UserFilterDto userFilterDto = new UserFilterDto();
+        SubscriptionUserFilterDto subscriptionUserFilterDto = new SubscriptionUserFilterDto();
 
-        UserDto user1 = new UserDto();
-        UserDto user2 = new UserDto();
-        UserDto user3 = new UserDto();
+        SubscriptionUserDto user1 = new SubscriptionUserDto();
+        SubscriptionUserDto user2 = new SubscriptionUserDto();
+        SubscriptionUserDto user3 = new SubscriptionUserDto();
 
         user1.setUsername("Sean");
         user2.setUsername("Mark");
         user3.setUsername("Mitch");
 
-        List<UserDto> expectedUserDtoList = List.of(
+        List<SubscriptionUserDto> expectedSubscriptionUserDtoList = List.of(
                 user1,
                 user2,
                 user3
         );
 
-        Mockito.when(subscriptionService.getFollowing(followeeId, userFilterDto))
-                .thenReturn(expectedUserDtoList);
+        Mockito.when(subscriptionService.getFollowing(followeeId, subscriptionUserFilterDto))
+                .thenReturn(expectedSubscriptionUserDtoList);
 
-        ResponseEntity<List<UserDto>> response = subscriptionController.getFollowing(followeeId, userFilterDto);
+        List<SubscriptionUserDto> actualSubscriptionUserDtoList = subscriptionController.getFollowing(followeeId, subscriptionUserFilterDto);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(expectedUserDtoList, response.getBody());
+        assertEquals(expectedSubscriptionUserDtoList, actualSubscriptionUserDtoList);
 
         Mockito.verify(subscriptionService, Mockito.times(1))
-                .getFollowing(followeeId, userFilterDto);
+                .getFollowing(followeeId, subscriptionUserFilterDto);
     }
 
     @Test
@@ -155,10 +177,9 @@ class SubscriptionControllerTest {
         Mockito.when(subscriptionService.getFollowingCount(followerId))
                 .thenReturn(expectedFollowingCount);
 
-        ResponseEntity<Integer> response = subscriptionController.getFollowingCount(followerId);
+        Integer actualFollowingCount = subscriptionController.getFollowingCount(followerId);
 
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(expectedFollowingCount, response.getBody());
+        assertEquals(expectedFollowingCount, actualFollowingCount);
 
         Mockito.verify(subscriptionService, Mockito.times(1))
                 .getFollowingCount(followerId);
