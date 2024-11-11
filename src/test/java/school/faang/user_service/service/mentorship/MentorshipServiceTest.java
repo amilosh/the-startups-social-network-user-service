@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -19,7 +20,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -168,5 +173,40 @@ public class MentorshipServiceTest {
         verify(repository).findById(CORRECT_ID_1);
         verify(repository, never()).save(any());
         assertEquals(expectedList, realList);
+    }
+
+    @Test
+    void testThrowExceptionWhenMentorIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> service.stopMentorship(null));
+    }
+
+    @Test
+    void testStopMentorshipSuccess() {
+        User mentee = User.builder()
+                .id(CORRECT_ID_1)
+                .username("MenteeUser")
+                .email("mentee@mail.com")
+                .city("CityMentee")
+                .mentees(new ArrayList<>())
+                .mentors(new ArrayList<>())
+                .build();
+
+        User mentor = User.builder()
+                .id(CORRECT_ID_2)
+                .username("MentorUser")
+                .email("mentor@mail.com")
+                .city("CityMentor")
+                .mentees(new ArrayList<>(Collections.singletonList(mentee)))
+                .mentors(new ArrayList<>())
+                .build();
+
+        when(repository.save(mentee)).thenReturn(mentee);
+
+        service.stopMentorship(mentor);
+
+        assertTrue(mentee.getMentors().isEmpty(),
+                "Mentee's mentors list should be empty after stopping mentorship");
+
+        verify(repository).save(mentee);
     }
 }
