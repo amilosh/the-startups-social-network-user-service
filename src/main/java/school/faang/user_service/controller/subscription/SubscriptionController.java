@@ -1,4 +1,4 @@
-package school.faang.user_service.controller;
+package school.faang.user_service.controller.subscription;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.ShortUserDto;
-import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.filter.UserFilterDto;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.SubscriptionService;
+import school.faang.user_service.service.subscription.SubscriptionService;
 
 import java.util.List;
 
