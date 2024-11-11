@@ -1,4 +1,4 @@
-package school.faang.user_service.service.event;
+package school.faang.user_service.service.service.event;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,12 +14,13 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataNotMatchException;
 import school.faang.user_service.exception.EntityNotFoundExceptionWithID;
+import school.faang.user_service.filters.event.EventFilter;
+import school.faang.user_service.filters.event.*;
+import school.faang.user_service.filters.event.EventUserIdFilter;
 import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.filters.event.EventFilter;
-import school.faang.user_service.filters.event.EventTitleFilter;
-import school.faang.user_service.filters.event.EventUserIdFilter;
+import school.faang.user_service.service.event.EventService;
 
 import java.util.Arrays;
 import java.util.List;
@@ -227,5 +228,29 @@ public class EventServiceTest {
         assertEquals(1, eventDtos.size());
         assertEquals(eventDtos.get(0).getTitle(), "social media startup");
         verify(eventRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void getOwnedEventsByUserId() {
+        when(eventRepository.findAllByUserId(1L))
+                .thenReturn(List.of(Event.builder().id(1L).build()));
+
+        List<EventDto> response = eventService.getOwnedEvents(1L).getBody();
+        assertNotNull(response);
+        assertEquals(1, response.size());
+        assertEquals(1, response.get(0).getId());
+        verify(eventRepository, times(1)).findAllByUserId(1L);
+    }
+
+    @Test
+    public void getParticipatedEvents() {
+        when(eventRepository.findParticipatedEventsByUserId(1L))
+                .thenReturn(List.of(Event.builder().id(1).build()));
+
+        List<EventDto> response = eventService.getParticipatedEvents(1L).getBody();
+        assertNotNull(response);
+        assertEquals(1, response.size());
+        assertEquals(1, response.get(0).getId());
+        verify(eventRepository, times(1)).findParticipatedEventsByUserId(1L);
     }
 }
