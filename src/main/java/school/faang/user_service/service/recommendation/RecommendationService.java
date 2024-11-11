@@ -15,7 +15,7 @@ import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.service.UserService;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.validation.RecommendationValidation;
+import school.faang.user_service.exception.RecommendationValidator;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,17 +26,17 @@ import java.util.Objects;
 public class RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final SkillOfferService skillOfferService;
-    private final RecommendationValidation recommendationValidation;
+    private final RecommendationValidator recommendationValidator;
     private final RecommendationMapper recommendationMapper;
     private final SkillRepository skillRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final UserService userService;
 
     public RecommendationDto create(RecommendationDto recommendationDto) {
-        recommendationValidation.checkTimeInterval(recommendationDto);
-        recommendationValidation.checkSkillsExist(recommendationDto);
-        recommendationValidation.checkSkillsUnique(recommendationDto);
-        recommendationValidation.checkRequest(recommendationDto);
+        recommendationValidator.checkTimeInterval(recommendationDto);
+        recommendationValidator.checkSkillsExist(recommendationDto);
+        recommendationValidator.checkSkillsUnique(recommendationDto);
+        recommendationValidator.checkRequest(recommendationDto);
 
         Long recommendationId = recommendationRepository.create(
                 recommendationDto.getAuthorId(),
@@ -49,10 +49,10 @@ public class RecommendationService {
     }
 
     public RecommendationDto update(RecommendationDto recommendationDto) {
-        recommendationValidation.checkId(recommendationDto);
-        recommendationValidation.checkTimeInterval(recommendationDto);
-        recommendationValidation.checkSkillsExist(recommendationDto);
-        recommendationValidation.checkSkillsUnique(recommendationDto);
+        recommendationValidator.checkId(recommendationDto);
+        recommendationValidator.checkTimeInterval(recommendationDto);
+        recommendationValidator.checkSkillsExist(recommendationDto);
+        recommendationValidator.checkSkillsUnique(recommendationDto);
 
         recommendationRepository.update(
                 recommendationDto.getAuthorId(),

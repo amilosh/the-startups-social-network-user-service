@@ -1,4 +1,4 @@
-package school.faang.user_service.service.validation;
+package school.faang.user_service.exception;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -6,12 +6,10 @@ import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.UserService;
-import school.faang.user_service.service.recommendation.RecommendationService;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -23,7 +21,7 @@ import static school.faang.user_service.entity.RequestStatus.PENDING;
 
 @Component
 @RequiredArgsConstructor
-public class RecommendationValidation {
+public class RecommendationValidator {
     private static final int MONTHS_BEFORE_NEW_RECOMMENDATION = 6;
 
     private final RecommendationRepository recommendationRepository;
