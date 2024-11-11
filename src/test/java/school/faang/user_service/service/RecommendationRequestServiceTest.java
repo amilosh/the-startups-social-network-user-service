@@ -13,6 +13,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.RecommendationRequestNotFoundException;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class RecommendationRequestServiceTest {
@@ -157,8 +159,8 @@ class RecommendationRequestServiceTest {
     void testCreateRecommendationRequest_Success() {
         doNothing().when(skillValidator).validateSkills(recommendationRequestDto.getSkills());
 
-        when(userService.getUserById(1L)).thenReturn(requester);
-        when(userService.getUserById(2L)).thenReturn(receiver);
+        when(userService.getUserById(1L)).thenReturn(Optional.of(requester));
+        when(userService.getUserById(2L)).thenReturn(Optional.of(receiver));
         when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L))
                 .thenReturn(Optional.empty());
         doNothing().when(skillValidator).validateSkills(recommendationRequestDto.getSkills());
@@ -202,23 +204,21 @@ class RecommendationRequestServiceTest {
         doThrow(new IllegalArgumentException("Пользователя, запрашивающего рекомендацию не существует"))
                 .when(recommendationRequestValidator).validateUsersExistence(null, receiver);
 
-        when(userService.getUserById(1L)).thenReturn(null);
-        when(userService.getUserById(2L)).thenReturn(receiver);
+        when(userService.getUserById(1L)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
                 recommendationRequestService.create(recommendationRequestDto)
         );
 
-        assertEquals("Пользователя, запрашивающего рекомендацию не существует", exception.getMessage());
+        assertEquals("Requester with ID 1 not found", exception.getMessage());
 
         verify(userService, times(1)).getUserById(1L);
-        verify(userService, times(1)).getUserById(2L);
-        verify(recommendationRequestValidator, times(1)).validateUsersExistence(null, receiver);
-        verify(recommendationRequestValidator, never()).validateRequestFrequency(anyLong(), anyLong());
-        verify(skillValidator, never()).validateSkills(anyList());
-        verify(recommendationRequestMapper, never()).toEntity(any());
-        verify(recommendationRequestRepository, never()).save(any());
-        verify(recommendationRequestMapper, never()).toDto(any());
+        verify(userService, never()).getUserById(2L);
+
+        verifyNoInteractions(recommendationRequestValidator);
+        verifyNoInteractions(skillValidator);
+        verifyNoInteractions(recommendationRequestMapper);
+        verifyNoInteractions(recommendationRequestRepository);
     }
 
     @Test
@@ -226,18 +226,17 @@ class RecommendationRequestServiceTest {
         doThrow(new IllegalArgumentException("Пользователя, получающего рекомендацию не существует"))
                 .when(recommendationRequestValidator).validateUsersExistence(requester, null);
 
-        when(userService.getUserById(1L)).thenReturn(requester);
-        when(userService.getUserById(2L)).thenReturn(null);
+        when(userService.getUserById(1L)).thenReturn(Optional.of(requester));
+        when(userService.getUserById(2L)).thenReturn(Optional.empty());
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () ->
                 recommendationRequestService.create(recommendationRequestDto)
         );
 
-        assertEquals("Пользователя, получающего рекомендацию не существует", exception.getMessage());
+        assertEquals("Requester with ID 1 not found", exception.getMessage());
 
         verify(userService, times(1)).getUserById(1L);
         verify(userService, times(1)).getUserById(2L);
-        verify(recommendationRequestValidator, times(1)).validateUsersExistence(requester, null);
         verify(recommendationRequestValidator, never()).validateRequestFrequency(anyLong(), anyLong());
         verify(skillValidator, never()).validateSkills(anyList());
         verify(recommendationRequestMapper, never()).toEntity(any());
@@ -247,8 +246,8 @@ class RecommendationRequestServiceTest {
 
     @Test
     void testCreateRecommendationRequest_RequestLimitExceeded() {
-        when(userService.getUserById(1L)).thenReturn(requester);
-        when(userService.getUserById(2L)).thenReturn(receiver);
+        when(userService.getUserById(1L)).thenReturn(Optional.of(requester));
+        when(userService.getUserById(2L)).thenReturn(Optional.of(receiver));
         when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L))
                 .thenReturn(Optional.of(RecommendationRequest.builder()
                         .createdAt(LocalDateTime.now().minusMonths(3))
@@ -273,8 +272,8 @@ class RecommendationRequestServiceTest {
 
     @Test
     void testCreateRecommendationRequest_SkillsNotFound() {
-        when(userService.getUserById(1L)).thenReturn(requester);
-        when(userService.getUserById(2L)).thenReturn(receiver);
+        when(userService.getUserById(1L)).thenReturn(Optional.of(requester));
+        when(userService.getUserById(2L)).thenReturn(Optional.of(receiver));
         when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L))
                 .thenReturn(Optional.empty());
         doThrow(new IllegalArgumentException("Некоторых скиллов нет в базе данных"))

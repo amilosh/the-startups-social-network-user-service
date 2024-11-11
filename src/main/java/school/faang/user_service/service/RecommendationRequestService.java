@@ -12,6 +12,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -35,8 +36,11 @@ public class RecommendationRequestService {
     @Autowired
     @Transactional
     public RecommendationRequestDto create(RecommendationRequestDto dto) {
-        User requester = userService.getUserById(dto.getRequesterId());
-        User receiver = userService.getUserById(dto.getReceiverId());
+        User requester = userService.getUserById(dto.getRequesterId())
+                .orElseThrow(() -> new EntityNotFoundException("Requester with ID " + dto.getRequesterId() + " not found"));
+        User receiver = userService.getUserById(dto.getReceiverId())
+                .orElseThrow(() -> new EntityNotFoundException("Requester with ID " + dto.getRequesterId() + " not found"));
+        ;
 
         recommendationRequestValidator.validateUsersExistence(requester, receiver);
         recommendationRequestValidator.validateRequestFrequency(dto.getRequesterId(), dto.getReceiverId());

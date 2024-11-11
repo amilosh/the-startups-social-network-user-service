@@ -1,13 +1,14 @@
-package school.faang.user_service.filter;
+package school.faang.user_service.filter.RecommendationRequestFilter;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.filter.Filter;
 
 import java.util.stream.Stream;
 
 @Component
-public class ReceiverIdFilter implements Filter<RecommendationRequest, RequestFilterDto> {
+public class RecommendationReceiverIdFilter implements Filter<RecommendationRequest, RequestFilterDto> {
 
     @Override
     public boolean isApplicable(RequestFilterDto filter) {
