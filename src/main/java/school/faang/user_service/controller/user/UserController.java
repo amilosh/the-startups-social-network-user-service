@@ -1,7 +1,6 @@
 package school.faang.user_service.controller.user;
 
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,7 +28,7 @@ public class UserController {
     }
 
     @PostMapping()
-    public List<UserDto> getUsersByIds(@RequestBody @NotNull List<Long> ids) {
+    public List<UserDto> getUsersByIds(@RequestBody List<Long> ids) {
         return userService.getUsersByIds(ids);
     }
 }
