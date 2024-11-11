@@ -1,9 +1,9 @@
-package school.faang.user_service.service.filteres.event;
+package school.faang.user_service.service.filters.event;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.event.Event;
@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 public class EventTitleFilterTest {
-
-    private final EventTitleFilter eventTitleFilter = new EventTitleFilter();
+    @Spy
+    private EventTitleFilter eventTitleFilter;
     private Stream<Event> events;
     private EventFilterDto filterDto;
 

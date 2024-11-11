@@ -132,6 +132,11 @@ tasks.jacocoTestReport {
     )
 }
 tasks.jacocoTestCoverageVerification {
+    classDirectories.setFrom(
+        sourceSets.main.get().output.asFileTree.matching {
+            include(jacocoInclude)
+        }
+    )
     violationRules {
         rule {
             limit {
