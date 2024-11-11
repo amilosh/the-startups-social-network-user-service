@@ -27,10 +27,11 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException("User with ID" + userId + "not found"));
 
         goalRepository.findGoalsByUserId(userId).forEach(goal -> {
-            if (goalRepository.findUsersByGoalId(goal.getId()).size() == 1) {
+            goalRepository.removeUserFromGoal(userId, goal.getId());
+            log.info("User with ID {} doesn't make anymore goal with ID {} ", userId, goal.getId());
+            if (goalRepository.findUsersByGoalId(goal.getId()).isEmpty()) {
                 goalRepository.deleteById(goal.getId());
-                goalRepository.removeUserFromGoal(userId, goal.getId());
-                log.info("Goal with ID {} deleted for user with ID {} ", goal.getId(), userId);
+                log.info("Goal with ID {} deleted from database ", goal.getId());
             }
         });
 
