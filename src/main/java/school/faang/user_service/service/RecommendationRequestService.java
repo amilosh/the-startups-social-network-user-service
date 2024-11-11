@@ -2,15 +2,17 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.recommendation.RecommendationRejectionDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
-import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.filters.recommendationRequestFilters.Filter;
+import school.faang.user_service.exceptions.ResourceNotFoundException;
+import school.faang.user_service.filter.recommendationRequestFilters.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 
@@ -29,10 +31,10 @@ public class RecommendationRequestService {
     private final RecommendationRequestMapper recommendationRequestMapper;
     private final SkillService skillService;
     private final SkillRequestService skillRequestService;
-    private final List<Filter<RequestFilterDto, RecommendationRequest>> filters;
+    private final List<RecommendationRequestFilter> recommendationRequestFilters;
 
     public RecommendationRequestDto create(RecommendationRequestDto recommendationRequestDto) {
-        RecommendationRequest recommendationRequest = mapToFullRecommendationRequest(recommendationRequestDto);
+        RecommendationRequest recommendationRequest = initializeRecommendationRequest(recommendationRequestDto);
         validateRecommendationRequest(recommendationRequest);
 
         recommendationRequest = recommendationRequestRepository.save(recommendationRequest);
@@ -42,8 +44,7 @@ public class RecommendationRequestService {
 
     public List<RecommendationRequestDto> getRequests(RequestFilterDto filterDto) {
         Stream<RecommendationRequest> recommendationRequestsStream = recommendationRequestRepository.findAll().stream();
-
-        List<RecommendationRequest> recommendationRequestList = filters.stream()
+        List<RecommendationRequest> recommendationRequestList = recommendationRequestFilters.stream()
                 .filter(filter -> filter.isApplicable(filterDto))
                 .reduce(recommendationRequestsStream, (stream, filter) -> filter.apply(stream, filterDto),
                         ((subGenStream, stream) -> stream))
@@ -55,19 +56,21 @@ public class RecommendationRequestService {
 
     public RecommendationRequestDto getRequest(long id) {
         RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Unable to find recommendation request with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Unable to find recommendation request with id " + id));
         return recommendationRequestMapper.toDto(recommendationRequest);
     }
 
-    public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection) {
-        RecommendationRequest recommendationRequest = recommendationRequestMapper.toEntity(getRequest(id));
-
-        if (recommendationRequest.getStatus().equals(RequestStatus.ACCEPTED) || recommendationRequest.getStatus().equals(RequestStatus.REJECTED)) {
+    public RecommendationRequestDto rejectRequest(RecommendationRejectionDto rejection) {
+        RecommendationRequest recommendationRequest =
+                recommendationRequestMapper.toEntity(getRequest(rejection.recommendationId()));
+        if (recommendationRequest.getStatus().equals(RequestStatus.ACCEPTED) ||
+                recommendationRequest.getStatus().equals(RequestStatus.REJECTED)) {
             throw new DataValidationException("The recommendation request has already been accepted or rejected");
         }
 
         recommendationRequest.setStatus(RequestStatus.REJECTED);
         recommendationRequest.setRejectionReason(rejection.reason());
+        recommendationRequest.setUpdatedAt(LocalDateTime.now());
         recommendationRequest = recommendationRequestRepository.save(recommendationRequest);
         return recommendationRequestMapper.toDto(recommendationRequest);
     }
@@ -83,20 +86,21 @@ public class RecommendationRequestService {
                 });
     }
 
-
-    private RecommendationRequest mapToFullRecommendationRequest(RecommendationRequestDto recommendationRequestDto) {
+    private RecommendationRequest initializeRecommendationRequest(RecommendationRequestDto recommendationRequestDto) {
         RecommendationRequest recommendationRequest = recommendationRequestMapper.toEntity(recommendationRequestDto);
 
         User requester = userService.getUserById(recommendationRequestDto.requesterId());
         User receiver = userService.getUserById(recommendationRequestDto.receiverId());
         recommendationRequest.setRequester(requester);
         recommendationRequest.setReceiver(receiver);
-
-        List<SkillRequest> skillRequests = recommendationRequest.getSkills();
-        skillRequests.forEach(skillRequest -> recommendationRequestDto.skills().forEach(skillRequestDto -> {
-            skillRequest.setRequest(recommendationRequest);
-            skillRequest.setSkill(skillService.getSkillById(skillRequestDto.skillId()));
-        }));
+        List<SkillRequest> skillRequests = recommendationRequestDto.skillIds().stream()
+                .map(skillId -> {
+                    Skill skill = skillService.getSkillById(skillId);
+                    SkillRequest skillRequest = new SkillRequest();
+                    skillRequest.setSkill(skill);
+                    return skillRequest;
+                }).toList();
+        recommendationRequest.setSkills(skillRequests);
 
         return recommendationRequest;
     }

@@ -12,10 +12,10 @@ public record RecommendationRequestDto(
         Long id,
         @NotBlank @Size(max = 4096) String message,
         @NotNull RequestStatus status,
-        @NotNull List<SkillRequestDto> skills,
+        @NotNull List<Long> skillIds,
         @NotNull @Positive Long requesterId,
         @NotNull @Positive Long receiverId,
-        @NotNull @PastOrPresent LocalDateTime createdAt,
-        @NotNull @PastOrPresent LocalDateTime updatedAt
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
 ) {
 }
