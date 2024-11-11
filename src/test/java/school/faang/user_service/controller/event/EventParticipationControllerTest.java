@@ -7,6 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.service.event.EventParticipationService;
 
@@ -26,55 +28,60 @@ public class EventParticipationControllerTest {
     @InjectMocks
     private EventParticipationController eventParticipationController;
 
-    private long eventId;
-    private long userId;
+    private EventDto testEventDto;
+    private UserDto testUserDto;
     private User testUser;
 
     @BeforeEach
     public void setUp() {
-        eventId = 10L;
-        userId = 1L;
+        testEventDto = new EventDto();
+        testEventDto.setId(10L);
+
+        testUserDto = new UserDto();
+        testUserDto.setId(1L);
+
         testUser = new User();
-        testUser.setId(userId);
+        testUser.setId(1L);
     }
 
     @Test
     @DisplayName("Проверка registerParticipant")
     public void testRegisterParticipant() {
-        eventParticipationController.registerParticipant(eventId, userId);
+        eventParticipationController.registerParticipant(testEventDto, testUserDto);
 
-        verify(eventParticipationService, times(1)).registerParticipant(eventId, userId);
+        verify(eventParticipationService, times(1)).registerParticipant(testEventDto.getId(), testUserDto.getId());
     }
 
     @Test
     @DisplayName("Проверка unregisterParticipant")
     public void testUnregisterParticipant() {
-        eventParticipationController.unregisterParticipant(eventId, userId);
+        eventParticipationController.unregisterParticipant(testEventDto, testUserDto);
 
-        verify(eventParticipationService, times(1)).unregisterParticipant(eventId, userId);
+        verify(eventParticipationService, times(1)).unregisterParticipant(testEventDto.getId(), testUserDto.getId());
     }
 
     @Test
     @DisplayName("Проверка getParticipant возвращает список участников")
     public void testGetParticipant() {
         List<User> participants = List.of(testUser);
-        when(eventParticipationService.getParticipant(eventId)).thenReturn(participants);
+        when(eventParticipationService.getParticipant(testEventDto.getId())).thenReturn(participants);
 
-        List<User> result = eventParticipationController.getParticipant(eventId, userId);
+        List<User> result = eventParticipationController.getParticipant(testEventDto);
 
         assertEquals(participants, result);
-        verify(eventParticipationService, times(1)).getParticipant(eventId);
+        verify(eventParticipationService, times(1)).getParticipant(testEventDto.getId());
     }
 
     @Test
     @DisplayName("Проверка getParticipantsCount возвращает количество участников")
     public void testGetParticipantsCount() {
         int expectedCount = 5;
-        when(eventParticipationService.getParticipantsCount(eventId)).thenReturn(expectedCount);
+        when(eventParticipationService.getParticipantsCount(testEventDto.getId())).thenReturn(expectedCount);
 
-        int result = eventParticipationController.getParticipantsCount(eventId, userId);
+        int result = eventParticipationController.getParticipantsCount(testEventDto);
 
         assertEquals(expectedCount, result);
-        verify(eventParticipationService, times(1)).getParticipantsCount(eventId);
+        verify(eventParticipationService, times(1)).getParticipantsCount(testEventDto.getId());
     }
 }
+

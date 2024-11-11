@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.event.EventParticipationRepository;
-import school.faang.user_service.validator.EventParticipationServiceValidator;
 
 import java.util.List;
 
@@ -15,7 +14,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventParticipationService {
     private final EventParticipationRepository eventParticipationRepository;
-    private final EventParticipationServiceValidator validator;
 
     private boolean userExists(long eventId, long userId) {
         return eventParticipationRepository
@@ -25,10 +23,6 @@ public class EventParticipationService {
     }
 
     public void registerParticipant(long eventId, long userId) {
-
-        validator.validateEventId(eventId);
-        validator.validateUserId(userId);
-
 
         if (userExists(eventId, userId)) {
             log.error("User already registered: eventId={}, userId={}", eventId, userId);
@@ -41,9 +35,6 @@ public class EventParticipationService {
 
     public void unregisterParticipant(long eventId, long userId) {
 
-        validator.validateEventId(eventId);
-        validator.validateUserId(userId);
-
         if (!userExists(eventId, userId)) {
             log.warn("User not found: eventId={}, userId={}", eventId, userId);
             throw new EntityNotFoundException("User is not registered for the event");
@@ -54,16 +45,10 @@ public class EventParticipationService {
     }
 
     public List<User> getParticipant(long eventId) {
-
-        validator.validateEventId(eventId);
-
         return eventParticipationRepository.findAllParticipantsByEventId(eventId);
     }
 
     public int getParticipantsCount(long eventId) {
-
-        validator.validateEventId(eventId);
-
         return eventParticipationRepository.countParticipants(eventId);
     }
 }
