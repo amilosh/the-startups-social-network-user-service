@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import school.faang.user_service.service.event.EventService;
-import school.faang.user_service.service.event.filter.EventFilter;
-import school.faang.user_service.service.event.filter.EventTitleFilter;
-import school.faang.user_service.service.event.filter.EventUserIdFilter;
+import school.faang.user_service.filters.event.EventFilter;
+import school.faang.user_service.filters.event.EventTitleFilter;
+import school.faang.user_service.filters.event.EventUserIdFilter;
 
 import java.util.ArrayList;
 import java.util.List;
