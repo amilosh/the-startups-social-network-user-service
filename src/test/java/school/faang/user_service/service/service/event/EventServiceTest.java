@@ -14,13 +14,13 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataNotMatchException;
 import school.faang.user_service.exception.EntityNotFoundExceptionWithID;
+import school.faang.user_service.filters.event.EventFilter;
+import school.faang.user_service.filters.event.*;
+import school.faang.user_service.filters.event.EventUserIdFilter;
 import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.EventService;
-import school.faang.user_service.filters.event.EventFilter;
-import school.faang.user_service.filters.event.EventTitleFilter;
-import school.faang.user_service.filters.event.EventUserIdFilter;
 
 import java.util.Arrays;
 import java.util.List;

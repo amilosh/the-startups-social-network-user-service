@@ -1,24 +1,23 @@
-package school.faang.user_service.service.filteres;
+package school.faang.user_service.service.filters;
 
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.filters.UserEmailFilter;
 import school.faang.user_service.filters.UserNameFilter;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class UserEmailFilterTest {
-    final UserEmailFilter filter = new UserEmailFilter();
+class UserNameFilterTest {
+    final UserNameFilter filter = new UserNameFilter();
 
     @Test
     void testMatches() {
         User user = new User();
-        user.setEmail("test@mail");
+        user.setUsername("Vlad");
 
         UserFilterDto filterDto = new UserFilterDto();
-        filterDto.setEmailPattern("(.*)@mail");
+        filterDto.setNamePattern("Vl(.*)");
 
         assertTrue(filter.apply(user, filterDto));
     }
@@ -26,10 +25,10 @@ class UserEmailFilterTest {
     @Test
     void testNotMatches() {
         User user = new User();
-        user.setEmail("test@gmail");
+        user.setUsername("Ivan");
 
         UserFilterDto filterDto = new UserFilterDto();
-        filterDto.setEmailPattern("(.*)@mail");
+        filterDto.setNamePattern("Vl(.*)");
 
         assertFalse(filter.apply(user, filterDto));
     }
