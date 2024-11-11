@@ -14,4 +14,5 @@ public class UrlUtils {
     public static final String REQUEST = "/request";
     public static final String ACCEPT = "/accept";
     public static final String REJECT = "/reject";
+    public static final String USERS = "/users";
 }

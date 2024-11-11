@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @Testcontainers
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
+@ActiveProfiles("integrationtest")
 public class EventParticipationControllerTest {
     @Container
     private static final PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:13.3");
@@ -44,7 +44,6 @@ public class EventParticipationControllerTest {
         postgres.withDatabaseName("test_db")
                 .withUsername("user")
                 .withPassword("password");
-        postgres.withInitScript("event/init.sql");
         postgres.start();
     }
 

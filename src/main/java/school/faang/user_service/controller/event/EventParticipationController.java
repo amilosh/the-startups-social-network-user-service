@@ -27,24 +27,22 @@ public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
 
     @PostMapping()
-    public ResponseEntity<Void> registerParticipant(@PathVariable("id") @Min(1) Long eventId, @Valid @RequestBody ParticipantReqParam participantReqParam) {
+    public void registerParticipant(@PathVariable("id") @Min(1) Long eventId, @Valid @RequestBody ParticipantReqParam participantReqParam) {
         eventParticipationService.registerParticipant(eventId, participantReqParam.participantId());
-        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping()
-    public ResponseEntity<Void> unregisterParticipant(@PathVariable("id") @Min(1) Long eventId, @Valid @RequestBody ParticipantReqParam participantReqParam) {
+    public void unregisterParticipant(@PathVariable("id") @Min(1) Long eventId, @Valid @RequestBody ParticipantReqParam participantReqParam) {
         eventParticipationService.unregisterParticipant(eventId, participantReqParam.participantId());
-        return ResponseEntity.ok().build();
     }
 
     @GetMapping()
-    public ResponseEntity<List<UserDto>> getParticipant(@PathVariable("id") @Min(1) Long eventId) {
-        return ResponseEntity.ok(eventParticipationService.getParticipant(eventId));
+    public List<UserDto> getParticipant(@PathVariable("id") @Min(1) Long eventId) {
+        return eventParticipationService.getParticipant(eventId);
     }
 
     @GetMapping(UrlUtils.AMOUNT)
-    public ResponseEntity<Long> getParticipantsCount(@PathVariable("id") @Min(1) Long eventId) {
-        return ResponseEntity.ok(eventParticipationService.getParticipantsCount(eventId));
+    public Long getParticipantsCount(@PathVariable("id") @Min(1) Long eventId) {
+        return eventParticipationService.getParticipantsCount(eventId);
     }
 }
