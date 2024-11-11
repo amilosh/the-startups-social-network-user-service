@@ -15,7 +15,7 @@ import school.faang.user_service.service.mentorship.MentorshipService;
 
 import java.util.List;
 
-@RequestMapping("/v1/mentorship")
+@RequestMapping("api/v1/mentorship")
 @RestController
 @RequiredArgsConstructor
 @Tag(name = "Mentorship controller", description = "Контроллер для управления менторством")
@@ -30,7 +30,7 @@ public class MentorshipController {
             summary = "Получение ментис ментора",
             description = "Получение всех ментис у ментора с помощью айди ментора"
     )
-    @GetMapping("/mentees/{mentorId}")
+    @GetMapping("/mentors/{mentorId}/mentees")
     public List<UserDto> getMentees(@PathVariable long mentorId) {
         return mentorshipService.getMentees(mentorId);
     }
@@ -39,7 +39,7 @@ public class MentorshipController {
             summary = "Получение ментторов ментис",
             description = "Получение всех менторов у ментис с помощью айди ментора"
     )
-    @GetMapping("/mentors/{menteeId}")
+    @GetMapping("/mentee/{menteeId}/mentors")
     public List<UserDto> getMentors(@PathVariable long menteeId) {
         return mentorshipService.getMentors(menteeId);
     }
@@ -48,7 +48,7 @@ public class MentorshipController {
             summary = "Удаление ментис",
             description = "Удаление ментис у ментора используя ментии айди и ментор айди"
     )
-    @DeleteMapping("/{mentorId}/mentor/{menteeId}")
+    @DeleteMapping("/mentors/{mentorId}/mentees/{menteeId}")
     public void deleteMentee(@PathVariable("menteeId") long menteeId, @PathVariable("mentorId") long mentorId) {
         mentorshipService.deleteMentee(menteeId, mentorId);
     }
@@ -57,7 +57,7 @@ public class MentorshipController {
             summary = "Удаление ментора",
             description = "Удаление ментора у ментис используя ментии айди и ментор айди"
     )
-    @DeleteMapping("/{menteeId}/mentee/{mentorId}")
+    @DeleteMapping("/mentees/{menteeId}/mentors/{mentorId}")
     public void deleteMentor(@PathVariable("menteeId") long menteeId,@PathVariable("mentorId") long mentorId) {
         mentorshipService.deleteMentor(menteeId, mentorId);
     }
