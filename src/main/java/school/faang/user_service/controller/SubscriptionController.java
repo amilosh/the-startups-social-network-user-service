@@ -2,7 +2,6 @@ package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,19 +14,17 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.extention.DataValidationException;
 import school.faang.user_service.extention.ErrorMessages;
 import school.faang.user_service.service.SubscriptionService;
-import school.faang.user_service.utilities.UrlServiceParameters;
+import school.faang.user_service.utilities.UrlUtils;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(UrlServiceParameters.FOLLOWING_SERVICE_URL)
+@RequestMapping(UrlUtils.FOLLOWING_SERVICE_URL)
 public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
-    @Transactional
-    @PostMapping(UrlServiceParameters.FOLLOWING_ADD + UrlServiceParameters.FOLLOWING_PARAMETERS)
-    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(UrlUtils.FOLLOWING_ADD + UrlUtils.FOLLOWING_PARAMETERS)
     public void followUser(@PathVariable long followerId, @PathVariable long followeeId) {
         if (followerId != followeeId) {
             subscriptionService.followUser(followerId, followeeId);
@@ -36,9 +33,7 @@ public class SubscriptionController {
         }
     }
 
-    @Transactional
-    @PostMapping(UrlServiceParameters.FOLLOWING_DELETE + UrlServiceParameters.FOLLOWING_PARAMETERS)
-    @ResponseStatus(HttpStatus.OK)
+    @PostMapping(UrlUtils.FOLLOWING_DELETE + UrlUtils.FOLLOWING_PARAMETERS)
     public void unfollowUser(@PathVariable long followerId, @PathVariable long followeeId) {
         if (followerId != followeeId) {
             subscriptionService.unfollowUser(followerId, followeeId);
@@ -47,15 +42,12 @@ public class SubscriptionController {
         }
     }
 
-    @Transactional
-    @GetMapping(UrlServiceParameters.FOLLOWING_FILTER + "{followeeId}")
-    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(UrlUtils.FOLLOWING_FILTER + "{followeeId}")
     public List<UserDto> getFollowers(@PathVariable long followeeId, @RequestBody UserFilterDto filter) {
         return subscriptionService.getFollowers(followeeId, filter);
     }
 
-    @GetMapping(UrlServiceParameters.FOLLOWING_COUNT + "{followerId}")
-    @ResponseStatus(HttpStatus.OK)
+    @GetMapping(UrlUtils.FOLLOWING_COUNT + "{followerId}")
     public int getFollowingCount(@PathVariable long followerId) {
         return subscriptionService.getFollowingCount(followerId);
     }

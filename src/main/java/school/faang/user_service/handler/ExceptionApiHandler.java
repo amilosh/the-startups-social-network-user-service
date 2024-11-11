@@ -12,7 +12,7 @@ import school.faang.user_service.dto.ExceptionBaseStructure;
 import school.faang.user_service.extention.DataValidationException;
 import school.faang.user_service.extention.ErrorCode;
 import school.faang.user_service.utilities.ServiceMethods;
-import school.faang.user_service.utilities.UrlServiceParameters;
+import school.faang.user_service.utilities.UrlUtils;
 
 @RestControllerAdvice
 public class ExceptionApiHandler {
@@ -49,7 +49,7 @@ public class ExceptionApiHandler {
         return new ResponseEntity<>(new ExceptionBaseStructure(exception.getMessage(),
                 ErrorCode.INVALID_FOLLOW,
                 ServiceMethods.getTimeIsoOffsetDateTime(),
-                UrlServiceParameters.SYSTEM_ID
+                UrlUtils.SYSTEM_ID
         ), HttpStatus.BAD_REQUEST);
     }
 }

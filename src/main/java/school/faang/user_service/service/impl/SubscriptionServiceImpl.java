@@ -2,6 +2,7 @@ package school.faang.user_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
@@ -24,6 +25,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final List<UserFilter> userFilters;
 
     @Override
+    @Transactional
     public void followUser(long followerId, long followeeId) {
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             throw new DataValidationException(ErrorMessages.M_FOLLOW_EXIST);
@@ -32,6 +34,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
+    @Transactional
     public void unfollowUser(long followerId, long followeeId) {
         if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             throw new DataValidationException(ErrorMessages.M_FOLLOW_DOES_NOT_EXIST);
@@ -41,6 +44,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     }
 
     @Override
+    @Transactional
     public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
         Stream<User> userStream = subscriptionRepository
                 .findByFolloweeId(followeeId)

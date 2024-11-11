@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import school.faang.user_service.utilities.UrlServiceParameters;
+import school.faang.user_service.utilities.UrlUtils;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,8 +30,8 @@ class ResponseExceptionHandlerTest {
     @Test
     void handleElementNotFindExceptionAddFollowingUsersSelfFailTest() throws Exception {
 
-        mockMvc.perform(MockMvcRequestBuilders.post(UrlServiceParameters.FOLLOWING_SERVICE_URL +
-                        UrlServiceParameters.FOLLOWING_ADD + "followerId=" + TEST_ID_USER1 + "&followeeId=" + TEST_ID_USER1))
+        mockMvc.perform(MockMvcRequestBuilders.post(UrlUtils.FOLLOWING_SERVICE_URL +
+                        UrlUtils.FOLLOWING_ADD + "followerId=" + TEST_ID_USER1 + "&followeeId=" + TEST_ID_USER1))
                 .andDo(print())
                 .andExpect(status().isNotFound());
     }

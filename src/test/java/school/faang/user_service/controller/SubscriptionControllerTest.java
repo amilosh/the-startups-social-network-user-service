@@ -18,7 +18,7 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.extention.DataValidationException;
 import school.faang.user_service.extention.ErrorMessages;
 import school.faang.user_service.service.SubscriptionService;
-import school.faang.user_service.utilities.UrlServiceParameters;
+import school.faang.user_service.utilities.UrlUtils;
 
 import java.util.List;
 
@@ -56,11 +56,11 @@ class SubscriptionControllerTest {
     @Test
     void followUserSuccess() throws Exception {
         doNothing().when(subscriptionService).followUser(TEST_ID_USER1, TEST_ID_USER2);
-        System.out.println(UrlServiceParameters.FOLLOWING_SERVICE_URL +
-                UrlServiceParameters.FOLLOWING_ADD +
+        System.out.println(UrlUtils.FOLLOWING_SERVICE_URL +
+                UrlUtils.FOLLOWING_ADD +
                 "followerId=" + TEST_ID_USER1 + "&followeeId=" + TEST_ID_USER2);
-        mockMvc.perform(MockMvcRequestBuilders.post(UrlServiceParameters.FOLLOWING_SERVICE_URL +
-                        UrlServiceParameters.FOLLOWING_ADD +
+        mockMvc.perform(MockMvcRequestBuilders.post(UrlUtils.FOLLOWING_SERVICE_URL +
+                        UrlUtils.FOLLOWING_ADD +
                         "followerId=" + TEST_ID_USER1 + "&followeeId=" + TEST_ID_USER2))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -69,8 +69,8 @@ class SubscriptionControllerTest {
     @Test
     void unfollowUserSuccess() throws Exception {
         doNothing().when(subscriptionService).unfollowUser(TEST_ID_USER1, TEST_ID_USER2);
-        mockMvc.perform(MockMvcRequestBuilders.post(UrlServiceParameters.FOLLOWING_SERVICE_URL +
-                        UrlServiceParameters.FOLLOWING_DELETE +
+        mockMvc.perform(MockMvcRequestBuilders.post(UrlUtils.FOLLOWING_SERVICE_URL +
+                        UrlUtils.FOLLOWING_DELETE +
                         "followerId=" + TEST_ID_USER1 + "&followeeId=" + TEST_ID_USER2))
                 .andExpect(status().isOk())
                 .andDo(print());
@@ -104,7 +104,7 @@ class SubscriptionControllerTest {
 
         when(subscriptionService.getFollowers(followeeId, userFilterDto)).thenReturn(dtoList);
         mockMvc.perform(MockMvcRequestBuilders.
-                        get(UrlServiceParameters.FOLLOWING_SERVICE_URL + UrlServiceParameters.FOLLOWING_FILTER + followeeId)
+                        get(UrlUtils.FOLLOWING_SERVICE_URL + UrlUtils.FOLLOWING_FILTER + followeeId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(userFilterDto)))
@@ -120,8 +120,8 @@ class SubscriptionControllerTest {
         int followerCount = 1;
 
         when(subscriptionService.getFollowingCount(followerId)).thenReturn(followerCount);
-        mockMvc.perform(MockMvcRequestBuilders.get(UrlServiceParameters.FOLLOWING_SERVICE_URL
-                        + UrlServiceParameters.FOLLOWING_COUNT
+        mockMvc.perform(MockMvcRequestBuilders.get(UrlUtils.FOLLOWING_SERVICE_URL
+                        + UrlUtils.FOLLOWING_COUNT
                         + followerId))
                 .andExpect(status().isOk())
                 .andDo(print());
