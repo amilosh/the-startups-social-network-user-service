@@ -1,7 +1,6 @@
-package school.faang.user_service.dto.user;
+package school.faang.user_service.dto;
 
 import lombok.Data;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,7 +12,7 @@ public class UserDto {
     private boolean active;
     private String aboutMe;
     private Integer experience;
-    private String createdAt;
+    private LocalDateTime createdAt;
     private List<Long> followersIds;
     private List<Long> followeesIds;
     private List<Long> menteesIds;
