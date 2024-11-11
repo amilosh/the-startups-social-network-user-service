@@ -10,6 +10,7 @@ import school.faang.user_service.repository.mentorship.MentorshipRepository;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.user.filter.UserFilter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -24,20 +25,24 @@ public class MentorshipService {
 
     public List<UserDto> getMentees(Long userId, UserFilterDto filters) {
         User mentor = findUserById(userId);
-        Stream<User> mentees = mentor.getMentees().stream();
+        Stream<User> mentees = new ArrayList<>(mentor.getMentees()).stream();
         return userFilters.stream()
                 .filter(filter -> filter.isApplicable(filters))
-                .flatMap(filter -> filter.apply(mentees, filters))
+                .reduce(mentees,
+                        (stream, filter) -> filter.apply(stream, filters),
+                        (s1, s2) -> s1)
                 .map(userMapper::toDto)
                 .toList();
     }
 
     public List<UserDto> getMentors(Long userId, UserFilterDto filters) {
         User mentee = findUserById(userId);
-        Stream<User> mentors = mentee.getMentors().stream();
+        Stream<User> mentors = new ArrayList<>(mentee.getMentors()).stream();
         return userFilters.stream()
                 .filter(filter -> filter.isApplicable(filters))
-                .flatMap(filter -> filter.apply(mentors, filters))
+                .reduce(mentors,
+                        (stream, filter) -> filter.apply(stream, filters),
+                        (s1, s2) -> s1)
                 .map(userMapper::toDto)
                 .toList();
     }
