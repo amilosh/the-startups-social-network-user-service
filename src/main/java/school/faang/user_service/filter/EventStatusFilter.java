@@ -7,9 +7,7 @@ import school.faang.user_service.entity.event.Event;
 import java.util.stream.Stream;
 
 @Component
-public enum EventStatusFilter implements EventFilter {
-    STATUS;
-
+public class EventStatusFilter implements EventFilter {
     @Override
     public boolean isApplicable(EventFilterDto filter) {
         return filter.getStatus() != null;

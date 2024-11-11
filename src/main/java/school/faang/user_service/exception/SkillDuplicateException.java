@@ -1,4 +1,4 @@
-package school.faang.user_service.exception.skill;
+package school.faang.user_service.exception;
 
 public class SkillDuplicateException extends RuntimeException{
 

@@ -20,4 +20,10 @@ public class UserValidator {
         }
         log.info("User '{}' exist.", id);
     }
+
+    public void validateUserById(long userId) {
+        if (!repository.existsById(userId)) {
+            throw new EntityNotFoundException("User with id #" + userId + " not found");
+        }
+    }
 }

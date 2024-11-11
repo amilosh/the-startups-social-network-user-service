@@ -14,7 +14,6 @@ import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.MentorshipRequestValidator;
 
 import java.util.List;
