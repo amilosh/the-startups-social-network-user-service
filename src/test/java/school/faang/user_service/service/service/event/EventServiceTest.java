@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.dto.skill.SkillDto;
@@ -228,5 +229,29 @@ public class EventServiceTest {
         assertEquals(1, eventDtos.size());
         assertEquals(eventDtos.get(0).getTitle(), "social media startup");
         verify(eventRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void getOwnedEventsByUserId() {
+        when(eventRepository.findAllByUserId(1L))
+                .thenReturn(List.of(Event.builder().id(1L).build()));
+
+        List<EventDto> response = eventService.getOwnedEvents(1L).getBody();
+        assertNotNull(response);
+        assertEquals(1, response.size());
+        assertEquals(1, response.get(0).getId());
+        verify(eventRepository, times(1)).findAllByUserId(1L);
+    }
+
+    @Test
+    public void getParticipatedEvents() {
+        when(eventRepository.findParticipatedEventsByUserId(1L))
+                .thenReturn(List.of(Event.builder().id(1).build()));
+
+        List<EventDto> response = eventService.getParticipatedEvents(1L).getBody();
+        assertNotNull(response);
+        assertEquals(1, response.size());
+        assertEquals(1, response.get(0).getId());
+        verify(eventRepository, times(1)).findParticipatedEventsByUserId(1L);
     }
 }
