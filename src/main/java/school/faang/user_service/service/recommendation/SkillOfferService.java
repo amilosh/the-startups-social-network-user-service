@@ -8,6 +8,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.SkillOfferValidator;
 import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.List;
@@ -17,11 +18,11 @@ import java.util.List;
 public class SkillOfferService {
     private final SkillOfferRepository skillOfferRepository;
     private final SkillRepository skillRepository;
-    private final RecommendationService recommendationService;
+    private final RecommendationRepository recommendationRepository;
     private final SkillOfferValidator skillOfferValidator;
 
     public void saveSkillOffers(List<SkillOfferDto> skillOffers, @NonNull Long recommendationId) {
-        if (!recommendationService.recommendationExists(recommendationId)) {
+        if (!recommendationRepository.findById(recommendationId).isPresent()) {
             throw new DataValidationException("Recommendation with id " + recommendationId + " not found");
         }
         skillOffers.forEach(skillOffer -> {

@@ -7,16 +7,18 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.SkillOfferValidator;
 import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -32,6 +34,10 @@ class SkillOfferServiceTest {
     private RecommendationService recommendationService;
     @Mock
     private SkillOfferValidator skillOfferValidator;
+
+    @Mock
+    private RecommendationRepository recommendationRepository;
+
     @InjectMocks
     private SkillOfferService skillOfferService;
 
@@ -41,7 +47,8 @@ class SkillOfferServiceTest {
                 SkillOfferDto.builder().skillId(1L).build(),
                 SkillOfferDto.builder().skillId(2L).build()
         );
-        when(recommendationService.recommendationExists(anyLong())).thenReturn(true);
+        when(recommendationRepository.findById(RECOMMENDATION_ID))
+                .thenReturn(Optional.of(Recommendation.builder().build()));
         skillOffers.forEach(skillOffer -> when(skillRepository.findById(skillOffer.getSkillId()))
                 .thenReturn(Optional.of(Skill.builder().id(skillOffer.getSkillId()).build())));
 
@@ -70,12 +77,12 @@ class SkillOfferServiceTest {
 
     @Test
     void testSaveSkillOffersWithNonExistentSkill() {
-        long skillId = 1L;
         List<SkillOfferDto> skillOffers = List.of(
-                SkillOfferDto.builder().skillId(skillId).build()
+                SkillOfferDto.builder().skillId(RECOMMENDATION_ID).build()
         );
-        when(skillRepository.findById(skillId)).thenReturn(Optional.empty());
-        when(recommendationService.recommendationExists(anyLong())).thenReturn(true);
+        when(skillRepository.findById(RECOMMENDATION_ID)).thenReturn(Optional.empty());
+        when(recommendationRepository.findById(RECOMMENDATION_ID))
+                .thenReturn(Optional.of(Recommendation.builder().build()));
 
         DataValidationException exception = assertThrows(DataValidationException.class,
                 () -> skillOfferService.saveSkillOffers(skillOffers, RECOMMENDATION_ID));
@@ -90,7 +97,8 @@ class SkillOfferServiceTest {
         );
         skillOffers.forEach(skillOffer -> when(skillRepository.findById(skillOffer.getSkillId()))
                 .thenReturn(Optional.of(Skill.builder().id(skillOffer.getSkillId()).build())));
-        when(recommendationService.recommendationExists(anyLong())).thenReturn(true);
+        when(recommendationRepository.findById(RECOMMENDATION_ID))
+                .thenReturn(Optional.of(Recommendation.builder().build()));
         skillOffers.forEach(skillOffer ->
                 when(skillOfferRepository.create(skillOffer.getSkillId(), RECOMMENDATION_ID))
                         .thenReturn(skillOffer.getSkillId())
