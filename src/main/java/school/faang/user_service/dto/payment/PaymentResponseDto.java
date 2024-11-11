@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaymentResponseDto {
-    private PaymentStatus paymentStatus;
+    private PaymentStatus status;
     private int verificationCode;
     private long paymentNumber;
     private BigDecimal amount;

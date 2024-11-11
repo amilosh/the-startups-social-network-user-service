@@ -28,10 +28,14 @@ import static school.faang.user_service.exception.promotion.PromotionErrorMessag
 public class PromotionValidator {
     public void checkUserForPromotion(User user) {
         log.info("Verification of User with id: {} for buying promotion", user.getId());
-        if (user.getPromotion().getNumberOfViews() > 0) {
-            throw new PromotionValidationException(USER_ALREADY_HAS_PROMOTION, user.getId(),
-                    user.getPromotion().getNumberOfViews());
-        }
+        Optional.ofNullable(user.getPromotion())
+                .ifPresent(promotion -> {
+                    if (promotion.getNumberOfViews() > 0) {
+                        throw new PromotionValidationException(USER_ALREADY_HAS_PROMOTION,
+                                user.getId(),
+                                promotion.getNumberOfViews());
+                    }
+                });
     }
 
     public void checkEventForUserAndPromotion(long userId, Event event) {
@@ -39,10 +43,15 @@ public class PromotionValidator {
         if (userId != event.getOwner().getId()) {
             throw new PromotionValidationException(USER_NOT_OWNER_OF_EVENT, userId, event.getId());
         }
-        if (event.getPromotion().getNumberOfViews() > 0) {
-            throw new PromotionValidationException(EVENT_ALREADY_HAS_PROMOTION, event.getId(),
-                    event.getPromotion().getNumberOfViews());
-        }
+
+        Optional.ofNullable(event.getPromotion())
+                .ifPresent(promotion -> {
+                    if (promotion.getNumberOfViews() > 0) {
+                        throw new PromotionValidationException(EVENT_ALREADY_HAS_PROMOTION,
+                                event.getId(),
+                                promotion.getNumberOfViews());
+                    }
+                });
     }
 
     public List<UserPromotion> getActiveUserPromotions(List<User> users) {
@@ -71,7 +80,7 @@ public class PromotionValidator {
                                               String errorMessage) {
         log.info("Check promotion payment response: {}", paymentResponse);
         checkIsPaymentNull(paymentResponse);
-        if (!paymentResponse.getPaymentStatus().equals(PaymentStatus.SUCCESS)) {
+        if (!paymentResponse.getStatus().equals(PaymentStatus.SUCCESS)) {
             throw new UnSuccessPaymentException(errorMessage, tariff.getNumberOfViews(), id, paymentResponse.getMessage());
         }
     }

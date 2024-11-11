@@ -24,5 +24,16 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             """)
     List<Event> findParticipatedEventsByUserId(long userId);
 
+    @Query(nativeQuery = true, value = """
+            SELECT e.*
+            FROM event e
+            LEFT JOIN event_promotion ep ON e.id = ep.event_id AND ep.number_of_views > 0
+            ORDER BY
+                ep.coefficient DESC NULLS LAST,
+                ep.creation_date ASC,
+                e.created_at DESC
+            OFFSET :offset
+            LIMIT :limit
+            """)
     List<Event> findAllSortedByPromotedEventsPerPage(@Param("offset") int offset, @Param("limit") int limit);
 }

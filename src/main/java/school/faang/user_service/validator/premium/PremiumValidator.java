@@ -10,6 +10,8 @@ import school.faang.user_service.entity.premium.PremiumPeriod;
 import school.faang.user_service.exception.payment.UnSuccessPaymentException;
 import school.faang.user_service.exception.premium.ExistingPurchaseException;
 
+import java.util.Optional;
+
 import static java.time.LocalDateTime.now;
 import static school.faang.user_service.exception.premium.PremiumErrorMessage.NO_RESPONSE;
 import static school.faang.user_service.exception.premium.PremiumErrorMessage.UNSUCCESSFUL_PREMIUM_PAYMENT;
@@ -21,16 +23,20 @@ import static school.faang.user_service.exception.premium.PremiumErrorMessage.US
 public class PremiumValidator {
     public void validateUserForSubPeriod(User user) {
         log.info("Verification of User with id: {} for buying premium subscription", user.getId());
-        if (user.getPremium().getEndDate().isAfter(now())) {
-            throw new ExistingPurchaseException(USER_ALREADY_HAS_PREMIUM,
-                    user.getId(), user.getPremium().getEndDate());
-        }
+        Optional.ofNullable(user.getPremium())
+                .ifPresent(premium -> {
+                    if (premium.getEndDate().isAfter(now())) {
+                        throw new ExistingPurchaseException(USER_ALREADY_HAS_PREMIUM,
+                                user.getId(),
+                                premium.getEndDate());
+                    }
+                });
     }
 
     public void checkPaymentResponse(PaymentResponseDto paymentResponse, long userId, PremiumPeriod period) {
         log.info("Check premium payment response: {}", paymentResponse);
         checkIsPaymentNull(paymentResponse, userId);
-        if (!paymentResponse.getPaymentStatus().equals(PaymentStatus.SUCCESS)) {
+        if (!paymentResponse.getStatus().equals(PaymentStatus.SUCCESS)) {
             throw new UnSuccessPaymentException(UNSUCCESSFUL_PREMIUM_PAYMENT, userId, period.getDays());
         }
     }

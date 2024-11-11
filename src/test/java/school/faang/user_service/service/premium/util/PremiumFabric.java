@@ -60,7 +60,7 @@ public class PremiumFabric {
     public static PaymentResponseDto getPaymentResponse(PaymentStatus status, String message) {
         return PaymentResponseDto
                 .builder()
-                .paymentStatus(status)
+                .status(status)
                 .message(message)
                 .build();
     }
