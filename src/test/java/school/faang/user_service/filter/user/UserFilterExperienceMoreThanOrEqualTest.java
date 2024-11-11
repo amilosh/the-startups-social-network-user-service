@@ -17,7 +17,7 @@ class UserFilterExperienceMoreThanOrEqualTest {
     private UserFilterExperienceMoreThanOrEqual filter;
 
     @Test
-    void applySuccessWithInitValue() {
+    void applyWithInitValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null,null);
         userFilterDto.setExperienceMin(DataSubscription.getUserFilterDtoInitValues(null,null).getExperienceMin());
 
@@ -26,7 +26,7 @@ class UserFilterExperienceMoreThanOrEqualTest {
     }
 
     @Test
-    void applySuccessWithNullValue() {
+    void applyWithNullValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null,null);
         userFilterDto.setExperienceMin(null);
 
@@ -35,7 +35,7 @@ class UserFilterExperienceMoreThanOrEqualTest {
     }
 
     @Test
-    void applyNegativeWrongValue() {
+    void applyWrongValueFailTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoInitValues(null,null);
         userFilterDto.setExperienceMin(DataSubscription.getUserFilterDtoWrongValues(null,null).getExperienceMin());
         assertFalse(filter.apply(DataSubscription.getNewUser(1), userFilterDto),

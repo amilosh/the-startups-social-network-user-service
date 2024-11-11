@@ -17,7 +17,7 @@ class UserFilterEmailTest {
     private UserFilterEmail filter;
 
     @Test
-    void applySuccessWithInitValue() {
+    void applyWithInitValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null,null);
         userFilterDto.setEmailPattern(DataSubscription.getUserFilterDtoInitValues(null,null).getEmailPattern());
 
@@ -26,7 +26,7 @@ class UserFilterEmailTest {
     }
 
     @Test
-    void applySuccessWithNullValue() {
+    void applyWithNullValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null,null);
         userFilterDto.setEmailPattern(null);
 
@@ -36,7 +36,7 @@ class UserFilterEmailTest {
 
 
     @Test
-    void applyNegativeWrongValue() {
+    void applyWrongValueFailTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoInitValues(null,null);
         userFilterDto.setEmailPattern(DataSubscription.getUserFilterDtoWrongValues(null,null).getEmailPattern());
         assertFalse(filter.apply(DataSubscription.getNewUser(1), userFilterDto),

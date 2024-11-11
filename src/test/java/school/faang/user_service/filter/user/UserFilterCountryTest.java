@@ -17,7 +17,7 @@ class UserFilterCountryTest {
     private UserFilterCountry filter;
 
     @Test
-    void applySuccessWithInitValue() {
+    void applyWithInitValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null,null);
         userFilterDto.setCountryPattern(DataSubscription.getUserFilterDtoInitValues(null,null).getCountryPattern());
 
@@ -26,7 +26,7 @@ class UserFilterCountryTest {
     }
 
     @Test
-    void applySuccessWithNullValue() {
+    void applyWithNullValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null,null);
         userFilterDto.setCountryPattern(null);
 
@@ -36,7 +36,7 @@ class UserFilterCountryTest {
 
 
     @Test
-    void applyNegativeWrongValue() {
+    void applyWrongValueFailTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoInitValues(null,null);
         userFilterDto.setCountryPattern(DataSubscription.getUserFilterDtoWrongValues(null,null).getCountryPattern());
         assertFalse(filter.apply(DataSubscription.getNewUser(1), userFilterDto),

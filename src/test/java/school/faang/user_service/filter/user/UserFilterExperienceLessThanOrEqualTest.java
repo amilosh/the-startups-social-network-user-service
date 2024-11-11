@@ -17,7 +17,7 @@ class UserFilterExperienceLessThanOrEqualTest {
     private UserFilterExperienceLessThanOrEqual filter;
 
     @Test
-    void applySuccessWithInitValue() {
+    void applyWithInitValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null,null);
         userFilterDto.setExperienceMax(DataSubscription.getUserFilterDtoInitValues(null,null).getExperienceMax());
 
@@ -26,7 +26,7 @@ class UserFilterExperienceLessThanOrEqualTest {
     }
 
     @Test
-    void applySuccessWithNullValue() {
+    void applyWithNullValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null,null);
         userFilterDto.setExperienceMax(null);
 
@@ -36,7 +36,7 @@ class UserFilterExperienceLessThanOrEqualTest {
 
 
     @Test
-    void applyNegativeWrongValue() {
+    void applyWrongValueFailTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoInitValues(null,null);
         userFilterDto.setExperienceMax(DataSubscription.getUserFilterDtoWrongValues(null,null).getExperienceMax());
         assertFalse(filter.apply(DataSubscription.getNewUser(1), userFilterDto),

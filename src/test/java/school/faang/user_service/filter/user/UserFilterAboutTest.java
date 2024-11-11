@@ -17,7 +17,7 @@ class UserFilterAboutTest {
     private UserFilterAbout filter;
 
     @Test
-    void applySuccessWithInitValue() {
+    void applyWithInitValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null,null);
         userFilterDto.setAboutPattern(DataSubscription.getUserFilterDtoInitValues(null,null).getAboutPattern());
 
@@ -26,7 +26,7 @@ class UserFilterAboutTest {
     }
 
     @Test
-    void applySuccessWithNullValue() {
+    void applyWithNullValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null, null);
         userFilterDto.setAboutPattern(null);
 
@@ -36,7 +36,7 @@ class UserFilterAboutTest {
 
 
     @Test
-    void applyNegativeWrongValue() {
+    void applyWrongValueFailTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoInitValues(null, null);
         userFilterDto.setAboutPattern(DataSubscription.getUserFilterDtoWrongValues(null, null).getAboutPattern());
         assertFalse(filter.apply(DataSubscription.getNewUser(1), userFilterDto),

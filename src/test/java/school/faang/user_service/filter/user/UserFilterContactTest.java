@@ -17,7 +17,7 @@ class UserFilterContactTest {
     private UserFilterContact filter;
 
     @Test
-    void applySuccessWithInitValue() {
+    void applyWithInitValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null, null);
         userFilterDto.setContactPattern(DataSubscription.getUserFilterDtoInitValues(null, null).getContactPattern());
 
@@ -26,7 +26,7 @@ class UserFilterContactTest {
     }
 
     @Test
-    void applySuccessWithNullValue() {
+    void applyWithNullValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null, null);
         userFilterDto.setContactPattern(null);
 
@@ -36,7 +36,7 @@ class UserFilterContactTest {
 
 
     @Test
-    void applyNegativeWrongValue() {
+    void applyWrongValueFailTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoInitValues(null, null);
         userFilterDto.setContactPattern(DataSubscription.getUserFilterDtoWrongValues(null, null).getContactPattern());
         assertFalse(filter.apply(DataSubscription.getNewUser(1), userFilterDto),

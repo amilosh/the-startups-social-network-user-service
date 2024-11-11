@@ -17,7 +17,7 @@ class UserFilterCityTest {
     private UserFilterCity filter;
 
     @Test
-    void applySuccessWithInitValue() {
+    void applyWithInitValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null, null);
         userFilterDto.setCityPattern(DataSubscription.getUserFilterDtoInitValues(null, null).getCityPattern());
 
@@ -26,7 +26,7 @@ class UserFilterCityTest {
     }
 
     @Test
-    void applySuccessWithNullValue() {
+    void applyWithNullValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null, null);
         userFilterDto.setCityPattern(null);
 
@@ -35,7 +35,7 @@ class UserFilterCityTest {
     }
 
     @Test
-    void applyNegativeWrongValue() {
+    void applyWrongValueFailTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoInitValues(null, null);
         userFilterDto.setCityPattern(DataSubscription.getUserFilterDtoWrongValues(null, null).getCityPattern());
         assertFalse(filter.apply(DataSubscription.getNewUser(1), userFilterDto),

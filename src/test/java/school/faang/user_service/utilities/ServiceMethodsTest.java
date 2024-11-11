@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ServiceMethodsTest {
     @Test
-    void getTimeIsoOffsetDateTime() {
+    void getTimeIsoOffsetDateTimeSuccessTest() {
         assertNotNull(ServiceMethods.getTimeIsoOffsetDateTime(), "ESM001 - Expected a String.");
     }
 }

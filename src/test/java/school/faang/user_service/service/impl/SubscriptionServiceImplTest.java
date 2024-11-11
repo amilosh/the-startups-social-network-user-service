@@ -49,14 +49,14 @@ class SubscriptionServiceImplTest {
     private final static int FOLLOWER_COUNT = 1;
 
     @Test
-    void followUserSuccess() {
+    void followUserSuccessTest() {
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(TEST_ID_USER1, TEST_ID_USER2)).thenReturn(false);
         subscriptionService.followUser(TEST_ID_USER1, TEST_ID_USER2);
         verify(subscriptionRepository, times(1)).followUser(TEST_ID_USER1, TEST_ID_USER2);
     }
 
     @Test
-    void followUserExistNegativeException() {
+    void followUserExistExceptionFailTest() {
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(TEST_ID_USER1, TEST_ID_USER2)).thenReturn(true);
 
         DataValidationException exception = assertThrows(DataValidationException.class,
@@ -66,14 +66,14 @@ class SubscriptionServiceImplTest {
     }
 
     @Test
-    void unfollowUserSuccess() {
+    void unfollowUserSuccessTest() {
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(TEST_ID_USER1, TEST_ID_USER2)).thenReturn(true);
         subscriptionService.unfollowUser(TEST_ID_USER1, TEST_ID_USER2);
         verify(subscriptionRepository, times(1)).unfollowUser(TEST_ID_USER1, TEST_ID_USER2);
     }
 
     @Test
-    void unfollowDoesNotExistsException() {
+    void unfollowDoesNotExistsExceptionFailTest() {
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(TEST_ID_USER1, TEST_ID_USER2)).thenReturn(false);
 
         DataValidationException exception = assertThrows(DataValidationException.class,
@@ -83,7 +83,7 @@ class SubscriptionServiceImplTest {
     }
 
     @Test
-    void getFollowersSuccessSetAllFilterValue() {
+    void getFollowersSetAllFilterValueSuccessTest() {
         generalGetFollowersFilterCalculation(
                 PAGE_NUMBER,
                 PAGE_SIZE,
@@ -93,7 +93,7 @@ class SubscriptionServiceImplTest {
     }
 
     @Test
-    void getFollowersSuccessSetNullPageSize() {
+    void getFollowersSetNullPageSizeSuccessTest() {
         generalGetFollowersFilterCalculation(
                 PAGE_NUMBER,
                 null,
@@ -103,7 +103,7 @@ class SubscriptionServiceImplTest {
     }
 
     @Test
-    void getFollowersSuccessSetNullPage() {
+    void getFollowersSetNullPageSuccessTest() {
         generalGetFollowersFilterCalculation(
                 null,
                 PAGE_SIZE,
@@ -113,7 +113,7 @@ class SubscriptionServiceImplTest {
     }
 
     @Test
-    void getFollowersSuccessSetNullPageAndPageSize() {
+    void getFollowersSetNullPageAndPageSizeSuccessTest() {
         generalGetFollowersFilterCalculation(
                 null,
                 null,
@@ -123,7 +123,7 @@ class SubscriptionServiceImplTest {
     }
 
     @Test
-    void getFollowersSuccessLogicFilter() {
+    void getFollowersLogicFilterTest() {
         generalGetFollowersFilterCalculation(
                 null,
                 null,
@@ -133,7 +133,7 @@ class SubscriptionServiceImplTest {
     }
 
     @Test
-    void getFollowingCount() {
+    void getFollowingCountSuccessTest() {
         when(subscriptionRepository.findFolloweesAmountByFollowerId(FOLLOWEE_ID)).thenReturn(FOLLOWER_COUNT);
 
         assertEquals(FOLLOWER_COUNT, subscriptionService.getFollowingCount(FOLLOWEE_ID), "EFC001 - Wrong counting");

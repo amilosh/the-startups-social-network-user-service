@@ -17,7 +17,7 @@ class UserFilterSkillTest {
     private UserFilterSkill filter;
 
     @Test
-    void applySuccessWithInitValue() {
+    void applyWithInitValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null,null);
         userFilterDto.setSkillPattern(DataSubscription.getUserFilterDtoInitValues(null,null).getSkillPattern());
 
@@ -26,7 +26,7 @@ class UserFilterSkillTest {
     }
 
     @Test
-    void applySuccessWithNullValue() {
+    void applyWithNullValueSuccessTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoWrongValues(null,null);
         userFilterDto.setSkillPattern(null);
 
@@ -35,7 +35,7 @@ class UserFilterSkillTest {
     }
 
     @Test
-    void applyNegativeWrongValue() {
+    void applyWrongValueFailTest() {
         UserFilterDto userFilterDto = DataSubscription.getUserFilterDtoInitValues(null,null);
         userFilterDto.setSkillPattern(DataSubscription.getUserFilterDtoWrongValues(null,null).getSkillPattern());
         assertFalse(filter.apply(DataSubscription.getNewUser(1), userFilterDto),
