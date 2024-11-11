@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.service.EventParticipationService;
+import school.faang.user_service.service.Participation.event.EventParticipationService;
 
 import java.util.List;
 
@@ -43,19 +43,12 @@ public class EventParticipationController {
 
     @GetMapping("/{eventId}/participants")
     public List<User> getParticipants(@PathVariable Long eventId) {
-        try {
-            return eventParticipationService.getParticipant(eventId);
-        } catch (Exception e) {
-            return List.of();
-        }
+        return eventParticipationService.getParticipant(eventId);
     }
 
     @GetMapping("/{eventId}/participants/count")
     public int getParticipantsCount(@PathVariable Long eventId) {
-        try {
-            return eventParticipationService.getParticipantsCount(eventId);
-        } catch (Exception e) {
-            return 0;
-        }
+        return eventParticipationService.getParticipantsCount(eventId);
+
     }
 }

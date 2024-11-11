@@ -6,16 +6,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.EventNotFoundException;
-
-import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
-import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.service.EventParticipationService;
+import school.faang.user_service.service.Participation.event.EventParticipationService;
+import school.faang.user_service.service.validator.event.EventValidator;
+
+import java.util.Arrays;
 import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,94 +24,76 @@ public class EventParticipationServiceTest {
     private EventParticipationRepository eventParticipationRepository;
 
     @Mock
-    private EventRepository eventRepository;
-
-    @Mock
-    private UserMapper userMapper;
+    private EventValidator eventValidator;
 
     @InjectMocks
     private EventParticipationService eventParticipationService;
 
     @Test
-    public void testRegisterParticipant() {
-        long eventId = 1L;
-        long userId = 2L;
-        when(eventParticipationRepository.existsByEventIdAndUserId(userId, eventId)).thenReturn(false);
-        eventParticipationService.registerParticipant(userId, eventId);
+    void testRegisterParticipant() {
+        long eventId = 2L;
+        long userId = 1L;
 
-        verify(eventParticipationRepository, times(1)).register(userId, eventId);
+        doNothing().when(eventValidator).validateEventExists(eventId);
+        doNothing().when(eventValidator).validateUserNotRegistered(eventId, userId);
+
+        doNothing().when(eventParticipationRepository).register(eventId, userId);
+
+        eventParticipationService.registerParticipant(eventId, userId);
+
+        verify(eventValidator).validateEventExists(eventId);
+        verify(eventValidator).validateUserNotRegistered(eventId, userId);
+        verify(eventParticipationRepository).register(eventId, userId);
     }
 
     @Test
-    public void testUnregisterParticipant() {
-        long eventId = 1L;
-        long userId = 2L;
-        when(eventParticipationRepository.existsByEventIdAndUserId(userId, eventId)).thenReturn(true);
+    void testUnregisterParticipant() {
+        long eventId = 2L;
+        long userId = 1L;
 
-        eventParticipationService.unregisterParticipant(userId, eventId);
+        doNothing().when(eventValidator).validateEventExists(eventId);
+        doNothing().when(eventValidator).validateUserIsRegistered(eventId, userId);
 
-        verify(eventParticipationRepository, times(1)).unregister(userId, eventId);
+        doNothing().when(eventParticipationRepository).unregister(eventId, userId);
+
+        eventParticipationService.unregisterParticipant(eventId, userId);
+
+        verify(eventValidator).validateEventExists(eventId);
+        verify(eventValidator).validateUserIsRegistered(eventId, userId);
+        verify(eventParticipationRepository).unregister(eventId, userId);
     }
 
     @Test
-    public void testGetParticipantsForExistingEvent() {
-        long eventId = 1L;
-        List<User> mockUsers = List.of(
-                User.builder().username("Alice").build(),
-                User.builder().username("Bob").build()
-        );
-        when(eventRepository.existsById(eventId)).thenReturn(true);
-        when(eventParticipationRepository.findUsersByEventId(eventId)).thenReturn(mockUsers);
+    void testGetParticipants() {
+        long eventId = 2L;
+        List<User> users = Arrays.asList(new User(), new User());
+
+        doNothing().when(eventValidator).validateEventExists(eventId);
+
+        when(eventParticipationRepository.findUsersByEventId(eventId)).thenReturn(users);
 
         List<User> participants = eventParticipationService.getParticipant(eventId);
 
-        assertEquals(mockUsers, participants);
-        verify(eventRepository, times(1)).existsById(eventId);
-        verify(eventParticipationRepository, times(1)).findUsersByEventId(eventId);
-
+        assertEquals(2, participants.size());
+        verify(eventValidator).validateEventExists(eventId);
+        verify(eventParticipationRepository).findUsersByEventId(eventId);
     }
 
     @Test
-    public void testCountEventExistsAndHasParticipants() {
-        long eventId = 1L;
-        int expectedCount = 6;
+    void testGetParticipantsCount() {
+        long eventId = 2L;
+        int count = 5;
 
-        when(eventRepository.existsById(eventId)).thenReturn(true);
-        when(eventParticipationRepository.countParticipants(eventId)).thenReturn(expectedCount);
+        doNothing().when(eventValidator).validateEventExists(eventId);
+        doNothing().when(eventValidator).validateParticipantsCount(eventId);
 
-        int actualCount = eventParticipationService.getParticipantsCount(eventId);
+        when(eventParticipationRepository.countParticipants(eventId)).thenReturn(count);
 
-        assertEquals(expectedCount, actualCount);
+        int participantCount = eventParticipationService.getParticipantsCount(eventId);
 
-        verify(eventRepository, times(1)).existsById(eventId);
-        verify(eventParticipationRepository, times(1)).countParticipants(eventId);
-    }
-
-    @Test
-    public void testGetParticipantsCountEventNotFound() {
-        long eventId = 1L;
-
-        when(eventRepository.existsById(eventId)).thenReturn(false);
-
-        EventNotFoundException thrown = assertThrows(EventNotFoundException.class, () -> {
-            eventParticipationService.getParticipantsCount(eventId);
-        });
-
-        assertEquals("Event with ID " + eventId + " does not exist", thrown.getMessage());
-
-        verify(eventRepository, times(1)).existsById(eventId);
-    }
-
-    @Test
-    void testGetParticipantsCountNoParticipants() {
-        int expectedCount = 0;
-        try {
-            int count = eventParticipationService.getParticipantsCount(1);
-
-            assertEquals(expectedCount, count);
-        } catch (EventNotFoundException e) {
-            System.out.println("Event not found or no participants. This is expected.");
-            assertEquals(expectedCount, 0);
-        }
+        assertEquals(5, participantCount);
+        verify(eventValidator).validateEventExists(eventId);
+        verify(eventValidator).validateParticipantsCount(eventId);
+        verify(eventParticipationRepository).countParticipants(eventId);
     }
 }
