@@ -103,7 +103,7 @@ public class EventParticipationControllerTest {
         mockMvc.perform(post(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/1" + UrlUtils.PARTICIPANTS)
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new ParticipantReqParam(-2L))))
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isBadRequest())
                 .andDo(mvcResult -> {
                     String content = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
                     assertTrue(content.contains("must be greater than or equal to 1"));
@@ -147,7 +147,7 @@ public class EventParticipationControllerTest {
         mockMvc.perform(delete(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.EVENTS + "/1" + UrlUtils.PARTICIPANTS)
                         .contentType(APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new ParticipantReqParam(null))))
-                .andExpect(status().is4xxClientError())
+                .andExpect(status().isBadRequest())
                 .andDo(mvcResult -> {
                     String content = Objects.requireNonNull(mvcResult.getResolvedException()).getMessage();
                     assertTrue(content.contains("The given id must not be null"));
