@@ -1,6 +1,8 @@
 package school.faang.user_service.exception;
 
 public class ErrorMessage {
+    public static final String USER_NOT_FOUND = "User not found with ID: \"%s\"";
+
     public static final String RECOMMENDATION_EMPTY_CONTENT = "THE CONTENT OF THE RECOMMENDATION CANNOT BE EMPTY!";
     public static final String RECOMMENDATION_EMPTY_AUTHOR = "THE AUTHOR OF THE RECOMMENDATION IS EMPTY";
     public static final String RECOMMENDATION_AUTHOR_NOT_FOUND = "THE AUTHOR OF THE RECOMMENDATION NOT FOUND - ";
