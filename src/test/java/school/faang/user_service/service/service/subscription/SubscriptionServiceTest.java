@@ -1,4 +1,4 @@
-package school.faang.user_service.service.service;
+package school.faang.user_service.service.service.subscription;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,15 +8,14 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.ShortUserDto;
-import school.faang.user_service.dto.UserFilterDto;
+import school.faang.user_service.dto.filter.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.filters.UserFilter;
 import school.faang.user_service.mapper.ShortUserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
-import school.faang.user_service.service.SubscriptionService;
+import school.faang.user_service.service.subscription.SubscriptionService;
+import school.faang.user_service.service.user.filter.UserFilter;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -86,7 +85,6 @@ class SubscriptionServiceTest {
     void testGetFollowers() {
         Mockito.when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(Stream.of(new User(), new User()));
         Mockito.when(shortUserMapper.toDto(any())).thenReturn(new ShortUserDto(1L, "", ""));
-        Mockito.when(userFilters.iterator()).thenReturn(Collections.emptyIterator());
 
         List<ShortUserDto> followers = subscriptionService.getFollowers(followeeId, new UserFilterDto());
 
@@ -106,7 +104,6 @@ class SubscriptionServiceTest {
     void testGetFollowing() {
         Mockito.when(subscriptionRepository.findByFollowerId(followerId)).thenReturn(Stream.of(new User(), new User()));
         Mockito.when(shortUserMapper.toDto(any())).thenReturn(new ShortUserDto(1L, "", ""));
-        Mockito.when(userFilters.iterator()).thenReturn(Collections.emptyIterator());
 
         List<ShortUserDto> followers = subscriptionService.getFollowing(followerId, new UserFilterDto());
 
