@@ -55,7 +55,8 @@ public class GoalInvitationService {
 
     public List<GoalInvitation> getInvitationsByFilter(GoalInvitationFilterDto goalInvitationFilterDto) {
         Stream<GoalInvitation> allVacancy = goalInvitationRepository.findAll().stream();
-        List<GoalInvitation> invitationList = goalnvitationFilterList.stream().filter(filter -> filter.isApplicable(goalInvitationFilterDto))
+        List<GoalInvitation> invitationList = goalnvitationFilterList.stream()
+                .filter(filter -> filter.isApplicable(goalInvitationFilterDto))
                 .flatMap(filter -> filter.apply(allVacancy, goalInvitationFilterDto)).collect(Collectors.toList());
         return invitationList;
 

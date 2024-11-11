@@ -38,7 +38,7 @@ public class GoalInvitationController {
     }
 
     @GetMapping()
-    public List<GoalInvitation> getInvitations(@RequestBody GoalInvitationFilterDto filterDTO) {
+    public List<GoalInvitation> getInvitationsByFilter(@RequestBody GoalInvitationFilterDto filterDTO) {
         return goalInvitationService.getInvitationsByFilter(filterDTO);
     }
 }
