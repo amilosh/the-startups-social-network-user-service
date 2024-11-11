@@ -38,7 +38,7 @@ public enum PremiumPeriod {
         };
     }
 
-    private static List<Integer> daysOptions() {
+    public static List<Integer> daysOptions() {
         return Arrays
                 .stream(PremiumPeriod.values())
                 .map(PremiumPeriod::getDays)

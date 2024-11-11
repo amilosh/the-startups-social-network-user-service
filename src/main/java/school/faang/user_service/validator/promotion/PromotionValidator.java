@@ -52,6 +52,7 @@ public class PromotionValidator {
                 .map(user -> Optional.ofNullable(user.getPromotion()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .filter(promotion -> promotion.getNumberOfViews() > 0)
                 .toList();
     }
 
@@ -62,6 +63,7 @@ public class PromotionValidator {
                 .map(event -> Optional.ofNullable(event.getPromotion()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .filter(promotion -> promotion.getNumberOfViews() > 0)
                 .toList();
     }
 
