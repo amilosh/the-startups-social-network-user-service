@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
+import school.faang.user_service.dto.DeactivatedUserDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.service.UserService;
 
@@ -14,7 +15,7 @@ import school.faang.user_service.service.UserService;
 public class UserController {
     private final UserService userService;
 
-    public UserDto deactivateUser(@NotNull @Positive long userId) {
+    public DeactivatedUserDto deactivateUser(@NotNull @Positive long userId) {
         return userService.deactivateUser(userId);
     }
 }

@@ -18,7 +18,8 @@ public class GoalService {
     private final GoalRepository goalRepository;
 
     public Goal getGoalById(long id) {
-        return goalRepository.findById(id).orElseThrow(() -> new DataValidationException("Goal do not found"));
+        return goalRepository.findById(id)
+                .orElseThrow(() -> new DataValidationException("Goal do not found"));
     }
 
     public void removeGoalsWithoutExecutingUsers(List<Goal> goals) {

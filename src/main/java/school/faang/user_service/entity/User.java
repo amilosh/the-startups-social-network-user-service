@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.contact.Contact;
@@ -17,6 +18,7 @@ import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -143,19 +145,22 @@ public class User {
     @OneToOne(mappedBy = "user")
     private Premium premium;
 
+
     public void removeParticipatedEvent(Event event) {
-        if (event != null) {
+        if (event != null && participatedEvents != null) {
             participatedEvents.remove(event);
         }
     }
 
     public void removeAllGoals() {
-        settingGoals.clear();
-        goals.clear();
+
+           settingGoals.clear();
+           goals.clear();
+
     }
 
     public void removeMentor(User mentor) {
-        if (mentor != null) {
+        if (mentor != null && mentors != null) {
             mentors.remove(mentor);
         }
     }

@@ -3,7 +3,7 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.DeactivatedUserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
@@ -12,7 +12,6 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -26,7 +25,7 @@ public class UserService {
     private final MentorshipService mentorshipService;
     private final UserMapper userMapper;
 
-    public UserDto deactivateUser(long userId) {
+    public DeactivatedUserDto deactivateUser(long userId) {
         log.info("start to deactivate User by id {}", userId);
         User user = getUserById(userId);
 
@@ -41,7 +40,8 @@ public class UserService {
         User savedUser = userRepository.save(user);
 
         log.info("User successfully deactivated by id {}", userId);
-        return userMapper.toUserDto(savedUser);
+
+        return userMapper.toDeactivatedUserDto(savedUser);
     }
 
     public User getUserById(long userId) {
@@ -59,7 +59,7 @@ public class UserService {
         goalService.removeGoalsWithoutExecutingUsers(settingGoals);
 
         user.removeAllGoals();
-        log.info("all scheduled goals is stopped");
+        log.info("all scheduled goals is stopped: \t ownedGoals {} \t settingGoals{}", user.getGoals(), user.getSettingGoals());
     }
 
     private void stopScheduledEvents(List<Event> ownedEvents) {
@@ -71,9 +71,9 @@ public class UserService {
                 userRepository.save(attendee);
             });
 
-            eventRepository.deleteById(event.getId());
 
-            log.info("all scheduled events is stopped and delete");
+            eventRepository.deleteById(event.getId());
         }
+        log.info("all scheduled events is stopped or delete");
     }
 }

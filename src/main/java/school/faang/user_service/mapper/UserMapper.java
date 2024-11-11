@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
+import school.faang.user_service.dto.DeactivatedUserDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -13,17 +14,22 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
+
+    UserDto toUserDto(User user);
+
+    User toUser(UserDto userDto);
+
     @Mapping(source = "settingGoals", target = "idsSettingGoals", qualifiedByName = "mapGoalsToListId")
     @Mapping(source = "goals", target = "idsGoals", qualifiedByName = "mapGoalsToListId")
     @Mapping(source = "skills", target = "idsSkills", qualifiedByName = "mapSkillsToListId")
     @Mapping(source = "mentors", target = "idsMentors", qualifiedByName = "mapMentorsToListId")
-    UserDto toUserDto(User user);
+    DeactivatedUserDto toDeactivatedUserDto(User user);
 
     @Mapping(target = "settingGoals", ignore = true)
     @Mapping(target = "goals", ignore = true)
     @Mapping(target = "skills", ignore = true)
     @Mapping(target = "mentors", ignore = true)
-    User toEntity(UserDto userDto);
+    User toEntity(DeactivatedUserDto deactivatedUserDto);
 
     @Named("mapGoalsToListId")
     default List<Long> mapGoalsToListId(List<Goal> goals) {
