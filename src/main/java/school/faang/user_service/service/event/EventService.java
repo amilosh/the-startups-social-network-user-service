@@ -13,7 +13,7 @@ import school.faang.user_service.exception.EntityNotFoundExceptionWithID;
 import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
-import school.faang.user_service.service.event.filter.EventFilter;
+import school.faang.user_service.filters.event.EventFilter;
 
 import java.util.List;
 import java.util.stream.Stream;
