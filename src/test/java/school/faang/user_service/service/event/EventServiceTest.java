@@ -23,7 +23,7 @@ import school.faang.user_service.service.event.event_filters.EventMaxAttendeesFi
 import school.faang.user_service.service.event.event_filters.EventOwnerNameFilter;
 import school.faang.user_service.service.event.event_filters.EventSkillsFilter;
 import school.faang.user_service.service.event.event_filters.EventTitleFilter;
-import school.faang.user_service.validation.event.EventServiceValidator;
+import school.faang.user_service.validator.event.EventServiceValidator;
 
 import java.util.ArrayList;
 import java.util.List;
