@@ -8,9 +8,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.SkillOfferValidator;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.service.validation.SkillOfferValidation;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +31,7 @@ class SkillOfferServiceTest {
     @Mock
     private RecommendationService recommendationService;
     @Mock
-    private SkillOfferValidation skillOfferValidation;
+    private SkillOfferValidator skillOfferValidator;
     @InjectMocks
     private SkillOfferService skillOfferService;
 
@@ -48,7 +48,7 @@ class SkillOfferServiceTest {
         skillOfferService.saveSkillOffers(skillOffers, RECOMMENDATION_ID);
 
         skillOffers.forEach(offer -> {
-            verify(skillOfferValidation).validate(offer);
+            verify(skillOfferValidator).validate(offer);
         });
     }
 
