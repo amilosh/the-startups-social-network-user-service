@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 class CiPipelineTest {
 
     @Test
-    void pipeline_failTest(){
+    void pipelineFailTest(){
 
     }
 }
