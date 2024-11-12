@@ -21,8 +21,9 @@ public class UserService {
 
     public List<User> getAllUsersByIds(List<Long> ids) {
         return userRepo.findAllById(ids);
+    }
 
     public User saveUser(User user) {
-        return userRepository.save(user);
+        return userRepo.save(user);
     }
 }

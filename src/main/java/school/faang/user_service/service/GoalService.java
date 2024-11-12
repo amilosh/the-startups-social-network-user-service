@@ -1,9 +1,33 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.dto.goal.CreateGoalDto;
+import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.dto.goal.GoalResponseDto;
+import school.faang.user_service.dto.goal.UpdateGoalDto;
+import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalStatus;
+import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exceptions.ResourceNotFoundException;
+import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
+import school.faang.user_service.specification.GoalSpecification;
+import school.faang.user_service.util.CollectionUtils;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
+import java.util.stream.Stream;
+
+import static school.faang.user_service.logging.goal.GoalMessages.*;
 
 
 @Service
@@ -189,8 +213,10 @@ public class GoalService {
     public Page<GoalResponseDto> findGoalsByFilters(GoalFilterDto filters, Pageable pageable) {
         Page<Goal> goal = goalRepo.findAll(GoalSpecification.build(filters), pageable);
         return goal.map(goalMapper::toResponseDto);
+    }
+
     public Goal findGoalById(Long id) {
-        return goalRepository.findById(id)
+        return goalRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Goal with id: %s not found".formatted(id)));
     }
 
@@ -201,8 +227,10 @@ public class GoalService {
             log.warn(NUMBER_OF_ACTIVE_GOALS_REACHED_FOR_A_USER_IN_GOAL_WITH_ID, goal.getId());
             throw new DataValidationException(MAXIMUM_NUMBER_OF_GOALS_ERROR);
         }
+    }
+
     public Stream<Goal> findGoalsByUserId(long userId) {
-        return goalRepository.findGoalsByUserId(userId);
+        return goalRepo.findGoalsByUserId(userId);
     }
 
     private void validateGoalNotCompleted(Goal goal) {
@@ -210,7 +238,9 @@ public class GoalService {
             log.warn(GOAL_IS_ALREADY_COMPLETED_FOR_GOAL_WITH_ID, goal.getId());
             throw new DataValidationException(GOAL_COMPLETED_ERROR);
         }
+    }
+
     public int countActiveGoalsPerUser(long userId) {
-        return goalRepository.countActiveGoalsPerUser(userId);
+        return goalRepo.countActiveGoalsPerUser(userId);
     }
 }

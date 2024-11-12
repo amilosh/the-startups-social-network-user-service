@@ -1,4 +1,4 @@
-package school.faang.user_service.filters.goalInvitationFilters;
+package school.faang.user_service.filter.goalInvitationFilters;
 
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.InvitationFilterDto;

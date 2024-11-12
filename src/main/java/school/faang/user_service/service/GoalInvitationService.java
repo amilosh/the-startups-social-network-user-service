@@ -12,12 +12,11 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.exceptions.DataValidationException;
-import school.faang.user_service.filters.goalInvitationFilters.GoalInvitationFilter;
+import school.faang.user_service.filter.goalInvitationFilters.GoalInvitationFilter;
 import school.faang.user_service.mapper.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.validator.GoalInvitationValidator;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -108,8 +107,8 @@ public class GoalInvitationService {
     private GoalInvitation initializeGoalInvitation(GoalInvitationDto goalInvitationDto) {
         GoalInvitation goalInvitation = goalInvitationMapper.toEntity(goalInvitationDto);
 
-        goalInvitation.setInviter(userService.findUserById(goalInvitationDto.inviterId()));
-        goalInvitation.setInvited(userService.findUserById(goalInvitationDto.invitedUserId()));
+        goalInvitation.setInviter(userService.getUserById(goalInvitationDto.inviterId()));
+        goalInvitation.setInvited(userService.getUserById(goalInvitationDto.invitedUserId()));
         goalInvitation.setGoal(goalService.findGoalById(goalInvitationDto.goalId()));
         return goalInvitation;
     }

@@ -5,13 +5,16 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.service.GoalInvitationService;
 
 import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping("")
 @RequiredArgsConstructor
 @Validated
 public class GoalInvitationController {
