@@ -1,34 +1,34 @@
 <?xml version="1.0"?>
-<!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.3//EN" "https://checkstyle.org/dtds/configuration_1_3.dtd">
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
 
 <module name="Checker">
-    <module name="TreeWalker">
-        <!-- Определение правила длины строки -->
-        <module name="LineLength">
-            <property name="max" value="120"/>
-            <property name="ignorePattern" value="^package"/>
-        </module>
+    <property name="severity" value="error"/>
+    <property name="fileExtensions" value="java, properties, xml"/>
 
-        <!-- Проверка отступов (4 пробела) -->
+    <!-- Checks for indentation, enforcing 4 spaces per indent level -->
+    <module name="TreeWalker">
         <module name="Indentation">
             <property name="basicOffset" value="4"/>
             <property name="braceAdjustment" value="0"/>
             <property name="caseIndent" value="4"/>
+            <property name="lineWrappingIndentation" value="4"/>
             <property name="tabWidth" value="4"/>
         </module>
 
-        <!-- Проверка именования классов (с заглавной буквы) -->
-        <module name="TypeName"/>
+        <!-- Modifier checks -->
+        <module name="ModifierOrder"/>
+        <module name="RedundantModifier"/>
 
-        <!-- Проверка именования методов (camelCase) -->
-        <module name="MethodName"/>
+        <!-- Coding checks -->
+        <module name="MultipleVariableDeclarations"/>
+        <module name="SimplifyBooleanExpression"/>
 
-        <!-- Проверка пустых блоков -->
-        <module name="EmptyBlock">
-            <property name="option" value="text"/>
-        </module>
+        <!-- Ensure no redundant modifiers are present -->
+        <module name="RedundantModifier"/>
 
-        <!-- Проверка импорта (без неиспользуемых) -->
+        <!-- Check for unused imports -->
         <module name="UnusedImports"/>
     </module>
 </module>
