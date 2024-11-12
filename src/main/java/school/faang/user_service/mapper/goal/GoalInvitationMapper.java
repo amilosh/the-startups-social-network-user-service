@@ -6,6 +6,8 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.entity.goal.GoalInvitation;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface GoalInvitationMapper {
 
@@ -22,4 +24,6 @@ public interface GoalInvitationMapper {
     @Mapping(target = "goal.id", source = "invitationDto.goalId")
     @Mapping(target = "status", source = "invitationDto.status")
     GoalInvitation toEntity(GoalInvitationDto invitationDto);
+
+    List<GoalInvitationDto> toDto(List<GoalInvitation> invitations);
 }
