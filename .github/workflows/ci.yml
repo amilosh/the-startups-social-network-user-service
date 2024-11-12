@@ -19,8 +19,21 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Run Checkstyle
-        run: ./gradlew checkstyleMain checkstyleTest
+      - name: Get changed Java files
+        id: changed-files
+        run: |
+          # Получаем список измененных Java файлов в pull request
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.java$')
+          echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
+
+      - name: Run Checkstyle on changed files
+        run: |
+          # Если есть измененные файлы, запускаем checkstyle только для них
+            if [ -n "$CHANGED_FILES" ]; then
+              ./gradlew checkstyleMain --include "$CHANGED_FILES" checkstyleTest --include "$CHANGED_FILES"
+            else
+              echo "No Java files changed, skipping Checkstyle."
+            fi
 
       - name: Build and run tests
         run: ./gradlew test

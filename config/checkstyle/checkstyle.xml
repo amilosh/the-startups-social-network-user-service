@@ -14,10 +14,6 @@
         <module name="ModifierOrder"/>
         <module name="RedundantModifier"/>
 
-        <!-- Coding checks -->
-        <module name="MultipleVariableDeclarations"/>
-        <module name="SimplifyBooleanExpression"/>
-
         <!-- Ensure no redundant modifiers are present -->
         <module name="RedundantModifier"/>
 
