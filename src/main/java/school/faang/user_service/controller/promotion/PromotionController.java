@@ -41,7 +41,7 @@ public class PromotionController {
         return promotionService.buyEventPromotion(userId, eventId, tariff);
     }
 
-    @GetMapping("/per-page")
+    @GetMapping("/users/per-page")
     public List<UserResponseDto> getPromotedUsersBeforeAllPerPage(@RequestParam(name = "offset") int offset,
                                                                   @RequestParam(name = "limit") int limit) {
         return promotionService.getPromotedUsersBeforeAllPerPage(offset, limit);
