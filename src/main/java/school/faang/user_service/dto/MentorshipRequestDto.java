@@ -1,5 +1,6 @@
 package school.faang.user_service.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import school.faang.user_service.entity.RequestStatus;
 
@@ -9,11 +10,11 @@ import school.faang.user_service.entity.RequestStatus;
 @Builder
 public class MentorshipRequestDto {
     private Long id;
-    @NonNull
+    @NotNull
     private Long requesterId;
-    @NonNull
+    @NotNull
     private Long receiverId;
-    @NonNull
+    @NotNull
     private String description;
     private RequestStatus status;
     private String rejectionReason;
