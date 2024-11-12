@@ -10,9 +10,10 @@ import school.faang.user_service.repository.mentorship.MentorshipRepository;
 @Service
 @RequiredArgsConstructor
 public class MentorshipService {
-    private final MentorshipRepository mentorshipRepository;
-
     public void stopMentorship(User mentor) {
+        if (mentor == null) {
+            return;
+        }
         mentor.getMentees().forEach(mentee -> {
             mentee.getSettingGoals().forEach(goal -> goal.setMentor(mentee));
             mentee.removeMentor(mentor);

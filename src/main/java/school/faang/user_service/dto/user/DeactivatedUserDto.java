@@ -1,4 +1,4 @@
-package school.faang.user_service.dto;
+package school.faang.user_service.dto.user;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -18,6 +18,7 @@ public record DeactivatedUserDto(
         @NotBlank String phone,
         @NotBlank Country country,
         @NotBlank String city,
+        List<Long> idsOwnedEvents,
         List<Long> idsMentors,
         List<Long> idsSettingGoals,
         List<Long> idsGoals,
@@ -25,5 +26,4 @@ public record DeactivatedUserDto(
         @NotNull @PastOrPresent LocalDateTime createdAt,
         @NotNull @PastOrPresent LocalDateTime updatedAt,
         boolean active) {
-
 }

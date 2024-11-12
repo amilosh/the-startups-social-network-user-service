@@ -23,9 +23,6 @@ class MentorshipServiceTest {
     private MentorshipService mentorshipService;
 
     @Mock
-    private MentorshipRepository mentorshipRepository;
-
-    @Mock
     private User mentor;
 
     @Mock
@@ -35,7 +32,7 @@ class MentorshipServiceTest {
     private Goal goal1, goal2;
 
     @Test
-    void testStopMentorshipUpdatesGoalsAndRemovesMentor() {
+    void testStopMentorshipWithUpdatesGoalsAndRemovesMentor() {
         when(mentor.getMentees()).thenReturn(List.of(mentee1, mentee2));
         when(mentee1.getSettingGoals()).thenReturn(List.of(goal1));
         when(mentee2.getSettingGoals()).thenReturn(List.of(goal2));
@@ -49,7 +46,7 @@ class MentorshipServiceTest {
     }
 
     @Test
-    void testStopMentorshipNoMenteesDoesNothing() {
+    void testStopMentorshipWithNoMenteesDoesNothing() {
         when(mentor.getMentees()).thenReturn(List.of());
 
         mentorshipService.stopMentorship(mentor);

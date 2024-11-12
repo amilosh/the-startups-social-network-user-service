@@ -1,4 +1,4 @@
-package school.faang.user_service.dto;
+package school.faang.user_service.dto.user;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -7,7 +7,6 @@ import lombok.Builder;
 import school.faang.user_service.entity.Country;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Builder
 public record UserDto(

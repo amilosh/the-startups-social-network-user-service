@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.contact.Contact;
@@ -18,7 +17,6 @@ import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.recommendation.Recommendation;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -153,10 +151,12 @@ public class User {
     }
 
     public void removeAllGoals() {
+        settingGoals.clear();
+        goals.clear();
+    }
 
-           settingGoals.clear();
-           goals.clear();
-
+    public void removeAllOwnedEvents() {
+        ownedEvents.clear();
     }
 
     public void removeMentor(User mentor) {
@@ -164,4 +164,5 @@ public class User {
             mentors.remove(mentor);
         }
     }
+
 }

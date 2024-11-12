@@ -4,8 +4,6 @@ package school.faang.user_service.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.DecoratedWith;
-import org.mapstruct.control.MappingControl;
 import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -13,14 +11,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.DeactivatedUserDto;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.DeactivatedUserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
@@ -31,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
@@ -54,10 +49,7 @@ class UserServiceTest {
     private MentorshipService mentorshipService;
 
     @Spy
-    private UserMapperImpl userMapper;
-
-//    @Spy
-//    private UserMapper userMapper;
+    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     @Mock
     private User userToDeactivateMock;
@@ -129,13 +121,13 @@ class UserServiceTest {
 
         userToDeactivate = new User();
         userToDeactivate.setId(1L);
+        userToDeactivate.setUsername("Naku");
         userToDeactivate.setActive(true);
         userToDeactivate.setOwnedEvents(userEvents);
-       for (Event event : userToDeactivate.getOwnedEvents()){
-           event.setOwner(userToDeactivate);
-       }
+        for (Event event : userToDeactivate.getOwnedEvents()) {
+            event.setOwner(userToDeactivate);
+        }
         userToDeactivate.setGoals(ownerGoals);
-
 
 
         for (Goal goal : settingGoals) {
@@ -184,13 +176,6 @@ class UserServiceTest {
                 .participatedEvents(participatedAttendeeEvents)
                 .build();
 
-        User savedUser = User.builder()
-                .id(1L)
-                .build();
-        DeactivatedUserDto userToDeactivateDto = DeactivatedUserDto.builder()
-                .id(1L)
-                .build();
-
         when(userRepository.findById(1L)).thenReturn(Optional.of(userToDeactivateMock));
         when(userToDeactivateMock.getOwnedEvents()).thenReturn(List.of(eventOwnedMock1, eventOwnedMock2));
         when(eventOwnedMock1.getAttendees()).thenReturn(List.of(attendee1));
@@ -199,10 +184,8 @@ class UserServiceTest {
         when(eventOwnedMock2.getId()).thenReturn(2L);
         when(userToDeactivateMock.getGoals()).thenReturn(List.of(goalOwnerMock1, goalOwnerMock2));
         when(userToDeactivateMock.getSettingGoals()).thenReturn(List.of(goalSettingMock1, goalSettingMock2));
-//        when(userRepository.save(any(User.class))).thenReturn(savedUser);
-//        when(userMapper.toDeactivatedUserDto(savedUser)).thenReturn(userToDeactivateDto);
 
-        DeactivatedUserDto result = userService.deactivateUser(1L);
+        userService.deactivateUser(1L);
 
         verify(goalService).removeGoalsWithoutExecutingUsers(List.of(goalOwnerMock1, goalOwnerMock2));
         verify(goalService).removeGoalsWithoutExecutingUsers(List.of(goalSettingMock1, goalSettingMock2));
@@ -210,37 +193,8 @@ class UserServiceTest {
         verify(eventRepository, times(1)).deleteById(eventOwnedMock1.getId());
         verify(eventRepository, times(1)).deleteById(eventOwnedMock2.getId());
         verify(userRepository, times(2)).save(attendee1);
-//        verify(userRepository, times(1)).save(userToDeactivateMock);
-//        verify(userMapper, times(1)).toDeactivatedUserDto(savedUser);
-
 
         assertFalse(userToDeactivateMock.isActive(), "User should be deactivated");
-//        assertNotNull(result);
-    }
-
-
-    @Test
-    void testDeactivateUserWithExistingUserWhenAllDelCompleteWithConsistentData() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(userToDeactivate));
-        doNothing().when(goalService).removeGoalsWithoutExecutingUsers(ownerGoals);
-        doNothing().when(goalService).removeGoalsWithoutExecutingUsers(settingGoals);
-//        when(userRepository.save(userToDeactivate)).thenReturn(userToDeactivate);
-
-
-       DeactivatedUserDto result =  userService.deactivateUser(userToDeactivate.getId());
-
-        assertFalse(userToDeactivate.isActive(), "User should be deactivated");
-        assertFalse(attendee1.getParticipatedEvents().contains(eventOwned1));
-        assertFalse(attendee1.getParticipatedEvents().contains(eventOwned1));
-        assertTrue(userToDeactivate.getGoals().isEmpty());
-        assertTrue(userToDeactivate.getSettingGoals().isEmpty());
-        verify(mentorshipService).stopMentorship(userToDeactivate);
-        verify(goalService, times(2)).removeGoalsWithoutExecutingUsers(anyList());
-        verify(eventRepository, times(1)).deleteById(eventOwned1.getId());
-        verify(eventRepository, times(1)).deleteById(eventOwned2.getId());
-
-
-//        assertNotNull(result);
     }
 
     @Test
@@ -250,44 +204,55 @@ class UserServiceTest {
         doNothing().when(goalService).removeGoalsWithoutExecutingUsers(ownerGoals);
         doNothing().when(goalService).removeGoalsWithoutExecutingUsers(settingGoals);
 
-        DeactivatedUserDto result = userService.deactivateUser(userToDeactivate.getId());
+        userService.deactivateUser(userToDeactivate.getId());
 
         verify(userRepository, times(2)).save(captorUser.capture());
         User deactevatedUser = captorUser.getValue();
         assertFalse(userToDeactivate.isActive());
         assertFalse(deactevatedUser.isActive());
         assertEquals(userToDeactivate, deactevatedUser);
-
-
     }
 
-//    @Test
-//    void testDeactivateUserWhenUserToDeactivateDto() {
-//        when(userRepository.findById(userToDeactivate.getId()))
-//                .thenReturn(Optional.ofNullable(userToDeactivate));
-//        when(userRepository.save(userToDeactivate)).thenReturn(userToDeactivate);
-//
-//        DeactivatedUserDto result = userService.deactivateUser(userToDeactivate.getId());
-//
-//        verify(userRepository, times(1)).save(userToDeactivate);
-//
-//        assertFalse(userToDeactivate.isActive());;
-//
-//        assertNotNull(result);
-//    }
-
-
     @Test
-    void test(){
-        when(userRepository.findById(userToDeactivate.getId()))
-                .thenReturn(Optional.ofNullable(userToDeactivate));
-        when(userRepository.save(userToDeactivate)).thenReturn(userToDeactivate);
+    void testDeactivateUserWithExistingUserWhenAllDelCompleteWithConsistentData() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(userToDeactivate));
         doNothing().when(goalService).removeGoalsWithoutExecutingUsers(ownerGoals);
         doNothing().when(goalService).removeGoalsWithoutExecutingUsers(settingGoals);
+        when(userRepository.save(userToDeactivate)).thenReturn(userToDeactivate);
+        when(userRepository.save(attendee1)).thenReturn(attendee1);
 
         DeactivatedUserDto result = userService.deactivateUser(userToDeactivate.getId());
 
-//        assertNotNull(result);
+        verify(mentorshipService).stopMentorship(userToDeactivate);
+        verify(goalService, times(2)).removeGoalsWithoutExecutingUsers(anyList());
+        verify(eventRepository, times(1)).deleteById(eventOwned1.getId());
+        verify(eventRepository, times(1)).deleteById(eventOwned2.getId());
+        assertFalse(userToDeactivate.isActive(), "User should be deactivated");
+        assertFalse(attendee1.getParticipatedEvents().contains(eventOwned1));
+        assertFalse(attendee1.getParticipatedEvents().contains(eventOwned1));
+        assertTrue(userToDeactivate.getGoals().isEmpty());
+        assertTrue(userToDeactivate.getSettingGoals().isEmpty());
+        assertTrue(userToDeactivate.getOwnedEvents().isEmpty());
+        assertNotNull(result);
+    }
+
+    @Test
+    void testDeactivateUserWhenUserToDeactivateDto() {
+        when(userRepository.findById(userToDeactivate.getId()))
+                .thenReturn(Optional.ofNullable(userToDeactivate));
+        when(userRepository.save(userToDeactivate)).thenReturn(userToDeactivate);
+        when(userRepository.save(attendee1)).thenReturn(attendee1);
+
+        DeactivatedUserDto result = userService.deactivateUser(userToDeactivate.getId());
+
+        verify(userRepository, times(1)).save(userToDeactivate);
+
+        assertFalse(userToDeactivate.isActive());
+        assertFalse(result.active());
+        assertNotNull(result);
+        assertEquals(userToDeactivate.getId(), result.id());
+        assertEquals(userToDeactivate.getUsername(), result.username());
+
     }
 
     @Test
@@ -306,7 +271,6 @@ class UserServiceTest {
         assertTrue(userToDeactivate.getSettingGoals().isEmpty());
     }
 
-
     @Test
     void testDeactivateUserWithStopScheduledEvents() {
         List<Event> ownedEvents = userToDeactivate.getOwnedEvents();
@@ -318,6 +282,8 @@ class UserServiceTest {
             verify(userRepository).save(event.getAttendees().get(0));
             verify(eventRepository).deleteById(event.getId());
         }
+
+        assertTrue(userToDeactivate.getOwnedEvents().isEmpty());
     }
 
     @Test
@@ -330,12 +296,10 @@ class UserServiceTest {
         verify(mentorshipService).stopMentorship(userToDeactivate);
     }
 
-
     @Test
     void testDeactivateWithNonExistingUserWhenUserNotFound() {
         when(userRepository.findById(anyLong())).thenThrow(DataValidationException.class);
 
         assertThrows(DataValidationException.class, () -> userService.deactivateUser(anyLong()));
     }
-
 }

@@ -2,8 +2,9 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.control.MappingControl;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.DeactivatedUserDto;
+import school.faang.user_service.dto.user.DeactivatedUserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
@@ -29,10 +30,8 @@ public class UserService {
         log.info("start to deactivate User by id {}", userId);
         User user = getUserById(userId);
 
-        List<Event> ownedEvents = user.getOwnedEvents();
-
         stopScheduledGoals(user);
-        stopScheduledEvents(ownedEvents);
+        stopScheduledEvents(user);
         mentorshipService.stopMentorship(user);
 
         user.setActive(false);
@@ -62,7 +61,8 @@ public class UserService {
         log.info("all scheduled goals is stopped: \t ownedGoals {} \t settingGoals{}", user.getGoals(), user.getSettingGoals());
     }
 
-    private void stopScheduledEvents(List<Event> ownedEvents) {
+    private void stopScheduledEvents(User user) {
+        List<Event> ownedEvents = user.getOwnedEvents();
         for (Event event : ownedEvents) {
             List<User> attendees = event.getAttendees();
 
@@ -71,9 +71,10 @@ public class UserService {
                 userRepository.save(attendee);
             });
 
-
             eventRepository.deleteById(event.getId());
         }
-        log.info("all scheduled events is stopped or delete");
+
+        user.removeAllOwnedEvents();
+        log.info("all scheduled events is stopped and delete");
     }
 }

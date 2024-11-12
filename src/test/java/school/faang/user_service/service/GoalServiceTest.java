@@ -7,12 +7,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.goal.GoalRepository;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,10 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -33,7 +28,7 @@ import static org.mockito.Mockito.when;
 class GoalServiceTest {
 
     @InjectMocks
-    private GoalService goalService; // Assuming your service class is called GoalService
+    private GoalService goalService;
 
     @Mock
     private GoalRepository goalRepository;
@@ -46,11 +41,11 @@ class GoalServiceTest {
 
         goalWithUsers = new Goal();
         goalWithUsers.setId(1L);
-        goalWithUsers.setUsers(List.of(new User())); // Non-empty list
+        goalWithUsers.setUsers(List.of(new User()));
 
         goalWithoutUsers = new Goal();
         goalWithoutUsers.setId(2L);
-        goalWithoutUsers.setUsers(List.of()); // Empty list
+        goalWithoutUsers.setUsers(List.of());
     }
 
     @Test
