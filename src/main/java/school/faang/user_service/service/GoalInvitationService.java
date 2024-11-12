@@ -54,7 +54,6 @@ public class GoalInvitationService {
         userService.saveUser(invitedUser);
 
         goalInvitation.setStatus(RequestStatus.ACCEPTED);
-        goalInvitation.setUpdatedAt(LocalDateTime.now());
         log.info("User {} accepted invitation with id: {}", goalInvitation.getInvited().getUsername(), goalInvitationId);
         goalInvitation = goalInvitationRepository.save(goalInvitation);
         return goalInvitationMapper.toDto(goalInvitation);
@@ -65,7 +64,6 @@ public class GoalInvitationService {
         GoalInvitation goalInvitation = findById(goalInvitationId);
 
         goalInvitation.setStatus(RequestStatus.REJECTED);
-        goalInvitation.setUpdatedAt(LocalDateTime.now());
         goalInvitation = goalInvitationRepository.save(goalInvitation);
         log.info("Rejected invitation with id: {}", goalInvitationId);
         return goalInvitationMapper.toDto(goalInvitation);
@@ -113,7 +111,6 @@ public class GoalInvitationService {
         goalInvitation.setInviter(userService.findUserById(goalInvitationDto.inviterId()));
         goalInvitation.setInvited(userService.findUserById(goalInvitationDto.invitedUserId()));
         goalInvitation.setGoal(goalService.findGoalById(goalInvitationDto.goalId()));
-        goalInvitation.setCreatedAt(LocalDateTime.now());
         return goalInvitation;
     }
 }
