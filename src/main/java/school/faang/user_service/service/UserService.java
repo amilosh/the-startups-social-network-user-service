@@ -1,20 +1,26 @@
 package school.faang.user_service.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 
-@RequiredArgsConstructor
-@Service
-public class UserService {
-    private final UserRepository userRepository;
+import java.util.List;
 
-    public User findUserById(long id) {
-        return userRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("User with id: %s not found".formatted(id)));
+@Service
+@RequiredArgsConstructor
+public class UserService {
+
+    private final UserRepository userRepo;
+
+    public User getUserById(Long id) {
+        return userRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
     }
+
+    public List<User> getAllUsersByIds(List<Long> ids) {
+        return userRepo.findAllById(ids);
 
     public User saveUser(User user) {
         return userRepository.save(user);
