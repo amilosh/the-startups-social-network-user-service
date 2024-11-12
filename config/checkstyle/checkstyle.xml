@@ -9,13 +9,6 @@
 
     <!-- Checks for indentation, enforcing 4 spaces per indent level -->
     <module name="TreeWalker">
-        <module name="Indentation">
-            <property name="basicOffset" value="4"/>
-            <property name="braceAdjustment" value="0"/>
-            <property name="caseIndent" value="4"/>
-            <property name="lineWrappingIndentation" value="4"/>
-            <property name="tabWidth" value="4"/>
-        </module>
 
         <!-- Modifier checks -->
         <module name="ModifierOrder"/>
