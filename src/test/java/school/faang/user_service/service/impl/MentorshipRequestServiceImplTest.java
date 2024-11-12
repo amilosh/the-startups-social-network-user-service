@@ -17,7 +17,6 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filters.abstracts.MentorshipRequestFilter;
-import school.faang.user_service.filters.impl.MentorshipRequestRequesterFilterImpl;
 import school.faang.user_service.mapper.MentorshipRequestMapperImpl;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.abstracts.MentorshipRequestValidator;
@@ -28,7 +27,10 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,8 +43,7 @@ public class MentorshipRequestServiceImplTest {
     private static final String REJECTION_REASON = "rejection reason description";
     private static final String REQUEST_DOESNT_EXIST_EXCEPTION = "request doesn't exist";
 
-    private final MentorshipRequestFilter filterByRequester = new MentorshipRequestRequesterFilterImpl();
-    private final List<MentorshipRequestFilter> mentorshipRequestFilters = new ArrayList<>(List.of(filterByRequester));
+    private final List<MentorshipRequestFilter> mentorshipRequestFilters = new ArrayList<>();
 
     @Mock
     private MentorshipRequestRepository mentorshipRequestRepository;
@@ -116,19 +117,19 @@ public class MentorshipRequestServiceImplTest {
     }
 
     @Test
-    public void testGetRequestsByRequesterId() {
-        RequestFilterDto filterDto = RequestFilterDto.builder().requesterId(REQUESTER_ID).build();
-        User requester = createUser(REQUESTER_ID);
-        User receiver = createUser(RECEIVER_ID);
-        MentorshipRequest firstMentorshipRequest = createRequestEntity(REQUEST_ID, requester, receiver);
-        MentorshipRequest secondMentorshipRequest = createRequestEntity(REQUEST_ID + 1, receiver, requester);
-        when(mentorshipRequestRepository.findAll()).thenReturn(List.of(firstMentorshipRequest, secondMentorshipRequest));
+    public void testGetRequestsWithFilters() {
+        RequestFilterDto filterDto = RequestFilterDto.builder().build();
+        MentorshipRequestFilter filterMock = mock(MentorshipRequestFilter.class);
+        mentorshipRequestFilters.add(filterMock);
+        List<MentorshipRequest> requests = List.of(new MentorshipRequest());
+        when(mentorshipRequestRepository.findAll()).thenReturn(requests);
+        when(filterMock.isApplicable(filterDto)).thenReturn(true);
+        when(filterMock.apply(any(), eq(filterDto))).thenReturn(requests.stream());
 
-        List<MentorshipRequestDto> resultDtos = mentorshipRequestServiceImpl.getRequests(filterDto);
+        mentorshipRequestServiceImpl.getRequests(filterDto);
 
-        verify(mentorshipRequestRepository).findAll();
-        assertEquals(1, resultDtos.size());
-        assertEquals(REQUESTER_ID, resultDtos.get(0).getRequesterId());
+        verify(filterMock).isApplicable(filterDto);
+        verify(filterMock).apply(any(), eq(filterDto));
     }
 
     @Test

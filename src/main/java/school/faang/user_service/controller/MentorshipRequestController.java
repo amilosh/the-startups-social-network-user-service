@@ -1,6 +1,7 @@
 package school.faang.user_service.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestDto;
@@ -23,11 +24,11 @@ public class MentorshipRequestController {
         return mentorshipRequestService.getRequests(requestFilterDto);
     }
 
-    public MentorshipRequestDto acceptRequest(Long requestId) {
+    public MentorshipRequestDto acceptRequest(@NotNull Long requestId) {
         return mentorshipRequestService.acceptRequest(requestId);
     }
 
-    public MentorshipRequestDto rejectRequest(Long requestId, @Valid RejectionDto rejectionDto) {
+    public MentorshipRequestDto rejectRequest(@NotNull Long requestId, @Valid RejectionDto rejectionDto) {
         return mentorshipRequestService.rejectRequest(requestId, rejectionDto);
     }
 }
