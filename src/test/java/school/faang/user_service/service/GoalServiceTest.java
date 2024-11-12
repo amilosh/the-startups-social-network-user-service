@@ -1,4 +1,4 @@
-package school.faang.user_service.service.goal;
+package school.faang.user_service.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,8 +18,8 @@ import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
-import school.faang.user_service.service.SkillService;
-import school.faang.user_service.service.UserService;
+import school.faang.user_service.service.goal.GoalFilter;
+import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.validator.GoalValidator;
 
 import java.util.ArrayList;

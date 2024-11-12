@@ -24,9 +24,9 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("api/mentorship-requests")
 @RequiredArgsConstructor
 @Validated
+@RequestMapping("/mentorship-requests")
 public class MentorshipRequestController {
     private final MentorshipRequestService requestService;
 
