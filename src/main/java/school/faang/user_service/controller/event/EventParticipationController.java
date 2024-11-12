@@ -22,23 +22,14 @@ public class EventParticipationController {
 
     @PostMapping("/registerParticipant")
     public String registerParticipation(@RequestParam Long eventId, @RequestParam Long userId) {
-        try {
-            eventParticipationService.registerParticipant(eventId, userId);
-            return "Пользователь успешно зарегистрирован на событие";
-        } catch (Exception e) {
-            return "Ошибка регистрации: " + e.getMessage();
-        }
+        eventParticipationService.registerParticipant(eventId, userId);
+        return "The user has successfully registered for the event";
     }
 
     @DeleteMapping("/{eventId}/unregister/{userId}")
     public String unregisterParticipant(@PathVariable Long eventId, @PathVariable Long userId) {
-        try {
-            eventParticipationService.unregisterParticipant(eventId, userId);
-            return "Пользователь отписан от события";
-        } catch (Exception e) {
-            return "Ошибка отписки: " + e.getMessage();
-        }
-
+        eventParticipationService.unregisterParticipant(eventId, userId);
+        return "The user has successfully unregistered for the event";
     }
 
     @GetMapping("/{eventId}/participants")

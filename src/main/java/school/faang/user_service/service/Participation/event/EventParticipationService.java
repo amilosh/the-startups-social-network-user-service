@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
-import school.faang.user_service.service.validator.event.EventValidator;
+import school.faang.user_service.validator.event.EventValidator;
 
 import java.util.List;
 

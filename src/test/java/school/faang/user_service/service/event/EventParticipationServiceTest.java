@@ -8,13 +8,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.service.Participation.event.EventParticipationService;
-import school.faang.user_service.service.validator.event.EventValidator;
+import school.faang.user_service.validator.event.EventValidator;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,11 +33,6 @@ public class EventParticipationServiceTest {
         long eventId = 2L;
         long userId = 1L;
 
-        doNothing().when(eventValidator).validateEventExists(eventId);
-        doNothing().when(eventValidator).validateUserNotRegistered(eventId, userId);
-
-        doNothing().when(eventParticipationRepository).register(eventId, userId);
-
         eventParticipationService.registerParticipant(eventId, userId);
 
         verify(eventValidator).validateEventExists(eventId);
@@ -51,11 +45,6 @@ public class EventParticipationServiceTest {
         long eventId = 2L;
         long userId = 1L;
 
-        doNothing().when(eventValidator).validateEventExists(eventId);
-        doNothing().when(eventValidator).validateUserIsRegistered(eventId, userId);
-
-        doNothing().when(eventParticipationRepository).unregister(eventId, userId);
-
         eventParticipationService.unregisterParticipant(eventId, userId);
 
         verify(eventValidator).validateEventExists(eventId);
@@ -67,8 +56,6 @@ public class EventParticipationServiceTest {
     void testGetParticipants() {
         long eventId = 2L;
         List<User> users = Arrays.asList(new User(), new User());
-
-        doNothing().when(eventValidator).validateEventExists(eventId);
 
         when(eventParticipationRepository.findUsersByEventId(eventId)).thenReturn(users);
 
@@ -83,9 +70,6 @@ public class EventParticipationServiceTest {
     void testGetParticipantsCount() {
         long eventId = 2L;
         int count = 5;
-
-        doNothing().when(eventValidator).validateEventExists(eventId);
-        doNothing().when(eventValidator).validateParticipantsCount(eventId);
 
         when(eventParticipationRepository.countParticipants(eventId)).thenReturn(count);
 
