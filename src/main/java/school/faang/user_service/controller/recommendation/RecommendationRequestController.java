@@ -37,7 +37,7 @@ public class RecommendationRequestController {
     }
 
     @PostMapping("/reject")
-    public RecommendationRequestDto rejectRequest(RecommendationRejectionDto rejection) {
+    public RecommendationRequestDto rejectRequest(@RequestBody RecommendationRejectionDto rejection) {
         return recommendationRequestService.rejectRequest(rejection);
     }
 }
