@@ -12,6 +12,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.RecommendationValidator;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -27,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
-class RecommendationValidationTest {
+class RecommendationValidatorTest {
     private static final int MONTHS_BEFORE_NEW_RECOMMENDATION = 6;
     @Mock
     private RecommendationRepository recommendationRepository;
@@ -36,12 +37,12 @@ class RecommendationValidationTest {
     @Mock
     private RecommendationRequestRepository recommendationRequestRepository;
     @InjectMocks
-    private RecommendationValidation recommendationValidation;
+    private RecommendationValidator recommendationValidator;
 
     @Test
     void testCheckIdNullRecommendationId() {
         DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> recommendationValidation.checkId(RecommendationDto.builder().build()));
+                () -> recommendationValidator.checkId(RecommendationDto.builder().build()));
         assertEquals("Null recommendation id", exception.getMessage());
     }
 
@@ -49,7 +50,7 @@ class RecommendationValidationTest {
     void testCheckIdNonExistentId() {
         when(recommendationRepository.findById(anyLong())).thenReturn(Optional.empty());
         DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> recommendationValidation.checkId(RecommendationDto.builder().id(1L).build()));
+                () -> recommendationValidator.checkId(RecommendationDto.builder().id(1L).build()));
         assertEquals("Recommendation not found", exception.getMessage());
     }
 
@@ -57,14 +58,14 @@ class RecommendationValidationTest {
     void testCheckIdCorrect() {
         long id = 1L;
         when(recommendationRepository.findById(id)).thenReturn(Optional.of(Recommendation.builder().build()));
-        recommendationValidation.checkId(RecommendationDto.builder().id(id).build());
+        recommendationValidator.checkId(RecommendationDto.builder().id(id).build());
     }
 
     @Test
     void testCheckTimeIntervalWithNoLastRecommendationFound() {
         when(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(anyLong(), anyLong()))
                 .thenReturn(Optional.empty());
-        recommendationValidation.checkTimeInterval(RecommendationDto.builder().authorId(1L).receiverId(2L).build());
+        recommendationValidator.checkTimeInterval(RecommendationDto.builder().authorId(1L).receiverId(2L).build());
     }
 
     @Test
@@ -75,7 +76,7 @@ class RecommendationValidationTest {
                         Recommendation.builder().createdAt(lastCreated).build()));
 
         DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> recommendationValidation
+                () -> recommendationValidator
                         .checkTimeInterval(RecommendationDto.builder().authorId(1L).receiverId(2L).build()));
         assertEquals("Must pass " + MONTHS_BEFORE_NEW_RECOMMENDATION
                 + " before new recommendation for the same user", exception.getMessage());
@@ -87,7 +88,7 @@ class RecommendationValidationTest {
         when(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(anyLong(), anyLong()))
                 .thenReturn(Optional.of(
                         Recommendation.builder().createdAt(lastCreated).build()));
-        recommendationValidation
+        recommendationValidator
                 .checkTimeInterval(RecommendationDto.builder().authorId(1L).receiverId(2L).build());
     }
 
@@ -99,7 +100,7 @@ class RecommendationValidationTest {
         );
         when(skillRepository.countExisting(skillOffers.stream().mapToLong(SkillOfferDto::getSkillId).boxed().toList()))
                 .thenReturn(skillOffers.size() - 1);
-        assertThrows(DataValidationException.class, () -> recommendationValidation
+        assertThrows(DataValidationException.class, () -> recommendationValidator
                 .checkSkillsExist(RecommendationDto.builder().skillOffers(skillOffers).build()));
     }
 
@@ -111,7 +112,7 @@ class RecommendationValidationTest {
         );
         when(skillRepository.countExisting(skillOffers.stream().mapToLong(SkillOfferDto::getSkillId).boxed().toList()))
                 .thenReturn(skillOffers.size());
-        recommendationValidation.checkSkillsExist(RecommendationDto.builder().skillOffers(skillOffers).build());
+        recommendationValidator.checkSkillsExist(RecommendationDto.builder().skillOffers(skillOffers).build());
     }
 
     @Test
@@ -120,7 +121,7 @@ class RecommendationValidationTest {
                 SkillOfferDto.builder().skillId(1L).build(),
                 SkillOfferDto.builder().skillId(1L).build()
         );
-        DataValidationException exception = assertThrows(DataValidationException.class, () -> recommendationValidation
+        DataValidationException exception = assertThrows(DataValidationException.class, () -> recommendationValidator
                 .checkSkillsUnique(RecommendationDto.builder().skillOffers(skillOffers).build()));
         assertEquals("Skills must be unique", exception.getMessage());
     }
@@ -131,14 +132,14 @@ class RecommendationValidationTest {
                 SkillOfferDto.builder().skillId(1L).build(),
                 SkillOfferDto.builder().skillId(2L).build()
         );
-        recommendationValidation.checkSkillsUnique(RecommendationDto.builder().skillOffers(skillOffers).build());
+        recommendationValidator.checkSkillsUnique(RecommendationDto.builder().skillOffers(skillOffers).build());
     }
 
     @Test
     void testCheckRequestWithNotFound() {
         when(recommendationRequestRepository.findById(anyLong())).thenReturn(Optional.empty());
         DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> recommendationValidation.checkRequest(RecommendationDto.builder().requestId(1L).build()));
+                () -> recommendationValidator.checkRequest(RecommendationDto.builder().requestId(1L).build()));
         assertEquals("Request not found", exception.getMessage());
     }
 
@@ -153,7 +154,7 @@ class RecommendationValidationTest {
         when(recommendationRequestRepository.findById(requestId))
                 .thenReturn(optional);
         DataValidationException exception = assertThrows(DataValidationException.class,
-                () -> recommendationValidation.checkRequest(RecommendationDto.builder().requestId(requestId).build()));
+                () -> recommendationValidator.checkRequest(RecommendationDto.builder().requestId(requestId).build()));
         assertEquals("Request already processed", exception.getMessage());
     }
 
@@ -167,6 +168,6 @@ class RecommendationValidationTest {
         );
         when(recommendationRequestRepository.findById(requestId))
                 .thenReturn(optional);
-        recommendationValidation.checkRequest(RecommendationDto.builder().requestId(requestId).build());
+        recommendationValidator.checkRequest(RecommendationDto.builder().requestId(requestId).build());
     }
 }

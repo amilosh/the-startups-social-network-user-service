@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +20,7 @@ import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.service.UserService;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.service.validation.RecommendationValidation;
+import school.faang.user_service.exception.RecommendationValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +42,7 @@ class RecommendationServiceTest {
     @Mock
     private SkillOfferService skillOfferService;
     @Mock
-    private RecommendationValidation recommendationValidation;
+    private RecommendationValidator recommendationValidator;
     @Mock
     private RecommendationMapper recommendationMapper;
     @Mock

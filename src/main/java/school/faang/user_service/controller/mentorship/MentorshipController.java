@@ -28,7 +28,7 @@ public class MentorshipController {
         return mentorshipService.getMentees(userId, filters);
     }
 
-    @GetMapping("/mentees/{userId}")
+    @GetMapping("/mentors/{userId}")
     public List<UserDto> getMentors(@RequestBody @NotNull @PathVariable Long userId, @RequestBody(required = false) UserFilterDto filters) {
         return mentorshipService.getMentors(userId, filters);
     }
@@ -39,7 +39,7 @@ public class MentorshipController {
         return isDeleted ? ResponseEntity.ok(true) : ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
     }
 
-    @DeleteMapping("/mentee/{menteeId}/{mentorId}")
+    @DeleteMapping("/mentor/{menteeId}/{mentorId}")
     public ResponseEntity<Boolean> deleteMentor(@PathVariable Long menteeId, @PathVariable Long mentorId) {
         boolean isDeleted = mentorshipService.deleteMentor(menteeId, mentorId);
         return isDeleted ? ResponseEntity.ok(true) : ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);

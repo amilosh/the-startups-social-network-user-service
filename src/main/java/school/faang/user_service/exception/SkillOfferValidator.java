@@ -1,15 +1,16 @@
-package school.faang.user_service.service.validation;
+package school.faang.user_service.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
-import school.faang.user_service.exception.DataValidationException;
 
 import java.util.Set;
 
-public class SkillOfferValidation {
+@Component
+public class SkillOfferValidator {
     public void validate(SkillOfferDto skillOffer) {
         try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
             Validator validator = validatorFactory.getValidator();
