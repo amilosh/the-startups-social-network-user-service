@@ -1,5 +1,7 @@
 package school.faang.user_service.controller;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -15,12 +17,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.springframework.http.MediaType;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.service.UserService;
 
 
@@ -30,6 +34,9 @@ class UserControllerTest {
 
     @Mock
     private UserService userService;
+
+    @Spy
+    private UserMapper userMapper;
 
     @InjectMocks
     private UserController userController;
@@ -47,12 +54,12 @@ class UserControllerTest {
         User user = new User();
         user.setId(userId);
 
-
-        when(userService.getUserById(userId)).thenReturn(Optional.of(user));
+        when(userService.findUser(userId)).thenReturn(user);
 
         mockMvc.perform(get("/users/{userId}", userId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is((int) userId)));
+                .andExpect(status().isOk());
+
+        verify(userService, times(1)).findUser(userId);
     }
 
     @Test

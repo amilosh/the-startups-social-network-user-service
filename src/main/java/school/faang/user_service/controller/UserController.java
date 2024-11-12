@@ -9,21 +9,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.service.UserService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<Optional<User>> getUser(@PathVariable long userId) {
-        return ResponseEntity.ok(userService.getUserById(userId));
+    public ResponseEntity<UserDto> getUser(@PathVariable long userId) {
+        return ResponseEntity.ok(userMapper.toDto(userService.findUser(userId)));
     }
 
     @PostMapping
