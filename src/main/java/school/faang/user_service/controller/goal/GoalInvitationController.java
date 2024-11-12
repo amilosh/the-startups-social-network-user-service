@@ -20,7 +20,7 @@ public class GoalInvitationController {
     private final GoalInvitationService goalInvitationService;
 
     @PostMapping("/create")
-    public GoalInvitationDto createInvitation(GoalInvitationDto goalInvitationDto) {
+    public GoalInvitationDto createInvitation(@RequestBody GoalInvitationDto goalInvitationDto) {
         return goalInvitationService.createInvitation(goalInvitationDto);
     }
 
@@ -35,7 +35,7 @@ public class GoalInvitationController {
     }
 
     @PostMapping("/search")
-    public List<GoalInvitationDto> getAllInvitations(InvitationFilterDto invitationFilterDto) {
+    public List<GoalInvitationDto> getAllInvitations(@RequestBody InvitationFilterDto invitationFilterDto) {
         return goalInvitationService.getInvitations(invitationFilterDto);
     }
 }
