@@ -16,16 +16,16 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
-class StatusFilterTest {
+class GoalInvitationStatusFilterTest {
 
-    private StatusFilter statusFilter;
+    private GoalInvitationStatusFilter goalInvitationStatusFilter;
 
     private GoalInvitation firstGoalInvitation;
     private GoalInvitation secondGoalInvitation;
 
     @BeforeEach
     public void setUp() {
-        statusFilter = new StatusFilter();
+        goalInvitationStatusFilter = new GoalInvitationStatusFilter();
         firstGoalInvitation = new GoalInvitation();
         secondGoalInvitation = new GoalInvitation();
     }
@@ -37,7 +37,7 @@ class StatusFilterTest {
                 .status(RequestStatus.ACCEPTED)
                 .build();
 
-        boolean result = statusFilter.isApplicable(goalInvitationFilterDto);
+        boolean result = goalInvitationStatusFilter.isApplicable(goalInvitationFilterDto);
 
         assertTrue(result);
     }
@@ -48,7 +48,7 @@ class StatusFilterTest {
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .build();
 
-        boolean result = statusFilter.isApplicable(goalInvitationFilterDto);
+        boolean result = goalInvitationStatusFilter.isApplicable(goalInvitationFilterDto);
 
         assertFalse(result);
     }
@@ -66,7 +66,7 @@ class StatusFilterTest {
         Mockito.when(firstGoalInvitation.getStatus()).thenReturn(RequestStatus.ACCEPTED);
         Mockito.when(secondGoalInvitation.getStatus()).thenReturn(RequestStatus.ACCEPTED);
 
-        List<GoalInvitation> result = statusFilter.apply(goalInvitations, goalInvitationFilterDto).toList();
+        List<GoalInvitation> result = goalInvitationStatusFilter.apply(goalInvitations, goalInvitationFilterDto).toList();
 
         assertEquals(2, result.size());
     }
@@ -84,7 +84,7 @@ class StatusFilterTest {
         Mockito.when(firstGoalInvitation.getStatus()).thenReturn(RequestStatus.ACCEPTED);
         Mockito.when(secondGoalInvitation.getStatus()).thenReturn(RequestStatus.ACCEPTED);
 
-        List<GoalInvitation> result = statusFilter.apply(goalInvitations, goalInvitationFilterDto).toList();
+        List<GoalInvitation> result = goalInvitationStatusFilter.apply(goalInvitations, goalInvitationFilterDto).toList();
 
         assertEquals(0, result.size());
     }

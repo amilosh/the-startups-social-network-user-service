@@ -8,7 +8,7 @@ import school.faang.user_service.filter.Filter;
 import java.util.stream.Stream;
 
 @Component
-public class StatusFilter implements Filter<GoalInvitation, GoalInvitationFilterDto> {
+public class GoalInvitationStatusFilter implements Filter<GoalInvitation, GoalInvitationFilterDto> {
 
     @Override
     public boolean isApplicable(GoalInvitationFilterDto filter) {
