@@ -70,7 +70,6 @@ public class RecommendationRequestService {
 
         recommendationRequest.setStatus(RequestStatus.REJECTED);
         recommendationRequest.setRejectionReason(rejection.reason());
-        recommendationRequest.setUpdatedAt(LocalDateTime.now());
         recommendationRequest = recommendationRequestRepository.save(recommendationRequest);
         return recommendationRequestMapper.toDto(recommendationRequest);
     }
