@@ -7,9 +7,9 @@ import school.faang.user_service.entity.RequestStatus;
 @Getter
 @Setter
 public class GoalInvitationDto {
-    private long id;
-    private long inviterId;
-    private long invitedUserId;
-    private long goalId;
+    private Long id;
+    private Long inviterId;
+    private Long invitedUserId;
+    private Long goalId;
     private RequestStatus status;
 }
