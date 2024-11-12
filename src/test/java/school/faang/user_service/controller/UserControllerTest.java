@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.request.UsersDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.service.UserService;
@@ -64,7 +65,9 @@ class UserControllerTest {
 
     @Test
     void getUsersByIdsWhenUsersExistShouldReturnUserDtos() throws Exception {
-        List<Long> ids = List.of(1L, 2L);
+        UsersDto ids = new UsersDto();
+        ids.setIds(List.of(1L, 2L));
+
         UserDto userDto1 = new UserDto();
         userDto1.setId(1L);
 
@@ -84,7 +87,8 @@ class UserControllerTest {
 
     @Test
     void getUsersByIdsWhenNoUsersExistShouldReturnEmptyList() throws Exception {
-        List<Long> ids = List.of(1L, 2L);
+        UsersDto ids = new UsersDto();
+        ids.setIds(List.of(1L, 2L));
 
         when(userService.getUsersByIds(ids)).thenReturn(List.of());
 

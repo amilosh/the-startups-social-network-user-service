@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.request.UsersDto;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.service.UserService;
 
@@ -27,7 +28,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<List<UserDto>> getUsersByIds(@RequestBody List<Long> ids) {
+    public ResponseEntity<List<UserDto>> getUsersByIds(@RequestBody UsersDto ids) {
         return ResponseEntity.ok(userService.getUsersByIds(ids));
     }
 }

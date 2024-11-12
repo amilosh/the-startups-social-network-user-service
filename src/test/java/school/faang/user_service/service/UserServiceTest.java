@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.request.UsersDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
@@ -122,7 +123,9 @@ class UserServiceTest {
 
     @Test
     void getUsersByIdsWhenUsersExistShouldReturnUserDtos() {
-        List<Long> ids = List.of(1L, 2L);
+        UsersDto ids = new UsersDto();
+        ids.setIds(List.of(1L, 2L));
+
         User user1 = new User();
         user1.setId(1L);
         User user2 = new User();
@@ -133,7 +136,7 @@ class UserServiceTest {
         UserDto userDto2 = new UserDto();
         userDto2.setId(2L);
 
-        when(userRepository.findAllById(ids)).thenReturn(List.of(user1, user2));
+        when(userRepository.findAllById(ids.getIds())).thenReturn(List.of(user1, user2));
         when(userMapper.toDto(user1)).thenReturn(userDto1);
         when(userMapper.toDto(user2)).thenReturn(userDto2);
 
@@ -144,9 +147,10 @@ class UserServiceTest {
 
     @Test
     void getUsersByIdsWhenNoUsersExistShouldReturnEmptyList() {
-        List<Long> ids = List.of(1L, 2L);
+        UsersDto ids = new UsersDto();
+        ids.setIds(List.of(1L, 2L));
 
-        when(userRepository.findAllById(ids)).thenReturn(List.of());
+        when(userRepository.findAllById(ids.getIds())).thenReturn(List.of());
 
         List<UserDto> result = userService.getUsersByIds(ids);
         assertEquals(0, result.size());
