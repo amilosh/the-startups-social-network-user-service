@@ -2,9 +2,9 @@ package school.faang.user_service.filter;
 
 import java.util.stream.Stream;
 
-public interface Filter<R, F> {
+public interface Filter<D, F> {
 
     boolean isApplicable(F filter);
 
-    Stream<R> apply(Stream<R> goalInvitations, F filter);
+    Stream<D> apply(Stream<D> dataStream, F filter);
 }
