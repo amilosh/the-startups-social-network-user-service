@@ -5,6 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
+    checkstyle
 }
 
 group = "faang.school"
@@ -150,4 +151,30 @@ tasks.jacocoTestCoverageVerification {
 }
 kotlin {
     jvmToolchain(17)
+}
+checkstyle {
+    toolVersion = "10.0" // Укажите версию Checkstyle
+    configFile = file("config/checkstyle/checkstyle.xml") // Путь к конфигурационному файлу
+}
+
+tasks.checkstyleMain {
+    source = sourceSets.main.get().allJava
+    reports {
+        xml.required.set(true)
+        html.required.set(false)
+    }
+}
+
+tasks.checkstyleTest {
+    source = sourceSets.test.get().allJava
+    reports {
+        xml.required.set(true)
+        html.required.set(false)
+    }
+}
+
+// Включаем задачу check, чтобы она запускала checkstyle
+tasks.check {
+    dependsOn(tasks.checkstyleMain)
+    dependsOn(tasks.checkstyleTest)
 }
