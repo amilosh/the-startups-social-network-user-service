@@ -26,10 +26,3 @@ jobs:
 
       - name: Run all test
         run: ./gradlew test
-
-      - name: Upload test artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: Package
-          path: build/libs
