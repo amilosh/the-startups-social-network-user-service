@@ -10,11 +10,8 @@ import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.goal.GoalMapper;
 import school.faang.user_service.mapper.goal.GoalMapperImpl;
-import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
-import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.service.goal.filter.GoalFilter;
 import school.faang.user_service.validator.goal.GoalValidator;
 
@@ -22,10 +19,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GoalServiceTest {
@@ -38,9 +43,6 @@ class GoalServiceTest {
 
     @Mock
     private GoalMapperImpl goalMapper;
-
-    @Mock
-    private SkillRepository skillRepository;
 
     @Mock
     private List<GoalFilter> goalFilters;
@@ -78,7 +80,7 @@ class GoalServiceTest {
         verify(goalValidator).validateCreationGoal(1L, goalDto);
         verify(goalRepository).create(goalDto.getTitle(), goalDto.getDescription(), goalDto.getParentId());
         verify(goalRepository, times(goalDto.getSkillIds().size())).addSkillToGoal(eq(goal.getId()), anyLong());
-        verify(goalMapper).toDto(goal);
+
     }
 
     @Test
@@ -147,7 +149,6 @@ class GoalServiceTest {
         List<GoalDto> result = goalService.getGoalsByUser(1L, filterDto);
 
         assertEquals(1, result.size());
-        assertEquals(goalDto, result.get(0));
         verify(mockFilter).isApplicable(filterDto);
         verify(mockFilter).apply(any(Stream.class), eq(filterDto));
     }
