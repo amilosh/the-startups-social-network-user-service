@@ -28,7 +28,7 @@ public class RecommendationRequestController {
         return recommendationRequestService.getRequest(id);
     }
 
-    public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection) {
+    public RecommendationRequestDto rejectRequest(long id, @Valid RejectionDto rejection) {
         return recommendationRequestService.rejectRequest(id, rejection);
     }
 }
