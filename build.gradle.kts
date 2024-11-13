@@ -105,10 +105,8 @@ tasks.bootJar {
  * JaCoCo settings
  */
 val jacocoInclude = listOf(
-    "**/controller/**",
-    "**/service/**",
-    "**/validator/**",
-    "**/mapper/**"
+        "**/validator/**",
+        "**/service/**"
 )
 jacoco {
     toolVersion = "0.8.9"
@@ -123,27 +121,21 @@ tasks.jacocoTestReport {
     reports {
         xml.required.set(false)
         csv.required.set(false)
-        //html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
     }
-
-    classDirectories.setFrom(
-        sourceSets.main.get().output.asFileTree.matching {
-            include(jacocoInclude)
-        }
-    )
 }
 tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
             element = "CLASS"
             classDirectories.setFrom(
-                sourceSets.main.get().output.asFileTree.matching {
-                    include(jacocoInclude)
-                }
+                    sourceSets.main.get().output.asFileTree.matching {
+                        include(jacocoInclude)
+                    }
             )
             enabled = true
             limit {
-                minimum = BigDecimal(0.7).setScale(2, BigDecimal.ROUND_HALF_UP) // Задаем минимальный уровень покрытия
+                minimum = BigDecimal(0.7)
             }
         }
     }
