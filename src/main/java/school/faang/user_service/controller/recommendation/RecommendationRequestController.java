@@ -1,9 +1,12 @@
 package school.faang.user_service.controller.recommendation;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,8 +22,9 @@ import school.faang.user_service.service.RecommendationRequestService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/recommendations")
+@RequestMapping("/recommendationrequest")
 @RequiredArgsConstructor
+@Validated
 public class RecommendationRequestController {
     private final RecommendationRequestService recommendationRequestService;
 
@@ -39,14 +43,14 @@ public class RecommendationRequestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RecommendationRequestDto> getRecommendationRequest(@PathVariable Long id) {
+    public ResponseEntity<RecommendationRequestDto> getRecommendationRequest(@PathVariable @NotNull @Min(1) Long id) {
         RecommendationRequestDto dto = recommendationRequestService.getRequest(id);
         return ResponseEntity.ok(dto);
     }
 
     @PutMapping("/{id}/reject")
     public ResponseEntity<RecommendationRequestDto> rejectRequest(
-            @PathVariable Long id, @Valid @RequestBody RejectionDto rejection) {
+            @PathVariable @NotNull @Min(1) Long id, @Valid @RequestBody RejectionDto rejection) {
         RecommendationRequestDto dto = recommendationRequestService.rejectRequest(id, rejection);
         return ResponseEntity.ok(dto);
     }

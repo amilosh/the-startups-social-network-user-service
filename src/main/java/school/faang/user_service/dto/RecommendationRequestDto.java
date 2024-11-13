@@ -24,7 +24,6 @@ public class RecommendationRequestDto {
     @Size(min = 5, max = 500, message = "Message must contain from 5 to 500 symbols")
     private String message;
 
-    @NotNull(message = "Status field is mandatory")
     private RequestStatus status;
 
     @NotEmpty(message = "Skill list must not be empty")

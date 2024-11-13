@@ -68,7 +68,7 @@ public class RecommendationRequestControllerTest {
         when(recommendationRequestService.create(any(RecommendationRequestDto.class)))
                 .thenReturn(responseDto);
 
-        mockMvc.perform(post("/api/v1/recommendations")
+        mockMvc.perform(post("/recommendationrequest")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isCreated())
@@ -90,7 +90,7 @@ public class RecommendationRequestControllerTest {
                 .skills(Arrays.asList())
                 .build();
 
-        mockMvc.perform(post("/api/v1/recommendations")
+        mockMvc.perform(post("/recommendationrequest")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequestDto)))
                 .andExpect(status().isBadRequest());
@@ -101,7 +101,7 @@ public class RecommendationRequestControllerTest {
         when(recommendationRequestService.create(any(RecommendationRequestDto.class)))
                 .thenThrow(new RuntimeException("Service error"));
 
-        mockMvc.perform(post("/api/v1/recommendations")
+        mockMvc.perform(post("/recommendationrequest")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isBadRequest());
@@ -115,7 +115,7 @@ public class RecommendationRequestControllerTest {
                 .skills(Arrays.asList(1L, 2L))
                 .build();
 
-        mockMvc.perform(post("/api/v1/recommendations")
+        mockMvc.perform(post("/recommendationrequest")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequestDto)))
                 .andExpect(status().isBadRequest());
@@ -126,7 +126,7 @@ public class RecommendationRequestControllerTest {
         when(recommendationRequestService.getRequest(1L))
                 .thenReturn(responseDto);
 
-        mockMvc.perform(get("/api/v1/recommendations/1")
+        mockMvc.perform(get("/recommendationrequest/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(responseDto.getId()))
