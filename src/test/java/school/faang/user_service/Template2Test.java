@@ -10,4 +10,5 @@ public class Template2Test {
     public void testFail(){
         fail();
     }
+
 }
