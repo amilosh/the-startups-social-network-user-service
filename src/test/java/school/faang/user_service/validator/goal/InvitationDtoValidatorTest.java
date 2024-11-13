@@ -40,11 +40,11 @@ public class InvitationDtoValidatorTest {
 
     @Test
     void testValidate_SuccessfulValidation() {
-        // Настройка моков для успешного сценария
         when(userRepository.existsById(1L)).thenReturn(true);
         when(userRepository.existsById(2L)).thenReturn(true);
         when(goalRepository.existsById(1L)).thenReturn(true);
-        
+
+
         invitationDtoValidator.validate(validGoalInvitationDto);
     }
 
