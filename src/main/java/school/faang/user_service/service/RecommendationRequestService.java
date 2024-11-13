@@ -2,7 +2,6 @@ package school.faang.user_service.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RejectionDto;
@@ -33,7 +32,6 @@ public class RecommendationRequestService {
     private final RecommendationRequestValidator recommendationRequestValidator;
     private final List<Filter<RecommendationRequest, RequestFilterDto>> filters;
 
-    @Autowired
     @Transactional
     public RecommendationRequestDto create(RecommendationRequestDto dto) {
         User requester = userService.getUserById(dto.getRequesterId())
