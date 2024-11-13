@@ -1,7 +1,7 @@
 package school.faang.user_service.controller.user;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -30,11 +30,21 @@ public class UserController {
 
     private final UserService userService;
 
+    @Operation(summary = "Get user information by its ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User was found successfully"),
+            @ApiResponse(responseCode = "404", description = "User was not found")
+    })
     @GetMapping("/{userId}")
     ResponseEntity<UserDto> getUser(@PathVariable long userId) {
         return ResponseEntity.ok(userService.getUser(userId));
     }
 
+    @Operation(summary = "Get users' information by theirs ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Users were found successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data")
+    })
     @PostMapping("/by-ids")
     ResponseEntity<List<UserDto>> getUsersByIds(@RequestBody @Valid UserIdsDto request) {
         List<UserDto> users = userService.getUsers(request.getUserIds());
@@ -42,9 +52,13 @@ public class UserController {
     }
 
     @Operation(
-            summary = "Get Not Existing User IDs",
-            description = "Returns a list of user IDs that do not exist in the database."
+            summary = "Get IDs of non-existing users from provided list",
+            description = "Returns a list of user IDs from the provided list that are not present in the database"
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved list of non-existing user IDs"),
+            @ApiResponse(responseCode = "400", description = "Invalid input data")
+    })
     @PostMapping("/not-existing-ids")
     public ResponseEntity<List<Long>> getNotExistingUserIds(@RequestBody @Valid UserIdsDto request) {
         List<Long> notExistingUserIds = userService.getNotExistingUserIds(request.getUserIds());
