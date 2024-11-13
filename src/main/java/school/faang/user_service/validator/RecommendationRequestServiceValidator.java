@@ -32,8 +32,11 @@ public class RecommendationRequestServiceValidator {
         }
     }
 
-    public void validateSixMonthRequestLimit(Long requesterId, Long receiverId) {
+    public void validateSixMonthRequestLimit(RecommendationRequestDto recommendationRequestDto) {
+        Long requesterId = recommendationRequestDto.getRequesterId();
+        Long receiverId = recommendationRequestDto.getReceiverId();
         Optional<RecommendationRequest> latestPendingRequest = recommendationRequestRepository.findLatestPendingRequest(requesterId, receiverId);
+
         if (latestPendingRequest.isPresent()) {
             RecommendationRequest recommendationRequest = latestPendingRequest.get();
 
@@ -49,7 +52,9 @@ public class RecommendationRequestServiceValidator {
         }
     }
 
-    public void validateExistsSkillsInDatabase(List<Long> skillIds) {
+    public void validateExistsSkillsInDatabase(RecommendationRequestDto recommendationRequestDto) {
+        List<Long> skillIds = recommendationRequestDto.getSkillIds();
+
         List<Long> skillsNotDatabase = skillIds.stream()
                 .filter(id -> !(skillRepository.existsById(id)))
                 .distinct()

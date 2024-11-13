@@ -32,8 +32,8 @@ public class RecommendationRequestService {
 
     public void create(RecommendationRequestDto recommendationRequestDto) {
         validator.validateExistsRequesterAndReceiverInDatabase(recommendationRequestDto);
-        validator.validateSixMonthRequestLimit(recommendationRequestDto.getRequesterId(), recommendationRequestDto.getReceiverId());
-        validator.validateExistsSkillsInDatabase(recommendationRequestDto.getSkillIds());
+        validator.validateSixMonthRequestLimit(recommendationRequestDto);
+        validator.validateExistsSkillsInDatabase(recommendationRequestDto);
 
         RecommendationRequest entityRecommendationRequest = mapper.toEntity(recommendationRequestDto);
         long idRecommendationRequest = entityRecommendationRequest.getId();
