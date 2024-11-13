@@ -26,7 +26,7 @@ import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.promotion.EventPromotionRepository;
 import school.faang.user_service.repository.promotion.UserPromotionRepository;
 import school.faang.user_service.service.payment.PaymentService;
-import school.faang.user_service.validation.event.EventServiceValidator;
+import school.faang.user_service.validator.event.EventServiceValidator;
 import school.faang.user_service.validator.promotion.PromotionValidator;
 import school.faang.user_service.validator.user.UserValidator;
 
