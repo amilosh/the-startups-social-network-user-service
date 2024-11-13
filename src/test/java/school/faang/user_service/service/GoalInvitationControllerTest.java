@@ -1,8 +1,12 @@
 package school.faang.user_service.service;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import school.faang.user_service.controller.goal.GoalInvitationController;
 import school.faang.user_service.dto.GoalInvitationDto;
 import school.faang.user_service.dto.GoalInvitationResponseDto;
@@ -17,6 +21,11 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
+import org.springframework.http.MediaType;
 
 
 @WebMvcTest(GoalInvitationController.class)
@@ -26,6 +35,14 @@ public class GoalInvitationControllerTest {
     @InjectMocks
     private GoalInvitationController controller;
 
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+    }
+
     @Test
     public void testCreateInvitationWhenInviterAndInviteeTheSamePerson() throws Exception {
         GoalInvitationDto goalInvitationDto = new GoalInvitationDto();
@@ -33,11 +50,17 @@ public class GoalInvitationControllerTest {
         goalInvitationDto.setInvitedUserId(2L);
         when(service.createInvitation(goalInvitationDto)).thenReturn(goalInvitationDto);
 
+        mockMvc.perform(post("/GoalInvitation")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"inviterId\": 2, \"invitedUserId\": 2}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.inviterId").value(2L))
+                .andExpect(jsonPath("$.invitedUserId").value(2L));
     }
     @Test
     public void testCreateWhenUserNotExist() throws Exception {
-        GoalInvitationDto goalInvitationDto = null;
-        when(service.createInvitation(goalInvitationDto)).thenReturn(goalInvitationDto);
+        GoalInvitationDto goalInvitationDto = new GoalInvitationDto();
+        when(service.createInvitation(null)).thenReturn(goalInvitationDto);
     }
 
     @Test
