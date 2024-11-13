@@ -50,16 +50,16 @@ public class UserService {
     }
 
     private void stopScheduledGoals(User user) {
-        List<Goal> ownedGoals = user.getGoals();
+        List<Goal> goals = user.getGoals();
         List<Goal> settingGoals = user.getSettingGoals();
 
-        settingGoals.forEach(goal -> goal.removeExecutingUser(user));
+        goals.forEach(goal -> goal.removeExecutingUser(user));
 
-        goalService.removeGoalsWithoutExecutingUsers(ownedGoals);
+        goalService.removeGoalsWithoutExecutingUsers(goals);
         goalService.removeGoalsWithoutExecutingUsers(settingGoals);
 
         user.removeAllGoals();
-        log.info("all scheduled goals is stopped: \t ownedGoals {} \t settingGoals{}"
+        log.info("all scheduled goals is stopped: \t goals {} \t settingGoals{}"
                 , user.getGoals(), user.getSettingGoals());
     }
 

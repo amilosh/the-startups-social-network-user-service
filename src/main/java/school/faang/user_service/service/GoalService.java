@@ -26,7 +26,7 @@ public class GoalService {
         goals.stream()
                 .filter(Goal::isEmptyExecutingUsers)
                 .forEach(goal -> goalRepository.deleteById(goal.getId()));
-        log.info("Goals: {} without users is removed", goals);
+        log.info("Goals without users is removed");
     }
 
     public List<Goal> mapListIdsToGoals(List<Long> goalsIds) {
