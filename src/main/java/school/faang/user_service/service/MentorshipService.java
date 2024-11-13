@@ -47,6 +47,7 @@ public class MentorshipService {
         User mentor = getUser(mentorId);
         if (!mentor.getMentees().isEmpty()) {
             mentor.getMentees().removeIf(user -> user.getId().equals(menteeId));
+            log.info("Mentee {} for userId {} was deleted", menteeId, mentorId);
             saveUser(mentor);
         } else {
             log.info("Mentee {} for delete not found", menteeId);
@@ -55,8 +56,9 @@ public class MentorshipService {
 
     public void deleteMentor(long menteeId, long mentorId) {
         User mentee = getUser(menteeId);
-        if (!mentee.getMentees().isEmpty()) {
-            mentee.getMentees().removeIf(user -> user.getId().equals(mentorId));
+        if (!mentee.getMentors().isEmpty()) {
+            mentee.getMentors().removeIf(user -> user.getId().equals(mentorId));
+            log.info("Mentor {} for userId {} was deleted", mentorId, menteeId);
             saveUser(mentee);
         } else {
             log.info("Mentor {} for delete not found", mentorId);
@@ -68,12 +70,12 @@ public class MentorshipService {
             Optional<User> user = userRepository.findById(userId);
             if (user.isEmpty()) {
                 log.info("{} not found in DB", userId);
-                throw new RuntimeException(userId + " not found in DB");
+                throw new RuntimeException();
             } else {
                 return user.get();
             }
         } catch (Exception e) {
-            log.error("GetUser exception {}", e.getMessage());
+            log.error("GetUser by userId {} has exception {}", userId, e.getMessage());
             throw new RuntimeException("GetUser exception " + e.getMessage());
         }
     }
