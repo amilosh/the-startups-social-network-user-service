@@ -6,6 +6,7 @@ import school.faang.user_service.dto.mentorship.MentorshipRequestCreationDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.service.user.UserService;
 
@@ -50,7 +51,7 @@ public class MentorshipRequestDtoValidator {
         Arrays.stream(userIds)
                 .forEach(userId -> {
                     if (!userService.existsById(userId)) {
-                        throw new DataValidationException("User with ID %d does not exist in the database!".formatted(userId));
+                        throw new EntityNotFoundException("User with ID %d does not exist in the database!".formatted(userId));
                     }
                 });
     }
@@ -92,7 +93,7 @@ public class MentorshipRequestDtoValidator {
 
     private MentorshipRequest validateRequestExistence(Long requestId) {
         return requestRepository.findById(requestId)
-                .orElseThrow(() -> new DataValidationException(
+                .orElseThrow(() -> new EntityNotFoundException(
                         "The mentorship request with ID %d does not exist in the database!".formatted(requestId))
                 );
     }

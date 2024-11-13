@@ -12,6 +12,7 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.service.user.UserService;
 
@@ -74,8 +75,8 @@ class MentorshipRequestDtoValidatorTest {
     void validateCreationRequestNotExistingUserTest() {
         when(userService.existsById(baseRequesterId)).thenReturn(false);
 
-        DataValidationException exception = assertThrows(
-                DataValidationException.class,
+        EntityNotFoundException exception = assertThrows(
+                EntityNotFoundException.class,
                 () -> validator.validateCreationRequest(requestCreationDto)
         );
 
@@ -193,7 +194,7 @@ class MentorshipRequestDtoValidatorTest {
     private void assertRequestNotExisting(Executable validatorMethod) {
         when(requestRepository.findById(baseRequestId)).thenReturn(Optional.empty());
 
-        DataValidationException exception = assertThrows(DataValidationException.class, validatorMethod);
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, validatorMethod);
         assertEquals("The mentorship request with ID %d does not exist in the database!".formatted(baseRequestId), exception.getMessage());
         verify(requestRepository, times(1)).findById(baseRequestId);
     }
