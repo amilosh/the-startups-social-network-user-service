@@ -33,12 +33,11 @@ import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@Disabled
 @ExtendWith(MockitoExtension.class)
 class SkillServiceTest {
 
     @InjectMocks
-    private SkillService skillService;
+    private SkillServiceImpl skillService;
 
     @Mock
     private SkillRepository skillRepository;
