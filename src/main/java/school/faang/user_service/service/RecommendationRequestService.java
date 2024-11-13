@@ -17,6 +17,7 @@ import school.faang.user_service.repository.recommendation.RecommendationRequest
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.validator.RecommendationRequestServiceValidator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -47,6 +48,9 @@ public class RecommendationRequestService {
         entityRecommendationRequest
                 .setRequester(entityRequester)
                 .setReceiver(entityReceiver);
+        if(entityRecommendationRequest.getSkills() == null){
+            entityRecommendationRequest.setSkills(new ArrayList<>());
+        }
         entitySkillRequests.forEach(entityRecommendationRequest::addSkillRequest);
 
         recommendationRequestRepository.save(entityRecommendationRequest);

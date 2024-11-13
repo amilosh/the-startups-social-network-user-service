@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 import school.faang.user_service.entity.Skill;
 
 @Data
@@ -17,6 +18,7 @@ import school.faang.user_service.entity.Skill;
 @AllArgsConstructor
 @Entity
 @Table(name = "skill_request")
+@Accessors(chain = true)
 public class SkillRequest {
 
     @Id

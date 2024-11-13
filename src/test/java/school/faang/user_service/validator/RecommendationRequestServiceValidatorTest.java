@@ -19,8 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.argThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class RecommendationRequestServiceValidatorTest {
@@ -83,7 +82,7 @@ class RecommendationRequestServiceValidatorTest {
         when(skillRepository.existsById(argThat(id -> Objects.equals(id, skillIds.get(0)) || Objects.equals(id, skillIds.get(1)))))
                 .thenReturn(false);
 
-        DataValidationException dataValidationException = assertThrows(DataValidationException.class,
+        assertThrows(DataValidationException.class,
                 () -> recommendationRequestServiceValidator.validateExistsSkillsInDatabase(recommendationRequestDto));
     }
 }
