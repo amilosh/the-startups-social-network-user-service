@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class Template2Test {
+public class TemplateTest {
 
     @Test
     public void testFail(){
