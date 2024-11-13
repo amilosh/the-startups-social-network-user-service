@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class GoalInvitationServiceImplTest {
+
     @InjectMocks
     private GoalInvitationService goalInvitationService;
     @Mock
@@ -52,74 +53,75 @@ public class GoalInvitationServiceImplTest {
     private GoalInvitationDto goalInvitationDtoReject;
     private GoalInvitation goalInvitationReject;
 
-   @BeforeEach
-    public void setUp(){
-       GoalInvitationDto goalInvitationDto = new GoalInvitationDto();
-       goalInvitationDto.setInviterId(1L);
-       goalInvitationDto.setInvitedUserId(2L);
-       goalInvitationDto.setGoalId(1L);
+    @BeforeEach
+    public void setUp() {
+        GoalInvitationDto goalInvitationDto = new GoalInvitationDto();
+        goalInvitationDto.setInviterId(1L);
+        goalInvitationDto.setInvitedUserId(2L);
+        goalInvitationDto.setGoalId(1L);
 
-       GoalInvitation goalInvitation = new GoalInvitation();
-       goalInvitation.setId(1L);
-       User user1 = new User();
-       user1.setId(1L);
-       User user2 = new User();
-       user2.setId(2L);
-       Goal goal = new Goal();
-       goal.setId(1L);
-       goalInvitation.setInviter(user1);
-       goalInvitation.setInvited(user2);
-       goalInvitation.setGoal(goal);
+        GoalInvitation goalInvitation = new GoalInvitation();
+        goalInvitation.setId(1L);
+        User user1 = new User();
+        user1.setId(1L);
+        User user2 = new User();
+        user2.setId(2L);
+        Goal goal = new Goal();
+        goal.setId(1L);
+        goalInvitation.setInviter(user1);
+        goalInvitation.setInvited(user2);
+        goalInvitation.setGoal(goal);
 
-       goalInvitationAccept =new GoalInvitation();
-       goalInvitationAccept.setId(1L);
-       goalInvitationAccept.setStatus(RequestStatus.PENDING);
-       user2.setReceivedGoalInvitations(List.of(new GoalInvitation(), new GoalInvitation()));
+        goalInvitationAccept = new GoalInvitation();
+        goalInvitationAccept.setId(1L);
+        goalInvitationAccept.setStatus(RequestStatus.PENDING);
+        user2.setReceivedGoalInvitations(List.of(new GoalInvitation(), new GoalInvitation()));
 
-       User invitedUser = new User();
-       goalInvitationAccept.setInvited(invitedUser);
+        User invitedUser = new User();
+        goalInvitationAccept.setInvited(invitedUser);
 
-       User invited =goalInvitationAccept.getInvited();
-       invited.setGoals(new ArrayList<>(List.of(new Goal())));
-       invited.setReceivedGoalInvitations(new ArrayList<>(List.of(new GoalInvitation())));
+        User invited = goalInvitationAccept.getInvited();
+        invited.setGoals(new ArrayList<>(List.of(new Goal())));
+        invited.setReceivedGoalInvitations(new ArrayList<>(List.of(new GoalInvitation())));
 
-       goalInvitationAccept.setGoal(new Goal());
+        goalInvitationAccept.setGoal(new Goal());
 
-       goalInvitationDtoAccept = new GoalInvitationDto();
-       goalInvitationDtoAccept.setId(1L);
-       goalInvitationDtoAccept.setStatus(RequestStatus.ACCEPTED);
+        goalInvitationDtoAccept = new GoalInvitationDto();
+        goalInvitationDtoAccept.setId(1L);
+        goalInvitationDtoAccept.setStatus(RequestStatus.ACCEPTED);
 
-       goalInvitationReject = new GoalInvitation();
-       goalInvitationReject.setId(1L);
-       goalInvitationReject.setStatus(RequestStatus.PENDING);
+        goalInvitationReject = new GoalInvitation();
+        goalInvitationReject.setId(1L);
+        goalInvitationReject.setStatus(RequestStatus.PENDING);
 
-       goal = new Goal();
-       goalInvitationReject.setGoal(goal);
+        goal = new Goal();
+        goalInvitationReject.setGoal(goal);
 
-       goalInvitationDtoReject = new GoalInvitationDto();
-       goalInvitationDtoReject.setId(1L);
-       goalInvitationDtoReject.setStatus(RequestStatus.REJECTED);
-   }
-   @Test
-   public void testCreateInvitation() {
-       GoalInvitationDto goalInvitationDto = new GoalInvitationDto();
-       GoalInvitation goalInvitation = new GoalInvitation();
-       GoalInvitation savedInvitation = new GoalInvitation();
-       GoalInvitationDto savedDto = new GoalInvitationDto();
+        goalInvitationDtoReject = new GoalInvitationDto();
+        goalInvitationDtoReject.setId(1L);
+        goalInvitationDtoReject.setStatus(RequestStatus.REJECTED);
+    }
 
-       when(goalInvitationMapper.toEntity(goalInvitationDto)).thenReturn(goalInvitation);
-       when(goalInvitationRepository.save(goalInvitation)).thenReturn(savedInvitation);
-       when(goalInvitationMapper.toDto(savedInvitation)).thenReturn(savedDto);
+    @Test
+    public void testCreateInvitation() {
+        GoalInvitationDto goalInvitationDto = new GoalInvitationDto();
+        GoalInvitation goalInvitation = new GoalInvitation();
+        GoalInvitation savedInvitation = new GoalInvitation();
+        GoalInvitationDto savedDto = new GoalInvitationDto();
 
-       GoalInvitationDto result = goalInvitationService.createInvitation(goalInvitationDto);
+        when(goalInvitationMapper.toEntity(goalInvitationDto)).thenReturn(goalInvitation);
+        when(goalInvitationRepository.save(goalInvitation)).thenReturn(savedInvitation);
+        when(goalInvitationMapper.toDto(savedInvitation)).thenReturn(savedDto);
 
-       assertEquals(savedDto, result);
+        GoalInvitationDto result = goalInvitationService.createInvitation(goalInvitationDto);
 
-       verify(invitationDtoValidator, times(1)).validate(goalInvitationDto);
-       verify(goalInvitationMapper, times(1)).toEntity(goalInvitationDto);
-       verify(goalInvitationRepository, times(1)).save(goalInvitation);
-       verify(goalInvitationMapper, times(1)).toDto(savedInvitation);
-   }
+        assertEquals(savedDto, result);
+
+        verify(invitationDtoValidator, times(1)).validate(goalInvitationDto);
+        verify(goalInvitationMapper, times(1)).toEntity(goalInvitationDto);
+        verify(goalInvitationRepository, times(1)).save(goalInvitation);
+        verify(goalInvitationMapper, times(1)).toDto(savedInvitation);
+    }
 
 
     @Test
