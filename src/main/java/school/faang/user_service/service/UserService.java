@@ -7,6 +7,7 @@ import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -34,5 +35,9 @@ public class UserService {
 
     public Optional<User> getUserById(Long userId) {
         return userRepository.findById(userId);
+    }
+
+    public List<UserDto> getUsersByIds(UsersDto usersDto) {
+        return userRepository.findAllById(usersDto.getIds()).stream().map(userMapper::toDto).toList();
     }
 }
