@@ -14,7 +14,6 @@ import school.faang.user_service.service.event.EventService;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Controller
 @RestController
 @RequestMapping("/events")
 public class EventController {

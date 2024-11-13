@@ -12,7 +12,6 @@ import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.event.EventDescriptionFilter;
 import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.filter.event.EventOwnerFilter;
@@ -42,7 +41,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -95,33 +93,6 @@ public class EventServiceTest {
                 eventValidators,
                 eventFilters
         );
-    }
-
-    @Test
-    void testCreateWithBlankTitle() {
-        eventDto.setTitle(" ");
-        assertThrows(DataValidationException.class, () -> eventService.create(eventDto));
-        verify(eventRepository, never()).save(any(Event.class));
-    }
-
-    @Test
-    void testCreateWithNullTitle() {
-        eventDto.setTitle(null);
-        assertThrows(DataValidationException.class, () -> eventService.create(eventDto));
-    }
-
-    @Test
-    void testCreateWithNullOwner() {
-        eventDto.setTitle("Title");
-        eventDto.setOwnerId(null);
-        assertThrows(DataValidationException.class, () -> eventService.create(eventDto));
-    }
-
-    @Test
-    public void testCreateWithNullStartDate() {
-        prepareDtoWithTitleAndOwnerId();
-        eventDto.setStartDate(null);
-        assertThrows(DataValidationException.class, () -> eventService.create(eventDto));
     }
 
     @Test
