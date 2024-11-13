@@ -18,7 +18,7 @@ import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("/api/skills")  // Базовый URL для контроллера
+@RequestMapping("/skills")  // Базовый URL для контроллера
 @RequiredArgsConstructor
 public class SkillController {
     private final SkillService skillService;

@@ -1,4 +1,4 @@
-package school.faang.user_service.controller.goal;
+package school.faang.user_service.controller;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import school.faang.user_service.controller.goal.GoalController;
 import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.dto.request.CreateGoalRequest;
@@ -50,7 +51,7 @@ class GoalControllerTest {
 
         when(goalService.createGoal(userId, goalDTO)).thenReturn(goalDTO);
 
-        mockMvc.perform(post("/api/v1/goals")
+        mockMvc.perform(post("/goals")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -70,7 +71,7 @@ class GoalControllerTest {
 
         when(goalService.updateGoal(userId, goalDTO)).thenReturn(goalDTO);
 
-        mockMvc.perform(put("/api/v1/goals")
+        mockMvc.perform(put("/goals")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -86,7 +87,7 @@ class GoalControllerTest {
 
         doNothing().when(goalService).deleteGoal(goalId);
 
-        mockMvc.perform(delete("/api/v1/goals/{goalId}", goalId))
+        mockMvc.perform(delete("/goals/{goalId}", goalId))
                 .andExpect(status().isNoContent());
 
         verify(goalService, times(1)).deleteGoal(goalId);
@@ -103,7 +104,7 @@ class GoalControllerTest {
 
         when(goalService.getGoalsByUser(userId, filters)).thenReturn(List.of(goal1, goal2));
 
-        mockMvc.perform(post("/api/v1/goals/{userId}", userId)
+        mockMvc.perform(post("/goals/{userId}", userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(filters)))
                 .andExpect(status().isOk())
