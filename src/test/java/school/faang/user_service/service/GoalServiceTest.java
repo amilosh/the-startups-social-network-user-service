@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -62,7 +63,7 @@ class GoalServiceTest {
     void getGoalById_throwsExceptionWhenNotFound() {
         when(goalRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(DataValidationException.class, () -> goalService.getGoalById(1L));
+        assertThrows(EntityNotFoundException.class, () -> goalService.getGoalById(1L));
 
     }
 
@@ -109,8 +110,8 @@ class GoalServiceTest {
     void mapListIdsToGoals_returnsCorrectGoals() {
         when(goalRepository.findById(1L)).thenReturn(Optional.of(goalWithUsers));
         when(goalRepository.findById(2L)).thenReturn(Optional.of(goalWithoutUsers));
-
         List<Long> goalIds = List.of(1L, 2L);
+
         List<Goal> result = goalService.mapListIdsToGoals(goalIds);
 
         assertNotNull(result);

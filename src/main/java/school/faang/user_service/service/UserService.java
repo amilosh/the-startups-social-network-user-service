@@ -1,14 +1,14 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mapstruct.control.MappingControl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.user.DeactivatedUserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -26,12 +26,14 @@ public class UserService {
     private final MentorshipService mentorshipService;
     private final UserMapper userMapper;
 
+    @Transactional
     public DeactivatedUserDto deactivateUser(long userId) {
         log.info("start to deactivate User by id {}", userId);
         User user = getUserById(userId);
 
         stopScheduledGoals(user);
         stopScheduledEvents(user);
+        removeUserFromParticipatedEvents(user);
         mentorshipService.stopMentorship(user);
 
         user.setActive(false);
@@ -39,13 +41,12 @@ public class UserService {
         User savedUser = userRepository.save(user);
 
         log.info("User successfully deactivated by id {}", userId);
-
         return userMapper.toDeactivatedUserDto(savedUser);
     }
 
     public User getUserById(long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new
-                DataValidationException("User do not found by" + userId));
+                EntityNotFoundException("User do not found by " + userId));
     }
 
     private void stopScheduledGoals(User user) {
@@ -58,11 +59,13 @@ public class UserService {
         goalService.removeGoalsWithoutExecutingUsers(settingGoals);
 
         user.removeAllGoals();
-        log.info("all scheduled goals is stopped: \t ownedGoals {} \t settingGoals{}", user.getGoals(), user.getSettingGoals());
+        log.info("all scheduled goals is stopped: \t ownedGoals {} \t settingGoals{}"
+                , user.getGoals(), user.getSettingGoals());
     }
 
     private void stopScheduledEvents(User user) {
         List<Event> ownedEvents = user.getOwnedEvents();
+
         for (Event event : ownedEvents) {
             List<User> attendees = event.getAttendees();
 
@@ -76,5 +79,17 @@ public class UserService {
 
         user.removeAllOwnedEvents();
         log.info("all scheduled events is stopped and delete");
+    }
+
+    private void removeUserFromParticipatedEvents(User user) {
+        List<Event> participatedEvents = user.getParticipatedEvents();
+
+        participatedEvents.forEach(participatedEvent -> {
+            participatedEvent.removeAttendeeFromEvent(user);
+            eventRepository.save(participatedEvent);
+        });
+
+        user.removeAllParticipatedEvents();
+        log.info("user {} unsubscribe from participated events", user.getId());
     }
 }

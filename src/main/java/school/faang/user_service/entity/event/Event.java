@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.Skill;
@@ -12,6 +13,7 @@ import school.faang.user_service.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @Builder
@@ -49,6 +51,7 @@ public class Event {
     @OneToMany(mappedBy = "event")
     private List<Rating> ratings;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
@@ -77,4 +80,10 @@ public class Event {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    public void removeAttendeeFromEvent(User user) {
+        if (user == null) {
+            return;
+        }
+        attendees.remove(user);
+    }
 }

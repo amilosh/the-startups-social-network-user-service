@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,9 +28,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -114,9 +117,12 @@ class UserServiceTest {
         settingGoals.add(goalSetting1);
         settingGoals.add(goalSetting2);
 
+
         List<Event> userEvents = new ArrayList<>();
         userEvents.add(eventOwned1);
         userEvents.add(eventOwned2);
+
+        List<User> attendees = new ArrayList<>();
 
 
         userToDeactivate = new User();
@@ -128,7 +134,13 @@ class UserServiceTest {
             event.setOwner(userToDeactivate);
         }
         userToDeactivate.setGoals(ownerGoals);
-
+        attendees.add(userToDeactivate);
+        List<Event> participatedEvents = new ArrayList<>();
+        participatedEvents.add(Event.builder()
+                .attendees(attendees)
+                .build()
+        );
+        userToDeactivate.setParticipatedEvents(participatedEvents);
 
         for (Goal goal : settingGoals) {
             goal.getUsers().add(userToDeactivate);
@@ -162,7 +174,7 @@ class UserServiceTest {
     void testGetUserByIdNotFound() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(DataValidationException.class, () -> userService.getUserById(1L));
+        assertThrows(EntityNotFoundException.class, () -> userService.getUserById(1L));
         verify(userRepository).findById(1L);
     }
 
@@ -284,6 +296,23 @@ class UserServiceTest {
         }
 
         assertTrue(userToDeactivate.getOwnedEvents().isEmpty());
+    }
+
+    @Test
+    void testDeactivateUserWithRemoveUserFromParticipatedEvents() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(userToDeactivate));
+        when(userRepository.save(userToDeactivate)).thenReturn(userToDeactivate);
+        when(userRepository.save(attendee1)).thenReturn(attendee1);
+        when(eventRepository.save(any(Event.class))).thenReturn(mock(Event.class));
+
+        DeactivatedUserDto result = userService.deactivateUser(userToDeactivate.getId());
+
+        verify(eventRepository).save(any(Event.class));
+
+        assertTrue(result.idsParticipatedEvent().isEmpty());
+        assertTrue(userToDeactivate.getParticipatedEvents().isEmpty());
+        assertEquals(userToDeactivate.getId(), result.id());
+        assertEquals(1, result.id());
     }
 
     @Test

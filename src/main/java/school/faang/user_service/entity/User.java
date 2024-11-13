@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.contact.Contact;
@@ -124,6 +125,7 @@ public class User {
     @OneToMany(mappedBy = "receiver")
     private List<Recommendation> recommendationsReceived;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "user")
     private List<Contact> contacts;
 
@@ -155,6 +157,10 @@ public class User {
         goals.clear();
     }
 
+    public void removeAllParticipatedEvents(){
+        participatedEvents.clear();
+    }
+
     public void removeAllOwnedEvents() {
         ownedEvents.clear();
     }
@@ -164,5 +170,6 @@ public class User {
             mentors.remove(mentor);
         }
     }
+
 
 }

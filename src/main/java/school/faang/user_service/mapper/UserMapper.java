@@ -18,15 +18,19 @@ import java.util.List;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
+    @Mapping(source = "country.id", target = "countryId")
     UserDto toUserDto(User user);
 
+    @Mapping(target = "country", ignore = true)
     User toUser(UserDto userDto);
 
     @Mapping(source = "settingGoals", target = "idsSettingGoals", qualifiedByName = "mapGoalsToListId")
     @Mapping(source = "goals", target = "idsGoals", qualifiedByName = "mapGoalsToListId")
     @Mapping(source = "skills", target = "idsSkills", qualifiedByName = "mapSkillsToListId")
     @Mapping(source = "mentors", target = "idsMentors", qualifiedByName = "mapMentorsToListId")
-    @Mapping(source = "ownedEvents", target = "idsOwnedEvents", qualifiedByName = "mapOwnedEventsToListId")
+    @Mapping(source = "ownedEvents", target = "idsOwnedEvents", qualifiedByName = "mapEventsToListId")
+    @Mapping(source = "participatedEvents", target = "idsParticipatedEvent", qualifiedByName = "mapEventsToListId")
+    @Mapping(source = "country.id", target = "countryId")
     DeactivatedUserDto toDeactivatedUserDto(User user);
 
     @Mapping(target = "settingGoals", ignore = true)
@@ -34,12 +38,14 @@ public interface UserMapper {
     @Mapping(target = "skills", ignore = true)
     @Mapping(target = "mentors", ignore = true)
     @Mapping(target = "ownedEvents", ignore = true)
+    @Mapping(target = "participatedEvents", ignore = true)
+    @Mapping(target = "country", ignore = true)
     User toEntity(DeactivatedUserDto deactivatedUserDto);
 
     @Named("mapGoalsToListId")
     default List<Long> mapGoalsToListId(List<Goal> goals) {
-        if (goals == null || goals.isEmpty()) {
-            return Collections.emptyList();
+        if (goals == null) {
+            return new ArrayList<>();
         }
         return goals.stream()
                 .map(goal -> goal.getId())
@@ -49,7 +55,7 @@ public interface UserMapper {
     @Named("mapSkillsToListId")
     default List<Long> mapSkillsToListId(List<Skill> skills) {
         if (skills == null) {
-            return Collections.emptyList();
+            return new ArrayList<>();
         }
         return skills.stream()
                 .map(skill -> skill.getId())
@@ -59,17 +65,17 @@ public interface UserMapper {
     @Named("mapMentorsToListId")
     default List<Long> mapMentorsToListId(List<User> mentors) {
         if (mentors == null) {
-            return Collections.emptyList();
+            return new ArrayList<>();
         }
         return mentors.stream()
                 .map(mentor -> mentor.getId())
                 .toList();
     }
 
-    @Named("mapOwnedEventsToListId")
-    default List<Long> mapOwnedEventsToListId(List<Event> ownedEvents) {
+    @Named("mapEventsToListId")
+    default List<Long> mapEventsToListId(List<Event> ownedEvents) {
         if (ownedEvents == null) {
-            return Collections.emptyList();
+            return new ArrayList<>();
         }
         return ownedEvents.stream()
                 .map(event -> event.getId())

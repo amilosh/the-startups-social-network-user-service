@@ -13,17 +13,19 @@ import java.util.List;
 @Builder
 public record DeactivatedUserDto(
         Long id,
+        boolean active,
         @NotBlank String username,
         @NotBlank String email,
         @NotBlank String phone,
-        @NotBlank Country country,
+        @NotBlank Long countryId,
         @NotBlank String city,
         List<Long> idsOwnedEvents,
+        List<Long> idsParticipatedEvent,
         List<Long> idsMentors,
         List<Long> idsSettingGoals,
         List<Long> idsGoals,
         List<Long> idsSkills,
-        @NotNull @PastOrPresent LocalDateTime createdAt,
-        @NotNull @PastOrPresent LocalDateTime updatedAt,
-        boolean active) {
+        @PastOrPresent LocalDateTime createdAt,
+        @PastOrPresent LocalDateTime updatedAt
+) {
 }
