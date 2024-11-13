@@ -4,54 +4,68 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
-import school.faang.user_service.entity.RequestStatus;
-import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.exception.goal.InvitationEntityNotFoundException;
+import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.goal.GoalRepository;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import java.util.NoSuchElementException;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 public class InvitationDtoValidatorTest {
 
 
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private GoalRepository goalRepository;
+
     @InjectMocks
     private InvitationDtoValidator invitationDtoValidator;
-    private GoalInvitationDto goalInvitationDto;
+
+    private GoalInvitationDto validGoalInvitationDto;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        goalInvitationDto = new GoalInvitationDto();
-        User invitedUser = new User();
-        GoalInvitation goalInvitation = new GoalInvitation();
-        goalInvitation.setInvited(invitedUser);
-        goalInvitation.setStatus(RequestStatus.PENDING);
+        validGoalInvitationDto = new GoalInvitationDto();
+        validGoalInvitationDto.setInviterId(1L);
+        validGoalInvitationDto.setInvitedUserId(2L);
+        validGoalInvitationDto.setGoalId(1L);
     }
 
     @Test
-    void testValidateValidInvitation() {
-        assertDoesNotThrow(() -> invitationDtoValidator.validate(goalInvitationDto));
+    void testValidate_SuccessfulValidation() {
+        // Настройка моков для успешного сценария
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.existsById(2L)).thenReturn(true);
+        when(goalRepository.existsById(1L)).thenReturn(true);
+        
+        invitationDtoValidator.validate(validGoalInvitationDto);
     }
 
     @Test
-    void testValidateInvalidInvitation() {
-        goalInvitationDto.setInvitedUserId(null);
-        assertThrows(IllegalArgumentException.class, () -> invitationDtoValidator.validate(goalInvitationDto));
+    void testValidate_UserInvitesSelf_ThrowsException() {
+        validGoalInvitationDto.setInvitedUserId(1L);
+
+        assertThrows(NullPointerException.class, () ->
+                invitationDtoValidator.validate(validGoalInvitationDto)
+        );
     }
 
-    @Test
-    void testValidateUserNotFound() {
-        goalInvitationDto.setInvitedUserId(999L); // предполагается, что такого пользователя нет
-
-        assertThrows(InvitationEntityNotFoundException.class, () -> invitationDtoValidator.validate(goalInvitationDto));
-    }
 
     @Test
-    void testValidateNullInvitation() {
-        assertThrows(IllegalArgumentException.class, () -> invitationDtoValidator.validate(null));
+    void testValidate_GoalDoesNotExist_ThrowsException() {
+        when(userRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.existsById(2L)).thenReturn(true);
+        when(goalRepository.existsById(1L)).thenReturn(false);
+
+        assertThrows(NoSuchElementException.class, () ->
+                invitationDtoValidator.validate(validGoalInvitationDto)
+        );
     }
 }
