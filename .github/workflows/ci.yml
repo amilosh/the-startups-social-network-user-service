@@ -2,7 +2,7 @@ name: CI user_service by Centaur
 
 on:
   pull_request:
-    branches: [ "feature-BJS2-40724-pipeline" ]
+    branches: [ "Centaur-master-stream7" ]
 
 jobs:
   test_user_service:
