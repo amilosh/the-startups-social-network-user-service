@@ -5,7 +5,7 @@ on:
     branches: [ "feature-BJS2-40724-pipeline" ]
 
 jobs:
-  test user_service:
+  test_user_service:
 
     runs-on: ubuntu-latest
     permissions:
