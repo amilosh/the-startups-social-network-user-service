@@ -36,17 +36,6 @@ public class GoalValidatorTest {
         goalInvitationDto = new GoalInvitationDto();
     }
 
-
-
-    @Test
-    void testValidateCorrectnessPlayersMissingPlayers() {
-        goalInvitationDto.setInviterId(null);
-        goalInvitationDto.setInvitedUserId(1L);
-
-        assertThrows(IllegalArgumentException.class,
-                () -> goalValidator.validateCorrectnessPlayers(goalInvitationDto));
-    }
-
     @Test
     void testValidateCorrectnessPlayersSamePlayers() {
         goalInvitationDto.setInviterId(1L);

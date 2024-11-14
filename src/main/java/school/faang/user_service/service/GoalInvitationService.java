@@ -35,26 +35,28 @@ public class GoalInvitationService {
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден")));
         invitation.setGoal(goalRepository.findById(invitationDto.getGoalId())
                 .orElseThrow(() -> new IllegalArgumentException("Цель не найдена")));
+        invitation.setStatus(RequestStatus.PENDING);
 
         invitation = invitationRepository.save(invitation);
         return mapper.entityToDto(invitation);
     }
 
-    public void acceptGoalInvitation(long id) {
+    public GoalInvitationDto acceptGoalInvitation(long id) {
         GoalInvitation goalInvitation = invitationRepository.getReferenceById(id);
         validator.validateUsersAndGoals(goalInvitation);
 
         goalInvitation.setStatus(RequestStatus.ACCEPTED);
-        invitationRepository.save(goalInvitation);
+
+        return mapper.entityToDto(invitationRepository.save(goalInvitation));
     }
 
-    public void rejectGoalInvitation(long id) {
+    public GoalInvitationDto rejectGoalInvitation(long id) {
         validator.validateExistGoal(id);
 
         GoalInvitation goalInvitation = invitationRepository.getReferenceById(id);
         goalInvitation.setStatus(RequestStatus.REJECTED);
 
-        invitationRepository.save(goalInvitation);
+        return mapper.entityToDto(invitationRepository.save(goalInvitation));
     }
 
     public List<GoalInvitationDto> getInvitations(InvitationFilterDto filterDto) {

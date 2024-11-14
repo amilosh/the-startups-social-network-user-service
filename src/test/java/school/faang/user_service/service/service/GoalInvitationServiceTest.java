@@ -20,6 +20,7 @@ import school.faang.user_service.repository.goal.GoalInvitationRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.GoalInvitationService;
 import school.faang.user_service.service.filter.goal.InvitationFilter;
+import school.faang.user_service.validator.GoalValidator;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,8 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -48,6 +48,9 @@ public class GoalInvitationServiceTest {
 
     @Mock
     private List<InvitationFilter> invitationFilters;
+
+    @Mock
+    private GoalValidator validator;
 
     @Spy
     private GoalMapperImpl mapper;
@@ -96,7 +99,8 @@ public class GoalInvitationServiceTest {
         verify(userRepository, times(1)).findById(2L);
         verify(goalRepository, times(1)).findById(3L);
         verify(invitationRepository, times(1)).save(any(GoalInvitation.class));
-        
+
+        assertNotNull(result);
         assertEquals(goalInvitationDto, result);
     }
 
@@ -122,11 +126,28 @@ public class GoalInvitationServiceTest {
 
     @Test
     void testGetInvitationSuccess() {
+        Goal goal1 = new Goal();
+        goal1.setId(1L);
+        Goal goal2 = new Goal();
+        goal2.setId(2L);
+        User inviter = new User();
+        inviter.setId(1L);
+        User invitedUser = new User();
+        invitedUser.setId(2L);
+
+
         GoalInvitation invitation1 = new GoalInvitation();
         invitation1.setId(1L);
+        invitation1.setGoal(goal1);
+        invitation1.setInviter(inviter);
+        invitation1.setInvited(invitedUser);
         invitation1.setStatus(RequestStatus.PENDING);
+
         GoalInvitation invitation2 = new GoalInvitation();
         invitation2.setId(2L);
+        invitation2.setGoal(goal2);
+        invitation2.setInviter(inviter);
+        invitation2.setInvited(invitedUser);
         invitation2.setStatus(RequestStatus.ACCEPTED);
 
         List<GoalInvitation> invitations = Arrays.asList(invitation1, invitation2);
@@ -151,11 +172,28 @@ public class GoalInvitationServiceTest {
     
     @Test
     void testGetInvitationWithEmptyFilters() {
+        Goal goal1 = new Goal();
+        goal1.setId(1L);
+        Goal goal2 = new Goal();
+        goal2.setId(2L);
+        User inviter = new User();
+        inviter.setId(1L);
+        User invitedUser = new User();
+        invitedUser.setId(2L);
+
+
         GoalInvitation invitation1 = new GoalInvitation();
         invitation1.setId(1L);
+        invitation1.setGoal(goal1);
+        invitation1.setInviter(inviter);
+        invitation1.setInvited(invitedUser);
         invitation1.setStatus(RequestStatus.PENDING);
+
         GoalInvitation invitation2 = new GoalInvitation();
         invitation2.setId(2L);
+        invitation2.setGoal(goal2);
+        invitation2.setInviter(inviter);
+        invitation2.setInvited(invitedUser);
         invitation2.setStatus(RequestStatus.ACCEPTED);
 
         List<GoalInvitation> invitations = Arrays.asList(invitation1, invitation2);
