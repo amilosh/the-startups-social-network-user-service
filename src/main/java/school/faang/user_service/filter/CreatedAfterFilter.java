@@ -1,10 +1,9 @@
 package school.faang.user_service.filter;
 
+import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-
-import java.time.LocalDateTime;
-
+@Component
 public class CreatedAfterFilter implements RequestFilter {
     @Override
     public boolean isFilterApplicable(RequestFilterDto requestFilterDto) {
