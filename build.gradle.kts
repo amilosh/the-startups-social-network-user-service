@@ -83,6 +83,7 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.9.3")
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 jsonSchema2Pojo {
