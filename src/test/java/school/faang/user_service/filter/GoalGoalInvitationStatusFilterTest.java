@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class GoalStatusFilterTest {
+class GoalGoalInvitationStatusFilterTest {
     private final GoalFilterDto filter = new GoalFilterDto();
 
     @InjectMocks

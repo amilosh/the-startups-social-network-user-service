@@ -9,6 +9,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.mapper.GoalMapper;
+import school.faang.user_service.exception.goal.EntityNotFound;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.UserService;
@@ -23,15 +24,15 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class GoalService {
     private final GoalRepository goalRepository;
-
     private final UserService userService;
     private final SkillService skillService;
     private final List<GoalFilter> goalFilters;
-
     private final GoalMapper goalMapper;
-
     private final GoalValidator goalValidation;
 
+    public Goal findGoalById(Long id) {
+        return goalRepository.findById(id).orElseThrow(() -> new EntityNotFound(String.format("Goal not found by id: %s", id)));
+    }
 
     /**
      * Creates a new goal with the given details for the given user ID.
