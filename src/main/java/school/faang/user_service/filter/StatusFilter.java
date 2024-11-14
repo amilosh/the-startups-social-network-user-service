@@ -10,6 +10,11 @@ import java.util.Objects;
 @Component
 public class StatusFilter implements RequestFilter {
     @Override
+    public boolean isFilterApplicable(RequestFilterDto requestFilterDto) {
+        return requestFilterDto.getStatus() != null;
+    }
+
+    @Override
     public boolean apply(RecommendationRequest recommendationRequest, RequestFilterDto requestFilterDto) {
         RequestStatus statusOriginal = recommendationRequest.getStatus();
         RequestStatus statusFilter = requestFilterDto.getStatus();

@@ -48,7 +48,7 @@ public class RecommendationRequestService {
         entityRecommendationRequest
                 .setRequester(entityRequester)
                 .setReceiver(entityReceiver);
-        if(entityRecommendationRequest.getSkills() == null){
+        if (entityRecommendationRequest.getSkills() == null) {
             entityRecommendationRequest.setSkills(new ArrayList<>());
         }
         entitySkillRequests.forEach(entityRecommendationRequest::addSkillRequest);
@@ -58,10 +58,15 @@ public class RecommendationRequestService {
 
     public List<RecommendationRequestDto> getRequests(RequestFilterDto filter) {
         List<RecommendationRequest> recommendationRequestsAll = recommendationRequestRepository.findAll();
-        List<RecommendationRequest> recommendationRequestsFiltered = recommendationRequestsAll.stream()
-                .filter(recommendationRequest -> requestFilters.stream()
-                        .allMatch(requestFilter -> requestFilter.apply(recommendationRequest, filter)))
+        List<RequestFilter> suitableFilters = requestFilters.stream()
+                .filter(requestFilter -> requestFilter.isFilterApplicable(filter))
                 .toList();
+
+        List<RecommendationRequest> recommendationRequestsFiltered = recommendationRequestsAll.stream()
+                .filter(recommendationRequest -> suitableFilters.stream()
+                        .allMatch(suitableFilter -> suitableFilter.apply(recommendationRequest, filter)))
+                .toList();
+
         return mapper.allToDTO(recommendationRequestsFiltered);
     }
 

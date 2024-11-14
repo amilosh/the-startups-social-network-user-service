@@ -25,6 +25,9 @@ public interface RecommendationRequestMapper {
 
     @Named("mapSkillRequestToSkillId")
     default List<Long> mapSkillRequestToSkillId(List<SkillRequest> skills) {
+        if (skills == null) {
+            return null;
+        }
         return skills.stream()
                 .map(SkillRequest::getSkill)
                 .map(Skill::getId)
