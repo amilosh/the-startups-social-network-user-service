@@ -1,61 +1,44 @@
 package school.faang.user_service.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.UserMapper;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.validator.SubscriptionValidator;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class SubscriptionServiceTest {
 
     @Mock
     private SubscriptionRepository subscriptionRepository;
 
     @Mock
-    private UserMapper userMapper;
+    private SubscriptionValidator subscriptionValidator;
 
     @InjectMocks
     private SubscriptionService subscriptionService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
-
     @Test
-    void followUser_shouldThrowException_whenAlreadyFollowing() {
+    void followUser_shouldCallValidatorAndRepository() {
         long followerId = 1;
         long followeeId = 2;
-        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(true);
-        DataValidationException exception = assertThrows(DataValidationException.class, () -> {
-            subscriptionService.followUser(followerId, followeeId);
-        });
-        assertEquals("Подписка уже существует.", exception.getMessage());
-        verify(subscriptionRepository, never()).followUser(anyLong(), anyLong());
-    }
-
-    @Test
-    void followUser_shouldFollowUser_whenNotFollowing() {
-        long followerId = 1;
-        long followeeId = 2;
-        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(false);
-        subscriptionService.followUser(followerId, followeeId);
+        assertDoesNotThrow(() -> subscriptionService.followUser(followerId, followeeId));
+        verify(subscriptionValidator).validateFollowUser(followerId, followeeId);
         verify(subscriptionRepository).followUser(followerId, followeeId);
     }
 
     @Test
-    void unfollowUser_shouldUnfollowUser() {
+    void unfollowUser_shouldCallValidatorAndRepository() {
         long followerId = 1;
         long followeeId = 2;
-        subscriptionService.unfollowUser(followerId, followeeId);
+        assertDoesNotThrow(() -> subscriptionService.unfollowUser(followerId, followeeId));
+        verify(subscriptionValidator).validateUnfollowUser(followerId, followeeId);
         verify(subscriptionRepository).unfollowUser(followerId, followeeId);
     }
 
@@ -63,15 +46,17 @@ class SubscriptionServiceTest {
     void getFollowersCount_shouldReturnCount() {
         long followeeId = 1;
         when(subscriptionRepository.findFollowersAmountByFolloweeId(followeeId)).thenReturn(5);
-        long count = subscriptionService.getFollowersCount(followeeId);
+        long count = assertDoesNotThrow(() -> subscriptionService.getFollowersCount(followeeId));
         assertEquals(5, count);
+        verify(subscriptionValidator).validateUserExists(followeeId);
     }
 
     @Test
     void getFollowingCount_shouldReturnCount() {
         long followerId = 1;
         when(subscriptionRepository.findFolloweesAmountByFollowerId(followerId)).thenReturn(3);
-        long count = subscriptionService.getFollowingCount(followerId);
+        long count = assertDoesNotThrow(() -> subscriptionService.getFollowingCount(followerId));
         assertEquals(3, count);
+        verify(subscriptionValidator).validateUserExists(followerId);
     }
 }
