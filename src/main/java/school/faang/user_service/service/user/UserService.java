@@ -70,20 +70,18 @@ public class UserService {
         return usersStream.map(userMapper::toDto);
     }
 
-    public UserDto getUser(long userId){
+    public UserDto getUser(long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(()-> new EntityNotFoundException("User with Id" + userId + "not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User with Id" + userId + "not found"));
         return userMapper.toDto(user);
     }
 
-    public List<UserDto> getUsersByIds(List<Long> ids){
+    public List<UserDto> getUsersByIds(List<Long> ids) {
         userValidator.validateUsersByIds(ids);
-
         List<User> users = userRepository.findAllById(ids);
-        if( users.isEmpty()){
+        if (users.isEmpty()) {
             throw new DataValidationException("There aren't found any users by these Ids/Id");
         }
         return userMapper.toListDto(users);
-
     }
 }
