@@ -183,7 +183,7 @@ class UserServiceTest {
         long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(EntityNotFound.class, () -> userService.findUserById(userId));
+        Exception exception = assertThrows(EntityNotFoundException.class, () -> userService.findUserById(userId));
         assertEquals(String.format("User not found by id: %s", userId), exception.getMessage());
     }
 }

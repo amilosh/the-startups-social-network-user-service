@@ -9,7 +9,6 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.mapper.GoalMapper;
-import school.faang.user_service.exception.goal.EntityNotFound;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.UserService;
@@ -31,7 +30,7 @@ public class GoalService {
     private final GoalValidator goalValidation;
 
     public Goal findGoalById(Long id) {
-        return goalRepository.findById(id).orElseThrow(() -> new EntityNotFound(String.format("Goal not found by id: %s", id)));
+        return goalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Goal not found by id: %s", id)));
     }
 
     /**

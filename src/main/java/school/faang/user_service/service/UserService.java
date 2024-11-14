@@ -7,7 +7,6 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.request.UsersDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.exception.goal.EntityNotFound;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.List;
@@ -45,6 +44,6 @@ public class UserService {
     }
 
     public User findUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new EntityNotFound(String.format("User not found by id: %s", id)));
+        return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("User not found by id: %s", id)));
     }
 }
