@@ -21,12 +21,14 @@ public class EventParticipationService {
 
     @Transactional
     public void registerParticipant(long eventId, long userId) {
+        eventValidator.checkUserExists(userId);
         eventValidator.validateEventExists(eventId);
         eventValidator.validateUserNotRegistered(eventId, userId);
         eventParticipationRepository.register(eventId, userId);
     }
 
     public void unregisterParticipant(long eventId, long userId) {
+        eventValidator.checkUserExists(userId);
         eventValidator.validateEventExists(eventId);
         eventValidator.validateUserIsRegistered(eventId, userId);
         eventParticipationRepository.unregister(eventId, userId);

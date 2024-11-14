@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.exception.partiсipation.EventNotFoundException;
 import school.faang.user_service.exception.partiсipation.ParticipationException;
+import school.faang.user_service.exception.partiсipation.UserNotFoundException;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
@@ -13,6 +14,14 @@ public class EventValidator {
 
     private final EventRepository eventRepository;
     private final EventParticipationRepository eventParticipationRepository;
+
+
+
+    public void checkUserExists (long userId) {
+        if (!eventRepository.existsById(userId)) {
+            throw new UserNotFoundException("User id" + userId + " does not exist");
+        }
+    }
 
     public void validateEventExists(long eventId) {
         if (!eventRepository.existsById(eventId)) {
