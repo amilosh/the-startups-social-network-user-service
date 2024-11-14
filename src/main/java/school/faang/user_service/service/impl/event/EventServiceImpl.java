@@ -2,8 +2,6 @@ package school.faang.user_service.service.impl.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.filter.EventFilterDto;
 import school.faang.user_service.dto.event.EventDto;
@@ -22,7 +20,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @Slf4j
-
 @Component
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
@@ -42,14 +39,10 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDto create(EventDto eventDto) {
         User owner = findUser(eventDto.ownerId());
-        boolean rezalt = compareListSkillsOwnerAndListEvents(owner, eventDto);
-        if (rezalt) {
-            Event entity = eventMapper.toEntity(eventDto);
-            EventDto newEvent = eventMapper.toDto(eventRepository.save(entity));
-            return newEvent;
-        } else {
-            throw new DataValidationException("Некорректные данные для обновления события");
-        }
+        validateOwnerAndEventsSkills(owner, eventDto);
+        Event entity = eventMapper.toEntity(eventDto);
+        EventDto newEvent = eventMapper.toDto(eventRepository.save(entity));
+        return newEvent;
     }
 
     @Override
@@ -62,9 +55,7 @@ public class EventServiceImpl implements EventService {
     public void deleteEvent(long id) {
         if (eventRepository.existsById(id)) {
             eventRepository.deleteById(id);
-            Logger logger = LoggerFactory.getLogger(EventServiceImpl.class);
-            logger.info("Событие с id {} удалено.", id);
-
+            log.info("Событие с id {} удалено.", id);
         } else {
             throw new DataValidationException("Такого события не существует, удаление не возможно");
         }
@@ -73,15 +64,11 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventDto updateEvent(EventDto eventDto) {
         User owner = findUser(eventDto.ownerId());
-        boolean rezalt = compareListSkillsOwnerAndListEvents(owner, eventDto);
-        if (rezalt) {
-            Event event = eventRepository.findById(eventDto.id()).orElseThrow(() -> new DataValidationException("Такого события не существует"));
-            eventMapper.update(eventDto, event);
-            EventDto newEvent = eventMapper.toDto(eventRepository.save(event));
-            return newEvent;
-        } else {
-            throw new DataValidationException("Некорректные данные для обновления события");
-        }
+        validateOwnerAndEventsSkills(owner, eventDto);
+        Event event = eventRepository.findById(eventDto.id()).orElseThrow(() -> new DataValidationException("Такого события не существует"));
+        eventMapper.update(eventDto, event);
+        EventDto newEvent = eventMapper.toDto(eventRepository.save(event));
+        return newEvent;
     }
 
     @Override
@@ -99,18 +86,15 @@ public class EventServiceImpl implements EventService {
         return userRepository.findById(id).orElseThrow(() -> new DataValidationException("Такого user не существует"));
     }
 
-    private boolean compareListSkillsOwnerAndListEvents(User owner, EventDto eventDto) {
+    private void validateOwnerAndEventsSkills(User owner, EventDto eventDto) {
         List<Long> ownerSkillsIds = owner.getSkills().stream()
                 .map(Skill::getId)
                 .toList();
         List<Long> eventSkillsIds = eventDto.relatedSkills().stream()
-                .map(SkillDto::id)
+                .map(SkillDto::getId)
                 .toList();
         if (!new HashSet<>(ownerSkillsIds).containsAll(eventSkillsIds)) {
             throw new DataValidationException("У пользователя не хватает навыков");
-        } else {
-            boolean rezult = true;
-            return rezult;
         }
     }
 }

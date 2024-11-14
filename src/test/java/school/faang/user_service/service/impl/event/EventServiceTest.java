@@ -59,8 +59,11 @@ class EventServiceTest {
 
         eventService = new EventServiceImpl(eventRepository, userRepository, eventMapper, filterList, skillMapper);
 
-        skillDto1 = SkillDto.builder().id(1L).title("Java").build();
-        skillDto2 = SkillDto.builder().id(2L).title("Spring").build();
+        skillDto1 = new SkillDto();
+        skillDto1.setId(1L);
+        skillDto2 = new SkillDto();
+        skillDto2.setId(2L);
+
 
         skillsDtos = new ArrayList<>();
         skillsDtos.add(skillDto1);
