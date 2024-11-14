@@ -12,6 +12,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          batch_size: 100
+          batch_versioned_data: true
 
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
@@ -40,3 +43,32 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+  base-path: /api
+  url: http://${payment-service.host}:${payment-service.port}${payment-service.base-path}
+
+app:
+  goal:
+    max-active-per-user: 3
+  promotion:
+    user_promotion_views_decrement_cron: '*/10 * * * * *'
+    event__promotion_views_decrement_cron: '*/10 * * * * *'
+  premium:
+    cron:
+      premium_remove_scheduler: '0 0 0 ? * SUN *'
+  retryable:
+    payment_service:
+      send_payment:
+        max_attempts: 3
+        delay: 100
+        multiplier: 2
+  async-config:
+    promotion-task-service:
+      core_pool_size: 10
+      max_pool_size: 20
+      queue_capacity: 1000
+      thread_name_prefix: PromotionTaskService-Async-
+    premium-service-sync:
+      core_pool_size: 10
+      max_pool_size: 20
+      queue_capacity: 1000
+      thread_name_prefix: PremiumService-Async-

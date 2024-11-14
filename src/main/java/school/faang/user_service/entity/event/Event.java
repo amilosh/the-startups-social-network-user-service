@@ -1,6 +1,21 @@
 package school.faang.user_service.entity.event;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,6 +24,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.promotion.EventPromotion;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -66,6 +82,9 @@ public class Event {
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.ORDINAL)
     private EventStatus status;
+
+    @OneToOne(mappedBy = "event")
+    private EventPromotion promotion;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
