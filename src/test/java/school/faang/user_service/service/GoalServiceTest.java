@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,6 +18,7 @@ import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.GoalMapper;
+import school.faang.user_service.exception.goal.EntityNotFound;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.goal.GoalFilter;
 import school.faang.user_service.service.goal.GoalService;
@@ -27,7 +29,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,10 +42,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
-public class GoalServiceTest {
+class GoalServiceTest {
     @InjectMocks
     private GoalService goalService;
 
@@ -333,5 +336,32 @@ public class GoalServiceTest {
         verify(mockFilter, never()).apply(any(), any());
         verify(goalMapper).toDto(goalEntity);
         verify(goalMapper).toDto(secondGoalEntity);
+    }
+
+    @Test
+    @DisplayName("Test FindById Positive")
+    void testFindGoalByIdPositive() {
+        long goalId = 1L;
+        Goal goal = Goal.builder()
+                .id(1L)
+                .build();
+        when(goalRepository.findById(goalId)).thenReturn(Optional.of(goal));
+
+        Goal result = goalService.findGoalById(goalId);
+
+        verify(goalRepository, times(1)).findById(goalId);
+        assertNotNull(result);
+        assertEquals(goalId, result.getId());
+    }
+
+    @Test
+    @DisplayName("Test FindById Negative")
+    void testFindByIdNegative() {
+        long goalId = 1L;
+        when(goalRepository.findById(goalId)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(EntityNotFound.class, () -> goalService.findGoalById(goalId));
+        assertEquals(String.format("Goal not found by id: %s", goalId), exception.getMessage());
+        verify(goalRepository, times(1)).findById(goalId);
     }
 }

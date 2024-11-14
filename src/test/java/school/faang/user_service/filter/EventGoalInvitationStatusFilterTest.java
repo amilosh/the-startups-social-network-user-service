@@ -19,7 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class EventStatusFilterTest {
+public class EventGoalInvitationStatusFilterTest {
     @InjectMocks
     private EventStatusFilter filter;
 
