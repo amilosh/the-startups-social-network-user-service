@@ -15,8 +15,6 @@ public class EventValidator {
     private final EventRepository eventRepository;
     private final EventParticipationRepository eventParticipationRepository;
 
-
-
     public void checkUserExists (long userId) {
         if (!eventRepository.existsById(userId)) {
             throw new UserNotFoundException("User id" + userId + " does not exist");
