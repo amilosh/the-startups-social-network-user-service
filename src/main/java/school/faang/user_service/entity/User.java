@@ -143,6 +143,19 @@ public class User {
     @OneToOne(mappedBy = "user")
     private Premium premium;
 
+
+    public void removeParticipatedEvent(Event event){
+        participatedEvents.remove(event);
+    }
+
+    public void removeOwnedEvent(Event event){
+        ownedEvents.remove(event);
+    }
+
+    public String toLogString(){
+        return String.format("User %s with id %d", username, id);
+    }
+
     public void addSkill(Skill skill) {
         skills.add(skill);
     }
