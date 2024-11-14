@@ -42,9 +42,9 @@ public class AvatarService {
             log.info("Successfully retrieved avatar for user ID: {}. Data length: {}", userId, avatarData.length);
             return Optional.of(avatarData);
         } catch (WebClientResponseException e) {
-            throw new DiceBearException(String.format(ErrorMessage.AVATAR_RETRIEVAL_ERROR, e.getStatusCode()), e);
+            throw new DiceBearException(String.format(ErrorMessage.DICE_BEAR_RETRIEVAL_ERROR, e.getStatusCode()), e);
         } catch (Exception e) {
-            throw new DiceBearException(ErrorMessage.AVATAR_UNEXPECTED_ERROR, e);
+            throw new DiceBearException(ErrorMessage.DICE_BEAR_UNEXPECTED_ERROR, e);
         }
     }
 }

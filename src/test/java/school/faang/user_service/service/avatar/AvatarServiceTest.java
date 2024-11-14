@@ -74,10 +74,10 @@ class AvatarServiceTest {
 
         DiceBearException exception = assertThrows(DiceBearException.class, () -> {
             avatarService.getRandomDiceBearAvatar(USER_ID).orElseThrow(() ->
-                    new DiceBearException(ErrorMessage.AVATAR_EMPTY_CONTENT));
+                    new DiceBearException(ErrorMessage.DICE_BEAR_EMPTY_CONTENT));
         });
 
-        assertEquals(ErrorMessage.AVATAR_EMPTY_CONTENT, exception.getMessage());
+        assertEquals(ErrorMessage.DICE_BEAR_EMPTY_CONTENT, exception.getMessage());
     }
 
     @Test
@@ -86,7 +86,7 @@ class AvatarServiceTest {
 
         DiceBearException exception = assertThrows(DiceBearException.class, () -> {
             avatarService.getRandomDiceBearAvatar(USER_ID).orElseThrow(() ->
-                    new DiceBearException(ErrorMessage.AVATAR_RETRIEVAL_ERROR));
+                    new DiceBearException(ErrorMessage.DICE_BEAR_RETRIEVAL_ERROR));
         });
 
         assertTrue(exception.getMessage().contains("Error retrieving avatar"));
@@ -100,6 +100,6 @@ class AvatarServiceTest {
             avatarService.getRandomDiceBearAvatar(USER_ID);
         });
 
-        assertEquals(ErrorMessage.AVATAR_UNEXPECTED_ERROR, exception.getMessage());
+        assertEquals(ErrorMessage.DICE_BEAR_UNEXPECTED_ERROR, exception.getMessage());
     }
 }
