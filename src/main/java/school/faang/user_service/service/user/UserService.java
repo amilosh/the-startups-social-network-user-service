@@ -10,8 +10,8 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.validator.user.UserValidator;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -24,7 +24,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final List<UserFilter> userFilters;
     private final UserMapper userMapper;
-    private final UserValidator userValidator;
 
     @Transactional
     public boolean existsById(long userId) {
@@ -43,7 +42,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserDto> getNotPremiumUsers(UserFilterDto filterDto) {
-        Stream<User> notPremiumUsers = userValidator.validateNotPremiumUsers();
+        Stream<User> usersToFilter = userRepository.findAll().stream();
+        Stream<User> notPremiumUsers = filterPremiumUsers(usersToFilter);
 
         List<UserDto> filteredUsers = filter(notPremiumUsers, filterDto);
         log.info("Got {} filtered users, by filter {}", filteredUsers.size(), filterDto);
@@ -65,5 +65,11 @@ public class UserService {
                 .reduce(usersStream,
                         (users, userFilter) -> userFilter.apply(users, filterDto),
                         (a, b) -> b));
+    }
+
+    private Stream<User> filterPremiumUsers(Stream<User> users) {
+        return users.filter(user -> user.getPremium() == null
+                || user.getPremium().getEndDate() == null
+                || user.getPremium().getEndDate().isBefore(LocalDateTime.now()));
     }
 }

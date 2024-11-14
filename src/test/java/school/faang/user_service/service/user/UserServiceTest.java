@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.filter.user.UserEmailFilter;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNameFilter;
@@ -17,6 +18,7 @@ import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.validator.user.UserValidator;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,9 +41,6 @@ class UserServiceTest {
     @Spy
     UserMapper userMapper;
 
-    @Mock
-    UserValidator userValidator;
-
     private UserService userService;
     private List<UserFilter> userFilters;
 
@@ -52,7 +51,7 @@ class UserServiceTest {
         userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
         userMapper = new UserMapperImpl();
 
-        userService = new UserService(userRepository, userFilters, userMapper, userValidator);
+        userService = new UserService(userRepository, userFilters, userMapper);
     }
 
     @Test
@@ -144,16 +143,21 @@ class UserServiceTest {
         long firstUserId = 1L;
         long secondUserId = 2L;
 
+        Premium premium = new Premium();
+        premium.setEndDate(LocalDateTime.now().minusDays(1));
+
         User firstUser = User.builder()
                 .id(firstUserId)
                 .username("firstUser")
                 .email("first@email.com")
+                .premium(premium)
                 .build();
 
         User secondUser = User.builder()
                 .id(secondUserId)
                 .username("secondUser")
                 .email("second@email.com")
+                .premium(premium)
                 .build();
 
         UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com");
@@ -161,20 +165,92 @@ class UserServiceTest {
 
         Stream<User> users = Stream.of(firstUser, secondUser);
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
+        List<User> usersList = List.of(firstUser, secondUser);
         UserFilterDto filterDto = new UserFilterDto();
 
-        when(userValidator.validateNotPremiumUsers()).thenReturn(users);
+        when(userRepository.findAll()).thenReturn(usersList);
         when(userFilters.get(0).isApplicable(filterDto)).thenReturn(true);
         when(userFilters.get(0).apply(users, filterDto)).thenReturn(users);
         when(userFilters.get(1).isApplicable(filterDto)).thenReturn(false);
 
         List<UserDto> actualUsersDto = userService.getNotPremiumUsers(filterDto);
 
-        verify(userValidator).validateNotPremiumUsers();
         verify(userFilters.get(0)).isApplicable(filterDto);
         verify(userFilters.get(1)).isApplicable(filterDto);
         verify(userFilters.get(0)).apply(users, filterDto);
 
         assertEquals(expectedUsersDto, actualUsersDto);
+    }
+
+    @Test
+    public void usersArePremiumShouldReturnEmptyListTest() {
+        Premium premium = new Premium();
+        premium.setEndDate(LocalDateTime.now().plusDays(30));
+
+        User user = new User();
+        user.setPremium(premium);
+        User user2 = new User();
+        user2.setPremium(premium);
+
+        List<User> users = new ArrayList<>(List.of(user,user2));
+        UserFilterDto filterDto = new UserFilterDto();
+
+        when(userRepository.findAll()).thenReturn(users);
+
+        List<UserDto> actualUsers = userService.getNotPremiumUsers(filterDto);
+
+        assertEquals(new ArrayList<>(), actualUsers);
+    }
+
+    @Test
+    public void usersPremiumIsNullTest() {
+        User user = new User();
+        User user2 = new User();
+
+        List<User> users = new ArrayList<>(List.of(user,user2));
+        UserFilterDto filterDto = new UserFilterDto();
+
+        when(userRepository.findAll()).thenReturn(users);
+
+        List<UserDto> actualUsers = userService.getNotPremiumUsers(filterDto);
+
+        assertEquals(users, actualUsers);
+    }
+
+    @Test
+    public void usersPremiumEndDateIsNullTest() {
+        Premium premium = new Premium();
+
+        User user = new User();
+        user.setPremium(premium);
+        User user2 = new User();
+        user2.setPremium(premium);
+
+        List<User> users = new ArrayList<>(List.of(user,user2));
+
+        when(userRepository.findAll()).thenReturn(users);
+
+//        Stream<User> actualUsers = userValidator.validateNotPremiumUsers();
+
+//        assertEquals(users, actualUsers.toList());
+    }
+
+    @Test
+    public void usersPremiumEndDateIsBeforeNowTest() {
+        Premium premium = new Premium();
+        premium.setEndDate(LocalDateTime.now().minusDays(1));
+
+        User user = new User();
+        user.setPremium(premium);
+        User user2 = new User();
+        user2.setPremium(premium);
+
+        List<User> users = new ArrayList<>(List.of(user,user2));
+
+        when(userRepository.findAll()).thenReturn(users);
+
+//        Stream<User> actualUsers = userValidator.validateNotPremiumUsers();
+
+//        assertEquals(users, actualUsers.toList());
     }
 }

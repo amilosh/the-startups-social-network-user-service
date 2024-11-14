@@ -9,6 +9,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.subscription.SubscriptionValidator;
 import school.faang.user_service.validator.user.UserValidator;
 
@@ -25,9 +26,12 @@ public class SubscriptionService {
     private final List<UserFilter> userFilters;
     private final SubscriptionValidator subscriptionValidator;
     private final UserValidator userValidator;
+    private final UserService userService;
 
     public void followUser(long followerId, long followeeId) {
-        userValidator.areUsersExist(followerId, followeeId);
+        userValidator.validateUserExistence(userService.existsById(followerId));
+        userValidator.validateUserExistence(userService.existsById(followeeId));
+
         subscriptionValidator.isFollowingExistsValidate(followerId, followeeId);
 
         subscriptionRepository.followUser(followerId, followeeId);
@@ -35,7 +39,8 @@ public class SubscriptionService {
     }
 
     public void unfollowUser(long followerId, long followeeId) {
-        userValidator.areUsersExist(followerId, followeeId);
+        userValidator.validateUserExistence(userService.existsById(followerId));
+        userValidator.validateUserExistence(userService.existsById(followeeId));
         subscriptionValidator.isFollowingNotExistsValidate(followerId, followeeId);
 
         subscriptionRepository.unfollowUser(followerId, followeeId);
@@ -43,7 +48,7 @@ public class SubscriptionService {
     }
 
     public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
-        userValidator.isUserExists(followeeId);
+        userValidator.validateUserExistence(userService.existsById(followeeId));
 
         Stream<User> followers = subscriptionRepository.findByFolloweeId(followeeId);
 
@@ -61,14 +66,14 @@ public class SubscriptionService {
     }
 
     public int getFollowersCount(long followeeId) {
-        userValidator.isUserExists(followeeId);
+        userValidator.validateUserExistence(userService.existsById(followeeId));
 
         log.info("Getting followers count for user with id {}", followeeId);
         return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
     }
 
     public List<UserDto> getFollowing(long followerId, UserFilterDto filter) {
-        userValidator.isUserExists(followerId);
+        userValidator.validateUserExistence(userService.existsById(followerId));
 
         Stream<User> followings = subscriptionRepository.findByFollowerId(followerId);
 
@@ -77,7 +82,7 @@ public class SubscriptionService {
     }
 
     public int getFollowingCount(long followeeId) {
-        userValidator.isUserExists(followeeId);
+        userValidator.validateUserExistence(userService.existsById(followeeId));
 
         log.info("Getting followings count for user with id: {}", followeeId);
         return subscriptionRepository.findFolloweesAmountByFollowerId(followeeId);
