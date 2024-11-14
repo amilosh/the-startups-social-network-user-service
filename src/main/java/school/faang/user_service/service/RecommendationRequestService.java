@@ -56,15 +56,15 @@ public class RecommendationRequestService {
         recommendationRequestRepository.save(entityRecommendationRequest);
     }
 
-    public List<RecommendationRequestDto> getRequests(RequestFilterDto filter) {
+    public List<RecommendationRequestDto> getRequests(RequestFilterDto filterDto) {
         List<RecommendationRequest> recommendationRequestsAll = recommendationRequestRepository.findAll();
         List<RequestFilter> suitableFilters = requestFilters.stream()
-                .filter(requestFilter -> requestFilter.isFilterApplicable(filter))
+                .filter(requestFilter -> requestFilter.isFilterApplicable(filterDto))
                 .toList();
 
         List<RecommendationRequest> recommendationRequestsFiltered = recommendationRequestsAll.stream()
                 .filter(recommendationRequest -> suitableFilters.stream()
-                        .allMatch(suitableFilter -> suitableFilter.apply(recommendationRequest, filter)))
+                        .allMatch(suitableFilter -> suitableFilter.apply(recommendationRequest, filterDto)))
                 .toList();
 
         return mapper.allToDTO(recommendationRequestsFiltered);
