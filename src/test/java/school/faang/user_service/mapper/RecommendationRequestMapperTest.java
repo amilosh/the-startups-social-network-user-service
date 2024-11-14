@@ -1,10 +1,7 @@
 package school.faang.user_service.mapper;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
@@ -18,17 +15,15 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(MockitoExtension.class)
 class RecommendationRequestMapperTest {
-    @Spy
-    private RecommendationRequestMapperImpl mapper;
+    private final RecommendationRequestMapperImpl mapper = new RecommendationRequestMapperImpl();
 
-    private static RecommendationRequest entity;
-    private static RecommendationRequest entityForToEntityExpected;
-    private static RecommendationRequestDto dto;
+    private RecommendationRequest entity;
+    private RecommendationRequest entityForToEntityExpected;
+    private RecommendationRequestDto dto;
 
-    @BeforeAll
-    static void setUp() {
+    @BeforeEach
+    void setUp() {
         User requester = User.builder()
                 .id(201L).build();
 
@@ -101,13 +96,13 @@ class RecommendationRequestMapperTest {
     @Test
     void toDTO() {
         RecommendationRequestDto dtoForMapper = mapper.toDTO(entity);
-        assertEquals(dto,dtoForMapper);
+        assertEquals(dto, dtoForMapper);
 
     }
 
     @Test
     void toEntity() {
         RecommendationRequest entityForToEntity = mapper.toEntity(dto);
-        assertEquals(entityForToEntityExpected,entityForToEntity);
+        assertEquals(entityForToEntityExpected, entityForToEntity);
     }
 }
