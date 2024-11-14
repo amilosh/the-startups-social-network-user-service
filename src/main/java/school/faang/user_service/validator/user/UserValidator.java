@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.UserRepository;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Slf4j
@@ -19,5 +21,11 @@ public class UserValidator {
             log.error("User with id {} not found", userId);
             return new NoSuchElementException(String.format("There isn't user with id = %d", userId));
         });
+    }
+
+    public void validateUsersByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new DataValidationException("List Ids shouldn't be empty");
+        }
     }
 }

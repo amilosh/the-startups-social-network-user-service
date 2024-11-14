@@ -17,6 +17,7 @@ import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
 import school.faang.user_service.service.user.filter.UserFilter;
+import school.faang.user_service.validator.user.UserValidator;
 
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +53,8 @@ class UserServiceTest {
     private UserMapper userMapper;
     @Mock
     private UserFilter userFilter;
+    @Mock
+    private UserValidator userValidator;
 
     @InjectMocks
     private UserService userService;
@@ -59,7 +62,7 @@ class UserServiceTest {
     @BeforeEach
     void setUp(){
         MockitoAnnotations.openMocks(this);
-        userService = new UserService(userRepository, goalRepository, eventRepository, mentorshipService,userMapper,List.of(userFilter));
+        userService = new UserService( userRepository, goalRepository, eventRepository, mentorshipService,userMapper,List.of(userFilter), userValidator);
     }
 
     @Test

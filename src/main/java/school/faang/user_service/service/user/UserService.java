@@ -8,12 +8,14 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
 import school.faang.user_service.service.user.filter.UserFilter;
+import school.faang.user_service.validator.user.UserValidator;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -29,6 +31,7 @@ public class UserService {
     private final MentorshipService mentorshipService;
     private final UserMapper userMapper;
     private final List<UserFilter> userFilters;
+    private final UserValidator userValidator;
 
     @Transactional
     public void deactivateUser(Long userId) {
@@ -65,5 +68,22 @@ public class UserService {
         }
 
         return usersStream.map(userMapper::toDto);
+    }
+
+    public UserDto getUser(long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> new EntityNotFoundException("User with Id" + userId + "not found"));
+        return userMapper.toDto(user);
+    }
+
+    public List<UserDto> getUsersByIds(List<Long> ids){
+        userValidator.validateUsersByIds(ids);
+
+        List<User> users = userRepository.findAllById(ids);
+        if( users.isEmpty()){
+            throw new DataValidationException("There aren't found any users by these Ids/Id");
+        }
+        return userMapper.toListDto(users);
+
     }
 }
