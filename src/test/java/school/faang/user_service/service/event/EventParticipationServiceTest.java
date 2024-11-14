@@ -77,7 +77,6 @@ public class EventParticipationServiceTest {
 
         assertEquals(5, participantCount);
         verify(eventValidator).validateEventExists(eventId);
-        verify(eventValidator).validateParticipantsCount(eventId);
         verify(eventParticipationRepository).countParticipants(eventId);
     }
 }

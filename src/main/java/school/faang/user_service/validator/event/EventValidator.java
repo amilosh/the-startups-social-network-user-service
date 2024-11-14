@@ -2,8 +2,8 @@ package school.faang.user_service.validator.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.exception.EventNotFoundException;
-import school.faang.user_service.exception.ParticipationException;
+import school.faang.user_service.exception.partiсipation.EventNotFoundException;
+import school.faang.user_service.exception.partiсipation.ParticipationException;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
@@ -29,13 +29,6 @@ public class EventValidator {
     public void validateUserNotRegistered(long eventId, long userId) {
         if (eventParticipationRepository.existsByEventIdAndUserId(eventId, userId)) {
             throw new ParticipationException("User is already registered for this event.");
-        }
-    }
-
-    public void validateParticipantsCount(long eventId) {
-        int participantsCount = eventParticipationRepository.countParticipants(eventId);
-        if (participantsCount == 0) {
-            throw new EventNotFoundException("No participants found for the event with ID " + eventId);
         }
     }
 }
