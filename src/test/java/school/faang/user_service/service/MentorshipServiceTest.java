@@ -25,12 +25,12 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class MentorshipServiceTest {
 
+    @InjectMocks
+    public MentorshipService mentorshipService;
     @Mock
     private UserService userService;
     @Spy
     private UserMapperImpl userMapper;
-    @InjectMocks
-    public MentorshipService mentorshipService;
 
     @Test
     public void getMenteesWhenUserHasMentees() {

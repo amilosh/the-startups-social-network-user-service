@@ -27,7 +27,7 @@ public class RecommendationRequestDto {
     private RequestStatus status;
 
     @NotEmpty(message = "Skill list must not be empty")
-    private List<Long> skills;
+    private List<Long> skillIdentifiers;
 
     @NotNull(message = "Requester ID field is mandatory")
     private Long requesterId;

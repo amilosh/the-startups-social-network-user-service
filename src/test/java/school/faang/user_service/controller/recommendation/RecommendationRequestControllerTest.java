@@ -49,7 +49,7 @@ public class RecommendationRequestControllerTest {
                 .receiverId(2L)
                 .message("привет")
                 .status(RequestStatus.PENDING)
-                .skills(Arrays.asList(1L, 2L))
+                .skillIdentifiers(Arrays.asList(1L, 2L))
                 .build();
 
         responseDto = RecommendationRequestDto.builder()
@@ -58,7 +58,7 @@ public class RecommendationRequestControllerTest {
                 .receiverId(2L)
                 .message("привет")
                 .status(RequestStatus.PENDING)
-                .skills(Arrays.asList(1L, 2L))
+                .skillIdentifiers(Arrays.asList(1L, 2L))
                 .build();
     }
 
@@ -68,7 +68,7 @@ public class RecommendationRequestControllerTest {
         when(recommendationRequestService.create(any(RecommendationRequestDto.class)))
                 .thenReturn(responseDto);
 
-        mockMvc.perform(post("/recommendationrequest")
+        mockMvc.perform(post("/recommendation-request")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isCreated())
@@ -87,10 +87,10 @@ public class RecommendationRequestControllerTest {
                 .receiverId(2L)
                 .message("hi")
                 .status(RequestStatus.PENDING)
-                .skills(Arrays.asList())
+                .skillIdentifiers(Arrays.asList())
                 .build();
 
-        mockMvc.perform(post("/recommendationrequest")
+        mockMvc.perform(post("/recommendation-request")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequestDto)))
                 .andExpect(status().isBadRequest());
@@ -101,7 +101,7 @@ public class RecommendationRequestControllerTest {
         when(recommendationRequestService.create(any(RecommendationRequestDto.class)))
                 .thenThrow(new RuntimeException("Service error"));
 
-        mockMvc.perform(post("/recommendationrequest")
+        mockMvc.perform(post("/recommendation-request")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isBadRequest());
@@ -112,10 +112,10 @@ public class RecommendationRequestControllerTest {
         RecommendationRequestDto invalidRequestDto = RecommendationRequestDto.builder()
                 .receiverId(2L)
                 .status(RequestStatus.PENDING)
-                .skills(Arrays.asList(1L, 2L))
+                .skillIdentifiers(Arrays.asList(1L, 2L))
                 .build();
 
-        mockMvc.perform(post("/recommendationrequest")
+        mockMvc.perform(post("/recommendation-request")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidRequestDto)))
                 .andExpect(status().isBadRequest());
@@ -126,7 +126,7 @@ public class RecommendationRequestControllerTest {
         when(recommendationRequestService.getRequest(1L))
                 .thenReturn(responseDto);
 
-        mockMvc.perform(get("/recommendationrequest/1")
+        mockMvc.perform(get("/recommendation-request/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(responseDto.getId()))

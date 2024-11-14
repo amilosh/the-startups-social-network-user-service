@@ -24,6 +24,8 @@ import static org.mockito.Mockito.when;
 
 public class RecommendationRequestValidatorTest {
 
+    private final Long requesterId = 1L;
+    private final Long receiverId = 2L;
     private RecommendationRequestValidator validator;
     private RecommendationRequestRepository recommendationRequestRepository;
     private SkillValidator skillValidator;
@@ -48,7 +50,7 @@ public class RecommendationRequestValidatorTest {
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 validator.validateUsersExistence(null, receiver)
         );
-        assertEquals("Пользователя, запрашивающего рекомендацию не существует", exception.getMessage());
+        assertEquals("Requester was not provided", exception.getMessage());
     }
 
     @Test
@@ -57,7 +59,7 @@ public class RecommendationRequestValidatorTest {
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 validator.validateUsersExistence(requester, null)
         );
-        assertEquals("Пользователя, получающего рекомендацию не существует", exception.getMessage());
+        assertEquals("Receiver was not provided", exception.getMessage());
     }
 
     @Test
@@ -94,7 +96,7 @@ public class RecommendationRequestValidatorTest {
         Exception exception = assertThrows(IllegalStateException.class, () ->
                 validator.validateRejectRequest(request)
         );
-        assertEquals("Невозможно отклонить запрос на рекомендацию, поскольку он уже имеет статус ACCEPTED", exception.getMessage());
+        assertEquals("Impossible to reject recommendation request since it already has status ACCEPTED", exception.getMessage());
     }
 
     @Test
@@ -104,13 +106,11 @@ public class RecommendationRequestValidatorTest {
         Exception exception = assertThrows(IllegalStateException.class, () ->
                 validator.validateRejectRequest(request)
         );
-        assertEquals("Невозможно отклонить запрос на рекомендацию, поскольку он уже имеет статус REJECTED", exception.getMessage());
+        assertEquals("Impossible to reject recommendation request since it already has status REJECTED", exception.getMessage());
     }
 
     @Test
     void testValidateRequestFrequency_NoPreviousRequest() {
-        Long requesterId = 1L;
-        Long receiverId = 2L;
         when(recommendationRequestRepository.findLatestPendingRequest(requesterId, receiverId))
                 .thenReturn(Optional.empty());
         assertDoesNotThrow(() -> validator.validateRequestFrequency(requesterId, receiverId));
@@ -118,8 +118,6 @@ public class RecommendationRequestValidatorTest {
 
     @Test
     void testValidateRequestFrequency_LastRequestLessThanSixMonthsAgo() {
-        Long requesterId = 1L;
-        Long receiverId = 2L;
         RecommendationRequest lastRequest = new RecommendationRequest();
         lastRequest.setCreatedAt(LocalDateTime.now().minusMonths(3));
         when(recommendationRequestRepository.findLatestPendingRequest(requesterId, receiverId))
@@ -127,7 +125,7 @@ public class RecommendationRequestValidatorTest {
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 validator.validateRequestFrequency(requesterId, receiverId)
         );
-        assertEquals("Запрос этому пользователю можно отправлять только раз в полгода", exception.getMessage());
+        assertEquals("Recommendation request must be sent once in 6 months", exception.getMessage());
     }
 
 }

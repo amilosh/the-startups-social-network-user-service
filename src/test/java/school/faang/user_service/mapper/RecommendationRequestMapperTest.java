@@ -29,16 +29,17 @@ public class RecommendationRequestMapperTest {
 
     @Test
     void testToEntity_Success() {
-        RecommendationRequestDto dto = new RecommendationRequestDto();
-        dto.setId(1L);
-        dto.setMessage("Test message");
-        dto.setStatus(RequestStatus.PENDING);
-        dto.setRequesterId(2L);
-        dto.setReceiverId(3L);
-        dto.setCreatedAt(LocalDateTime.now());
-        dto.setUpdatedAt(LocalDateTime.now());
-        dto.setRejectionReason("No reason");
-        dto.setSkills(Arrays.asList(10L, 20L));
+        RecommendationRequestDto dto = RecommendationRequestDto.builder()
+                .id(1L)
+                .message("Test message")
+                .status(RequestStatus.PENDING)
+                .requesterId(2L)
+                .receiverId(3L)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .rejectionReason("No reason")
+                .skillIdentifiers(Arrays.asList(10L, 20L))
+                .build();
 
         RecommendationRequest entity = mapper.toEntity(dto);
 
@@ -58,36 +59,41 @@ public class RecommendationRequestMapperTest {
 
     @Test
     void testToDto_Success() {
-        RecommendationRequest entity = new RecommendationRequest();
-        entity.setId(1L);
-        entity.setMessage("Test message");
-        entity.setStatus(RequestStatus.PENDING);
-        entity.setCreatedAt(LocalDateTime.now());
-        entity.setUpdatedAt(LocalDateTime.now());
-        entity.setRejectionReason("No reason");
+        User requester = User.builder()
+                .id(2L)
+                .build();
 
-        // Устанавливаем `requester` и `receiver`
-        User requester = new User();
-        requester.setId(2L);
-        entity.setRequester(requester);
+        User receiver = User.builder()
+                .id(3L)
+                .build();
 
-        User receiver = new User();
-        receiver.setId(3L);
-        entity.setReceiver(receiver);
+        Skill skill1 = Skill.builder()
+                .id(10L)
+                .build();
 
-        Skill skill1 = new Skill();
-        skill1.setId(10L);
+        Skill skill2 = Skill.builder()
+                .id(20L)
+                .build();
 
-        Skill skill2 = new Skill();
-        skill2.setId(20L);
+        SkillRequest skillRequest1 = SkillRequest.builder()
+                .skill(skill1)
+                .build();
 
-        SkillRequest skillRequest1 = new SkillRequest();
-        skillRequest1.setSkill(skill1);
+        SkillRequest skillRequest2 = SkillRequest.builder()
+                .skill(skill2)
+                .build();
 
-        SkillRequest skillRequest2 = new SkillRequest();
-        skillRequest2.setSkill(skill2);
-
-        entity.setSkills(Arrays.asList(skillRequest1, skillRequest2));
+        RecommendationRequest entity = RecommendationRequest.builder()
+                .id(1L)
+                .message("Test message")
+                .status(RequestStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .rejectionReason("No reason")
+                .requester(requester)
+                .receiver(receiver)
+                .skills(Arrays.asList(skillRequest1, skillRequest2))
+                .build();
 
         RecommendationRequestDto dto = mapper.toDto(entity);
 
@@ -100,7 +106,7 @@ public class RecommendationRequestMapperTest {
         assertEquals(entity.getRejectionReason(), dto.getRejectionReason());
         assertEquals(entity.getRequester().getId(), dto.getRequesterId());
         assertEquals(entity.getReceiver().getId(), dto.getReceiverId());
-        assertEquals(Arrays.asList(10L, 20L), dto.getSkills());
+        assertEquals(Arrays.asList(10L, 20L), dto.getSkillIdentifiers());
     }
 
     @Test

@@ -150,20 +150,20 @@ class RecommendationRequestServiceTest {
                 .receiverId(2L)
                 .status(RequestStatus.PENDING)
                 .createdAt(LocalDateTime.now())
-                .skills(Arrays.asList(1L, 2L, 3L))
+                .skillIdentifiers(Arrays.asList(1L, 2L, 3L))
                 .message("Пожалуйста, дай мне рекомендацию")
                 .build();
     }
 
     @Test
     void testCreateRecommendationRequest_Success() {
-        doNothing().when(skillValidator).validateSkills(recommendationRequestDto.getSkills());
+        doNothing().when(skillValidator).validateSkills(recommendationRequestDto.getSkillIdentifiers());
 
         when(userService.getUserById(1L)).thenReturn(Optional.of(requester));
         when(userService.getUserById(2L)).thenReturn(Optional.of(receiver));
         when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L))
                 .thenReturn(Optional.empty());
-        doNothing().when(skillValidator).validateSkills(recommendationRequestDto.getSkills());
+        doNothing().when(skillValidator).validateSkills(recommendationRequestDto.getSkillIdentifiers());
 
         when(recommendationRequestMapper.toEntity(any(RecommendationRequestDto.class)))
                 .thenReturn(recommendationRequest);
@@ -176,7 +176,7 @@ class RecommendationRequestServiceTest {
         when(recommendationRequestMapper.toDto(any(RecommendationRequest.class)))
                 .thenReturn(recommendationRequestDto);
 
-        when(skillRepository.findAllById(recommendationRequestDto.getSkills()))
+        when(skillRepository.findAllById(recommendationRequestDto.getSkillIdentifiers()))
                 .thenReturn(Arrays.asList(skill1, skill2, skill3));
 
         RecommendationRequestDto result = recommendationRequestService.create(recommendationRequestDto);
@@ -190,7 +190,7 @@ class RecommendationRequestServiceTest {
         verify(userService, times(1)).getUserById(2L);
         verify(recommendationRequestRepository, times(1))
                 .findLatestPendingRequest(1L, 2L);
-        verify(skillValidator, times(1)).validateSkills(recommendationRequestDto.getSkills());
+        verify(skillValidator, times(1)).validateSkills(recommendationRequestDto.getSkillIdentifiers());
         verify(recommendationRequestMapper, times(1))
                 .toEntity(recommendationRequestDto);
         verify(recommendationRequestRepository, times(1))
@@ -233,7 +233,7 @@ class RecommendationRequestServiceTest {
                 recommendationRequestService.create(recommendationRequestDto)
         );
 
-        assertEquals("Requester with ID 1 not found", exception.getMessage());
+        assertEquals("Receiver with ID 1 not found", exception.getMessage());
 
         verify(userService, times(1)).getUserById(1L);
         verify(userService, times(1)).getUserById(2L);
@@ -257,7 +257,7 @@ class RecommendationRequestServiceTest {
                 recommendationRequestService.create(recommendationRequestDto)
         );
 
-        assertEquals("Запрос этому пользователю можно отправлять только раз в полгода", exception.getMessage());
+        assertEquals("Recommendation request must be sent once in 6 months", exception.getMessage());
 
         verify(userService, times(1)).getUserById(1L);
         verify(userService, times(1)).getUserById(2L);
@@ -276,20 +276,20 @@ class RecommendationRequestServiceTest {
         when(userService.getUserById(2L)).thenReturn(Optional.of(receiver));
         when(recommendationRequestRepository.findLatestPendingRequest(1L, 2L))
                 .thenReturn(Optional.empty());
-        doThrow(new IllegalArgumentException("Некоторых скиллов нет в базе данных"))
-                .when(skillValidator).validateSkills(recommendationRequestDto.getSkills());
+        doThrow(new IllegalArgumentException("Some skills are not present in database"))
+                .when(skillValidator).validateSkills(recommendationRequestDto.getSkillIdentifiers());
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
                 recommendationRequestService.create(recommendationRequestDto)
         );
 
-        assertEquals("Некоторых скиллов нет в базе данных", exception.getMessage());
+        assertEquals("Some skills are not present in database", exception.getMessage());
 
         verify(userService, times(1)).getUserById(1L);
         verify(userService, times(1)).getUserById(2L);
         verify(recommendationRequestRepository, times(1))
                 .findLatestPendingRequest(1L, 2L);
-        verify(skillValidator, times(1)).validateSkills(recommendationRequestDto.getSkills());
+        verify(skillValidator, times(1)).validateSkills(recommendationRequestDto.getSkillIdentifiers());
         verify(recommendationRequestMapper, never()).toEntity(any());
         verify(recommendationRequestRepository, never()).save(any());
         verify(recommendationRequestMapper, never()).toDto(any());
@@ -344,7 +344,7 @@ class RecommendationRequestServiceTest {
                         .id(requestOne.getId())
                         .message("Пожалуйста, дай мне рекомендацию")
                         .status(RequestStatus.PENDING)
-                        .skills(List.of(1L, 2L))
+                        .skillIdentifiers(List.of(1L, 2L))
                         .requesterId(1L)
                         .receiverId(2L)
                         .createdAt(requestOne.getCreatedAt())
@@ -465,7 +465,7 @@ class RecommendationRequestServiceTest {
                         recommendationRequestService.getRequest(id)
                 );
 
-        assertEquals("Запрос на рекомендацию с таким id не найден", exception.getMessage());
+        assertEquals("Recommendation request with this Id was not found", exception.getMessage());
 
         verify(recommendationRequestRepository, times(1)).findById(id);
         verify(recommendationRequestMapper, never()).toDto(any());
@@ -491,7 +491,7 @@ class RecommendationRequestServiceTest {
                 .receiverId(2L)
                 .status(RequestStatus.REJECTED)
                 .createdAt(recommendationRequest.getCreatedAt())
-                .skills(Arrays.asList(1L, 2L, 3L))
+                .skillIdentifiers(Arrays.asList(1L, 2L, 3L))
                 .message("Please give me a recommendation")
                 .rejectionReason("Просто не хочу. Ты мне неприятен.")
                 .build();
@@ -525,7 +525,7 @@ class RecommendationRequestServiceTest {
                 recommendationRequestService.rejectRequest(id, rejection)
         );
 
-        assertEquals("Невозможно отклонить запрос на рекомендацию, поскольку он уже имеет статус REJECTED", exception.getMessage());
+        assertEquals("Impossible to reject recommendation request since it already has status REJECTED", exception.getMessage());
 
         verify(recommendationRequestRepository, times(1)).findById(id);
         verify(recommendationRequestRepository, never()).save(any());
@@ -546,7 +546,7 @@ class RecommendationRequestServiceTest {
                         recommendationRequestService.rejectRequest(id, rejection)
                 );
 
-        assertEquals("Запрос на рекомендацию с таким id не найден", exception.getMessage());
+        assertEquals("Recommendation request with this Id was not found", exception.getMessage());
 
         verify(recommendationRequestRepository, times(1)).findById(id);
         verify(recommendationRequestRepository, never()).save(any());

@@ -21,11 +21,11 @@ public class RecommendationRequestValidator {
 
     public void validateUsersExistence(User requester, User receiver) {
         if (requester == null) {
-            throw new IllegalArgumentException("Пользователя, запрашивающего рекомендацию не существует");
+            throw new IllegalArgumentException("Requester was not provided");
         }
 
         if (receiver == null) {
-            throw new IllegalArgumentException("Пользователя, получающего рекомендацию не существует");
+            throw new IllegalArgumentException("Receiver was not provided");
         }
     }
 
@@ -38,13 +38,13 @@ public class RecommendationRequestValidator {
     public RecommendationRequest getAndValidateRecommendationRequest(Long id) {
         return recommendationRequestRepository.findById(id)
                 .orElseThrow(() -> new RecommendationRequestNotFoundException(
-                        "Запрос на рекомендацию с таким id не найден"));
+                        "Recommendation request with this Id was not found"));
     }
 
     public void validateRejectRequest(RecommendationRequest request) {
         if (request.getStatus() == RequestStatus.ACCEPTED || request.getStatus() == RequestStatus.REJECTED) {
             throw new IllegalStateException(
-                    "Невозможно отклонить запрос на рекомендацию, поскольку он уже имеет статус " + request.getStatus());
+                    "Impossible to reject recommendation request since it already has status " + request.getStatus());
         }
     }
 
@@ -55,7 +55,7 @@ public class RecommendationRequestValidator {
         if (lastRequest.isPresent()) {
             LocalDateTime lastRequestDate = lastRequest.get().getCreatedAt();
             if (lastRequestDate.isAfter(LocalDateTime.now().minusMonths(6))) {
-                throw new IllegalArgumentException("Запрос этому пользователю можно отправлять только раз в полгода");
+                throw new IllegalArgumentException("Recommendation request must be sent once in 6 months");
             }
         }
     }

@@ -14,7 +14,7 @@ public class SkillValidator {
     private final SkillRepository skillRepository;
 
     public void validateDuplicate(Skill skill) {
-        if(skillRepository.existsByTitle(skill.getTitle())) {
+        if (skillRepository.existsByTitle(skill.getTitle())) {
             throw new SkillDuplicateException("Skill with title " + skill.getTitle() + " already exists");
         }
     }
@@ -25,7 +25,7 @@ public class SkillValidator {
         }
         long existingSkillsCount = skillRepository.countExisting(skillIds);
         if (existingSkillsCount != skillIds.size()) {
-            throw new IllegalArgumentException("Некоторых скиллов нет в базе данных");
+            throw new IllegalArgumentException("Some skills are not present in database");
         }
     }
 

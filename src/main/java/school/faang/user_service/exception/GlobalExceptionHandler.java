@@ -2,6 +2,7 @@ package school.faang.user_service.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -9,26 +10,31 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.stream.Collectors;
 
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(SkillNotFoundException.class)
     public ResponseEntity<String> handleSkillNotFoundException(SkillNotFoundException exception) {
+        log.error("SkillNotFoundException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException exception) {
+        log.error("UserNotFoundException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException exception) {
+        log.error("IllegalArgumentException: {}", exception.getMessage(), exception);
         return ResponseEntity.badRequest().body(exception.getMessage());
     }
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<String> handleIllegalStateException(IllegalStateException exception) {
+        log.error("IllegalStateException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
     }
 
@@ -47,6 +53,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RecommendationRequestNotFoundException.class)
     public ResponseEntity<String> handleRecommendationRequestNotFoundException(
             RecommendationRequestNotFoundException exception) {
+        log.error("RecommendationRequestNotFoundException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
     }
 
@@ -64,6 +71,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleAllExceptions(Exception exception) {
+        log.error("Unhandled exception: {}", exception.getMessage(), exception);
         return ResponseEntity.badRequest().body(exception.getMessage());
     }
 
@@ -72,6 +80,7 @@ public class GlobalExceptionHandler {
         String errorMessage = ex.getConstraintViolations().stream()
                 .map(ConstraintViolation::getMessage)
                 .collect(Collectors.joining(", "));
+        log.error("ConstraintViolationException: {}", errorMessage, ex);
         return ResponseEntity.badRequest().body(errorMessage);
     }
 }

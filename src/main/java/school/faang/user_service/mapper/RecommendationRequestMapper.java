@@ -18,7 +18,7 @@ public interface RecommendationRequestMapper {
     @Mapping(target = "recommendation", ignore = true)
     RecommendationRequest toEntity(RecommendationRequestDto dto);
 
-    @Mapping(target = "skills", source = "skills", qualifiedByName = "mapSkills")
+    @Mapping(target = "skillIdentifiers", source = "skills", qualifiedByName = "mapSkills")
     @Mapping(target = "requesterId", source = "requester.id")
     @Mapping(target = "receiverId", source = "receiver.id")
     RecommendationRequestDto toDto(RecommendationRequest entity);

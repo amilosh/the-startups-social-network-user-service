@@ -18,7 +18,10 @@ public class SkillRequestService {
     private final SkillRepository skillRepository;
 
     public SkillRequest createSkillRequest(Skill skill, RecommendationRequest request) {
-        SkillRequest skillRequest = new SkillRequest();
+        SkillRequest skillRequest = SkillRequest.builder()
+                .skill(skill)
+                .request(request)
+                .build();
         skillRequest.setSkill(skill);
         skillRequest.setRequest(request);
         return skillRequestRepository.save(skillRequest);
@@ -31,5 +34,16 @@ public class SkillRequestService {
     public Skill getSkillById(Long skillId) {
         return skillRepository.findById(skillId)
                 .orElseThrow(() -> new SkillNotFoundException(skillId));
+    }
+
+    public void createSkillRequests(List<Skill> skills, RecommendationRequest request) {
+        if (skills == null || skills.isEmpty()) {
+            return;
+        }
+
+        List<SkillRequest> skillRequests = skills.stream()
+                .map(skill -> createSkillRequest(skill, request))
+                .toList();
+        request.getSkills().addAll(skillRequests);
     }
 }

@@ -10,7 +10,6 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
@@ -19,6 +18,7 @@ import school.faang.user_service.validator.RecommendationRequestValidator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,18 +37,16 @@ public class RecommendationRequestService {
         User requester = userService.getUserById(dto.getRequesterId())
                 .orElseThrow(() -> new EntityNotFoundException("Requester with ID " + dto.getRequesterId() + " not found"));
         User receiver = userService.getUserById(dto.getReceiverId())
-                .orElseThrow(() -> new EntityNotFoundException("Requester with ID " + dto.getRequesterId() + " not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Receiver with ID " + dto.getRequesterId() + " not found"));
         ;
 
         recommendationRequestValidator.validateUsersExistence(requester, receiver);
         recommendationRequestValidator.validateRequestFrequency(dto.getRequesterId(), dto.getReceiverId());
-        recommendationRequestValidator.validateSkillsExistence(dto.getSkills());
+        recommendationRequestValidator.validateSkillsExistence(dto.getSkillIdentifiers());
 
         RecommendationRequest recommendationRequest = recommendationRequestMapper.toEntity(dto);
 
-        if (recommendationRequest.getSkills() == null) {
-            recommendationRequest.setSkills(new ArrayList<>());
-        }
+        recommendationRequest.setSkills(Optional.ofNullable(recommendationRequest.getSkills()).orElse(new ArrayList<>()));
 
         recommendationRequest.setRequester(requester);
         recommendationRequest.setReceiver(receiver);
@@ -56,12 +54,9 @@ public class RecommendationRequestService {
 
         RecommendationRequest savedRequest = recommendationRequestRepository.save(recommendationRequest);
 
-        if (dto.getSkills() != null && !dto.getSkills().isEmpty()) {
-            List<Skill> skills = skillRequestService.getSkillsByIds(dto.getSkills());
-            for (Skill skill : skills) {
-                SkillRequest skillRequest = skillRequestService.createSkillRequest(skill, savedRequest);
-                savedRequest.getSkills().add(skillRequest);
-            }
+        if (dto.getSkillIdentifiers() != null && !dto.getSkillIdentifiers().isEmpty()) {
+            List<Skill> skills = skillRequestService.getSkillsByIds(dto.getSkillIdentifiers());
+            skillRequestService.createSkillRequests(skills, savedRequest);
         }
 
         return recommendationRequestMapper.toDto(savedRequest);
