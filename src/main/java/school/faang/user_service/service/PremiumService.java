@@ -3,10 +3,12 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.client.payment.PaymentServiceClient;
+import school.faang.user_service.dto.premium.PaymentRequestDto;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.entity.PremiumPeriod;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.exceptions.DataValidationException;
+import school.faang.user_service.exceptions.PaymentException;
 import school.faang.user_service.mapper.PremiumMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
 
@@ -21,9 +23,7 @@ public class PremiumService {
     private final PaymentServiceClient paymentServiceClient;
 
     public PremiumDto buyPremium(PremiumPeriod period, Long userId) {
-        if (premRepo.existsById(userId)) {
-            throw new DataValidationException("User already has premium");
-        }
+        ensureUserHasNoPremium(userId);
         LocalDateTime startDate = LocalDateTime.now();
         LocalDateTime endDate = startDate.plusDays(period.getDays());
 
@@ -32,12 +32,27 @@ public class PremiumService {
                 .startDate(startDate)
                 .endDate(endDate)
                 .build();
-        if (paymentServiceClient.sendPaymentRequest(userId, period.getDays())) {
-            premRepo.save(premium);
-        } else {
-            throw new DataValidationException("Payment failed");
+
+        PaymentRequestDto paymentRequest = PaymentRequestDto.builder()
+                .userId(userId)
+                .days(period.getDays())
+                .build();
+        try {
+            if (paymentServiceClient.sendPaymentRequest(paymentRequest)) {
+                premRepo.save(premium);
+            } else {
+                throw new PaymentException("Payment failed");
+            }
+        } catch (Exception e) {
+            throw new PaymentException("Payment service is unavailable", e);
         }
 
         return premMapper.toDto(premium);
+    }
+
+    private void ensureUserHasNoPremium(Long userId) {
+        if (premRepo.existsById(userId)) {
+            throw new DataValidationException("User already has premium");
+        }
     }
 }

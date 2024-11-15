@@ -3,8 +3,9 @@ package school.faang.user_service.controller;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.premium.PremiumDto;
@@ -13,14 +14,15 @@ import school.faang.user_service.service.PremiumService;
 
 @Validated
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/premium/")
 @RestController
-public class PremiumController {
+public class PremiumV1Controller {
     private final PremiumService premiumService;
 
-    @PostMapping("/premium/buy")
+    @PostMapping("buy/{userId}")
     public PremiumDto buyPremium(@Positive @RequestParam int days,
-                                 @Positive @RequestBody long id) {
+                                 @Positive @PathVariable long userId) {
         PremiumPeriod premPeriod = PremiumPeriod.fromDays(days);
-        return premiumService.buyPremium(premPeriod, id);
+        return premiumService.buyPremium(premPeriod, userId);
     }
 }

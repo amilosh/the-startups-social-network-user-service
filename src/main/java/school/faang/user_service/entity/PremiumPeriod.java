@@ -20,6 +20,6 @@ public enum PremiumPeriod {
                 return period;
             }
         }
-        throw new DataValidationException("No premium period found for " + days + " days");
+        throw new DataValidationException(String.format("No premium period for %d days", days));
     }
 }
