@@ -29,8 +29,8 @@ public class MentorshipController {
             description = "Позволяет получить менти пользователя"
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "User  found"),
-            @ApiResponse(responseCode = "404", description = "User  not found"),
+            @ApiResponse(responseCode = "200", description = "Mentees  found"),
+            @ApiResponse(responseCode = "404", description = "Mentees  not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public List<UserDto> getMentees(@PathVariable("Id")
@@ -44,6 +44,11 @@ public class MentorshipController {
             summary = "Получить менторов",
             description = "Позволяет получить менторов пользователя"
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Mentors  found"),
+            @ApiResponse(responseCode = "404", description = "Mentors  not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public List<UserDto> getMentors(@PathVariable("Id")
                                     @Parameter(description = "Идентификатор пользователя ментора которого мы хотим получить")
                                     long userId) {
@@ -55,6 +60,11 @@ public class MentorshipController {
             summary = "Удалить менти",
             description = "Позволяет удалить менти пользователя"
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Mentee was deleted"),
+            @ApiResponse(responseCode = "404", description = "Mentee  wasn't deleted "),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public void deleteMentee(@PathVariable
                              @Parameter(description = "Идентификатор менти которого нужно удалить")
                              long menteeId,
@@ -70,6 +80,11 @@ public class MentorshipController {
             summary = "Удалить ментора",
             description = "Позволяет удалить ментора пользователя"
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Mentor was deleted"),
+            @ApiResponse(responseCode = "404", description = "Mentor  wasn't deleted "),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
     public void deleteMentor(@PathVariable("Id")
                              @Parameter(description = "Идентификатор менти у которого нужно удалить ментора")
                              long menteeId,
