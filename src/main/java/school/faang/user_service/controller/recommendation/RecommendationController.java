@@ -11,41 +11,41 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.service.recommendation.RecommendationService;
-import school.faang.user_service.utilities.RestUrlsUtil;
+import school.faang.user_service.utilities.UrlUtils;
 import school.faang.user_service.validator.recommendation.RecommendationValidator;
 
 import java.util.List;
 
 @RestController
-@RequestMapping(RestUrlsUtil.MAIN_URL + RestUrlsUtil.V1 + RestUrlsUtil.SKILLS)
+@RequestMapping(UrlUtils.MAIN_URL + UrlUtils.V1 + UrlUtils.SKILLS)
 @RequiredArgsConstructor
 public class RecommendationController {
     private final RecommendationService recommendationService;
     private final RecommendationValidator recommendationValidator;
 
-    @PostMapping(RestUrlsUtil.RECOMMENDATION)
+    @PostMapping(UrlUtils.RECOMMENDATION)
     public RecommendationDto giveRecommendation(RecommendationDto recommendation) {
         recommendationValidator.validateContent(recommendation.getContent());
         return recommendationService.createRecommendation(recommendation);
     }
 
-    @PutMapping(RestUrlsUtil.RECOMMENDATION)
+    @PutMapping(UrlUtils.RECOMMENDATION)
     public RecommendationDto updateRecommendation(RecommendationDto recommendation) {
         recommendationValidator.validateContent(recommendation.getContent());
         return recommendationService.updateRecommendation(recommendation);
     }
 
-    @DeleteMapping(RestUrlsUtil.ID + RestUrlsUtil.RECOMMENDATION)
+    @DeleteMapping(UrlUtils.ID + UrlUtils.RECOMMENDATION)
     public void deleteRecommendation(@PathVariable("id") @Min(1) Long id) {
         recommendationService.deleteRecommendation(id);
     }
 
-    @GetMapping(RestUrlsUtil.ID + RestUrlsUtil.RECEIVER_SKILL_OFFERS)
+    @GetMapping(UrlUtils.ID + UrlUtils.RECEIVER_SKILL_OFFERS)
     public List<RecommendationDto> getAllUserRecommendations(@PathVariable("id") @Min(1) Long receiverId) {
         return recommendationService.getAllUserRecommendations(receiverId);
     }
 
-    @GetMapping(RestUrlsUtil.ID + RestUrlsUtil.AUTHOR_SKILL_OFFERS)
+    @GetMapping(UrlUtils.ID + UrlUtils.AUTHOR_SKILL_OFFERS)
     public List<RecommendationDto> getAllGivenRecommendations(@PathVariable("id") @Min(1) Long authorId) {
         return recommendationService.getAllGivenRecommendations(authorId);
     }
