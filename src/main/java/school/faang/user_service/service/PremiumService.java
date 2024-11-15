@@ -37,14 +37,11 @@ public class PremiumService {
                 .userId(userId)
                 .days(period.getDays())
                 .build();
-        try {
-            if (paymentServiceClient.sendPaymentRequest(paymentRequest)) {
-                premRepo.save(premium);
-            } else {
-                throw new PaymentException("Payment failed");
-            }
-        } catch (Exception e) {
-            throw new PaymentException("Payment service is unavailable", e);
+
+        if (paymentServiceClient.sendPaymentRequest(paymentRequest)) {
+            premRepo.save(premium);
+        } else {
+            throw new PaymentException("Payment failed");
         }
 
         return premMapper.toDto(premium);
