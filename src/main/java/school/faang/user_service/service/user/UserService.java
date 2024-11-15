@@ -77,11 +77,10 @@ public class UserService {
     }
 
     public List<UserDto> getUsersByIds(List<Long> ids) {
-        userValidator.validateUsersByIds(ids);
+        userValidator.validateUserIds(ids);
         List<User> users = userRepository.findAllById(ids);
-        if (users.isEmpty()) {
-            throw new DataValidationException("There aren't found any users by these Ids/Id");
-        }
+        userValidator.validateUsersWithIdExists(users);
+
         return userMapper.toListDto(users);
     }
 }

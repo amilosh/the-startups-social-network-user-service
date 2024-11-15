@@ -49,13 +49,15 @@ class UserServiceTest {
     @Mock
     private EventRepository eventRepository;
 
-
     @Mock
     private MentorshipService mentorshipService;
+
     @Mock
     private UserMapper userMapper;
+
     @Mock
     private UserFilter userFilter;
+
     @Mock
     private UserValidator userValidator;
 
@@ -64,7 +66,6 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         userService = new UserService(userRepository, goalRepository, eventRepository, mentorshipService, userMapper, List.of(userFilter), userValidator);
     }
 
@@ -175,29 +176,17 @@ class UserServiceTest {
         List<User> users = List.of(new User(), new User());
         List<UserDto> usersDtos = List.of(new UserDto(), new UserDto());
 
-        doNothing().when(userValidator).validateUsersByIds(ids);
+        doNothing().when(userValidator).validateUserIds(ids);
         when(userRepository.findAllById(ids)).thenReturn(users);
         when(userMapper.toListDto(users)).thenReturn(usersDtos);
 
         List<UserDto> result = userService.getUsersByIds(ids);
 
         assertEquals(usersDtos, result);
-        verify(userValidator, times(1)).validateUsersByIds(ids);
+        verify(userValidator, times(1)).validateUserIds(ids);
         verify(userRepository, times(1)).findAllById(ids);
+        verify(userValidator, times(1)).validateUsersWithIdExists(users);
         verify(userMapper, times(1)).toListDto(users);
-    }
-
-    @Test
-    public void testGetUsersByIdsExceptionEmptyUserList() {
-        List<Long> ids = List.of(3L, 4L);
-
-        doNothing().when(userValidator).validateUsersByIds(ids);
-        when(userRepository.findAllById(ids)).thenReturn(List.of());
-
-        assertThrows(DataValidationException.class, () -> userService.getUsersByIds(ids));
-        verify(userValidator, times(1)).validateUsersByIds(ids);
-        verify(userRepository, times(1)).findAllById(ids);
-        verify(userMapper, never()).toListDto(any());
     }
 
     @Test
@@ -205,11 +194,12 @@ class UserServiceTest {
         List<Long> emptyListIds = List.of();
 
         doThrow(new DataValidationException("There aren't found any users by these Ids/Id"))
-                .when(userValidator).validateUsersByIds(emptyListIds);
+                .when(userValidator).validateUserIds(emptyListIds);
 
         assertThrows(DataValidationException.class, () -> userService.getUsersByIds(emptyListIds));
-        verify(userValidator, times(1)).validateUsersByIds(emptyListIds);
+        verify(userValidator, times(1)).validateUserIds(emptyListIds);
         verify(userRepository, never()).findAllById(any());
+        verify(userValidator, never()).validateUsersWithIdExists(any());
         verify(userMapper, never()).toListDto(any());
     }
 }
