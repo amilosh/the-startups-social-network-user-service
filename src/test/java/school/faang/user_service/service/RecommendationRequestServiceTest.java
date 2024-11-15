@@ -27,6 +27,7 @@ import school.faang.user_service.mapper.RecommendationRequestMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
+import school.faang.user_service.service.recommendation.RecommendationRequestService;
 import school.faang.user_service.validator.RecommendationRequestServiceValidator;
 
 import java.util.ArrayList;
