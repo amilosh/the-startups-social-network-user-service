@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.event.EventParticipationRepository;
-import school.faang.user_service.service.Participation.event.EventParticipationService;
+import school.faang.user_service.service.mentorship.request_filter.EventParticipationService;
 import school.faang.user_service.validator.event.EventValidator;
 
 import java.util.Arrays;

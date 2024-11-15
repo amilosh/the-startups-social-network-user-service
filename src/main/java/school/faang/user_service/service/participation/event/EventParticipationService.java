@@ -1,4 +1,4 @@
-package school.faang.user_service.service.Participation.event;
+package school.faang.user_service.service.mentorship.request_filter;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
