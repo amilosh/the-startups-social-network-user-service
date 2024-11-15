@@ -36,8 +36,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByIdWithSkills(@Param("userId") long userId);
 
     @Query(nativeQuery = true, value = """
-            SELECT u.id FROM users u
-            WHERE u.id NOT IN (:userIds)
+            SELECT t.id FROM (
+                VALUES (:userIds)
+            ) AS t(id)
+            EXCEPT
+            SELECT u.id FROM users u 
+            WHERE u.id IN (:userIds)
             """)
     List<Long> findNotExistingUserIds(@Param("userIds") List<Long> userIds);
 }

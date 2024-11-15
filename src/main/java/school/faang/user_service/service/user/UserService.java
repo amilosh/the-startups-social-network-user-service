@@ -1,20 +1,23 @@
 package school.faang.user_service.service.user;
 
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.exception.EntityNotFoundException;
+import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,6 +27,20 @@ public class UserService {
     private final UserRepository userRepository;
     private final List<UserFilter> userFilters;
     private final UserMapper userMapper;
+
+    @Transactional(readOnly = true)
+    public UserDto getUser(long userId) {
+        return userRepository.findById(userId)
+                .map(userMapper::toDto)
+                .orElseThrow(() -> new EntityNotFoundException(String.format(ErrorMessage.USER_NOT_FOUND, userId)));
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserDto> getUsers(List<Long> ids) {
+        return userRepository.findAllById(ids).stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
+    }
 
     @Transactional
     public boolean existsById(long userId) {
