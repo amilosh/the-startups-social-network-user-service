@@ -35,17 +35,17 @@ public class RecommendationController {
         return recommendationService.updateRecommendation(recommendation);
     }
 
-    @DeleteMapping(UrlUtils.ID + UrlUtils.RECOMMENDATION)
+    @DeleteMapping(UrlUtils.RECOMMENDATION + UrlUtils.ID)
     public void deleteRecommendation(@PathVariable("id") @Min(1) Long id) {
         recommendationService.deleteRecommendation(id);
     }
 
-    @GetMapping(UrlUtils.ID + UrlUtils.RECEIVER_SKILL_OFFERS)
+    @GetMapping(UrlUtils.RECEIVER + UrlUtils.ID)
     public List<RecommendationDto> getAllUserRecommendations(@PathVariable("id") @Min(1) Long receiverId) {
         return recommendationService.getAllUserRecommendations(receiverId);
     }
 
-    @GetMapping(UrlUtils.ID + UrlUtils.AUTHOR_SKILL_OFFERS)
+    @GetMapping(UrlUtils.AUTHOR + UrlUtils.ID)
     public List<RecommendationDto> getAllGivenRecommendations(@PathVariable("id") @Min(1) Long authorId) {
         return recommendationService.getAllGivenRecommendations(authorId);
     }

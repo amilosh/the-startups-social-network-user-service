@@ -1,9 +1,7 @@
 package school.faang.user_service.mapper.recommendation;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
-import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.Recommendation;
@@ -12,7 +10,6 @@ import school.faang.user_service.entity.recommendation.SkillOffer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(MockitoExtension.class)
 public class SkillOfferMapperTest {
     private final SkillOfferMapper skillOfferMapper = Mappers.getMapper(SkillOfferMapper.class);
 

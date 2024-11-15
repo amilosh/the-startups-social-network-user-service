@@ -1,9 +1,8 @@
 package school.faang.user_service.mapper.recommendation;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.TestInstance;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
@@ -18,9 +17,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(MockitoExtension.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class RecommendationListMapperTest {
-
     private RecommendationListMapperImpl recommendationListMapper;
     private final Long recommendationId = 1L;
     private final Long skillOfferFirstId = 5L;
@@ -33,7 +31,7 @@ public class RecommendationListMapperTest {
     private final Long requestId = 10L;
 
 
-    @BeforeEach
+    @BeforeAll
     public void setUp() {
         SkillOfferMapperImpl skillOfferMapper = new SkillOfferMapperImpl();
         SkillOfferListMapperImpl skillOfferListMapper = new SkillOfferListMapperImpl(skillOfferMapper);
@@ -75,7 +73,6 @@ public class RecommendationListMapperTest {
         recommendationSecondDto.setSkillOffers(skillOffers);
         recommendationSecondDto.setCreatedAt(LocalDateTime.now());
         recommendationSecondDto.setCreatedAt(null);
-
 
         List<RecommendationDto> recommendationDtoList = List.of(
                 recommendationFirstDto,

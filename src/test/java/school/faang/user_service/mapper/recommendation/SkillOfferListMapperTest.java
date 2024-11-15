@@ -1,9 +1,8 @@
 package school.faang.user_service.mapper.recommendation;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.TestInstance;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.Recommendation;
@@ -14,18 +13,16 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(MockitoExtension.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class SkillOfferListMapperTest {
-
     private SkillOfferListMapperImpl skillOfferListMapper;
-
     private final Long recommendationId = 1L;
     private final Long skillOfferFirstId = 3L;
     private final Long skillOfferSecondId = 4L;
     private final Long skillFirstId = 2L;
     private final Long skillSecondId = 5L;
 
-    @BeforeEach
+    @BeforeAll
     public void setUp() {
         SkillOfferMapperImpl skillOfferMapper = new SkillOfferMapperImpl();
         skillOfferListMapper = new SkillOfferListMapperImpl(skillOfferMapper);

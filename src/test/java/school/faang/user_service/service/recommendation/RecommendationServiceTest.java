@@ -1,6 +1,6 @@
 package school.faang.user_service.service.recommendation;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -57,9 +57,7 @@ public class RecommendationServiceTest {
     private RecommendationMapper recommendationMapper;
     @Mock
     private RecommendationListMapper recommendationListMapper;
-
-    private RecommendationMapperImpl recommendationMapperImpl;
-
+    private static RecommendationMapperImpl recommendationMapperImpl;
     @Captor
     private ArgumentCaptor<Long> longArgumentCaptorFirst;
     @Captor
@@ -68,12 +66,10 @@ public class RecommendationServiceTest {
     private ArgumentCaptor<Long> longArgumentCaptorThird;
     @Captor
     private ArgumentCaptor<Long> longArgumentCaptorFourth;
-
     @Captor
     private ArgumentCaptor<String> stringArgumentCaptor;
     @Captor
     private ArgumentCaptor<PageRequest> pageRequestArgumentCaptor;
-
 
     @InjectMocks
     private RecommendationService recommendationService;
@@ -92,8 +88,8 @@ public class RecommendationServiceTest {
     private final String content = "Content";
 
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         SkillOfferMapperImpl skillOfferMapperImpl = new SkillOfferMapperImpl();
         SkillOfferListMapperImpl skillOfferListMapperImpl = new SkillOfferListMapperImpl(skillOfferMapperImpl);
         recommendationMapperImpl = new RecommendationMapperImpl(skillOfferListMapperImpl);
@@ -191,7 +187,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    public void createFailTest() {
+    public void createRecommendationWithGettingRecommendationFailTest() {
         RecommendationDto recommendationDto = getRecommendationDto();
 
         User author = getAuthor();
@@ -316,7 +312,7 @@ public class RecommendationServiceTest {
     }
 
     @Test
-    public void updateRecommendationFailTest() {
+    public void updateRecommendationWithGettingRecommendationFailTest() {
         RecommendationDto recommendationDto = getRecommendationDto();
 
         User author = getAuthor();
@@ -406,10 +402,6 @@ public class RecommendationServiceTest {
         verify(userRepository, times(1)).findById(recommendationDto.getReceiverId());
         assertEquals(String.format(RecommendationService.RECEIVER_NOT_FOUND, receiverId), dataValidationException.getMessage());
     }
-
-
-
-
 
     @Test
     public void deleteRecommendationSuccessTest() {
@@ -522,4 +514,3 @@ public class RecommendationServiceTest {
                 .build();
     }
 }
-

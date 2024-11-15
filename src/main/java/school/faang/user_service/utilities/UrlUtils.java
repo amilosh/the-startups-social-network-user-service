@@ -18,6 +18,6 @@ public class UrlUtils {
 
     public static final String SKILLS = "/skills";
     public static final String RECOMMENDATION = "/recommendation";
-    public static final String RECEIVER_SKILL_OFFERS = "/receiver-skill-offers";
-    public static final String AUTHOR_SKILL_OFFERS = "/author-skill-offers";
+    public static final String RECEIVER = "/receiver";
+    public static final String AUTHOR = "/author";
 }
