@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class RecommendationDtoValidatorTest {
+public class RecommendationValidatorTest {
     private static final long USER_ID = 1L;
     private static final String CONTENT = "content";
     private static final long NON_EXISTING_USER_ID = 999L;
@@ -37,7 +37,7 @@ public class RecommendationDtoValidatorTest {
             LocalDateTime.of(2014, Month.JULY, 2, 15, 30);
 
     @InjectMocks
-    private RecommendationDtoValidator recommendationDtoValidator;
+    private RecommendationValidator recommendationValidator;
 
     @Mock
     private RecommendationRepository recommendationRepository;
@@ -70,7 +70,7 @@ public class RecommendationDtoValidatorTest {
     public void whenUserDoesNotExistThenThrowException() {
         when(userRepository.findById(NON_EXISTING_USER_ID)).thenReturn(Optional.empty());
 
-        assertThrows(NoSuchElementException.class, () -> recommendationDtoValidator.validateUser(NON_EXISTING_USER_ID));
+        assertThrows(NoSuchElementException.class, () -> recommendationValidator.validateUser(NON_EXISTING_USER_ID));
     }
 
     @Test
@@ -79,7 +79,7 @@ public class RecommendationDtoValidatorTest {
         User user = User.builder().id(USER_ID).build();
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
 
-        recommendationDtoValidator.validateUser(USER_ID);
+        recommendationValidator.validateUser(USER_ID);
 
         verify(userRepository).findById(USER_ID);
     }
@@ -93,7 +93,7 @@ public class RecommendationDtoValidatorTest {
                 .thenReturn(Optional.of(recommendation));
 
         assertThrows(DataValidationException.class,
-                () -> recommendationDtoValidator.validateRecommendation(requestRecommendationDto));
+                () -> recommendationValidator.validateRecommendation(requestRecommendationDto));
     }
 
     @Test
@@ -106,7 +106,7 @@ public class RecommendationDtoValidatorTest {
         when(skillRepository.existsByTitle(EXISTING_SKILL_TITLE)).thenReturn(true);
         when(skillRepository.existsByTitle(NON_EXISTING_SKILL_TITLE)).thenReturn(true);
 
-        recommendationDtoValidator.validateRecommendation(requestRecommendationDto);
+        recommendationValidator.validateRecommendation(requestRecommendationDto);
 
         verify(recommendationRepository)
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(requestRecommendationDto.getAuthorId(),
@@ -119,7 +119,7 @@ public class RecommendationDtoValidatorTest {
         requestRecommendationDto.setSkillOffers(null);
 
         assertThrows(NoSuchElementException.class,
-                () -> recommendationDtoValidator.validateRecommendation(requestRecommendationDto));
+                () -> recommendationValidator.validateRecommendation(requestRecommendationDto));
     }
 
     @Test
@@ -128,7 +128,7 @@ public class RecommendationDtoValidatorTest {
         requestRecommendationDto.setSkillOffers(List.of());
 
         assertThrows(NoSuchElementException.class,
-                () -> recommendationDtoValidator.validateRecommendation(requestRecommendationDto));
+                () -> recommendationValidator.validateRecommendation(requestRecommendationDto));
     }
 
     @Test
@@ -140,7 +140,7 @@ public class RecommendationDtoValidatorTest {
 
         when(skillRepository.existsByTitle(EXISTING_SKILL_TITLE)).thenReturn(true);
 
-        recommendationDtoValidator.validateRecommendation(requestRecommendationDto);
+        recommendationValidator.validateRecommendation(requestRecommendationDto);
 
         verify(skillRepository).existsByTitle(EXISTING_SKILL_TITLE);
     }
@@ -152,7 +152,7 @@ public class RecommendationDtoValidatorTest {
         when(skillRepository.existsByTitle(NON_EXISTING_SKILL_TITLE)).thenReturn(false);
 
         assertThrows(DataValidationException.class,
-                () -> recommendationDtoValidator.validateRecommendation(requestRecommendationDto));
+                () -> recommendationValidator.validateRecommendation(requestRecommendationDto));
     }
 
     @Test
@@ -161,7 +161,7 @@ public class RecommendationDtoValidatorTest {
         when(skillRepository.existsByTitle(EXISTING_SKILL_TITLE)).thenReturn(true);
         when(skillRepository.existsByTitle(NON_EXISTING_SKILL_TITLE)).thenReturn(true);
 
-        recommendationDtoValidator.validateRecommendation(requestRecommendationDto);
+        recommendationValidator.validateRecommendation(requestRecommendationDto);
 
         verify(skillRepository).existsByTitle(EXISTING_SKILL_TITLE);
         verify(skillRepository).existsByTitle(NON_EXISTING_SKILL_TITLE);

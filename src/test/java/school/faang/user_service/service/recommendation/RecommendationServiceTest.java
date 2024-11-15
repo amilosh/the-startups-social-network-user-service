@@ -21,7 +21,7 @@ import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.validator.recommendation.RecommendationDtoValidator;
+import school.faang.user_service.validator.recommendation.RecommendationValidator;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -60,7 +60,7 @@ public class RecommendationServiceTest {
     private SkillRepository skillRepository;
 
     @Mock
-    private RecommendationDtoValidator recommendationDtoValidator;
+    private RecommendationValidator recommendationValidator;
 
     @Mock
     private RecommendationMapper recommendationMapper;
@@ -126,7 +126,7 @@ public class RecommendationServiceTest {
 
         assertThrows(DataValidationException.class, () -> recommendationService.create(requestRecommendationDto));
 
-        verify(recommendationDtoValidator).validateRecommendation(requestRecommendationDto);
+        verify(recommendationValidator).validateRecommendation(requestRecommendationDto);
         verify(recommendationMapper).toEntity(requestRecommendationDto);
         verify(recommendationRepository, never()).save(recommendation);
     }
@@ -142,7 +142,7 @@ public class RecommendationServiceTest {
         ResponseRecommendationDto resultRecommendationDto = recommendationService.create(requestRecommendationDto);
 
         assertNotNull(resultRecommendationDto);
-        verify(recommendationDtoValidator).validateRecommendation(requestRecommendationDto);
+        verify(recommendationValidator).validateRecommendation(requestRecommendationDto);
         verify(recommendationMapper).toEntity(requestRecommendationDto);
         verify(recommendationRepository).save(eq(recommendation));
         verify(recommendationMapper).toDto(recommendation);
@@ -171,7 +171,7 @@ public class RecommendationServiceTest {
         assertEquals(requestRecommendationDto.getAuthorId(), recommendation.getAuthor().getId());
         assertEquals(requestRecommendationDto.getReceiverId(), recommendation.getReceiver().getId());
 
-        verify(recommendationDtoValidator).validateRecommendation(requestRecommendationDto);
+        verify(recommendationValidator).validateRecommendation(requestRecommendationDto);
         verify(recommendationRepository).save(recommendation);
         verify(recommendationMapper).toDto(recommendation);
     }
@@ -183,7 +183,7 @@ public class RecommendationServiceTest {
         when(recommendationRepository.findById(RECOMMENDATION_ID)).thenReturn(Optional.of(recommendation));
 
         assertThrows(DataValidationException.class, () -> recommendationService.update(RECOMMENDATION_ID, requestRecommendationDto));
-        verify(recommendationDtoValidator).validateRecommendation(requestRecommendationDto);
+        verify(recommendationValidator).validateRecommendation(requestRecommendationDto);
         verify(recommendationRepository, never()).save(recommendation);
     }
 

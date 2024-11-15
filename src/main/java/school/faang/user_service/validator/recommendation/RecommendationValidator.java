@@ -19,7 +19,7 @@ import java.util.NoSuchElementException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RecommendationDtoValidator {
+public class RecommendationValidator {
     private static final int NUMBER_OF_MONTHS_AFTER_PREVIOUS_RECOMMENDATION = 6;
     private final RecommendationRepository recommendationRepository;
     private final SkillRepository skillRepository;

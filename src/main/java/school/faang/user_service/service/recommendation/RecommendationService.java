@@ -18,7 +18,7 @@ import school.faang.user_service.exception.recommendation.ErrorMessage;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.validator.recommendation.RecommendationDtoValidator;
+import school.faang.user_service.validator.recommendation.RecommendationValidator;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -30,14 +30,14 @@ public class RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final SkillRepository skillRepository;
     private final RecommendationMapper recommendationMapper;
-    private final RecommendationDtoValidator recommendationDtoValidator;
+    private final RecommendationValidator recommendationValidator;
 
     @Transactional
     public ResponseRecommendationDto create(RequestRecommendationDto requestRecommendationDto) {
         log.info("Creating a recommendation from user with id {} for user with id {}",
                 requestRecommendationDto.getAuthorId(), requestRecommendationDto.getReceiverId());
 
-        recommendationDtoValidator.validateRecommendation(requestRecommendationDto);
+        recommendationValidator.validateRecommendation(requestRecommendationDto);
 
         Recommendation recommendation = recommendationMapper.toEntity(requestRecommendationDto);
         addGuarantees(requestRecommendationDto);
@@ -52,7 +52,7 @@ public class RecommendationService {
     public ResponseRecommendationDto update(Long id, RequestRecommendationDto requestRecommendationDto) {
         log.info("Updating recommendation with id {}", id);
 
-        recommendationDtoValidator.validateRecommendation(requestRecommendationDto);
+        recommendationValidator.validateRecommendation(requestRecommendationDto);
         Recommendation existingRecommendation = getRecommendation(id);
         recommendationMapper.updateFromDto(requestRecommendationDto, existingRecommendation);
         addGuarantees(requestRecommendationDto);
@@ -132,8 +132,8 @@ public class RecommendationService {
     }
 
     private void addGuaranteeToSkill(RequestRecommendationDto requestRecommendationDto, Skill skill) {
-        User receiver = recommendationDtoValidator.validateUser(requestRecommendationDto.getReceiverId());
-        User author = recommendationDtoValidator.validateUser(requestRecommendationDto.getAuthorId());
+        User receiver = recommendationValidator.validateUser(requestRecommendationDto.getReceiverId());
+        User author = recommendationValidator.validateUser(requestRecommendationDto.getAuthorId());
 
         UserSkillGuarantee guarantee = UserSkillGuarantee.builder()
                 .user(receiver)
