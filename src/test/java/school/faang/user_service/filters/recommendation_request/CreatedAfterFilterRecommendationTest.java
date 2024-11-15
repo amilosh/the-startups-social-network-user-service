@@ -1,7 +1,7 @@
-package school.faang.user_service.filter;
+package school.faang.user_service.filters.recommendation_request;
 
 import org.junit.jupiter.api.Test;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.filter.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 
 import java.time.LocalDateTime;
@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class CreatedAfterFilterTest {
-    private final CreatedAfterFilter createdAfterFilter = new CreatedAfterFilter();
+class CreatedAfterFilterRecommendationTest {
+    private final CreatedAfterFilterRecommendation createdAfterFilter = new CreatedAfterFilterRecommendation();
 
     @Test
     void isFilterApplicableFieldIsPresent() {

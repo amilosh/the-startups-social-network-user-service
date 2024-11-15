@@ -1,14 +1,14 @@
-package school.faang.user_service.filter;
+package school.faang.user_service.filters.recommendation_request;
 
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.filter.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 
 import java.util.Objects;
 
 @Component
-public class StatusFilter implements RequestFilter {
+public class StatusFilterRecommendation implements RecommendationRequestFilter {
     @Override
     public boolean isFilterApplicable(RequestFilterDto requestFilterDto) {
         return requestFilterDto.getStatus() != null;

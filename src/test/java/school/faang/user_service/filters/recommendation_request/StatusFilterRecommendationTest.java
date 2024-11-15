@@ -1,15 +1,15 @@
-package school.faang.user_service.filter;
+package school.faang.user_service.filters.recommendation_request;
 
 import org.junit.jupiter.api.Test;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.filter.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class StatusFilterTest {
+class StatusFilterRecommendationTest {
 
-    private final StatusFilter statusFilter = new StatusFilter();
+    private final StatusFilterRecommendation statusFilter = new StatusFilterRecommendation();
 
     @Test
     void isFilterApplicableFieldIsPresent() {

@@ -2,15 +2,15 @@ package school.faang.user_service.service.recommendation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.RejectionDto;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.filter.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.filter.RequestFilter;
+import school.faang.user_service.filters.recommendation_request.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -28,7 +28,7 @@ public class RecommendationRequestService {
     private final RecommendationRequestMapper mapper;
     private final SkillRequestRepository skillRequestRepository;
     private final UserRepository userRepository;
-    private final List<RequestFilter> requestFilters;
+    private final List<RecommendationRequestFilter> recommendationRequestFilters;
 
 
     public void create(RecommendationRequestDto recommendationRequestDto) {
@@ -58,7 +58,7 @@ public class RecommendationRequestService {
 
     public List<RecommendationRequestDto> getRequests(RequestFilterDto filterDto) {
         List<RecommendationRequest> recommendationRequestsAll = recommendationRequestRepository.findAll();
-        List<RequestFilter> suitableFilters = requestFilters.stream()
+        List<RecommendationRequestFilter> suitableFilters = recommendationRequestFilters.stream()
                 .filter(requestFilter -> requestFilter.isFilterApplicable(filterDto))
                 .toList();
 

@@ -1,15 +1,15 @@
-package school.faang.user_service.filter;
+package school.faang.user_service.filters.recommendation_request;
 
 import org.junit.jupiter.api.Test;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.filter.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CreatedBeforeFilterTest {
-    private final CreatedBeforeFilter createdBeforeFilter = new CreatedBeforeFilter();
+class CreatedBeforeFilterRecommendationTest {
+    private final CreatedBeforeFilterRecommendation createdBeforeFilter = new CreatedBeforeFilterRecommendation();
 
     @Test
     void isFilterApplicableFieldIsPresent() {

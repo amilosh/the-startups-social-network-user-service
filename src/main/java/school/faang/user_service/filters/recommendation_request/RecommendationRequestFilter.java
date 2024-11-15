@@ -1,9 +1,9 @@
-package school.faang.user_service.filter;
+package school.faang.user_service.filters.recommendation_request;
 
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.filter.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 
-public interface RequestFilter {
+public interface RecommendationRequestFilter {
 
     boolean isFilterApplicable(RequestFilterDto requestFilterDto);
 

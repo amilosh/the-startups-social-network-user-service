@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.recommendation;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,23 +11,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.RejectionDto;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.filter.RequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.filter.CreatedAfterFilter;
-import school.faang.user_service.filter.CreatedBeforeFilter;
-import school.faang.user_service.filter.RequestFilter;
-import school.faang.user_service.filter.StatusFilter;
+import school.faang.user_service.filters.recommendation_request.CreatedAfterFilterRecommendation;
+import school.faang.user_service.filters.recommendation_request.CreatedBeforeFilterRecommendation;
+import school.faang.user_service.filters.recommendation_request.RecommendationRequestFilter;
+import school.faang.user_service.filters.recommendation_request.StatusFilterRecommendation;
 import school.faang.user_service.mapper.RecommendationRequestMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
-import school.faang.user_service.service.recommendation.RecommendationRequestService;
 import school.faang.user_service.validator.RecommendationRequestServiceValidator;
 
 import java.util.ArrayList;
@@ -65,19 +64,19 @@ class RecommendationRequestServiceTest {
     RecommendationRequestService recommendationRequestService;
 
     @Spy
-    private ArrayList<RequestFilter> requestFilters;
+    private ArrayList<RecommendationRequestFilter> recommendationRequestFilters;
     @Mock
-    CreatedAfterFilter createdAfterFilter;
+    CreatedAfterFilterRecommendation createdAfterFilter;
     @Mock
-    CreatedBeforeFilter createdBeforeFilter;
+    CreatedBeforeFilterRecommendation createdBeforeFilter;
     @Mock
-    StatusFilter statusFilter;
+    StatusFilterRecommendation statusFilter;
 
 
     @BeforeEach
     void init() {
-        List<RequestFilter> mockFilters = Arrays.asList(createdAfterFilter, createdBeforeFilter, statusFilter);
-        requestFilters.addAll(mockFilters);
+        List<RecommendationRequestFilter> mockFilters = Arrays.asList(createdAfterFilter, createdBeforeFilter, statusFilter);
+        recommendationRequestFilters.addAll(mockFilters);
     }
 
     @Test
@@ -179,7 +178,7 @@ class RecommendationRequestServiceTest {
         RecommendationRequest recommendationRequest2 = new RecommendationRequest().setId(2L);
         List<RecommendationRequest> allRecommendationRequests = Arrays.asList(recommendationRequest1, recommendationRequest2);
 
-        requestFilters.forEach(filter -> {
+        recommendationRequestFilters.forEach(filter -> {
             when(filter.isFilterApplicable(filterDto)).thenReturn(true);
             when(filter.apply(any(RecommendationRequest.class), eq(filterDto))).thenReturn(true);
         });
@@ -188,7 +187,7 @@ class RecommendationRequestServiceTest {
         List<RecommendationRequestDto> result = recommendationRequestService.getRequests(filterDto);
 
         verify(recommendationRequestRepository).findAll();
-        requestFilters.forEach(filter -> {
+        recommendationRequestFilters.forEach(filter -> {
             verify(filter).isFilterApplicable(filterDto);
             verify(filter, times(allRecommendationRequests.size())).apply(any(RecommendationRequest.class), eq(filterDto));
         });
