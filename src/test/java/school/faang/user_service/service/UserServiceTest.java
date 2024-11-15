@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,9 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.request.UsersDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.exception.goal.EntityNotFound;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.List;
@@ -184,7 +183,7 @@ class UserServiceTest {
         long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(EntityNotFound.class, () -> userService.findUserById(userId));
+        Exception exception = assertThrows(EntityNotFoundException.class, () -> userService.findUserById(userId));
         assertEquals(String.format("User not found by id: %s", userId), exception.getMessage());
     }
 }

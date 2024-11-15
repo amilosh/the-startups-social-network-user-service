@@ -82,6 +82,11 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.24.2")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     implementation(kotlin("stdlib-jdk8"))
+
+    /**
+     * Minio
+     */
+    implementation("io.minio:minio:8.5.2")
 }
 
 jsonSchema2Pojo {
