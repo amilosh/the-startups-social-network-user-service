@@ -8,10 +8,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.SkillMapper;
+import school.faang.user_service.mapper.SkillMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.validator.SkillValidator;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,7 +33,7 @@ public class SkillServiceTest {
     private SkillValidator skillValidator;
 
     @Spy
-    private SkillMapper skillMapper;
+    private SkillMapperImpl skillMapper;
 
     private SkillDto skillDto;
 
@@ -67,8 +68,10 @@ public class SkillServiceTest {
 
     @Test
     void testGetOfferedSkills() {
-        skillRepository.findSkillsOfferedToUser(USER_ID);
+        List<Skill> skills = List.of(new Skill(), new Skill());
+        when(skillRepository.findSkillsOfferedToUser(USER_ID)).thenReturn(skills);
 
+        skillService.getOfferedSkills(USER_ID);
         verify(skillRepository, times(1)).findSkillsOfferedToUser(USER_ID);
     }
 
