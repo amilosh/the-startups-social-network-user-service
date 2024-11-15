@@ -7,6 +7,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.annotations.Setting;
 import school.faang.user_service.entity.contact.Contact;
 import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.event.Event;
@@ -23,15 +27,19 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Document(indexName = "user")
+@Setting(settingPath = "elasticsearch/es-user-settings.json")
 @Entity
 @Table(name = "users")
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Field(type = FieldType.Keyword)
     private Long id;
 
     @Column(name = "username", length = 64, nullable = false, unique = true)
+    @Field(type = FieldType.Text)
     private String username;
 
     @Column(name = "email", length = 64, nullable = false, unique = true)
@@ -47,16 +55,20 @@ public class User {
     private boolean active;
 
     @Column(name = "about_me", length = 4096)
+    @Field(type = FieldType.Text)
     private String aboutMe;
 
     @ManyToOne
     @JoinColumn(name = "country_id", nullable = false)
+    @Field(type = FieldType.Text)
     private Country country;
 
     @Column(name = "city", length = 64)
+    @Field(type = FieldType.Text)
     private String city;
 
     @Column(name = "experience")
+    @Field(type = FieldType.Integer)
     private Integer experience;
 
     @CreationTimestamp

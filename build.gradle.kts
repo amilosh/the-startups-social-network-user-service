@@ -40,6 +40,11 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     /**
+     * elasticsearch
+     */
+    implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch:3.3.5")
+
+    /**
      * Amazon S3
      */
     implementation("com.amazonaws:aws-java-sdk-s3:1.12.464")
