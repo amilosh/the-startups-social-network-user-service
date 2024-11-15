@@ -15,4 +15,9 @@ public class UrlUtils {
     public static final String ACCEPT = "/accept";
     public static final String REJECT = "/reject";
     public static final String USERS = "/users";
+
+    public static final String SKILLS = "/skills";
+    public static final String RECOMMENDATION = "/recommendation";
+    public static final String RECEIVER = "/receiver";
+    public static final String AUTHOR = "/author";
 }
