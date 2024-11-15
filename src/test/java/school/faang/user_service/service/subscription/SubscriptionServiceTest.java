@@ -1,7 +1,5 @@
 package school.faang.user_service.service.subscription;
 
-import ch.qos.logback.core.testUtil.MockInitialContext;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,12 +10,10 @@ import school.faang.user_service.dto.subscription.SubscriptionUserDto;
 import school.faang.user_service.dto.subscription.SubscriptionUserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.SubscriptionUserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.subscription.filter.*;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
@@ -31,7 +27,7 @@ class SubscriptionServiceTest {
     SubscriptionRepository subscriptionRepository;
 
     @Mock
-    UserMapper mapper;
+    SubscriptionUserMapper mapper;
 
     @Mock
     List<SubscriptionRequestFilter> requestFilters;

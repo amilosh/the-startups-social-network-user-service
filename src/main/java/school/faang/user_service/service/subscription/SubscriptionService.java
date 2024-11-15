@@ -1,15 +1,13 @@
 package school.faang.user_service.service.subscription;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.subscription.SubscriptionRequestDto;
 import school.faang.user_service.dto.subscription.SubscriptionUserDto;
 import school.faang.user_service.dto.subscription.SubscriptionUserFilterDto;
-import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.SubscriptionUserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.subscription.filter.SubscriptionRequestFilter;
 
@@ -20,7 +18,7 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
-    private final UserMapper userMapper;
+    private final SubscriptionUserMapper userMapper;
     private final List<SubscriptionRequestFilter> subscriptionRequestFilters;
 
     public SubscriptionRequestDto followUser(Long followerId, Long followeeId) {
