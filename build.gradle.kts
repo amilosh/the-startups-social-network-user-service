@@ -1,3 +1,5 @@
+import java.math.RoundingMode
+
 plugins {
     java
     jacoco
@@ -101,14 +103,10 @@ tasks.bootJar {
     archiveFileName.set("service.jar")
 }
 
-/**
- * JaCoCo settings
- */
+// Jacoco settings. Include packages for coverage
 val jacocoInclude = listOf(
-    "**/controller/**",
-    "**/service/**",
-    "**/validator/**",
-    "**/mapper/**"
+    "school/faang/user_service/service/**",
+    "school/faang/user_service/filters/**",
 )
 jacoco {
     toolVersion = "0.8.9"
@@ -119,6 +117,7 @@ tasks.test {
 }
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+    finalizedBy(tasks.jacocoTestCoverageVerification)
 
     reports {
         xml.required.set(false)
@@ -133,17 +132,15 @@ tasks.jacocoTestReport {
     )
 }
 tasks.jacocoTestCoverageVerification {
+    classDirectories.setFrom(
+        sourceSets.main.get().output.asFileTree.matching {
+            include(jacocoInclude)
+        }
+    )
     violationRules {
         rule {
-            element = "CLASS"
-            classDirectories.setFrom(
-                sourceSets.main.get().output.asFileTree.matching {
-                    include(jacocoInclude)
-                }
-            )
-            enabled = true
             limit {
-                minimum = BigDecimal(0.7).setScale(2, BigDecimal.ROUND_HALF_UP) // Задаем минимальный уровень покрытия
+                minimum = BigDecimal.valueOf(0.70).setScale(2, RoundingMode.HALF_UP) // minimum level of coverage
             }
         }
     }
