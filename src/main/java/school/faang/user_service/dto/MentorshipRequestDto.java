@@ -1,9 +1,5 @@
 package school.faang.user_service.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import school.faang.user_service.entity.RequestStatus;
@@ -11,12 +7,15 @@ import school.faang.user_service.entity.RequestStatus;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RequestFilterDto {
-    private String messagePattern;
+@Builder
+public class MentorshipRequestDto {
+    private Long id;
     @NotNull
     private Long requesterId;
+    @NotNull
     private Long receiverId;
-    private LocalDateTime createdAt;
-    private RequestStatus status;
+    @NotNull
     private String description;
+    private RequestStatus status;
+    private String rejectionReason;
 }
