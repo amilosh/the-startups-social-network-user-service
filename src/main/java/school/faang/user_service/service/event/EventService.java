@@ -1,8 +1,8 @@
 package school.faang.user_service.service.event;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
@@ -71,7 +71,7 @@ public class EventService {
         List<Event> participatedEvents = eventRepository.findParticipatedEventsByUserId(userId);
         return eventMapper.toDtoList(participatedEvents);
     }
-    
+
     private Event findEventById(long eventId) {
         return eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException("Event id not found"));
     }
@@ -80,4 +80,7 @@ public class EventService {
         return eventRepository.existsById(eventId);
     }
 
+    public List<Event> getEvents(long userId) {
+        return eventRepository.findAllByUserId(userId);
+    }
 }

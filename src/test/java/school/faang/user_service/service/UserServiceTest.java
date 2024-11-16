@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,19 +11,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.request.UsersDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.mapper.UserMapper;
-
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.event.EventService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -33,8 +33,29 @@ class UserServiceTest {
     @Mock
     private UserMapper userMapper;
 
+    @Mock
+    private MentorshipService mentorshipService;
+
+    @Mock
+    private EventService eventService;
+
     @InjectMocks
     private UserService userService;
+
+    private final long userId = 1L;
+    private User user;
+    private List<Event> events;
+
+    @BeforeEach
+    public void setUp() {
+        user = new User();
+        user.setId(1L);
+        user.setActive(true);
+        user.setOwnedEvents(new ArrayList<>());
+        user.setMentees(new ArrayList<>());
+        user.setSetGoals(new ArrayList<>());
+        events = new ArrayList<>();
+    }
 
     @Test
     void checkUserExistenceWhenUserExistsShouldReturnTrue() {
@@ -186,4 +207,71 @@ class UserServiceTest {
         Exception exception = assertThrows(EntityNotFoundException.class, () -> userService.findUserById(userId));
         assertEquals(String.format("User not found by id: %s", userId), exception.getMessage());
     }
+
+    @Test
+    void testDeactivateProfile_UserFound_DeactivatedSuccessful() {
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userMapper.toDto(user)).thenReturn(new UserDto());
+
+        UserDto result = userService.deactivateProfile(userId);
+
+        assertFalse(user.isActive());
+        verify(userRepository).save(user);
+        verify(mentorshipService, never()).moveGoalsToMentee(anyLong(), anyLong());
+        verify(mentorshipService, never()).deleteMentor(anyLong(), anyLong());
+        assertNotNull(result);
+    }
+
+    @Test
+    void testDeactivateProfile_UserNotFound() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> userService.deactivateProfile(userId));
+    }
+
+    @Test
+    void testDeactivateProfile_UserIsMentor() {
+        user.getMentees().add(setUpMentee());
+        long menteeId = setUpMentee().getId();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userMapper.toDto(user)).thenReturn(new UserDto());
+
+        userService.deactivateProfile(userId);
+
+        assertFalse(user.isActive());
+        verify(mentorshipService).moveGoalsToMentee(menteeId, userId);
+        verify(mentorshipService).deleteMentor(menteeId, userId);
+    }
+
+    @Test
+    void testCancelUserOwnedEvents_PlannedEvents() {
+        Event event = new Event();
+        event.setStatus(EventStatus.PLANNED);
+        events.add(event);
+        when(eventService.getEvents(userId)).thenReturn(events);
+
+        userService.cancelUserOwnedEvents(userId);
+
+        assertEquals(EventStatus.CANCELED, event.getStatus());
+    }
+
+    @Test
+    void testCancelUserOwnedEvents_InProgressEvents() {
+        Event event = new Event();
+        event.setStatus(EventStatus.IN_PROGRESS);
+        events.add(event);
+        when(eventService.getEvents(userId)).thenReturn(events);
+
+        userService.cancelUserOwnedEvents(userId);
+
+        assertEquals(EventStatus.CANCELED, event.getStatus());
+    }
+
+    private User setUpMentee() {
+        User mentee = new User();
+        mentee.setId(2L);
+        return mentee;
+    }
 }
+
+

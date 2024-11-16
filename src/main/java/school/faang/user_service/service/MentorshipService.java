@@ -47,5 +47,16 @@ public class MentorshipService {
                     + " does not have a mentor with " + mentorId + " id");
         }
     }
+
+    public void moveGoalsToMentee(long menteeId, long mentorId) {
+        User mentor = userService.findUser(mentorId);
+        User mentee = userService.findUser(menteeId);
+        mentor.getSetGoals()
+                .forEach(goal -> {
+                    if (goal.getUsers().contains(mentee)) {
+                        goal.setMentor(mentee);
+                    }
+                });
+    }
 }
 
