@@ -6,7 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.repository.event.EventParticipationRepository;
+import school.faang.user_service.repository.event.EventParticipationRepositorys;
 import school.faang.user_service.service.mentorship.request_filter.EventParticipationService;
 import school.faang.user_service.validator.event.EventValidator;
 
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class EventParticipationServiceTest {
     @Mock
-    private EventParticipationRepository eventParticipationRepository;
+    private EventParticipationRepositorys eventParticipationRepository;
 
     @Mock
     private EventValidator eventValidator;

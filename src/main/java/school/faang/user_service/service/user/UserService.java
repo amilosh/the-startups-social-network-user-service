@@ -66,4 +66,9 @@ public class UserService {
 
         return usersStream.map(userMapper::toDto);
     }
+
+    public UserDto getUserById(Long id){
+        return userMapper.toDto(userRepository.findById(id)
+                .orElseThrow());
+    }
 }
