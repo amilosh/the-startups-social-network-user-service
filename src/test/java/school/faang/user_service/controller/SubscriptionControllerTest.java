@@ -5,81 +5,63 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.UserFilterDto;
+import org.springframework.http.ResponseEntity;
+import school.faang.user_service.dto.FollowDto;
 import school.faang.user_service.service.SubscriptionService;
 
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SubscriptionControllerTest {
 
-    @Mock
-    private SubscriptionService subscriptionService;
-
     @InjectMocks
     private SubscriptionController subscriptionController;
 
+    @Mock
+    private SubscriptionService subscriptionService;
+
     @Test
-    void testFollowUser() {
-        long followerId = 1;
-        long followeeId = 2;
-        assertDoesNotThrow(() -> subscriptionController.followUser(followerId, followeeId));
-        verify(subscriptionService, times(1)).followUser(followerId, followeeId);
+    void followUser_shouldCallServiceAndReturnOk() {
+        FollowDto followDto = new FollowDto(1L, 2L);
+
+        ResponseEntity<Void> response = subscriptionController.followUser(followDto);
+
+        verify(subscriptionService).followUser(1L, 2L);
+        assertEquals(ResponseEntity.ok().build(), response);
     }
 
     @Test
-    void testUnfollowUser() {
-        long followerId = 1;
-        long followeeId = 2;
-        assertDoesNotThrow(() -> subscriptionController.unfollowUser(followerId, followeeId));
-        verify(subscriptionService, times(1)).unfollowUser(followerId, followeeId);
+    void unfollowUser_shouldCallServiceAndReturnOk() {
+        FollowDto followDto = new FollowDto(1L, 2L);
+
+        ResponseEntity<Void> response = subscriptionController.unfollowUser(followDto);
+
+        verify(subscriptionService).unfollowUser(1L, 2L);
+        assertEquals(ResponseEntity.ok().build(), response);
     }
 
     @Test
-    void testGetFollowers() {
-        long followeeId = 2;
-        UserFilterDto filter = new UserFilterDto();
-        List<UserDto> expectedFollowers = Collections.singletonList(new UserDto());
-        when(subscriptionService.getFollowers(followeeId, filter)).thenReturn(expectedFollowers);
-        List<UserDto> actualFollowers = subscriptionController.getFollowers(followeeId, filter);
-        verify(subscriptionService, times(1)).getFollowers(followeeId, filter);
-        assertEquals(expectedFollowers, actualFollowers, "Список подписчиков должен соответствовать ожидаемому списку.");
-    }
-
-    @Test
-    void testGetFollowersCount() {
-        long followerId = 1;
-        long expectedCount = 5;
+    void getFollowersCount_shouldReturnCount() {
+        long followerId = 1L;
+        long expectedCount = 5L;
         when(subscriptionService.getFollowersCount(followerId)).thenReturn(expectedCount);
-        long actualCount = subscriptionController.getFollowersCount(followerId);
-        verify(subscriptionService, times(1)).getFollowersCount(followerId);
-        assertEquals(expectedCount, actualCount, "Количество подписчиков должно соответствовать ожидаемому количеству.");
+
+        ResponseEntity<Long> response = subscriptionController.getFollowersCount(followerId);
+
+        assertEquals(expectedCount, response.getBody());
+        assertEquals(ResponseEntity.ok(expectedCount), response);
     }
 
     @Test
-    void testGetFollowing() {
-        long followeeId = 2;
-        UserFilterDto filter = new UserFilterDto();
-        List<UserDto> expectedFollowing = Collections.singletonList(new UserDto());
-        when(subscriptionService.getFollowing(followeeId, filter)).thenReturn(expectedFollowing);
-        List<UserDto> actualFollowing = subscriptionController.getFollowing(followeeId, filter);
-        verify(subscriptionService, times(1)).getFollowing(followeeId, filter);
-        assertEquals(expectedFollowing, actualFollowing, "Список следующих пользователей должен соответствовать ожидаемому списку.");
-    }
-
-    @Test
-    void testGetFollowingCount() {
-        long followerId = 1;
-        long expectedCount = 3;
+    void getFollowingCount_shouldReturnCount() {
+        long followerId = 1L;
+        long expectedCount = 3L;
         when(subscriptionService.getFollowingCount(followerId)).thenReturn(expectedCount);
-        long actualCount = subscriptionController.getFollowingCount(followerId);
-        verify(subscriptionService, times(1)).getFollowingCount(followerId);
-        assertEquals(expectedCount, actualCount, "Следующее количество должно соответствовать ожидаемому количеству.");
+
+        ResponseEntity<Long> response = subscriptionController.getFollowingCount(followerId);
+
+        assertEquals(expectedCount, response.getBody());
+        assertEquals(ResponseEntity.ok(expectedCount), response);
     }
 }

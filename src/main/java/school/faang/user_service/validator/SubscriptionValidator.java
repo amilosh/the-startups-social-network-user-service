@@ -14,34 +14,34 @@ public class SubscriptionValidator {
 
     public void validateFollowUser(long followerId, long followeeId) {
         if (followerId <= 0 || followeeId <= 0) {
-            throw new DataValidationException("ID пользователя должен быть положительным.");
+            throw new DataValidationException("User ID must be positive.");
         }
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            throw new DataValidationException("Подписка уже существует.");
+            throw new DataValidationException("Subscription already exists.");
         }
     }
 
     public void validateUnfollowUser(long followerId, long followeeId) {
         if (followerId <= 0 || followeeId <= 0) {
-            throw new DataValidationException("ID пользователя должен быть положительным.");
+            throw new DataValidationException("User ID must be positive.");
         }
         if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            throw new DataValidationException("Подписка не существует.");
+            throw new DataValidationException("Subscription does not exist.");
         }
     }
 
     public void validateUserExists(long userId) {
         if (userId <= 0) {
-            throw new DataValidationException("ID пользователя должен быть положительным.");
+            throw new DataValidationException("User ID must be positive.");
         }
         if (!subscriptionRepository.existsById(userId)) {
-            throw new DataValidationException("Пользователя не существует.");
+            throw new DataValidationException("User does not exist.");
         }
     }
 
     public void validateFilter(UserFilterDto filter) {
         if (filter == null) {
-            throw new DataValidationException("Фильтр не может быть null.");
+            throw new DataValidationException("Filter cannot be null.");
         }
     }
 }

@@ -8,39 +8,39 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class UserFilterDto {
-    @Pattern(regexp = ".*", message = "Имя не может быть пустым")
+    @Pattern(regexp = ".*", message = "Name cannot be empty")
     private String namePattern;
 
-    @Pattern(regexp = ".*", message = "Об не может быть пустым")
+    @Pattern(regexp = ".*", message = "About cannot be empty")
     private String aboutPattern;
 
-    @Pattern(regexp = ".+@.+\\..+", message = "Email должен быть валидным")
+    @Pattern(regexp = ".+@.+\\..+", message = "Email must be valid")
     private String emailPattern;
 
-    @Pattern(regexp = ".*", message = "Контакт не должен быть пустым")
+    @Pattern(regexp = ".*", message = "Contact cannot be empty")
     private String contactPattern;
 
-    @Pattern(regexp = ".*", message = "Страна не должна быть пустой")
+    @Pattern(regexp = ".*", message = "Country cannot be empty")
     private String countryPattern;
 
-    @Pattern(regexp = ".*", message = "Город не должен быть пустым")
+    @Pattern(regexp = ".*", message = "City cannot be empty")
     private String cityPattern;
 
-    @Pattern(regexp = "\\+?[0-9]*", message = "Номер телефона должен быть валидным")
+    @Pattern(regexp = "\\+?[0-9]*", message = "Phone number must be valid")
     private String phonePattern;
 
-    @Pattern(regexp = ".*", message = "Скилл не должен быть пустым")
+    @Pattern(regexp = ".*", message = "Skill cannot be empty")
     private String skillPattern;
 
-    @Min(value = 0, message = "Опыт не должен быть меньше 0")
+    @Min(value = 0, message = "Experience cannot be less than 0")
     private int experienceMin;
 
-    @Min(value = 0, message = "Максимальный опыт не должен быть 0")
+    @Min(value = 0, message = "Maximum experience cannot be 0")
     private int experienceMax;
 
-    @Min(value = 0, message = "Номер страницы не должен быть 0")
+    @Min(value = 0, message = "Page number cannot be 0")
     private int page;
 
-    @Min(value = 1, message = "Размер страницы не должен быть 1")
+    @Min(value = 1, message = "Page size cannot be 1")
     private int pageSize;
 }

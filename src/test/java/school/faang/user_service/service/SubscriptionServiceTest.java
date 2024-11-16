@@ -24,20 +24,21 @@ class SubscriptionServiceTest {
     @InjectMocks
     private SubscriptionService subscriptionService;
 
+    private long followerId = 1;
+    private long followeeId = 2;
+
     @Test
     void followUser_shouldCallValidatorAndRepository() {
-        long followerId = 1;
-        long followeeId = 2;
         assertDoesNotThrow(() -> subscriptionService.followUser(followerId, followeeId));
+
         verify(subscriptionValidator).validateFollowUser(followerId, followeeId);
         verify(subscriptionRepository).followUser(followerId, followeeId);
     }
 
     @Test
     void unfollowUser_shouldCallValidatorAndRepository() {
-        long followerId = 1;
-        long followeeId = 2;
         assertDoesNotThrow(() -> subscriptionService.unfollowUser(followerId, followeeId));
+
         verify(subscriptionValidator).validateUnfollowUser(followerId, followeeId);
         verify(subscriptionRepository).unfollowUser(followerId, followeeId);
     }
@@ -47,16 +48,19 @@ class SubscriptionServiceTest {
         long followeeId = 1;
         when(subscriptionRepository.findFollowersAmountByFolloweeId(followeeId)).thenReturn(5);
         long count = assertDoesNotThrow(() -> subscriptionService.getFollowersCount(followeeId));
+
         assertEquals(5, count);
+
         verify(subscriptionValidator).validateUserExists(followeeId);
     }
 
     @Test
     void getFollowingCount_shouldReturnCount() {
-        long followerId = 1;
         when(subscriptionRepository.findFolloweesAmountByFollowerId(followerId)).thenReturn(3);
         long count = assertDoesNotThrow(() -> subscriptionService.getFollowingCount(followerId));
+
         assertEquals(3, count);
+
         verify(subscriptionValidator).validateUserExists(followerId);
     }
 }

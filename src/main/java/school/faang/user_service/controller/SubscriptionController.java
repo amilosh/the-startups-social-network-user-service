@@ -1,6 +1,15 @@
 package school.faang.user_service.controller;
 
-import org.springframework.stereotype.Controller;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.FollowDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.service.SubscriptionService;
@@ -10,31 +19,44 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@Controller
+@RestController
+@RequestMapping("/subscription")
 public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
-    public void followUser(long followerId, long followeeId) {
-        subscriptionService.followUser(followerId, followeeId);
+    @PostMapping("/followers")
+    public ResponseEntity<Void> followUser(@Valid @RequestBody FollowDto followDto) {
+        subscriptionService.followUser(followDto.getFollowerId(), followDto.getFolloweeId());
+        return ResponseEntity.ok().build();
     }
 
-    public void unfollowUser(long followerId, long followeeId) {
-        subscriptionService.unfollowUser(followerId, followeeId);
+    @DeleteMapping("/followers")
+    public ResponseEntity<Void> unfollowUser(@Valid @RequestBody FollowDto followDto) {
+        subscriptionService.unfollowUser(followDto.getFollowerId(), followDto.getFolloweeId());
+        return ResponseEntity.ok().build();
     }
 
-    public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
-        return subscriptionService.getFollowers(followeeId, filter);
+    @PostMapping("/followers/{followeeId}")
+    public ResponseEntity<List<UserDto>> getFollowers(@PathVariable long followeeId, @Valid @RequestBody UserFilterDto filter) {
+        List<UserDto> followers = subscriptionService.getFollowers(followeeId, filter);
+        return ResponseEntity.ok(followers);
     }
 
-    public long getFollowersCount(long followerId) {
-        return subscriptionService.getFollowersCount(followerId);
+    @GetMapping("/followers-count/{followerId}")
+    public ResponseEntity<Long> getFollowersCount(@PathVariable long followerId) {
+        long count = subscriptionService.getFollowersCount(followerId);
+        return ResponseEntity.ok(count);
     }
 
-    public List<UserDto> getFollowing(long followeeId, UserFilterDto filter) {
-        return subscriptionService.getFollowing(followeeId, filter);
+    @PostMapping("/following/{followeeId}")
+    public ResponseEntity<List<UserDto>> getFollowing(@PathVariable long followeeId, @Valid @RequestBody UserFilterDto filter) {
+        List<UserDto> following = subscriptionService.getFollowing(followeeId, filter);
+        return ResponseEntity.ok(following);
     }
 
-    public long getFollowingCount(long followerId) {
-        return subscriptionService.getFollowingCount(followerId);
+    @GetMapping("/following-count/{followerId}")
+    public ResponseEntity<Long> getFollowingCount(@PathVariable long followerId) {
+        long count = subscriptionService.getFollowingCount(followerId);
+        return ResponseEntity.ok(count);
     }
 }

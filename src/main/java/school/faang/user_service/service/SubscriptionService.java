@@ -27,45 +27,54 @@ public class SubscriptionService {
 
     public void followUser(long followerId, long followeeId) {
         subscriptionValidator.validateFollowUser(followerId, followeeId);
+
         subscriptionRepository.followUser(followerId, followeeId);
     }
 
     public void unfollowUser(long followerId, long followeeId) {
         subscriptionValidator.validateUnfollowUser(followerId, followeeId);
+
         subscriptionRepository.unfollowUser(followerId, followeeId);
     }
 
-    public List<UserDto> getFollowers(long followeeId, @Valid UserFilterDto filter) {
+    public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
         subscriptionValidator.validateUserExists(followeeId);
+
         subscriptionValidator.validateFilter(filter);
         List<User> followers = subscriptionRepository.findByFolloweeId(followeeId).toList();
         List<UserDto> followersDto = userMapper.toDto(followers);
+
         return filterUsers(followersDto, filter);
     }
 
-    public List<UserDto> filterUsers(List<UserDto> users, @Valid UserFilterDto filter) {
+    public List<UserDto> filterUsers(List<UserDto> users, UserFilterDto filter) {
         Stream<UserDto> userStream = users.stream();
         if (userFilter.isApplicable(filter)) {
             return userFilter.apply(userStream, filter).collect(Collectors.toList());
         }
+        
         return users;
     }
 
     public long getFollowersCount(long followeeId) {
         subscriptionValidator.validateUserExists(followeeId);
+
         return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
     }
 
     public List<UserDto> getFollowing(long followerId, @Valid UserFilterDto filter) {
         subscriptionValidator.validateUserExists(followerId);
         subscriptionValidator.validateFilter(filter);
+
         List<User> following = subscriptionRepository.findByFolloweeId(followerId).toList();
         List<UserDto> followingDto = userMapper.toDto(following);
+
         return filterUsers(followingDto, filter);
     }
 
     public long getFollowingCount(long followerId) {
         subscriptionValidator.validateUserExists(followerId);
+
         return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
     }
 }
