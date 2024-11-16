@@ -27,8 +27,8 @@ public class UserController {
     private final UserService userService;
     private final UserValidator userValidator;
 
-    @PutMapping
-    public void deactivateUser(@RequestParam Long userId) {
+    @PutMapping("/deactivate/{userId}")
+    public void deactivateUser(@PathVariable Long userId) {
         userService.deactivateUser(userId);
         log.info("User with ID {} has been scheduled for the deactivation", userId);
     }
