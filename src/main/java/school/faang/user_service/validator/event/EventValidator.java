@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.exception.partiсipation.EventNotFoundException;
 import school.faang.user_service.exception.partiсipation.ParticipationException;
 import school.faang.user_service.exception.partiсipation.UserNotFoundException;
-import school.faang.user_service.repository.event.EventParticipationRepositorys;
+import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
 @Component
@@ -13,7 +13,7 @@ import school.faang.user_service.repository.event.EventRepository;
 public class EventValidator {
 
     private final EventRepository eventRepository;
-    private final EventParticipationRepositorys eventParticipationRepository;
+    private final EventParticipationRepository eventParticipationRepository;
 
     public void checkUserExists (long userId) {
         if (!eventRepository.existsById(userId)) {

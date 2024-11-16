@@ -1,11 +1,11 @@
-package school.faang.user_service.service.mentorship.request_filter;
+package school.faang.user_service.service.participation.event;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.user.UserMapper;
-import school.faang.user_service.repository.event.EventParticipationRepositorys;
+import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.validator.event.EventValidator;
 
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class EventParticipationService {
 
-    private final EventParticipationRepositorys eventParticipationRepository;
+    private final EventParticipationRepository eventParticipationRepository;
     private final UserMapper userMapper;
     private final EventValidator eventValidator;
 
@@ -36,7 +36,7 @@ public class EventParticipationService {
 
     public List<User> getParticipant(long eventId) {
         eventValidator.validateEventExists(eventId);
-        return eventParticipationRepository.findUsersByEventId(eventId);
+        return eventParticipationRepository.findAllParticipantsByEventId(eventId);
     }
 
     public int getParticipantsCount(long eventId) {
