@@ -41,5 +41,7 @@ payment-service:
   host: localhost
   port: 9080
 
+max-month-limit-recommendation-request: 6
+
 skill:
   minOffersRequired: 3
