@@ -10,6 +10,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.SkillDto;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillCandidateMapper;
@@ -17,11 +18,15 @@ import school.faang.user_service.mapper.SkillMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -41,6 +46,9 @@ public class SkillServiceTest {
 
     @Mock
     private SkillCandidateMapper skillCandidateMapper;
+
+    @Mock
+    private UserService userService;
 
     @Captor
     private ArgumentCaptor<Skill> captor;
@@ -101,7 +109,8 @@ public class SkillServiceTest {
 
     @Test
     public void testAcquireSkillFromOffersLessThree() {
-        when(skillRepository.findUserSkill(anyLong(), anyLong())).thenReturn(Optional.of(new Skill()));
+        when(skillRepository.findUserSkill(anyLong(), anyLong()))
+                .thenReturn(Optional.of(new Skill()));
         when(skillOfferRepository.findAllOffersOfSkill(anyLong(), anyLong()))
                 .thenReturn(List.of(new SkillOffer()));
         Optional<SkillDto> result = skillService.acquireSkillFromOffers(anyLong(), anyLong());
@@ -109,5 +118,14 @@ public class SkillServiceTest {
         assertEquals(Optional.empty(), result);
     }
 
-
+    @Test
+    public void testAcquireSkillFromOffersOverThree() {
+        when(skillRepository.findUserSkill(anyLong(), anyLong()))
+                .thenReturn(Optional.of(Skill.builder().guarantees(new ArrayList<>()).build()));
+        when(skillOfferRepository.findAllOffersOfSkill(anyLong(), anyLong()))
+                .thenReturn(List.of(new SkillOffer(), new SkillOffer(), new SkillOffer()
+                , new SkillOffer()));
+        skillService.acquireSkillFromOffers(anyLong(), anyLong());
+        verify(skillRepository).assignSkillToUser(anyLong(), anyLong());
+    }
 }
