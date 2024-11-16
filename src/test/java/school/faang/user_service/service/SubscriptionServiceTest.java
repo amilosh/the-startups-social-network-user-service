@@ -24,8 +24,8 @@ class SubscriptionServiceTest {
     @InjectMocks
     private SubscriptionService subscriptionService;
 
-    private long followerId = 1;
-    private long followeeId = 2;
+    private final long followerId = 1;
+    private final long followeeId = 2;
 
     @Test
     void followUser_shouldCallValidatorAndRepository() {
