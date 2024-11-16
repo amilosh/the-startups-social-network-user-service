@@ -11,7 +11,7 @@ import school.faang.user_service.service.event.EventParticipationService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping
 @RequiredArgsConstructor
 @Slf4j
 public class EventParticipationController {
