@@ -1,7 +1,7 @@
 package school.faang.user_service.mapper;
 
 import org.mapstruct.Mapper;
-import school.faang.user_service.dto.UserDTO;
+import school.faang.user_service.dto.subscribe.UserDTO;
 import school.faang.user_service.entity.User;
 
 import java.util.List;

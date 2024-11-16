@@ -1,3 +1,5 @@
+max-month-limit-recommendation-request: 6
+
 application:
   constants:
     max-active-goals-count: 3
