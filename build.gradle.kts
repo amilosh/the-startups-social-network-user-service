@@ -114,9 +114,11 @@ jacoco {
     toolVersion = "0.8.9"
     reportsDirectory.set(layout.buildDirectory.dir("$buildDir/reports/jacoco"))
 }
+
 tasks.test {
     finalizedBy(tasks.jacocoTestReport)
 }
+
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
 
@@ -131,6 +133,7 @@ tasks.jacocoTestReport {
         }
     )
 }
+
 tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
@@ -149,6 +152,7 @@ tasks.jacocoTestCoverageVerification {
         }
     }
 }
+
 kotlin {
     jvmToolchain(17)
 }
