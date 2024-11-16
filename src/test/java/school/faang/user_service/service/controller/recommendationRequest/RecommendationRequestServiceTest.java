@@ -62,6 +62,7 @@ public class RecommendationRequestServiceTest {
     private RecommendationRequest recommendationRequest;
     private RecommendationRequestDto recommendationRequestDto;
     private RecommendationRequestFilterDto recommendationRequestFilterDto;
+
     private User requester;
     private User receiver;
 
