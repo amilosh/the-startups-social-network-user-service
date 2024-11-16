@@ -2,10 +2,12 @@ package school.faang.user_service.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository
@@ -25,4 +27,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
             WHERE up.end_date > NOW()
             """)
     Stream<User> findPremiumUsers();
+
+    @Query("""
+            SELECT u FROM User u
+            LEFT JOIN FETCH u.skills s
+            WHERE u.id = :userId
+            """)
+    Optional<User> findByIdWithSkills(@Param("userId") long userId);
+
+    @Query(nativeQuery = true, value = """
+            SELECT u.id FROM users u
+            WHERE u.id NOT IN (:userIds)
+            """)
+    List<Long> findNotExistingUserIds(@Param("userIds") List<Long> userIds);
 }
