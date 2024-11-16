@@ -21,8 +21,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
@@ -46,7 +48,6 @@ class RecommendationValidatorTest {
     private RecommendationDto dto;
     private Recommendation recommendation;
 
-
     @BeforeEach
     void setUp() {
         dto = RecommendationDto.builder()
@@ -60,6 +61,19 @@ class RecommendationValidatorTest {
                         .build()))
                 .build();
         recommendation = recommendationMapper.toEntity(dto);
+    }
+
+    @Test
+    void testValidateAuthorAndReceiverIdShouldThrowException() {
+        dto.setReceiverId(dto.getAuthorId());
+
+        assertThrows(DataValidationException.class,
+                () -> recommendationValidator.validateAuthorAndReceiverId(dto));
+    }
+
+    @Test
+    void testValidateAuthorAndReceiverIdSuccess() {
+        assertDoesNotThrow(() -> recommendationValidator.validateAuthorAndReceiverId(dto));
     }
 
     @Test
@@ -83,6 +97,13 @@ class RecommendationValidatorTest {
     }
 
     @Test
+    void testSkillExists() {
+        when(skillValidator.validateSkillExists(Mockito.anyLong())).thenReturn(true);
+
+        assertDoesNotThrow(() -> recommendationValidator.validateSkillExists(dto));
+    }
+
+    @Test
     void testRecommendationExistenceInvalidId() {
         recommendation.setId(1L);
         when(recommendationRepository.existsById(recommendation.getId())).thenReturn(false);
@@ -92,5 +113,22 @@ class RecommendationValidatorTest {
 
         assertEquals("Recommendation with id #" + recommendation.getId() + " doesn't exist in the system",
                 result.getMessage());
+    }
+
+    @Test
+    void testValidateRecommendationExistsSuccess() {
+        recommendation.setId(1L);
+        when(recommendationRepository.existsById(recommendation.getId())).thenReturn(true);
+
+        assertDoesNotThrow(() ->
+                recommendationValidator.validateRecommendationExistsById(recommendation.getId()));
+    }
+
+    @Test
+    void testValidateSkillAndTimeRequirementsForGuarantee() {
+        when(skillValidator.validateSkillExists(any())).thenReturn(true);
+
+        assertDoesNotThrow(() ->
+                recommendationValidator.validateSkillAndTimeRequirementsForGuarantee(dto));
     }
 }

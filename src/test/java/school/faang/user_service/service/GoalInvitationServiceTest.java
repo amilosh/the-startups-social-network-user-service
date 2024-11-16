@@ -1,4 +1,4 @@
-package school.faang.user_service.service.goal;
+package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +18,8 @@ import school.faang.user_service.filter.Filter;
 import school.faang.user_service.filter.goal.InvitedIdFilter;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
-import school.faang.user_service.service.UserService;
+import school.faang.user_service.service.goal.GoalInvitationService;
+import school.faang.user_service.service.goal.GoalService;
 import school.faang.user_service.validator.goal.GoalInvitationValidator;
 
 import java.util.ArrayList;
@@ -26,12 +27,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -92,7 +95,7 @@ class GoalInvitationServiceTest {
         verify(goalService, times(1)).findGoalById(dto.getGoalId());
         verify(goalInvitationRepository, times(1)).save(any());
         verify(goalInvitationMapper, times(1)).toDto(any());
-        assertEquals(dto,result);
+        assertEquals(dto, result);
     }
 
     @Test
@@ -171,6 +174,20 @@ class GoalInvitationServiceTest {
         GoalInvitationFilterDto goalInvitationFilterDto = GoalInvitationFilterDto.builder()
                 .build();
         assertTrue(goalInvitationService.getInvitations(goalInvitationFilterDto).isEmpty());
+    }
+
+    @Test
+    void testAcceptGoalInvitationSuccess() {
+        preparationData();
+        User mockUser = mock(User.class);
+        goalInvitation.setInvited(mockUser);
+        doNothing().when(goalInvitationValidator).validateId(1L);
+        when(goalInvitationRepository.getById(1L)).thenReturn(Optional.ofNullable(goalInvitation));
+        doNothing().when(goalInvitationValidator).validateGoalInvitationAcceptance(goalInvitation);
+        when(goalInvitationRepository.save(goalInvitation)).thenReturn(goalInvitation);
+        when(goalInvitationMapper.toDto(goalInvitation)).thenReturn(dto);
+
+        assertDoesNotThrow(() -> goalInvitationService.acceptGoalInvitation(1L));
     }
 
     private void preparationData() {

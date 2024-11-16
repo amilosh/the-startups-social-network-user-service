@@ -56,8 +56,8 @@ public class MentorshipRequestValidator {
     }
 
     private void validateRequesterAndReceiverExists(MentorshipRequestDto dto) {
-        userValidator.isUserExists(dto.getRequesterId());
-        userValidator.isUserExists(dto.getReceiverId());
+        userValidator.validateUserById(dto.getRequesterId());
+        userValidator.validateUserById(dto.getReceiverId());
         log.info("All users in request id #{} exist.", dto.getId());
     }
 

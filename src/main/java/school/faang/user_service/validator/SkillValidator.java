@@ -12,7 +12,7 @@ public class SkillValidator {
     private final SkillRepository skillRepository;
 
     public void validateDuplicate(Skill skill) {
-        if(skillRepository.existsByTitle(skill.getTitle())) {
+        if (skillRepository.existsByTitle(skill.getTitle())) {
             throw new SkillDuplicateException("Skill with title " + skill.getTitle() + " already exists");
         }
     }

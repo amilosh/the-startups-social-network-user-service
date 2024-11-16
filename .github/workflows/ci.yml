@@ -23,7 +23,16 @@ jobs:
           java-version: 17
 
       - name: Unit Tests
-        run: ./gradlew test
+        run: ./gradlew test jacocoTestReport
 
       - name: Build the application
         run: ./gradlew build
+
+      - name: Run coverage verification
+        run: ./gradlew jacocoTestCoverageVerification
+
+      - name: Upload JaCoCo report
+        uses: actions/upload-artifact@v2
+        with:
+          name: jacoco-report
+          path: build/jacocoHtml

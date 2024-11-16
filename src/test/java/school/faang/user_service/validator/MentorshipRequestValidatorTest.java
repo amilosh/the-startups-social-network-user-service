@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class MentorshipRequestValidatorTest {
-    private static final String BLANK_STRING = "   ";
 
     @Mock
     private MentorshipRequestRepository requestRepository;
@@ -63,16 +62,16 @@ class MentorshipRequestValidatorTest {
     @Test
     void testValidateRequesterDoesNotExist() {
         doThrow(new EntityNotFoundException("User does not exists"))
-                .when(userValidator).isUserExists(requestDto.getRequesterId());
+                .when(userValidator).validateUserById(requestDto.getRequesterId());
 
         assertThrows(EntityNotFoundException.class, () -> requestValidator.validateMentorshipRequest(requestDto));
     }
 
     @Test
     void testValidateReceiverDoesNotExist() {
-        doNothing().when(userValidator).isUserExists(requestDto.getRequesterId());
+        doNothing().when(userValidator).validateUserById(requestDto.getRequesterId());
         doThrow(new EntityNotFoundException("User does not exist"))
-                .when(userValidator).isUserExists(requestDto.getReceiverId());
+                .when(userValidator).validateUserById(requestDto.getReceiverId());
 
         assertThrows(EntityNotFoundException.class, () -> requestValidator.validateMentorshipRequest(requestDto));
     }
@@ -106,8 +105,8 @@ class MentorshipRequestValidatorTest {
 
         when(requestRepository.findLatestRequest(requestDto.getRequesterId(), requestDto.getReceiverId()))
                 .thenReturn(Optional.of(request));
-        doNothing().when(userValidator).isUserExists(requestDto.getRequesterId());
-        doNothing().when(userValidator).isUserExists(requestDto.getReceiverId());
+        doNothing().when(userValidator).validateUserById(requestDto.getRequesterId());
+        doNothing().when(userValidator).validateUserById(requestDto.getReceiverId());
 
         assertDoesNotThrow(() -> requestValidator.validateMentorshipRequest(requestDto));
     }
