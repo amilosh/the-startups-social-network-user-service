@@ -30,7 +30,7 @@ public class SkillService {
     private final SkillOfferRepository skillOfferRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
-    @Value("${application.skill.minOffersRequired}")
+    @Value("${skill.minOffersRequired}")
     private int minOffersRequired;
 
     public SkillDto acquireSkillFromOffers(Long skillId, Long userId) {
