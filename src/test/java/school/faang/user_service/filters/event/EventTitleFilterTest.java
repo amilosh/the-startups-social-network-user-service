@@ -1,4 +1,4 @@
-package school.faang.user_service.service.filters.event;
+package school.faang.user_service.filters.event;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

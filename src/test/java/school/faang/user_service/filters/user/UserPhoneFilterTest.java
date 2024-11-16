@@ -1,10 +1,10 @@
-package school.faang.user_service.service.user.filter;
+package school.faang.user_service.filters.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.filter.UserFilterDto;
-import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.filters.user.UserPhoneFilter;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -13,27 +13,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UserCountryFilterTest {
-    private final UserCountryFilter userCountryFilter = new UserCountryFilter();
+public class UserPhoneFilterTest {
+    private final UserPhoneFilter userPhoneFilter = new UserPhoneFilter();
     private List<User> usersStream;
 
     @BeforeEach
     public void initFilter() {
-        Country germany = new Country();
-        germany.setTitle("Germany");
-        Country nigeria = new Country();
-        nigeria.setTitle("Nigeria");
-        Country argentina = new Country();
-        argentina.setTitle("Argentina");
         usersStream = List.of(
                 User.builder()
-                        .country(germany)
+                        .phone("+7-922-111-05-00")
                         .build(),
                 User.builder()
-                        .country(nigeria)
+                        .phone("+7-800-555-35-35")
                         .build(),
                 User.builder()
-                        .country(argentina)
+                        .phone("+7-987-636-28-19")
                         .build()
         );
     }
@@ -42,7 +36,7 @@ public class UserCountryFilterTest {
     public void testReturnFalseIfFilterIsNotApplicable() {
         UserFilterDto filters = new UserFilterDto();
 
-        boolean isApplicable = userCountryFilter.isApplicable(filters);
+        boolean isApplicable = userPhoneFilter.isApplicable(filters);
 
         assertFalse(isApplicable);
     }
@@ -50,10 +44,10 @@ public class UserCountryFilterTest {
     @Test
     public void testReturnTrueIfFilterIsApplicable() {
         UserFilterDto filters = UserFilterDto.builder()
-                .countryPattern("GE")
+                .phonePattern("+7")
                 .build();
 
-        boolean isApplicable = userCountryFilter.isApplicable(filters);
+        boolean isApplicable = userPhoneFilter.isApplicable(filters);
 
         assertTrue(isApplicable);
     }
@@ -61,11 +55,21 @@ public class UserCountryFilterTest {
     @Test
     public void testReturnFilteredUserList() {
         UserFilterDto filters = UserFilterDto.builder()
-                .countryPattern("GE")
+                .phonePattern("+7")
                 .build();
-        List<User> expectedUsers = usersStream.stream().toList();
+        List<User> expectedUsers = List.of(
+                User.builder()
+                        .phone("+7-922-111-05-00")
+                        .build(),
+                User.builder()
+                        .phone("+7-800-555-35-35")
+                        .build(),
+                User.builder()
+                        .phone("+7-987-636-28-19")
+                        .build()
+        );
 
-        Stream<User> actualUsers = userCountryFilter.apply(usersStream.stream(), filters);
+        Stream<User> actualUsers = userPhoneFilter.apply(usersStream.stream(), filters);
 
         assertEquals(expectedUsers, actualUsers.toList());
     }

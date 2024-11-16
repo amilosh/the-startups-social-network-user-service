@@ -18,7 +18,7 @@ import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.service.UserService;
+import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.RecommendationValidator;
 
