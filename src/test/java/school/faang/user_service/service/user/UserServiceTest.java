@@ -29,7 +29,7 @@ class UserServiceTest {
     private UserService userService;
 
     @Test
-    void testGenerateRandomAvatar_success() {
+    void testGenerateRandomAvatarSuccess() {
         Long userId = 1L;
         String avatarUrl = "http://localhost/avatar/1.svg";
         User user = new User();
@@ -45,7 +45,7 @@ class UserServiceTest {
     }
 
     @Test
-    void testGenerateRandomAvatar_userNotFound() {
+    void testGenerateRandomAvatarUserNotFound() {
         Long userId = 1L;
         when(userContext.getUserId()).thenReturn(userId);
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
