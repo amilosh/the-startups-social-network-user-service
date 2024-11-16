@@ -11,7 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -29,8 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -150,24 +147,14 @@ class UserServiceTest {
         UserDto userDto = new UserDto();
         userDto.setId(userId);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userValidator.validateUser(userId)).thenReturn(user);
         when(userMapper.toDto(user)).thenReturn(userDto);
 
         UserDto result = userService.getUser(userId);
 
         assertEquals(userDto, result);
-        verify(userRepository, times(1)).findById(userId);
+        verify(userValidator, times(1)).validateUser(userId);
         verify(userMapper, times(1)).toDto(user);
-    }
-
-    @Test
-    public void testGetUserNotFoundException() {
-        long userId = 1L;
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> userService.getUser(userId));
-        verify(userRepository, times(1)).findById(userId);
-        verify(userMapper, never()).toDto(any(User.class));
     }
 
     @Test
@@ -176,30 +163,13 @@ class UserServiceTest {
         List<User> users = List.of(new User(), new User());
         List<UserDto> usersDtos = List.of(new UserDto(), new UserDto());
 
-        doNothing().when(userValidator).validateUserIds(ids);
         when(userRepository.findAllById(ids)).thenReturn(users);
         when(userMapper.toListDto(users)).thenReturn(usersDtos);
 
         List<UserDto> result = userService.getUsersByIds(ids);
 
         assertEquals(usersDtos, result);
-        verify(userValidator, times(1)).validateUserIds(ids);
         verify(userRepository, times(1)).findAllById(ids);
-        verify(userValidator, times(1)).validateUsersWithIdExists(users);
         verify(userMapper, times(1)).toListDto(users);
-    }
-
-    @Test
-    public void testGetUsersByIdsDataValidationException() {
-        List<Long> emptyListIds = List.of();
-
-        doThrow(new DataValidationException("There aren't found any users by these Ids/Id"))
-                .when(userValidator).validateUserIds(emptyListIds);
-
-        assertThrows(DataValidationException.class, () -> userService.getUsersByIds(emptyListIds));
-        verify(userValidator, times(1)).validateUserIds(emptyListIds);
-        verify(userRepository, never()).findAllById(any());
-        verify(userValidator, never()).validateUsersWithIdExists(any());
-        verify(userMapper, never()).toListDto(any());
     }
 }

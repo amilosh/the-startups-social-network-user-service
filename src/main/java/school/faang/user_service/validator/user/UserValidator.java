@@ -23,15 +23,9 @@ public class UserValidator {
         });
     }
 
-    public void validateUserIds(List<Long> ids) {
+    public void validateIds(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
             throw new DataValidationException("List Ids shouldn't be empty");
-        }
-    }
-
-    public void validateUsersWithIdExists(List<User> users) {
-        if (users.isEmpty()) {
-            throw new DataValidationException("There aren't found any users by these Ids/Id");
         }
     }
 }

@@ -71,16 +71,12 @@ public class UserService {
     }
 
     public UserDto getUser(long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User with Id" + userId + "not found"));
+        User user = userValidator.validateUser(userId);
         return userMapper.toDto(user);
     }
 
     public List<UserDto> getUsersByIds(List<Long> ids) {
-        userValidator.validateUserIds(ids);
         List<User> users = userRepository.findAllById(ids);
-        userValidator.validateUsersWithIdExists(users);
-
         return userMapper.toListDto(users);
     }
 }
