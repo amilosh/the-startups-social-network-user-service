@@ -10,11 +10,13 @@ import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.recommendationRequest.RecommendationRequestFilter;
 import school.faang.user_service.mapper.recommendationRequest.RecommendationRequestMapper;
+import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.SkillRequestService.SkillRequestService;
 import school.faang.user_service.validator.recommendationRequest.RecommendationRequestValidator;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static school.faang.user_service.entity.RequestStatus.REJECTED;
 
@@ -53,15 +55,24 @@ public class RecommendationRequestService {
         List<RecommendationRequest> recommendations = recommendationRequestRepository.findAll();
         log.info("Found {} recommendation requests before applying filters", recommendations.size());
 
-        recommendationRequestFilters.stream()
-                .filter(filter -> filter.isApplicable(recommendationRequestFilterDto))
-                .forEach(filter -> {
-                    log.info("Applying filter: {}", filter.getClass().getSimpleName());
-                    filter.apply(recommendations.stream(), recommendationRequestFilterDto);
-                });
+        Stream<RecommendationRequest> recommendationRequestStream = recommendations.stream();
 
-        List<RecommendationRequestDto> result = recommendations.stream()
-                .map(recommendationRequestMapper::toDto)
+        log.debug("Applying filters to stages");
+        List<RecommendationRequestDto> result = recommendationRequestFilters.stream()
+                .filter(filter -> {
+                    boolean applicable = filter.isApplicable(recommendationRequestFilterDto);
+                    log.debug("Filter {} is {}", filter.getClass().getSimpleName(), applicable ? "applicable" : "not applicable");
+                    return applicable;
+                })
+                .flatMap(filter -> {
+                    log.debug("Applying filter: {}", filter.getClass().getSimpleName());
+                    return filter.apply(recommendationRequestStream, recommendationRequestFilterDto);
+                })
+                .map(recommendationRequest -> {
+                    RecommendationRequestDto dto = recommendationRequestMapper.toDto(recommendationRequest);
+                    log.trace("Mapped Stage {} to DTO", recommendationRequest);
+                    return dto;
+                })
                 .toList();
 
         log.info("Returned {} recommendation requests after applying filters", result.size());

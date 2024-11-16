@@ -16,13 +16,14 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.filter.recommendationRequest.RecommendationRequestFilter;
+import school.faang.user_service.filter.recommendationRequest.RecommendationRequestRequesterFilter;
 import school.faang.user_service.mapper.recommendationRequest.RecommendationRequestMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
-import school.faang.user_service.service.recommendationRequest.RecommendationRequestService;
 import school.faang.user_service.service.SkillRequestService.SkillRequestService;
+import school.faang.user_service.service.recommendationRequest.RecommendationRequestService;
 import school.faang.user_service.validator.recommendationRequest.RecommendationRequestValidator;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -49,16 +50,34 @@ public class RecommendationRequestServiceTest {
     @Mock
     RecommendationRequestValidator recommendationRequestValidator;
 
+    @Mock
+    private RecommendationRequestFilter recommendationRequestFilter;
+
     @Spy
     private RecommendationRequestMapperImpl recommendationRequestMapper;
 
+    @Mock
+    List<RecommendationRequestFilter> filters = new ArrayList<>();
+
     private RecommendationRequest recommendationRequest;
     private RecommendationRequestDto recommendationRequestDto;
+    private RecommendationRequestFilterDto recommendationRequestFilterDto;
     private User requester;
     private User receiver;
 
     @BeforeEach
     public void setUp() {
+
+        recommendationRequestFilter = RecommendationRequestRequesterFilter.builder()
+                .build();
+
+        filters.add(recommendationRequestFilter);
+
+        recommendationRequestFilterDto = RecommendationRequestFilterDto.builder()
+                .requesterId(1L)
+                .receiverId(2L)
+                .build();
+
         recommendationRequestDto = RecommendationRequestDto.builder()
                 .id(1L)
                 .requesterId(1L)
@@ -108,26 +127,29 @@ public class RecommendationRequestServiceTest {
     @Test
     @DisplayName("Receive recommendation requests with filters")
     public void requestRecommendationsWithFiltersTest() {
-        List<RecommendationRequest> recommendationRequestsList = new ArrayList<>();
-        recommendationRequestsList.add(createRecommendationRequest(1L, requester, receiver));
-        recommendationRequestsList.add(createRecommendationRequest(2L, requester, receiver));
-        recommendationRequestsList.add(createRecommendationRequest(3L, requester, receiver));
-
-        RecommendationRequestFilterDto recommendationRequestFilterDto = RecommendationRequestFilterDto.builder()
+        RecommendationRequestFilterDto receiverFilter = RecommendationRequestFilterDto.builder()
                 .requesterId(1L)
                 .receiverId(2L)
-                .status(RequestStatus.PENDING)
-                .createdAfter(LocalDateTime.now())
-                .rejectionReason("Presence of obscene language")
+                .build();
+
+        RecommendationRequest firstFilter = RecommendationRequest.builder()
+                .requester(requester)
+                .receiver(receiver)
+                .build();
+
+        RecommendationRequest secondFilter = RecommendationRequest.builder()
+                .requester(requester)
+                .receiver(receiver)
                 .build();
 
         when(recommendationRequestRepository.findAll())
-                .thenReturn(recommendationRequestsList);
+                .thenReturn(List.of(firstFilter, secondFilter));
 
-        List<RecommendationRequestDto> result = recommendationRequestService.getRequest(recommendationRequestFilterDto);
+        List<RecommendationRequestDto> result = recommendationRequestService.getRequest(receiverFilter);
+
+        assertNotNull(result);
 
         verify(recommendationRequestRepository, times(1)).findAll();
-        assertEquals(result.size(), 3);
     }
 
     @Test

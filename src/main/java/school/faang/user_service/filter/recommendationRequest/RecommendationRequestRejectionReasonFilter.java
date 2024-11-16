@@ -13,7 +13,7 @@ public class RecommendationRequestRejectionReasonFilter implements Recommendatio
     }
 
     @Override
-    public void apply(Stream<RecommendationRequest> recommendationRequests, RecommendationRequestFilterDto filterDto) {
-        recommendationRequests.filter(request -> request.getRejectionReason().equals(filterDto.getRejectionReason()));
+    public Stream<RecommendationRequest> apply(Stream<RecommendationRequest> recommendationRequests, RecommendationRequestFilterDto filterDto) {
+        return recommendationRequests.filter(request -> request.getRejectionReason().equals(filterDto.getRejectionReason()));
     }
 }

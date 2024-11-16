@@ -13,7 +13,7 @@ public class RecommendationRequestCreatedAfterFilter implements RecommendationRe
     }
 
     @Override
-    public void apply(Stream<RecommendationRequest> recommendationRequests, RecommendationRequestFilterDto filterDto) {
-        recommendationRequests.filter(request -> request.getCreatedAt().isAfter(filterDto.getCreatedAfter()));
+    public Stream<RecommendationRequest> apply(Stream<RecommendationRequest> recommendationRequests, RecommendationRequestFilterDto filterDto) {
+        return recommendationRequests.filter(request -> request.getCreatedAt().isAfter(filterDto.getCreatedAfter()));
     }
 }
