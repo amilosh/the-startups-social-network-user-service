@@ -34,14 +34,14 @@ public class GoalInvitationController {
         return goalInvitationService.createInvitation(goalInvitationDto);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/accept")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public GoalInvitationDto acceptGoalInvitation(@PathVariable("id") long id) {
         log.info("Received request to accept the goal invitation with ID: {}", id);
         return goalInvitationService.acceptGoalInvitation(id);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/reject")
     @ResponseStatus(HttpStatus.OK)
     public GoalInvitationDto rejectGoalInvitation(@PathVariable("/id") long id) {
         log.info("Received request to reject the goal invitation with ID: {}", id);

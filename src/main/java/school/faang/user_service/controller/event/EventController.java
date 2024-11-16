@@ -34,7 +34,7 @@ public class EventController {
         return eventService.getEvent(id);
     }
 
-    @PostMapping
+    @PostMapping("/filter")
     public List<EventDto> getEventsByFilters(@RequestBody EventFilterDto filters) {
         return eventService.getEventsByFilters(filters);
     }

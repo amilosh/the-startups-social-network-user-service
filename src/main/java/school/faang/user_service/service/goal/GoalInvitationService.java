@@ -1,21 +1,21 @@
 package school.faang.user_service.service.goal;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.exception.DuplicateObjectException;
-import school.faang.user_service.exception.GoalInvitationStatusException;
-import school.faang.user_service.exception.GoalInvitationValidationException;
-import school.faang.user_service.exception.ValueExceededException;
+import school.faang.user_service.exceptions.DuplicateObjectException;
+import school.faang.user_service.exceptions.GoalInvitationStatusException;
+import school.faang.user_service.exceptions.GoalInvitationValidationException;
+import school.faang.user_service.exceptions.ValueExceededException;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
@@ -29,7 +29,6 @@ import java.util.stream.Stream;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
 public class GoalInvitationService {
 
     private final GoalInvitationRepository goalInvitationRepository;
@@ -39,7 +38,7 @@ public class GoalInvitationService {
     private final List<GoalInvitationFilter> goalInvitationFilters;
 
     @Value("${application.constants.max-active-goals-count}")
-    private final int maxActiveGoalsCount;
+    private int maxActiveGoalsCount;
 
     public GoalInvitationDto createInvitation(GoalInvitationDto goalInvitationDto) {
         if (goalInvitationDto.getInviterId().equals(goalInvitationDto.getInvitedUserId())) {
@@ -63,27 +62,30 @@ public class GoalInvitationService {
         return goalInvitationMapper.toDto(savedGoalInvitation);
     }
 
+    @Transactional
     public GoalInvitationDto acceptGoalInvitation(long id) {
         GoalInvitation goalInvitation = goalInvitationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Goal invitation not found by ID: " + id));
+        if (!goalInvitation.getStatus().equals(RequestStatus.PENDING)) {
+            throw new GoalInvitationStatusException("The goal invitation status is already " + goalInvitation.getStatus());
+        }
         Goal goal = goalRepository.findById(goalInvitation.getGoal().getId())
                 .orElseThrow(() -> new EntityNotFoundException("Goal not found by ID: " + goalInvitation.getGoal().getId()));
+        if (userRepository.findById(goalInvitation.getInviter().getId()).isEmpty()) {
+            throw new EntityNotFoundException("User not found by ID: " + goalInvitation.getInviter().getId());
+        }
         User invited = userRepository.findById(goalInvitation.getInvited().getId())
                 .orElseThrow(() -> new EntityNotFoundException("User not found by ID: " + goalInvitation.getInvited().getId()));
 
         List<Goal> userGoals = invited.getGoals();
-        if (userGoals.size() >= maxActiveGoalsCount) {
-            throw new ValueExceededException("The maximum number: " + maxActiveGoalsCount + " of active targets has been exceeded  for user with ID: " + invited.getId());
-        }
         if (userGoals.contains(goal)) {
             throw new DuplicateObjectException("User with ID: " + invited.getId() + " already has the goal with ID: " + goal.getId());
         }
+        if (userGoals.size() >= maxActiveGoalsCount) {
+            throw new ValueExceededException("The maximum number: " + maxActiveGoalsCount + " of active goals has been exceeded for user with ID: " + invited.getId());
+        }
         userGoals.add(goal);
         userRepository.save(invited);
-
-        if (!goalInvitation.getStatus().equals(RequestStatus.PENDING)) {
-            throw new GoalInvitationStatusException("The goal invitation status is already " + goalInvitation.getStatus());
-        }
 
         goalInvitation.setStatus(RequestStatus.ACCEPTED);
         goalInvitation.setUpdatedAt(LocalDateTime.now());
@@ -95,11 +97,17 @@ public class GoalInvitationService {
     public GoalInvitationDto rejectGoalInvitation(long id) {
         GoalInvitation goalInvitation = goalInvitationRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Goal invitation not found by ID: " + id));
-        Goal goal = goalRepository.findById(goalInvitation.getGoal().getId())
-                .orElseThrow(() -> new EntityNotFoundException("Goal not found by ID: " + goalInvitation.getGoal().getId()));
-
         if (!goalInvitation.getStatus().equals(RequestStatus.PENDING)) {
             throw new GoalInvitationStatusException("The goal invitation status is already " + goalInvitation.getStatus());
+        }
+        if (goalRepository.findById(goalInvitation.getGoal().getId()).isEmpty()) {
+            throw new EntityNotFoundException("Goal not found by ID: " + goalInvitation.getGoal().getId());
+        }
+        if (userRepository.findById(goalInvitation.getInviter().getId()).isEmpty()) {
+            throw new EntityNotFoundException("User not found by ID: " + goalInvitation.getInviter().getId());
+        }
+        if (userRepository.findById(goalInvitation.getInvited().getId()).isEmpty()) {
+            throw new EntityNotFoundException("User not found by ID: " + goalInvitation.getInvited().getId());
         }
 
         goalInvitation.setStatus(RequestStatus.REJECTED);
@@ -110,16 +118,17 @@ public class GoalInvitationService {
     }
 
     public List<GoalInvitationDto> getInvitations(InvitationFilterDto filters) {
-        Stream<GoalInvitation> goalInvitations = goalInvitationRepository.findAll().stream();
-        goalInvitationFilters.stream()
+        Stream<GoalInvitation> goalInvitationsStream = goalInvitationRepository.findAll().stream();
+        goalInvitationsStream = goalInvitationFilters.stream()
                 .filter(filter -> filter.isApplicable(filters))
-                .forEach(filter -> filter.apply(goalInvitations, filters));
+                .reduce(goalInvitationsStream, (stream, filter) -> filter.apply(stream, filters), (s1, s2) -> s1);
+        List<GoalInvitation> filteredGoalInvitations = goalInvitationsStream.toList();
         log.info("Received goal invitations filtered by: inviterNamePattern='{}', invitedNamePattern='{}', inviterId={}, invitedId={}, status={}",
                 filters.getInviterNamePattern(),
                 filters.getInvitedNamePattern(),
                 filters.getInviterId(),
                 filters.getInvitedId(),
                 filters.getStatus());
-        return goalInvitationMapper.toDto(goalInvitations.toList());
+        return goalInvitationMapper.toDto(filteredGoalInvitations);
     }
 }

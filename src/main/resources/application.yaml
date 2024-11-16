@@ -44,6 +44,5 @@ payment-service:
 application:
   constants:
     max-active-goals-count: 3
-
-skill:
-  minOffersRequired: 3
+  skill:
+    minOffersRequired: 3
