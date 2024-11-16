@@ -41,7 +41,7 @@ public class RecommendationRequestService {
 
         RecommendationRequest request = recommendationRequestMapper.toEntity(recommendationRequest);
         request.getSkills().forEach(skillRequest ->
-                skillRequestRepository.create((int) skillRequest.getId(), (int) skillRequest.getSkill().getId()));
+                skillRequestRepository.create(skillRequest.getId(), skillRequest.getSkill().getId()));
         request = recommendationRequestRepository.save(request);
 
         log.info("Recommendation request with id {} successfully saved", request.getId());
@@ -50,9 +50,13 @@ public class RecommendationRequestService {
 
     public List<RecommendationRequestDto> getRequests(RecommendationRequestFilterDto requestFilter) {
         Stream<RecommendationRequest> recommendationRequests = recommendationRequestRepository.findAll().stream();
+
         recommendationRequestFilters.stream()
                 .filter(filter -> filter.isApplicable(requestFilter))
-                .forEach(filter -> filter.apply(recommendationRequests, requestFilter));
+                .reduce(recommendationRequests,
+                        (currentStream, filter) -> filter.apply(currentStream, requestFilter).stream(),
+                        Stream::concat);
+
 
         log.info("Getting a list of recommendation requests after filtering");
         return recommendationRequestMapper.toDtoList(recommendationRequests.toList());
