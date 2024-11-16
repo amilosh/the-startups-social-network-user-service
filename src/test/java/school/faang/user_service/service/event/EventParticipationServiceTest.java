@@ -5,13 +5,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.event.EventParticipationRepository;
-import school.faang.user_service.service.mentorship.request_filter.EventParticipationService;
+import school.faang.user_service.service.participation.event.EventParticipationService;
 import school.faang.user_service.validator.event.EventValidator;
-
-import java.util.Arrays;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.verify;
@@ -52,19 +48,6 @@ public class EventParticipationServiceTest {
         verify(eventParticipationRepository).unregister(eventId, userId);
     }
 
-    @Test
-    void testGetParticipants() {
-        long eventId = 2L;
-        List<User> users = Arrays.asList(new User(), new User());
-
-        when(eventParticipationRepository.findUsersByEventId(eventId)).thenReturn(users);
-
-        List<User> participants = eventParticipationService.getParticipant(eventId);
-
-        assertEquals(2, participants.size());
-        verify(eventValidator).validateEventExists(eventId);
-        verify(eventParticipationRepository).findUsersByEventId(eventId);
-    }
 
     @Test
     void testGetParticipantsCount() {

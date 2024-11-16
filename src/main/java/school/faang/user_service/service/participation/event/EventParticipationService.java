@@ -1,4 +1,4 @@
-package school.faang.user_service.service.mentorship.request_filter;
+package school.faang.user_service.service.participation.event;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,7 @@ public class EventParticipationService {
 
     public List<User> getParticipant(long eventId) {
         eventValidator.validateEventExists(eventId);
-        return eventParticipationRepository.findUsersByEventId(eventId);
+        return eventParticipationRepository.findAllParticipantsByEventId(eventId);
     }
 
     public int getParticipantsCount(long eventId) {
