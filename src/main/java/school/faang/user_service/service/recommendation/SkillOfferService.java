@@ -22,7 +22,7 @@ public class SkillOfferService {
     private final SkillOfferValidator skillOfferValidator;
 
     public void saveSkillOffers(List<SkillOfferDto> skillOffers, @NonNull Long recommendationId) {
-        if (!recommendationRepository.findById(recommendationId).isPresent()) {
+        if (recommendationRepository.findById(recommendationId).isEmpty()) {
             throw new DataValidationException("Recommendation with id " + recommendationId + " not found");
         }
         skillOffers.forEach(skillOffer -> {
