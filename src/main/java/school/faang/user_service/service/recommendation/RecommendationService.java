@@ -27,13 +27,11 @@ public class RecommendationService {
     private final RecommendationRepository recommendationRepository;
     private final ServiceRecommendationValidator serviceRecommendationValidator;
 
-    @Transactional
     public Optional<Recommendation> findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(long authorId, long receiverId) {
         return recommendationRepository.
                 findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId);
     }
 
-    @Transactional
     public RecommendationDto giveRecommendation(RecommendationDto recommendationDto) {
         log.info("Start of recommendation {} processing", recommendationDto);
         serviceRecommendationValidator.checkingThePeriodOfFasting(recommendationDto.getAuthorId(), recommendationDto.getReceiverId());
@@ -50,7 +48,6 @@ public class RecommendationService {
         return recommendationDto;
     }
 
-    @Transactional
     public void deleteRecommendation(RecommendationDto delRecommendationDto) {
         log.info("The recommendation {} is being deleted", delRecommendationDto);
         serviceRecommendationValidator.preparingBeforeDelete(delRecommendationDto);
@@ -58,7 +55,6 @@ public class RecommendationService {
         log.info("The recommendation {} has been deleted", delRecommendationDto);
     }
 
-    @Transactional(readOnly = true)
     public List<RecommendationDto> getAllUserRecommendations(long receiverId) {
         Pageable pageable = Pageable.unpaged();
         Page<Recommendation> recommendationsPage = recommendationRepository.findAllByReceiverId(receiverId, pageable);
@@ -67,7 +63,6 @@ public class RecommendationService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional
     public RecommendationDto updateRecommendation(RecommendationDto updateRecommendationDto) {
         Recommendation recommendation = recommendationMapper.toEntity(updateRecommendationDto);
         log.info("Start of recommendation {} processing", updateRecommendationDto);
@@ -89,7 +84,6 @@ public class RecommendationService {
         return updateRecommendationDto;
     }
 
-    @Transactional(readOnly = true)
     public List<RecommendationDto> getAllGivenRecommendations(long authorId) {
         Pageable pageable = Pageable.unpaged();
         Page<Recommendation> recommendationsPage = recommendationRepository.findAllByAuthorId(authorId, pageable);
