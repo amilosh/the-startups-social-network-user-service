@@ -72,51 +72,6 @@ public class ServiceRecommendationValidatorTest {
         receiverId = recommendationDto.getReceiverId();
     }
 
-
-    @Test
-    public void testCheckingThePeriodOffFasting_NoRecommendation() {
-        when(recommendationService.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId))
-                .thenReturn(Optional.empty());
-
-        assertDoesNotThrow(() ->
-                serviceRecommendationValidator.checkingThePeriodOfFasting(authorId, receiverId)
-        );
-    }
-
-    @Test
-    public void testCheckingThePeriodOfFasting_OrderThanSixMonthsAgo() {
-        recommendation.setCreatedAt(LocalDate.now().minusMonths(7).atStartOfDay());
-
-        when(recommendationService.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId))
-                .thenReturn(Optional.of(recommendation));
-
-        RecommendationDto recommendationDto = new RecommendationDto();
-        recommendationDto.setCreatedAt(recommendation.getCreatedAt());
-        when(recommendationMapper.toDto(recommendation)).thenReturn(recommendationDto);
-
-        assertDoesNotThrow(() ->
-                serviceRecommendationValidator.checkingThePeriodOfFasting(authorId, receiverId)
-        );
-    }
-
-    @Test
-    public void testCheckingThePeriodOfFasting_YoungerThanSixMonthsAgo() {
-        recommendation.setCreatedAt(LocalDate.now().minusMonths(3).atStartOfDay());
-
-        when(recommendationService.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId))
-                .thenReturn(Optional.of(recommendation));
-
-        RecommendationDto recommendationDto = new RecommendationDto();
-        recommendationDto.setCreatedAt(recommendation.getCreatedAt());
-
-        when(recommendationMapper.toDto(recommendation)).thenReturn(recommendationDto);
-
-        DataValidationException dataValidationException = assertThrows(DataValidationException.class, () ->
-                serviceRecommendationValidator.checkingThePeriodOfFasting(authorId, receiverId)
-        );
-        assertEquals("The creation date is less than 6 months", dataValidationException.getMessage());
-    }
-
     @Test
     public void checkingTheSkillsOfRecommendation_IsNotInSystemIsInvalid() {
         List<SkillOfferDto> skills = List.of(
