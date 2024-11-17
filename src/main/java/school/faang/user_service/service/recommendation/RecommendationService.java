@@ -22,8 +22,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RecommendationService {
-    private final RecommendationMapper recommendationMapper;
     private final SkillOfferService skillOfferService;
+    private final RecommendationMapper recommendationMapper;
     private final RecommendationRepository recommendationRepository;
     private final ServiceRecommendationValidator serviceRecommendationValidator;
 

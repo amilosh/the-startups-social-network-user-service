@@ -10,7 +10,7 @@ import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.exeption.DataValidationException;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.service.recommendation.RecommendationService;
+import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.skill_offer.SkillOfferService;
 import school.faang.user_service.service.user_skill_guarantee.UserSkillGuaranteeService;
@@ -28,11 +28,11 @@ public class ServiceRecommendationValidator {
     private final SkillService skillService;
     private final SkillOfferService skillOfferService;
     private final RecommendationMapper recommendationMapper;
-    private final RecommendationService recommendationService;
+    private final RecommendationRepository recommendationRepository;
     private final UserSkillGuaranteeService userSkillGuaranteeService;
 
     public void checkingThePeriodOfFasting(long authorId, long receiverId) {
-        Optional<Recommendation> recommendation = recommendationService.
+        Optional<Recommendation> recommendation = recommendationRepository.
                 findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(authorId, receiverId);
 
         if (recommendation.isPresent()) {
