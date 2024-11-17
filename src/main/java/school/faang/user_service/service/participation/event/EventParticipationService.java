@@ -1,8 +1,8 @@
 package school.faang.user_service.service.participation.event;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
@@ -19,24 +19,26 @@ public class EventParticipationService {
     private final UserMapper userMapper;
     private final EventValidator eventValidator;
 
-    @Transactional
+
     public void registerParticipant(long eventId, long userId) {
-        eventValidator.checkUserExists(userId);
+        eventValidator.validateUserExists(userId);
         eventValidator.validateEventExists(eventId);
         eventValidator.validateUserNotRegistered(eventId, userId);
         eventParticipationRepository.register(eventId, userId);
     }
 
     public void unregisterParticipant(long eventId, long userId) {
-        eventValidator.checkUserExists(userId);
+        eventValidator.validateUserExists(userId);
         eventValidator.validateEventExists(eventId);
         eventValidator.validateUserIsRegistered(eventId, userId);
         eventParticipationRepository.unregister(eventId, userId);
     }
 
-    public List<User> getParticipant(long eventId) {
+    public List<UserDto> getParticipants(long eventId) {
         eventValidator.validateEventExists(eventId);
-        return eventParticipationRepository.findAllParticipantsByEventId(eventId);
+
+        List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
+        return userMapper.toListDto(users);
     }
 
     public int getParticipantsCount(long eventId) {
