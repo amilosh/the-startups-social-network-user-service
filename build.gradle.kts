@@ -153,8 +153,8 @@ kotlin {
     jvmToolchain(17)
 }
 checkstyle {
-    toolVersion = "10.0" // Укажите версию Checkstyle
-    configFile = file("config/checkstyle/checkstyle.xml") // Путь к конфигурационному файлу
+    toolVersion = "10.0"
+    configFile = file("config/checkstyle/checkstyle.xml")
 }
 
 tasks.checkstyleMain {
@@ -173,7 +173,6 @@ tasks.checkstyleTest {
     }
 }
 
-// Включаем задачу check, чтобы она запускала checkstyle
 tasks.check {
     dependsOn(tasks.checkstyleMain)
     dependsOn(tasks.checkstyleTest)
