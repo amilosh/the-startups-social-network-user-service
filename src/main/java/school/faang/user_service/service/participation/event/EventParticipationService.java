@@ -37,7 +37,7 @@ public class EventParticipationService {
     public List<UserDto> getParticipants(long eventId) {
         eventValidator.validateEventExists(eventId);
 
-        List<User> users = eventParticipationRepository.findUsersByEventId(eventId);
+        List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
         return userMapper.toListDto(users);
     }
 

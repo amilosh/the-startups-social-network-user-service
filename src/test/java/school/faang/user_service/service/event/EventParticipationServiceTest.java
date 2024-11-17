@@ -64,14 +64,14 @@ public class EventParticipationServiceTest {
         List<User> users = Arrays.asList(new User(), new User());
         List<UserDto> userDtos = Arrays.asList(new UserDto(), new UserDto());
 
-        when(eventParticipationRepository.findUsersByEventId(eventId)).thenReturn(users);
+        when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(users);
         when(userMapper.toListDto(users)).thenReturn(userDtos);
 
         List<UserDto> participants = eventParticipationService.getParticipants(eventId);
 
         assertEquals(2, participants.size());
         verify(eventValidator).validateEventExists(eventId);
-        verify(eventParticipationRepository).findUsersByEventId(eventId);
+        verify(eventParticipationRepository).findAllParticipantsByEventId(eventId);
         verify(userMapper).toListDto(users);
     }
 
