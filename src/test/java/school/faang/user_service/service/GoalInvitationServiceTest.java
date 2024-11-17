@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -49,6 +50,27 @@ public class GoalInvitationServiceTest {
     private User inviter;
     private User invited;
     private Goal goal;
+
+    @BeforeEach
+    public void prepareData() {
+        dto = prepareGoalInvitationDto(1L,1L, 2L, 123L, RequestStatus.PENDING);
+        inviter = User.builder()
+                .id(1L)
+                .build();
+        invited = User.builder()
+                .id(2L)
+                .goals(new ArrayList<>())
+                .build();
+        goal = Goal.builder()
+                .id(1L)
+                .build();
+        goalInvitation = new GoalInvitation();
+        goalInvitation.setInviter(inviter);
+        goalInvitation.setInvited(invited);
+        goalInvitation.setId(1L);
+        goalInvitation.setStatus(RequestStatus.PENDING);
+        goalInvitation.setGoal(goal);
+    }
 
     @Test
     void testCreateGoalInvitationWithIdenticalUsersId() {
@@ -161,26 +183,6 @@ public class GoalInvitationServiceTest {
         verify(goalInvitationRepository, times(1)).findAll();
         verify(goalInvitationMapper, times(1)).toDtoList(any());
         assertTrue(result.containsAll(dtoList));
-    }
-
-    private void prepareData() {
-        dto = prepareGoalInvitationDto(1L,1L, 2L, 123L, RequestStatus.PENDING);
-        inviter = User.builder()
-                .id(1L)
-                .build();
-        invited = User.builder()
-                .id(2L)
-                .goals(new ArrayList<>())
-                .build();
-        goal = Goal.builder()
-                .id(1L)
-                .build();
-        goalInvitation = new GoalInvitation();
-        goalInvitation.setInviter(inviter);
-        goalInvitation.setInvited(invited);
-        goalInvitation.setId(1L);
-        goalInvitation.setStatus(RequestStatus.PENDING);
-        goalInvitation.setGoal(goal);
     }
 
     private GoalInvitationDto prepareGoalInvitationDto(Long id, Long inviterId, Long invitedUserId, Long goalId, RequestStatus status) {

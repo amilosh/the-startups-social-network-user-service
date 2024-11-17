@@ -25,12 +25,12 @@ public class GoalInvitationController {
     }
 
     @PatchMapping("/accept/{id}")
-    public GoalInvitationDto acceptInvitation(@PathVariable @NotNull @Positive long id) {
+    public GoalInvitationDto acceptInvitation(@PathVariable @Positive long id) {
         return goalInvitationService.acceptGoalInvitation(id);
     }
 
     @PatchMapping("/reject/{id}")
-    public GoalInvitationDto rejectInvitation(@PathVariable @NotNull @Positive long id) {
+    public GoalInvitationDto rejectInvitation(@PathVariable @Positive long id) {
         return goalInvitationService.rejectGoalInvitation(id);
     }
 

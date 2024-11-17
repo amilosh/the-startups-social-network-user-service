@@ -36,24 +36,26 @@ public class GoalInvitationService {
 
     @Transactional
     public GoalInvitationDto createInvitation(GoalInvitationDto goalInvitationDto) {
+        log.info("Request to create a new goal invitation. : {}", goalInvitationDto);
         validator.validateInvitation(goalInvitationDto);
         GoalInvitation goalInvitation = initializeGoalInvitation(goalInvitationDto);
         goalInvitation = goalInvitationRepository.save(goalInvitation);
-        log.info("Created goal invitation with id: {}", goalInvitation.getId());
+        log.info("Created goal invitation: {}", goalInvitation);
         return goalInvitationMapper.toDto(goalInvitation);
     }
 
     @Transactional
     public GoalInvitationDto acceptGoalInvitation(long goalInvitationId) {
         GoalInvitation goalInvitation = findById(goalInvitationId);
+        log.info("Request to accept a goal invitation : {}", goalInvitation);
         validateGoalInvitationAcceptance(goalInvitation);
 
         User invitedUser = goalInvitation.getInvited();
-        invitedUser.getGoals().add(goalInvitation.getGoal());
+        invitedUser.addGoal(goalInvitation.getGoal());
         userService.saveUser(invitedUser);
 
         goalInvitation.setStatus(RequestStatus.ACCEPTED);
-        log.info("User {} accepted invitation with id: {}", goalInvitation.getInvited().getUsername(), goalInvitationId);
+        log.info("User {} accepted invitation: {}", goalInvitation.getInvited(), goalInvitation);
         goalInvitation = goalInvitationRepository.save(goalInvitation);
         return goalInvitationMapper.toDto(goalInvitation);
     }
@@ -64,7 +66,7 @@ public class GoalInvitationService {
 
         goalInvitation.setStatus(RequestStatus.REJECTED);
         goalInvitation = goalInvitationRepository.save(goalInvitation);
-        log.info("Rejected invitation with id: {}", goalInvitationId);
+        log.info("Rejected invitation: {}", goalInvitation);
         return goalInvitationMapper.toDto(goalInvitation);
     }
 
@@ -81,10 +83,12 @@ public class GoalInvitationService {
     }
 
     private void validateGoalInvitationAcceptance(GoalInvitation goalInvitation) {
-        if (goalService.countActiveGoalsPerUser(goalInvitation.getInvited().getId()) >= ACCEPTABLE_NUMBERS_OF_GOALS) {
+        long invitedId = goalInvitation.getInvited().getId();
+        long inviterId = goalInvitation.getInviter().getId();
+        if (goalService.countActiveGoalsPerUser(invitedId) >= ACCEPTABLE_NUMBERS_OF_GOALS) {
             throw new DataValidationException("The user has the maximum number of goals");
         }
-        if (validateWhetherTheUserHasProposedGoal(goalInvitation.getInvited().getId(), goalInvitation.getInviter().getId())) {
+        if (validateWhetherTheUserHasProposedGoal(invitedId, inviterId)) {
             throw new DataValidationException("The user is already working on this goal");
         }
     }
@@ -101,7 +105,7 @@ public class GoalInvitationService {
 
     public GoalInvitation findById(long id) {
         return goalInvitationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Invitation not found for id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Invitation not found for id: %s".formatted(id)));
     }
 
     private GoalInvitation initializeGoalInvitation(GoalInvitationDto goalInvitationDto) {
