@@ -1,4 +1,4 @@
-package school.faang.user_service.service.mentorship.request_filter;
+package school.faang.user_service.service.participation.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
