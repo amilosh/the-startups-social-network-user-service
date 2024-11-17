@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.service.mentorship.request_filter.EventParticipationService;
 
@@ -33,8 +34,8 @@ public class EventParticipationController {
     }
 
     @GetMapping("/{eventId}/participants")
-    public List<User> getParticipants(@PathVariable Long eventId) {
-        return eventParticipationService.getParticipant(eventId);
+    public List<UserDto> getParticipants(@PathVariable Long eventId) {
+        return eventParticipationService.getParticipants(eventId);
     }
 
     @GetMapping("/{eventId}/participants/count")
