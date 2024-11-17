@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
@@ -16,28 +17,33 @@ public class MentorshipService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    @Transactional
     public void deleteMentee(long menteeId, long mentorId) {
-        List<User> mentees = userRepository.findById(mentorId)
-                .map(User::getMentees)
+        User mentor = userRepository.findById(mentorId)
                 .orElseThrow(() -> new EntityNotFoundException("Mentor not found"));
 
-        boolean isMenteeDeleted = mentees.removeIf(user -> user.getId() == menteeId);
+        boolean isMenteeDeleted = mentor.getMentees().removeIf(user -> user.getId() == menteeId);
+
         if (isMenteeDeleted) {
+            userRepository.save(mentor); // Save the updated mentor
             deleteMentor(menteeId, mentorId);
         }
     }
 
+    @Transactional
     public void deleteMentor(long menteeId, long mentorId) {
-        List<User> mentors = userRepository.findById(menteeId)
-                .map(User::getMentors)
+        User mentee = userRepository.findById(menteeId)
                 .orElseThrow(() -> new EntityNotFoundException("Mentee not found"));
 
-        boolean isMentorDeleted = mentors.removeIf(user -> user.getId() == mentorId);
+        boolean isMentorDeleted = mentee.getMentors().removeIf(user -> user.getId() == mentorId);
+
         if (isMentorDeleted) {
+            userRepository.save(mentee); // Save the updated mentee
             deleteMentee(menteeId, mentorId);
         }
     }
 
+    @Transactional
     public List<UserDto> getMentees(long userId) {
         return userMapper.toDto(
                 userRepository.findById(userId)
@@ -45,6 +51,7 @@ public class MentorshipService {
                 .orElseThrow(() -> new EntityNotFoundException("Mentor not found")));
     }
 
+    @Transactional
     public List<UserDto> getMentors(long userId) {
         return userMapper.toDto(
                 userRepository.findById(userId)
