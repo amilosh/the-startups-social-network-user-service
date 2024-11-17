@@ -57,18 +57,17 @@ class SubscriptionServiceTest {
     }
 
     @Test
-    void followUser_ShouldThrowException_WhenSubscriptionAlreadyExists() {
+    void unfollowUser_ShouldThrowException_WhenSubscriptionDoesNotExist() {
         Long followerId = 1L;
         Long followeeId = 2L;
 
-        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(true);
+        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(false);
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> subscriptionService.followUser(followerId, followeeId)
-        );
+        Exception exception = assertThrows(SubscriptionNotFoundException.class, () -> {
+            subscriptionService.unfollowUser(followerId, followeeId);
+        });
 
-        assertEquals("Подписка уже существует.", exception.getMessage());
+        assertEquals("Подписка не существует.", exception.getMessage());
     }
 
 
