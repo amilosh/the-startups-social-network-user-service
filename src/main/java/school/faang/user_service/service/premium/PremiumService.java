@@ -16,7 +16,7 @@ import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.exception.PaymentFailedException;
 import school.faang.user_service.mapper.premium.PremiumMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
-import school.faang.user_service.service.UserService;
+import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -75,7 +75,7 @@ public class PremiumService {
         boolean isExists = premiumRepository.existsByUserId(userId);
         if (isExists) {
             log.error(PREMIUM_ALREADY_EXISTS_MESSAGE);
-            throw  new IllegalArgumentException(PREMIUM_ALREADY_EXISTS_MESSAGE);
+            throw new IllegalArgumentException(PREMIUM_ALREADY_EXISTS_MESSAGE);
         }
         return true;
     }
