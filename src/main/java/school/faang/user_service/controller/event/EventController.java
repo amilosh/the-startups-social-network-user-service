@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.event;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import school.faang.user_service.dto.event.EventDto;
@@ -11,20 +12,15 @@ import java.util.List;
 
 
 @Controller
+@RequiredArgsConstructor
 public class EventController {
 
-    private EventService eventService;
+    private final EventService eventService;
 
-    @Autowired
-    public EventController(EventService eventService) {
-        this.eventService = eventService;
-    }
-
-    public EventDto create(EventDto event) {
+       public EventDto create(EventDto event) {
         validateEvent(event);
         return eventService.create(event);
     }
-
 
     public EventDto getEvent(Long id) {
         return eventService.getEvent(id);

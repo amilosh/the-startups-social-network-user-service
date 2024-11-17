@@ -1,5 +1,6 @@
 package school.faang.user_service.service.event;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.EventDto;
@@ -17,19 +18,12 @@ import java.util.stream.Collectors;
 
 
 @Service
-
+@RequiredArgsConstructor
 public class EventService {
 
     private final EventRepository eventRepository;
     private final SkillRepository skillRepository;
     private final EventMapper eventMapper;
-
-    @Autowired
-    public EventService(EventRepository eventRepository, SkillRepository skillRepository, EventMapper eventMapper) {
-        this.eventRepository = eventRepository;
-        this.skillRepository = skillRepository;
-        this.eventMapper = eventMapper;
-    }
 
 
     public EventDto create(EventDto eventDto) {
@@ -57,17 +51,7 @@ public class EventService {
 
     public List<EventDto> getEventsByFilter(EventFilterDto filter) {
         List<Event> events = eventRepository.findAll();
-
-
-        return events.stream()
-                .filter(event -> filter.getTitle() == null || event.getTitle().contains(filter.getTitle()))
-                .filter(event -> filter.getStartDateFrom() == null || !event.getStartDate().isBefore(filter.getStartDateFrom().atStartOfDay()))
-                .filter(event -> filter.getStartDateTo() == null || !event.getStartDate().isAfter(filter.getStartDateTo().atStartOfDay()))
-                .filter(event -> filter.getOwnerId() == null || event.getOwner().getId() == (filter.getOwnerId()))
-                .map(eventMapper::toDto)
-                .collect(Collectors.toList());
-
-
+        return filterEvents(events, filter);
     }
 
     public long deleteEvent(long eventId) {
@@ -95,6 +79,15 @@ public class EventService {
         return eventMapper.toDtoList(events);
     }
 
+    public List<EventDto> filterEvents(List<Event> events, EventFilterDto filter) {
+        return events.stream()
+                .filter(event -> filter.getTitle() == null || event.getTitle().contains(filter.getTitle()))
+                .filter(event -> filter.getStartDateFrom() == null || !event.getStartDate().isBefore(filter.getStartDateFrom().atStartOfDay()))
+                .filter(event -> filter.getStartDateTo() == null || !event.getStartDate().isAfter(filter.getStartDateTo().atStartOfDay()))
+                .filter(event -> filter.getOwnerId() == null || event.getOwner().getId() == (filter.getOwnerId()))
+                .map(eventMapper::toDto)
+                .collect(Collectors.toList());
+    }
 }
 
 
