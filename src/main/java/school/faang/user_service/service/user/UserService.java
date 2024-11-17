@@ -1,6 +1,5 @@
 package school.faang.user_service.service.user;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +7,6 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -35,8 +33,7 @@ public class UserService {
 
     @Transactional
     public void deactivateUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User with ID" + userId + "not found"));
+        User user = userValidator.validateUser(userId);
 
         goalRepository.findGoalsByUserId(userId).forEach(goal -> {
             goalRepository.removeUserFromGoal(userId, goal.getId());

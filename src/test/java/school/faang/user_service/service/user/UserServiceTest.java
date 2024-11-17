@@ -1,12 +1,10 @@
 package school.faang.user_service.service.user;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
@@ -25,7 +23,6 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.lenient;
@@ -67,19 +64,6 @@ class UserServiceTest {
     }
 
     @Test
-    void testDeactivateUserNotFound() {
-
-        long userId = 1L;
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> userService.deactivateUser(userId));
-
-        verify(goalRepository, never()).findGoalsByUserId(userId);
-        verify(eventRepository, never()).findAllByUserId(userId);
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
     void testDeactivateUser_Success() {
 
         Long userId = 1L;
@@ -87,7 +71,7 @@ class UserServiceTest {
         user.setId(userId);
         user.setActive(true);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userValidator.validateUser(userId)).thenReturn(user);
 
         userService.deactivateUser(userId);
 

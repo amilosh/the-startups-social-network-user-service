@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
@@ -39,12 +38,12 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    UserDto getUser(@PathVariable long userId) {
+    public UserDto getUser(@PathVariable long userId) {
         return userService.getUser(userId);
     }
 
     @PostMapping
-    List<UserDto> getUsersByIds(@RequestBody List<Long> ids) {
+    public List<UserDto> getUsersByIds(@RequestBody List<Long> ids) {
         userValidator.validateIds(ids);
         return userService.getUsersByIds(ids);
     }
