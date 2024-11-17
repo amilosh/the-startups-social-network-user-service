@@ -1,12 +1,10 @@
 package school.faang.user_service.service.user;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
@@ -17,14 +15,13 @@ import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
 import school.faang.user_service.service.user.filter.UserFilter;
+import school.faang.user_service.validator.user.UserValidator;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.lenient;
@@ -45,34 +42,24 @@ class UserServiceTest {
     @Mock
     private EventRepository eventRepository;
 
-
     @Mock
     private MentorshipService mentorshipService;
+
     @Mock
     private UserMapper userMapper;
+
     @Mock
     private UserFilter userFilter;
+
+    @Mock
+    private UserValidator userValidator;
 
     @InjectMocks
     private UserService userService;
 
     @BeforeEach
-    void setUp(){
-        MockitoAnnotations.openMocks(this);
-        userService = new UserService(userRepository, goalRepository, eventRepository, mentorshipService,userMapper,List.of(userFilter));
-    }
-
-    @Test
-     void testDeactivateUserNotFound(){
-
-        long userId = 1L;
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, ()-> userService.deactivateUser(userId));
-
-        verify(goalRepository, never()).findGoalsByUserId(userId);
-        verify(eventRepository, never()).findAllByUserId(userId);
-        verify(userRepository, never()).save(any());
+    void setUp() {
+        userService = new UserService(userRepository, goalRepository, eventRepository, mentorshipService, userMapper, List.of(userFilter), userValidator);
     }
 
     @Test
@@ -83,7 +70,7 @@ class UserServiceTest {
         user.setId(userId);
         user.setActive(true);
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userValidator.validateUser(userId)).thenReturn(user);
 
         userService.deactivateUser(userId);
 
@@ -94,6 +81,7 @@ class UserServiceTest {
 
         assertFalse(user.isActive(), "User should be deactivated");
     }
+
     @Test
     public void testGetUserWithApplicableFilter() {
         UserFilterDto filterDto = new UserFilterDto();
@@ -132,5 +120,39 @@ class UserServiceTest {
         verify(userRepository, times(1)).findAll();
         verify(userFilter, times(1)).isApplicable(filterDto);
         verify(userFilter, never()).apply(any(Stream.class), eq(filterDto));
+    }
+
+    @Test
+    public void testGetUserSuccess() {
+        long userId = 1L;
+        User user = new User();
+        user.setId(userId);
+        UserDto userDto = new UserDto();
+        userDto.setId(userId);
+
+        when(userValidator.validateUser(userId)).thenReturn(user);
+        when(userMapper.toDto(user)).thenReturn(userDto);
+
+        UserDto result = userService.getUser(userId);
+
+        assertEquals(userDto, result);
+        verify(userValidator, times(1)).validateUser(userId);
+        verify(userMapper, times(1)).toDto(user);
+    }
+
+    @Test
+    public void testGetUsersByIdsSuccess() {
+        List<Long> ids = List.of(1L, 2L);
+        List<User> users = List.of(new User(), new User());
+        List<UserDto> usersDtos = List.of(new UserDto(), new UserDto());
+
+        when(userRepository.findAllById(ids)).thenReturn(users);
+        when(userMapper.toListDto(users)).thenReturn(usersDtos);
+
+        List<UserDto> result = userService.getUsersByIds(ids);
+
+        assertEquals(usersDtos, result);
+        verify(userRepository, times(1)).findAllById(ids);
+        verify(userMapper, times(1)).toListDto(users);
     }
 }
