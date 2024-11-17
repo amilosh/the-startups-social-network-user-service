@@ -14,4 +14,5 @@ public class UrlUtils {
     public static final String ID = "/{id}";
     public static final String PARTICIPANTS = "/participants";
     public static final String AMOUNT = "/amount";
+    public static final String RECOMMENDATIONS = "/recommendations";
 }
