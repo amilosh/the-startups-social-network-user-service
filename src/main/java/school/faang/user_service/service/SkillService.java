@@ -37,7 +37,7 @@ public class SkillService {
         List<Skill> skills = skillRepository.findAllByUserId(userId);
 
         return skills.stream()
-                .map(skill -> skillMapper.entityToDto(skill))
+                .map(skillMapper::entityToDto)
                 .toList();
     }
 
@@ -45,10 +45,10 @@ public class SkillService {
         List<Skill> skills = skillRepository.findSkillsOfferedToUser(userId);
 
         return skills.stream()
-                .collect(Collectors.groupingBy(skill -> skillMapper.entityToDto(skill), Collectors.counting()))
+                .collect(Collectors.groupingBy(skillMapper::entityToDto, Collectors.counting()))
                 .entrySet().stream()
                 .map(entry -> new SkillCandidateDto(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
@@ -57,7 +57,7 @@ public class SkillService {
 
         skillRepository.assignSkillToUser(skillId, userId);
         Optional<Skill> skill = skillRepository.findUserSkill(skillId, userId);
-        return skill.map(skill1 -> skillMapper.entityToDto(skill1))
+        return skill.map(skillMapper::entityToDto)
                 .orElseThrow(() -> new DataValidationException("Скилл не найден"));
     }
 

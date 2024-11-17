@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.MentorshipRequestFilterDto;
+import school.faang.user_service.dto.mentorshipRequest.MentorshipRequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 
@@ -37,14 +37,14 @@ public class StatusFilterTest {
 
     @Test
     public void testNotApplied() {
-        requestFilterDto.setStatus("status");
+        requestFilterDto.setStatus(RequestStatus.ACCEPTED);
         boolean result = requesterFilter.isApplicable(requestFilterDto);
         assertTrue(result);
     }
 
     @Test
     public void testStreamChanges() {
-        requestFilterDto.setStatus("ACCEPTED");
+        requestFilterDto.setStatus(RequestStatus.ACCEPTED);
 
         MentorshipRequest firstRequest = mock(MentorshipRequest.class);
         MentorshipRequest secondRequest = mock(MentorshipRequest.class);
@@ -54,7 +54,7 @@ public class StatusFilterTest {
 
         Stream<MentorshipRequest> stream = Stream.of(firstRequest, secondRequest);
         List<MentorshipRequest> result = stream
-                .filter(mentorshipRequest -> mentorshipRequest.getStatus().name().equals(requestFilterDto.getStatus()))
+                .filter(mentorshipRequest -> mentorshipRequest.getStatus().equals(requestFilterDto.getStatus()))
                 .toList();
 
         assertEquals(1, result.size());

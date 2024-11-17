@@ -50,12 +50,12 @@ class RecommendationRequestServiceImplTest {
     private RecommendationRequestMapper recommendationRequestMapper = Mappers.getMapper(RecommendationRequestMapper.class);
 
     @InjectMocks
-    private RecommendationRequestServiceImpl recommendationRequestService;
+    private RecommendationRequestService recommendationRequestService;
 
     @BeforeEach
     public void setUp() {
         List<RecommendationRequestFilter> filters = new ArrayList<>(List.of(new RecommendationRequestStatusFilter(), new RecommendationRequestRequesterFilter(), new RecommendationRequestReceiverFilter()));
-        recommendationRequestService = new RecommendationRequestServiceImpl(userService, skillService, recommendationRequestRepository, recommendationRequestMapper, filters);
+        recommendationRequestService = new RecommendationRequestService(userService, skillService, recommendationRequestRepository, recommendationRequestMapper, filters);
 
         Mockito.lenient().when(userService.findById(Mockito.anyLong())).thenReturn(Optional.of(new User()));
         Mockito.lenient().when(skillService.findUserSkill(Mockito.anyLong(), Mockito.anyLong())).thenReturn(Optional.of(new Skill()));
