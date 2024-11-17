@@ -43,5 +43,10 @@ payment-service:
 
 max-month-limit-recommendation-request: 6
 
-skill:
-  minOffersRequired: 3
+application:
+  constants:
+    max-active-goals-count: 3
+  skill:
+    minOffersRequired: 3
+
+
