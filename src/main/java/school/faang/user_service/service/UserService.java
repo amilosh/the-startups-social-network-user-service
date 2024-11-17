@@ -11,19 +11,17 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
-    private final UserRepository userRepo;
-
+    private final UserRepository userRepository;
     public User getUserById(Long id) {
-        return userRepo.findById(id)
+        return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
     }
 
     public List<User> getAllUsersByIds(List<Long> ids) {
-        return userRepo.findAllById(ids);
+        return userRepository.findAllById(ids);
     }
 
     public User saveUser(User user) {
-        return userRepo.save(user);
+        return userRepository.save(user);
     }
 }
