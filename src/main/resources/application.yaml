@@ -8,13 +8,17 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
 
+  elasticsearch:
+    uris: http://localhost:9200
+
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
 
   data:
     redis:
@@ -24,14 +28,7 @@ spring:
         mentorship-channel:
           name: mentorship_channel
         follower-event-channel:
-          name: follower_event
-    elasticsearch:
-      repositories:
-        enabled: true
-
-elasticsearch:
-  host: localhost
-  port: 9200
+          name: follower_event2
 
 server:
   port: 8080

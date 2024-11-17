@@ -42,7 +42,9 @@ dependencies {
     /**
      * elasticsearch
      */
-    implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch:3.3.5")
+    implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
+    implementation("co.elastic.clients:elasticsearch-java:8.8.0")
+
 
     /**
      * Amazon S3
@@ -124,9 +126,9 @@ tasks.test {
     finalizedBy(tasks.jacocoTestCoverageVerification)
 }
 
-tasks.build {
-    dependsOn(tasks.jacocoTestCoverageVerification)
-}
+//tasks.build {
+//    dependsOn(tasks.jacocoTestCoverageVerification)
+//}
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
