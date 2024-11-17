@@ -1,6 +1,5 @@
 package school.faang.user_service.service.mentorship.request_filter;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.user.UserDto;
