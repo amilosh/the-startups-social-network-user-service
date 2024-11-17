@@ -6,6 +6,6 @@ import java.util.List;
 
 class CiPipelineTest {
     @Test
-    void testPipelineFail(){
+    void testCiFail(){
     }
 }
