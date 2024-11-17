@@ -18,7 +18,6 @@ import school.faang.user_service.service.user.filter.UserFilter;
 import school.faang.user_service.validator.user.UserValidator;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
