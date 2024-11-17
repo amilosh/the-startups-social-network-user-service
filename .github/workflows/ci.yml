@@ -23,22 +23,25 @@ jobs:
         id: changed-files
         run: |
           # Получаем список измененных Java файлов в pull request
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.java$')
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.event.pull_request.base.ref }} ${{ github.sha }} | grep '\.java$' || true)
+          echo "CHANGED_FILES=$CHANGED_FILES"
           echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
 
       - name: Run Checkstyle on changed files
         run: |
-          # Если есть измененные файлы, запускаем checkstyle только для них
-            if [ -n "$CHANGED_FILES" ]; then
-              ./gradlew checkstyleMain --include "$CHANGED_FILES" checkstyleTest --include "$CHANGED_FILES"
-            else
-              echo "No Java files changed, skipping Checkstyle."
-            fi
+          if [ -n "$CHANGED_FILES" ]; then
+            for FILE in $CHANGED_FILES; do
+              ./gradlew checkstyleMain --include-build "$FILE" || exit 1
+            done
+          else
+            echo "No Java files changed, skipping Checkstyle."
+          fi
 
       - name: Build and run tests
         run: ./gradlew test
 
       - name: Upload Checkstyle report
+        if: always() # Всегда загружать отчёт, даже если step упал
         uses: actions/upload-artifact@v3
         with:
           name: checkstyle-report
