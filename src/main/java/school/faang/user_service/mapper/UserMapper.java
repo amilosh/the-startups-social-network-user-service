@@ -7,6 +7,8 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.user.DeactivatedUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.Skill;
+
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
@@ -23,6 +25,10 @@ public interface UserMapper {
 
     @Mapping(target = "country", ignore = true)
     User toUser(UserDto userDto);
+
+    List<UserDto> toDto(List<User> users);
+
+    List<User> toEntity(List<UserDto> userDtos)
 
     @Mapping(source = "settingGoals", target = "idsSettingGoals", qualifiedByName = "mapGoalsToListId")
     @Mapping(source = "goals", target = "idsGoals", qualifiedByName = "mapGoalsToListId")

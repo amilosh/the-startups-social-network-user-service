@@ -29,6 +29,7 @@ class UserTest {
     void setUp() {
         user = new User();
         user.setParticipatedEvents(new ArrayList<>());
+        user.setOwnedEvents(new ArrayList<>());
         user.setSettingGoals(new ArrayList<>());
         user.setGoals(new ArrayList<>());
         user.setMentors(new ArrayList<>());
@@ -42,6 +43,25 @@ class UserTest {
         user.removeParticipatedEvent(mockEvent);
 
         assertFalse(user.getParticipatedEvents().contains(mockEvent));
+    }
+
+    @Test
+    void testRemoveOwnedEvent() {
+        user.getOwnedEvents().add(mockEvent);
+        assertTrue(user.getOwnedEvents().contains(mockEvent));
+
+        user.removeOwnedEvent(mockEvent);
+
+        assertFalse(user.getOwnedEvents().contains(mockEvent));
+    }
+
+    @Test
+    void testToLogString() {
+        user.setUsername("testUser");
+        user.setId(1L);
+
+        String logString = user.toLogString();
+        assertEquals("User testUser with id 1", logString);
     }
 
     @Test
@@ -67,4 +87,6 @@ class UserTest {
 
         assertFalse(user.getMentors().contains(mockMentor));
     }
+
 }
+

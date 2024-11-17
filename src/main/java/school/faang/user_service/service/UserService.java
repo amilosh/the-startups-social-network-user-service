@@ -10,6 +10,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
@@ -25,6 +26,15 @@ public class UserService {
     private final GoalService goalService;
     private final MentorshipService mentorshipService;
     private final UserMapper userMapper;
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+    }
+
+    public List<User> getAllUsersByIds(List<Long> ids) {
+        return userRepository.findAllById(ids);
+    }
 
     @Transactional
     public DeactivatedUserDto deactivateUser(long userId) {
@@ -92,4 +102,5 @@ public class UserService {
         user.removeAllParticipatedEvents();
         log.info("user {} unsubscribe from participated events", user.getId());
     }
+
 }

@@ -108,7 +108,7 @@ public class User {
     @ManyToMany(mappedBy = "users")
     private List<Goal> goals;
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Skill> skills;
 
     @ManyToMany
@@ -146,6 +146,43 @@ public class User {
     private Premium premium;
 
 
+    public void removeOwnedEvent(Event event){
+        ownedEvents.remove(event);
+    }
+
+    public String toLogString(){
+        return String.format("User %s with id %d", username, id);
+    }
+
+    public void addSkill(Skill skill) {
+        skills.add(skill);
+    }
+
+    public void removeGivenRecommendation(Recommendation recommendationGiven) {
+        recommendationsGiven.remove(recommendationGiven);
+    }
+
+    public void removeReceivedRecommendation(Recommendation recommendationReceived) {
+        recommendationsReceived.remove(recommendationReceived);
+    }
+
+    public void removeSkill(Skill skill) {
+        skills.remove(skill);
+    }
+
+    public void addGoal(Goal goal) {
+        goals.add(goal);
+    }
+
+    public void removeGoal(Goal goal) {
+        goals.remove(goal);
+    }
+
+    public boolean hasMaxNumOfGoals(int maxNumOfGoals) {
+        return goals.size() > maxNumOfGoals;
+    }
+
+
     public void removeParticipatedEvent(Event event) {
         if (event != null && participatedEvents != null) {
             participatedEvents.remove(event);
@@ -170,6 +207,4 @@ public class User {
             mentors.remove(mentor);
         }
     }
-
-
 }
