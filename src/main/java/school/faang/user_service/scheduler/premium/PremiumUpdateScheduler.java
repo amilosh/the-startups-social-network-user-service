@@ -19,7 +19,7 @@ public class PremiumUpdateScheduler {
     private final PremiumRepository premiumRepository;
 
     @Async
-    @Scheduled(cron = "0 0-2 * * * *", zone = "Europe/Moscow")
+    @Scheduled(cron = "0 0-2 0 * * *", zone = "Europe/Moscow")
     void updatePremiumWhichExpired() {
         log.info("update premium scheduler working");
         premiumRepository.deletePremiumWhichDateExpire(LocalDateTime.now());
