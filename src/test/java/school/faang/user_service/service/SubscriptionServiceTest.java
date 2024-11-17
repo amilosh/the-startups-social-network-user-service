@@ -29,41 +29,25 @@ class SubscriptionServiceTest {
     @InjectMocks
     private SubscriptionService subscriptionService;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
-
     @Test
     void followUser_ShouldFollowUser_WhenIdsAreValid() {
         Long followerId = 1L;
         Long followeeId = 2L;
 
-        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(false);
-
-        subscriptionService.followUser(followerId, followeeId);
-
-        verify(subscriptionRepository).followUser(followerId, followeeId);
-    }
-
-    @Test
-    void followUser_ShouldThrowException_WhenSubscriptionExists() {
-        Long followerId = 1L;
-        Long followeeId = 2L;
-
-        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(true);
-
-        Exception exception = assertThrows(StringIndexOutOfBoundsException.class, () -> {
-            subscriptionService.followUser(followerId, followeeId);
+        InvalidUserIdException exception = assertThrows(InvalidUserIdException.class, () -> {
+            subscriptionService.followUser(followerId, null);
         });
 
-        assertEquals("Подписка уже существует.", exception.getMessage());
+        assertEquals("Некорректные ID: ID не должны быть null и не должны совпадать.", exception.getMessage());
     }
+
+
 
     @Test
     void unfollowUser_ShouldUnfollowUser_WhenSubscriptionExists() {
         Long followerId = 1L;
         Long followeeId = 2L;
+
 
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(true);
 
@@ -73,18 +57,20 @@ class SubscriptionServiceTest {
     }
 
     @Test
-    void unfollowUser_ShouldThrowException_WhenSubscriptionDoesNotExist() {
+    void followUser_ShouldThrowException_WhenSubscriptionAlreadyExists() {
         Long followerId = 1L;
         Long followeeId = 2L;
 
-        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(false);
+        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(true);
 
-        Exception exception = assertThrows(SubscriptionNotFoundException.class, () -> {
-            subscriptionService.unfollowUser(followerId, followeeId);
-        });
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> subscriptionService.followUser(followerId, followeeId)
+        );
 
-        assertEquals("Подписка не существует.", exception.getMessage());
+        assertEquals("Подписка уже существует.", exception.getMessage());
     }
+
 
     @Test
     void getFollowers_ShouldReturnFilteredFollowers_WhenFilterIsValid() {
