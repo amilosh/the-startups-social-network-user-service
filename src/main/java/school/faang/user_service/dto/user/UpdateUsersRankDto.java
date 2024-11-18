@@ -1,11 +1,13 @@
 package school.faang.user_service.dto.user;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.Map;
 
 @Data
+@Builder
 public class UpdateUsersRankDto {
 
     @NotNull
@@ -15,7 +17,7 @@ public class UpdateUsersRankDto {
     private Double maximumGrowthRating;
 
     @NotNull
-    private Integer HALF_USER_RANK;
+    private Double halfUserRank;
 
     @NotNull
     private Double maximumUserRating;

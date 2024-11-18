@@ -40,7 +40,7 @@ public class UserService {
                     userRepository.updateUserRankByUserId(userNewRank.getKey(), roundedValue);
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
-                    if (roundedValue > userDto.getHALF_USER_RANK()) {
+                    if (roundedValue > userDto.getHalfUserRank()) {
                         userRepository.updateUserRankByUserId(userNewRank.getKey(), BigDecimal.valueOf(userDto.getMaximumUserRating()).doubleValue());
                     } else {
                         userRepository.updateUserRankByUserId(userNewRank.getKey(), BigDecimal.valueOf(userDto.getMinimumUserRating()).doubleValue());
