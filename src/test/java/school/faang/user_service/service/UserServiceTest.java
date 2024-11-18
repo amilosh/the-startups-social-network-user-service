@@ -6,13 +6,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,14 +28,14 @@ public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    private long userId;
+    @Spy
+    private UserMapperImpl userMapper;
 
-    private User user;
+    private long userId;
 
     @BeforeEach
     void setUp() {
         userId = 1L;
-        user = new User();
     }
 
     @Test
@@ -49,15 +51,25 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetUserById() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        assertEquals(user, userService.getUserById(userId));
+    public void testGetUserByIdNotfound() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class,
+                () -> userService.getUserById(userId));
     }
 
     @Test
-    public void testThrowExceptionGetUserById() {
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class,
-                () -> userService.getUserById(userId));
+    public void testGetUserById() {
+        when(userRepository.findById(userId)).thenReturn(Optional.of(new User()));
+        userService.getUserById(userId);
+    }
+
+    @Test
+    public void testGetUsersByIds() {
+        List<User> users = List.of(new User(), new User());
+        List<Long> ids = List.of(1L, 2L);
+
+        when(userRepository.findAllById(ids)).thenReturn(users);
+        userService.getUsersByIds(ids);
     }
 }
