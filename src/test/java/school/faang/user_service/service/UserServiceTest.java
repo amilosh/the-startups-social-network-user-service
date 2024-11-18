@@ -49,16 +49,21 @@ class UserServiceTest {
     private final long userId = 1L;
     private User user;
     private List<Event> events;
+    private UserDto dto;
 
     @BeforeEach
     public void setUp() {
         user = new User();
-        user.setId(1L);
+        user.setId(userId);
         user.setActive(true);
         user.setOwnedEvents(Arrays.asList(new Event(), new Event()));
         user.setMentees(new ArrayList<>());
         user.setSetGoals(new ArrayList<>());
         events = new ArrayList<>();
+
+        dto = UserDto.builder()
+                .id(userId)
+                .build();
     }
 
     @Test
@@ -245,6 +250,23 @@ class UserServiceTest {
         assertFalse(user.isActive());
         verify(mentorshipService).moveGoalsToMentee(menteeId, userId);
         verify(mentorshipService).deleteMentor(menteeId, userId);
+    }
+
+    @Test
+    void testFindUserDtoById_ThrowEntityNotFoundException() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> userService.findUserById(userId));
+    }
+
+    @Test
+    void testFindUserDtoById_Successful() {
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userMapper.toDto(user)).thenReturn(dto);
+
+        var result = userService.findUserDtoById(userId);
+
+        assertEquals(result.getId(), dto.getId());
     }
 
     private User setUpMentee() {

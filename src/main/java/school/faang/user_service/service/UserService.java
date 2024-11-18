@@ -40,7 +40,6 @@ public class UserService {
         return userRepository.existsById(userId);
     }
 
-
     public void deleteUser(User user) {
         userRepository.delete(user);
     }
@@ -60,6 +59,10 @@ public class UserService {
     public User findUserById(Long id) {
         return userRepository.findById(id).orElseThrow(() ->
                 new EntityNotFoundException(String.format("User not found by id: %s", id)));
+    }
+
+    public UserDto findUserDtoById(Long id) {
+        return userMapper.toDto(findUserById(id));
     }
 
     @Transactional

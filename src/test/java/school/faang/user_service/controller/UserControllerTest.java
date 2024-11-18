@@ -13,7 +13,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.request.UsersDto;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.service.UserService;
 
@@ -50,15 +49,15 @@ class UserControllerTest {
     @Test
     void getUserWhenUserExistsShouldReturnUser() throws Exception {
         long userId = 1L;
-        User user = new User();
-        user.setId(userId);
+        UserDto dto = new UserDto();
+        dto.setId(userId);
 
-        when(userService.findUserById(userId)).thenReturn(user);
+        when(userService.findUserDtoById(userId)).thenReturn(dto);
 
         mockMvc.perform(get("/users/{userId}", userId))
                 .andExpect(status().isOk());
 
-        verify(userService, times(1)).findUserById(userId);
+        verify(userService, times(1)).findUserDtoById(userId);
     }
 
     @Test
