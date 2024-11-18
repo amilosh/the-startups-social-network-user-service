@@ -22,9 +22,9 @@ public class UserSkillGuaranteeService {
         skillValidator.validateSkillExists(skill.getId());
 
         UserSkillGuarantee userSkillGuarantee = UserSkillGuarantee.builder()
-                .user(userService.findUser(recommendation.getReceiver().getId()))
+                .user(userService.findUserById(recommendation.getReceiver().getId()))
                 .skill(skill)
-                .guarantor(userService.findUser(recommendation.getAuthor().getId()))
+                .guarantor(userService.findUserById(recommendation.getAuthor().getId()))
                 .build();
         skill.getGuarantees().add(userSkillGuarantee);
         userSkillGuaranteeRepository.save(userSkillGuarantee);

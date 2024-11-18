@@ -35,7 +35,7 @@ class UserSkillGuaranteeServiceTest {
     @InjectMocks
     private UserSkillGuaranteeService userSkillGuaranteeService;
 
-    private TestObjectGenerator testObjectGenerator = new TestObjectGenerator();
+    private final TestObjectGenerator testObjectGenerator = new TestObjectGenerator();
     private UserSkillGuarantee userSkillGuarantee;
     private User user;
     private Skill skill;
@@ -51,7 +51,7 @@ class UserSkillGuaranteeServiceTest {
 
     @Test
     void testAddSkillGuarantee() {
-        when(userService.findUser(recommendation.getReceiver().getId())).thenReturn(user);
+        when(userService.findUserById(recommendation.getReceiver().getId())).thenReturn(user);
 
         userSkillGuaranteeService.addSkillGuarantee(skill, recommendation);
 

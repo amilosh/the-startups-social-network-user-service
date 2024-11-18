@@ -14,18 +14,18 @@ import java.util.List;
 @Builder
 public class RecommendationDto {
 
-    @Positive (message = "Id must be a positive number")
+    @Positive(message = "Id must be a positive number")
     private Long id;
 
-    @NotNull (message = "Author id must be a positive number")
-    @Positive (message = "Author id must be a positive number")
+    @NotNull(message = "Author id must be a positive number")
+    @Positive(message = "Author id must be a positive number")
     private Long authorId;
 
-    @NotNull (message = "Receiver id must be a positive number")
-    @Positive (message = "Receiver id must be a positive number")
+    @NotNull(message = "Receiver id must be a positive number")
+    @Positive(message = "Receiver id must be a positive number")
     private Long receiverId;
 
-    @NotBlank (message = "Recommendation cannot be empty")
+    @NotBlank(message = "Recommendation cannot be empty")
     private String content;
 
     @NotNull(message = "Skill offers list cannot be null")
