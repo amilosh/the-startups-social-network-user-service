@@ -12,10 +12,6 @@ import java.util.Optional;
 @Repository
 public interface SkillRepository extends JpaRepository<Skill, Long> {
 
-    @Query(nativeQuery = true, value = """
-            SELECT s.* FROM skill s
-            WHERE s.title = ?1
-            """)
     boolean existsByTitle(String title);
 
     @Query(nativeQuery = true, value = "SELECT COUNT(id) FROM skill WHERE id IN (?1)")
