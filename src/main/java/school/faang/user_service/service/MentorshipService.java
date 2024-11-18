@@ -30,8 +30,8 @@ public class MentorshipService {
     @Transactional
     public void deleteMentee(long menteeId, long mentorId) {
         User mentor = userService.findUserById(mentorId);
-        boolean remove = mentor.getMentees().removeIf(mentee -> mentee.getId().equals(menteeId));
-        if (remove) {
+        boolean isRemoved = mentor.getMentees().removeIf(mentee -> mentee.getId().equals(menteeId));
+        if (isRemoved) {
             userService.saveUser(mentor);
         } else {
             log.info("Mentor " + mentor.getUsername() + " does not have a mentee with "
@@ -42,8 +42,8 @@ public class MentorshipService {
     @Transactional
     public void deleteMentor(long menteeId, long mentorId) {
         User mentee = userService.findUserById(menteeId);
-        boolean remove = mentee.getMentors().removeIf(mentor -> mentor.getId().equals(mentorId));
-        if (remove) {
+        boolean isRemoved = mentee.getMentors().removeIf(mentor -> mentor.getId().equals(mentorId));
+        if (isRemoved) {
             userService.saveUser(mentee);
         } else {
             log.info("User " + mentee.getUsername()

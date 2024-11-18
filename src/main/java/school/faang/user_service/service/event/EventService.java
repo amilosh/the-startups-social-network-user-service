@@ -1,7 +1,6 @@
 package school.faang.user_service.service.event;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,7 +53,7 @@ public class EventService {
         eventRepository.deleteById(evenId);
     }
 
-    public EventDto updateEvent(@NotNull EventDto eventDto) {
+    public EventDto updateEvent(EventDto eventDto) {
         Event event = findEventById(eventDto.getId());
         List<Long> skillsId = userService.findUserById(eventDto.getOwnerId()).getSkills().stream()
                 .map(Skill::getId)
