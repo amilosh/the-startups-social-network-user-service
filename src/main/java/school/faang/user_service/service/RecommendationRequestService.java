@@ -10,6 +10,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
@@ -38,7 +39,6 @@ public class RecommendationRequestService {
                 .orElseThrow(() -> new EntityNotFoundException("Requester with ID " + dto.getRequesterId() + " not found"));
         User receiver = userService.getUserById(dto.getReceiverId())
                 .orElseThrow(() -> new EntityNotFoundException("Receiver with ID " + dto.getRequesterId() + " not found"));
-        ;
 
         recommendationRequestValidator.validateUsersExistence(requester, receiver);
         recommendationRequestValidator.validateRequestFrequency(dto.getRequesterId(), dto.getReceiverId());
@@ -56,7 +56,9 @@ public class RecommendationRequestService {
 
         if (dto.getSkillIdentifiers() != null && !dto.getSkillIdentifiers().isEmpty()) {
             List<Skill> skills = skillRequestService.getSkillsByIds(dto.getSkillIdentifiers());
-            skillRequestService.createSkillRequests(skills, savedRequest);
+            List<SkillRequest> skillRequests = skillRequestService.createSkillRequests(skills, savedRequest);
+            savedRequest.getSkills().addAll(skillRequests);
+            recommendationRequestRepository.save(savedRequest);
         }
 
         return recommendationRequestMapper.toDto(savedRequest);
@@ -77,14 +79,14 @@ public class RecommendationRequestService {
     }
 
     public RecommendationRequestDto getRequest(Long id) {
-        RecommendationRequest request = recommendationRequestValidator.getAndValidateRecommendationRequest(id);
+        RecommendationRequest request = recommendationRequestValidator.validateAndGetRecommendationRequest(id);
 
         return recommendationRequestMapper.toDto(request);
     }
 
     @Transactional
     public RecommendationRequestDto rejectRequest(Long id, RejectionDto rejection) {
-        RecommendationRequest request = recommendationRequestValidator.getAndValidateRecommendationRequest(id);
+        RecommendationRequest request = recommendationRequestValidator.validateAndGetRecommendationRequest(id);
 
         recommendationRequestValidator.validateRejectRequest(request);
 

@@ -35,7 +35,7 @@ public class RecommendationRequestValidator {
         }
     }
 
-    public RecommendationRequest getAndValidateRecommendationRequest(Long id) {
+    public RecommendationRequest validateAndGetRecommendationRequest(Long id) {
         return recommendationRequestRepository.findById(id)
                 .orElseThrow(() -> new RecommendationRequestNotFoundException(
                         "Recommendation request with this Id was not found"));

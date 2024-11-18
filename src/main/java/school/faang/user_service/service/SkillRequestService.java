@@ -9,7 +9,9 @@ import school.faang.user_service.exception.SkillNotFoundException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,14 +38,13 @@ public class SkillRequestService {
                 .orElseThrow(() -> new SkillNotFoundException(skillId));
     }
 
-    public void createSkillRequests(List<Skill> skills, RecommendationRequest request) {
+    public List<SkillRequest> createSkillRequests(List<Skill> skills, RecommendationRequest request) {
         if (skills == null || skills.isEmpty()) {
-            return;
+            return Collections.emptyList();
         }
 
-        List<SkillRequest> skillRequests = skills.stream()
+        return skills.stream()
                 .map(skill -> createSkillRequest(skill, request))
-                .toList();
-        request.getSkills().addAll(skillRequests);
+                .collect(Collectors.toList());
     }
 }

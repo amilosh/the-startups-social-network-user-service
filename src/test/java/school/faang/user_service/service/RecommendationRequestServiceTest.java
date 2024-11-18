@@ -193,7 +193,7 @@ class RecommendationRequestServiceTest {
         verify(skillValidator, times(1)).validateSkills(recommendationRequestDto.getSkillIdentifiers());
         verify(recommendationRequestMapper, times(1))
                 .toEntity(recommendationRequestDto);
-        verify(recommendationRequestRepository, times(1))
+        verify(recommendationRequestRepository, times(2))
                 .save(recommendationRequest);
         verify(recommendationRequestMapper, times(1))
                 .toDto(recommendationRequest);
