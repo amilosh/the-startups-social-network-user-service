@@ -12,6 +12,8 @@ import school.faang.user_service.service.impl.subscription.SubscriptionServiceIm
 import school.faang.user_service.util.TestDataFactory;
 import school.faang.user_service.validator.subscription.SubscriptionValidator;
 
+import static org.mockito.Mockito.anyLong;
+
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionControllerTest {
     @InjectMocks
@@ -78,4 +80,9 @@ public class SubscriptionControllerTest {
                 .getFollowingCount(firstUserId);
     }
 
+    @Test
+    public void testGetFollowers_OK() {
+        subscriptionController.getFollowersById(1L);
+        Mockito.verify(subscriptionServiceImpl).getFollowers(anyLong());
+    }
 }

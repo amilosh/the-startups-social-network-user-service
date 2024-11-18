@@ -81,6 +81,15 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Long> getFollowers(long followeeId) {
+        return subscriptionRepository
+                .findByFolloweeId(followeeId)
+                .map(User::getId)
+                .toList();
+    }
+
     private static FollowerEvent buildEvent(long followerId, long followeeId) {
         return FollowerEvent.builder()
                 .followeeId(followeeId)
