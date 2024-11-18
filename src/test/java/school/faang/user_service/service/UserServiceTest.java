@@ -8,18 +8,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.request.UsersDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
-
 import school.faang.user_service.repository.UserRepository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -185,5 +189,88 @@ class UserServiceTest {
 
         Exception exception = assertThrows(EntityNotFoundException.class, () -> userService.findUserById(userId));
         assertEquals(String.format("User not found by id: %s", userId), exception.getMessage());
+    }
+
+    @Test
+    void testGetAllUsers_NoFilter() {
+        User user1 = User.builder()
+                .id(1L)
+                .username("JohnDoe")
+                .build();
+
+        User user2 = User.builder()
+                .id(2L)
+                .username("JaneSmith")
+                .build();
+
+        when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2));
+
+        UserDto userDto1 = UserDto.builder()
+                .id(1L)
+                .username("JohnDoe")
+                .build();
+
+        UserDto userDto2 = UserDto.builder()
+                .id(2L)
+                .username("JaneSmith")
+                .build();
+
+        when(userMapper.toDto(user1)).thenReturn(userDto1);
+        when(userMapper.toDto(user2)).thenReturn(userDto2);
+
+        List<UserDto> result = userService.getAllUsers(UserFilterDto.builder().build());
+
+        assertEquals(2, result.size());
+        verify(userRepository, times(1)).findAll();
+        verify(userMapper, times(1)).toDto(user1);
+        verify(userMapper, times(1)).toDto(user2);
+    }
+
+    @Test
+    void testGetPremiumUsers() {
+        User user = User.builder()
+                .id(1L)
+                .username("PremiumUser")
+                .build();
+
+        when(userRepository.findPremiumUsers()).thenReturn(Stream.of(user));
+
+        UserDto userDto = UserDto.builder()
+                .id(1L)
+                .username("PremiumUser")
+                .build();
+
+        when(userMapper.toDto(user)).thenReturn(userDto);
+
+        List<UserDto> result = userService.getPremiumUsers(UserFilterDto.builder().build());
+
+        assertEquals(1, result.size());
+        assertEquals("PremiumUser", result.get(0).getUsername());
+        verify(userRepository, times(1)).findPremiumUsers();
+        verify(userMapper, times(1)).toDto(user);
+    }
+
+    @Test
+    void testFindUser_UserExists() {
+        User user = User.builder()
+                .id(1L)
+                .username("JohnDoe")
+                .build();
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        User result = userService.findUser(1L);
+
+        assertNotNull(result);
+        assertEquals("JohnDoe", result.getUsername());
+        verify(userRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testFindUser_UserNotFound() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> userService.findUser(1L));
+        verify(userRepository, times(1)).findById(1L);
     }
 }
