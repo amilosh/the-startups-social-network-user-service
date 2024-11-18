@@ -87,6 +87,32 @@ class UserServiceTest {
     }
 
     @Test
+    void getUserEntityTest() {
+        long userId = 1L;
+        User user = User.builder()
+                .id(userId)
+                .username("username")
+                .build();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        User result = userService.getUserEntity(userId);
+
+        assertNotNull(result);
+        assertEquals(user.getUsername(), result.getUsername());
+    }
+
+    @Test
+    void getUserEntityNotFoundTest() {
+        long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        EntityNotFoundException exception = assertThrows(
+                EntityNotFoundException.class, () -> userService.getUserEntity(userId)
+        );
+        assertEquals(String.format(ErrorMessage.USER_NOT_FOUND, userId), exception.getMessage());
+    }
+
+    @Test
     void getUsersIdsTest() {
         List<Long> userIds = List.of(1L, 2L);
         User user1 = User.builder().id(1L).build();

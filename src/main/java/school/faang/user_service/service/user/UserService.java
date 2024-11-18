@@ -24,15 +24,19 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class UserService {
 
+    private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final List<UserFilter> userFilters;
     private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
     public UserDto getUser(long userId) {
-        return userRepository.findById(userId)
-                .map(userMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(ErrorMessage.USER_NOT_FOUND, userId)));
+        return userMapper.toDto(findUserById(userId));
+    }
+
+    @Transactional(readOnly = true)
+    public User getUserEntity(long userId) {
+        return findUserById(userId);
     }
 
     @Transactional(readOnly = true)
@@ -74,6 +78,11 @@ public class UserService {
         List<UserDto> filteredUsers = filter(users, filterDto);
         log.info("Got {} filtered premium users, by filter {}", filteredUsers.size(), filterDto);
         return filteredUsers;
+    }
+
+    private User findUserById(long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format(ErrorMessage.USER_NOT_FOUND, userId)));
     }
 
     private List<UserDto> filter(Stream<User> usersStream, UserFilterDto filterDto) {
