@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
@@ -22,11 +21,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserService {
     private final static int BATCH_SIZE = 50;
-    private final static int HALF_USER_RANK = 50;
-    private final static double MAXIMUM_USER_RATING = 100.0;
-    private final static double MINIMUM_USER_RATING = 0.0;
-    @Value("${rating-growth-intensive}")
-    private double ratingGrowthIntensive;
     @PersistenceContext
     private final EntityManager entityManager;
     private final UserRepository userRepository;
@@ -46,10 +40,10 @@ public class UserService {
                     userRepository.updateUserRankByUserId(userNewRank.getKey(), roundedValue);
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
-                    if (roundedValue > HALF_USER_RANK) {
-                        userRepository.updateUserRankByUserId(userNewRank.getKey(), BigDecimal.valueOf(MAXIMUM_USER_RATING).doubleValue());
+                    if (roundedValue > userDto.getHALF_USER_RANK()) {
+                        userRepository.updateUserRankByUserId(userNewRank.getKey(), BigDecimal.valueOf(userDto.getMaximumUserRating()).doubleValue());
                     } else {
-                        userRepository.updateUserRankByUserId(userNewRank.getKey(), BigDecimal.valueOf(MINIMUM_USER_RATING).doubleValue());
+                        userRepository.updateUserRankByUserId(userNewRank.getKey(), BigDecimal.valueOf(userDto.getMinimumUserRating()).doubleValue());
                     }
                 }
                 batchCounter++;
@@ -64,7 +58,7 @@ public class UserService {
     }
 
     private void updatePassiveUsersRating(UpdateUsersRankDto userDto) {
-        BigDecimal maxPossibleRating = BigDecimal.valueOf(userDto.getMaximumGrowthRating() * ratingGrowthIntensive);
+        BigDecimal maxPossibleRating = BigDecimal.valueOf(userDto.getMaximumGrowthRating() * userDto.getRatingGrowthIntensive());
         BigDecimal roundedValue = maxPossibleRating.setScale(2, RoundingMode.HALF_UP);
         Set<Long> activeUsersIds = userDto.getUsersRankByIds().keySet();
         userRepository.updatePassiveUsersRatingWhichRatingLessThanRating(roundedValue.doubleValue(), activeUsersIds);

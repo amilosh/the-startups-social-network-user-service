@@ -13,4 +13,16 @@ public class UpdateUsersRankDto {
 
     @NotNull
     private Double maximumGrowthRating;
+
+    @NotNull
+    private Integer HALF_USER_RANK;
+
+    @NotNull
+    private Double maximumUserRating;
+
+    @NotNull
+    private Double minimumUserRating;
+
+    @NotNull
+    private Double ratingGrowthIntensive;
 }
