@@ -18,18 +18,18 @@ public class MentorshipService {
     private final UserService userService;
 
     public List<UserDto> getMentees(long userId) {
-        User user = userService.findUser(userId);
+        User user = userService.findUserById(userId);
         return userMapper.toDto(user.getMentees());
     }
 
     public List<UserDto> getMentors(long userId) {
-        User user = userService.findUser(userId);
+        User user = userService.findUserById(userId);
         return userMapper.toDto(user.getMentors());
     }
 
     @Transactional
     public void deleteMentee(long menteeId, long mentorId) {
-        User mentor = userService.findUser(mentorId);
+        User mentor = userService.findUserById(mentorId);
         boolean remove = mentor.getMentees().removeIf(mentee -> mentee.getId().equals(menteeId));
         if (remove) {
             userService.saveUser(mentor);
@@ -41,7 +41,7 @@ public class MentorshipService {
 
     @Transactional
     public void deleteMentor(long menteeId, long mentorId) {
-        User mentee = userService.findUser(menteeId);
+        User mentee = userService.findUserById(menteeId);
         boolean remove = mentee.getMentors().removeIf(mentor -> mentor.getId().equals(mentorId));
         if (remove) {
             userService.saveUser(mentee);

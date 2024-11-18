@@ -56,7 +56,7 @@ public class EventService {
 
     public EventDto updateEvent(@NotNull EventDto eventDto) {
         Event event = findEventById(eventDto.getId());
-        List<Long> skillsId = userService.findUser(eventDto.getOwnerId()).getSkills().stream()
+        List<Long> skillsId = userService.findUserById(eventDto.getOwnerId()).getSkills().stream()
                 .map(Skill::getId)
                 .toList();
 

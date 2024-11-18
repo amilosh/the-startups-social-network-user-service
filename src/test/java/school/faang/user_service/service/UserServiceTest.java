@@ -90,7 +90,7 @@ class UserServiceTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
-        User result = userService.findUser(userId);
+        User result = userService.findUserById(userId);
         assertEquals(userId, result.getId());
 
         verify(userRepository, times(1)).findById(userId);
@@ -102,7 +102,8 @@ class UserServiceTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> userService.findUser(userId));
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> userService.findUserById(userId));
         assertEquals("User with ID " + userId + " not found", exception.getMessage());
 
         verify(userRepository, times(1)).findById(userId);

@@ -113,7 +113,7 @@ public class EventServiceTest {
         User user = new User();
         user.setSkills(new ArrayList<>());
 
-        when(userService.findUser(eventDto.getOwnerId())).thenReturn(user);
+        when(userService.findUserById(eventDto.getOwnerId())).thenReturn(user);
         when(eventMapper.dtoToEventWithId(eventDto, event.getId())).thenReturn(event);
         when(eventRepository.save(event)).thenReturn(event);
         when(eventMapper.eventToDto(event)).thenReturn(eventDto);

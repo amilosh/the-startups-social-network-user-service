@@ -40,10 +40,6 @@ public class UserService {
         return userRepository.existsById(userId);
     }
 
-    public User findUser(long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User with ID " + userId + " not found"));
-    }
 
     public void deleteUser(User user) {
         userRepository.delete(user);

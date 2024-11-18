@@ -58,14 +58,14 @@ public class MentorshipServiceTest {
         mentee2.setId(3L);
         List<User> mentees = List.of(mentee1, mentee2);
         user.setMentees(mentees);
-        when(userService.findUser(userId)).thenReturn(user);
+        when(userService.findUserById(userId)).thenReturn(user);
 
         List<UserDto> result = mentorshipService.getMentees(userId);
 
         assertNotNull(result);
         assertEquals(2, result.size());
         assertEquals(2L, result.get(0).getId());
-        verify(userService, times(1)).findUser(userId);
+        verify(userService, times(1)).findUserById(userId);
     }
 
     @Test
@@ -74,13 +74,13 @@ public class MentorshipServiceTest {
         User user = new User();
         user.setId(userId);
         user.setMentees(Collections.emptyList());
-        when(userService.findUser(userId)).thenReturn(user);
+        when(userService.findUserById(userId)).thenReturn(user);
 
         List<UserDto> result = mentorshipService.getMentees(userId);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
-        verify(userService, times(1)).findUser(userId);
+        verify(userService, times(1)).findUserById(userId);
     }
 
     @Test
@@ -94,7 +94,7 @@ public class MentorshipServiceTest {
         mentor2.setId(3L);
         List<User> mentors = List.of(mentor1, mentor2);
         user.setMentors(mentors);
-        when(userService.findUser(userId)).thenReturn(user);
+        when(userService.findUserById(userId)).thenReturn(user);
 
         List<UserDto> result = mentorshipService.getMentors(userId);
 
@@ -102,7 +102,7 @@ public class MentorshipServiceTest {
         assertEquals(2, result.size());
         assertEquals(2L, result.get(0).getId());
         assertEquals(3L, result.get(1).getId());
-        verify(userService, times(1)).findUser(userId);
+        verify(userService, times(1)).findUserById(userId);
     }
 
     @Test
@@ -111,13 +111,13 @@ public class MentorshipServiceTest {
         User user = new User();
         user.setId(userId);
         user.setMentors(Collections.emptyList());
-        when(userService.findUser(userId)).thenReturn(user);
+        when(userService.findUserById(userId)).thenReturn(user);
 
         List<UserDto> result = mentorshipService.getMentors(userId);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
-        verify(userService, times(1)).findUser(userId);
+        verify(userService, times(1)).findUserById(userId);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class MentorshipServiceTest {
         mentee.setId(2L);
         mentor.setMentees(new ArrayList<>());
         mentor.getMentees().add(mentee);
-        when(userService.findUser(mentor.getId())).thenReturn(mentor);
+        when(userService.findUserById(mentor.getId())).thenReturn(mentor);
 
         mentorshipService.deleteMentee(mentee.getId(), mentor.getId());
 
@@ -141,7 +141,7 @@ public class MentorshipServiceTest {
         User mentor = new User();
         mentor.setId(1L);
         mentor.setMentees(new ArrayList<>());
-        when(userService.findUser(mentor.getId())).thenReturn(mentor);
+        when(userService.findUserById(mentor.getId())).thenReturn(mentor);
 
         mentorshipService.deleteMentee(3L, mentor.getId());
 
@@ -156,7 +156,7 @@ public class MentorshipServiceTest {
         mentor.setId(2L);
         mentee.setMentors(new ArrayList<>());
         mentee.getMentors().add(mentor);
-        when(userService.findUser(mentee.getId())).thenReturn(mentee);
+        when(userService.findUserById(mentee.getId())).thenReturn(mentee);
 
         mentorshipService.deleteMentor(mentee.getId(), mentor.getId());
 
@@ -169,7 +169,7 @@ public class MentorshipServiceTest {
         User mentee = new User();
         mentee.setId(1L);
         mentee.setMentors(new ArrayList<>());
-        when(userService.findUser(mentee.getId())).thenReturn(mentee);
+        when(userService.findUserById(mentee.getId())).thenReturn(mentee);
 
         mentorshipService.deleteMentor(mentee.getId(), 3L);
 
@@ -178,8 +178,8 @@ public class MentorshipServiceTest {
 
     @Test
     public void testMoveGoalsToMentee_Successful() {
-        when(userService.findUser(1)).thenReturn(mentor);
-        when(userService.findUser(2)).thenReturn(mentee);
+        when(userService.findUserById(1L)).thenReturn(mentor);
+        when(userService.findUserById(2L)).thenReturn(mentee);
 
         mentorshipService.moveGoalsToMentee(2, 1);
 
