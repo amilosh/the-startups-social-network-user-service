@@ -1,10 +1,10 @@
 package school.faang.user_service.service.user;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 
@@ -21,18 +21,17 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
-    public ResponseEntity<UserDto> getUserDtoById(long userId) {
+    public UserDto getUserDtoById(long userId) {
         var user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("user not found!"));
-        return ResponseEntity.ok().body(userMapper.toDto(user));
+                .orElseThrow(() -> new DataValidationException("user not found!"));
+        return userMapper.toDto(user);
     }
 
-    public ResponseEntity<List<UserDto>> getUserDtosByIds(List<Long> userIds) {
+    public List<UserDto> getUserDtosByIds(List<Long> userIds) {
         List<User> users = userRepository.findAllByIds(userIds)
-                .orElseThrow(() -> new IllegalArgumentException("users not found!"));
-        List<UserDto> userDtos = users.stream()
+                .orElseThrow(() -> new DataValidationException("users not found!"));
+        return users.stream()
                 .map(userMapper::toDto)
                 .toList();
-        return ResponseEntity.ok().body(userDtos);
     }
 }

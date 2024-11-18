@@ -22,11 +22,11 @@ public class UserController {
 
     @GetMapping("{userId}")
     public ResponseEntity<UserDto> getUser(@NotNull @PathVariable long userId) {
-        return userService.getUserDtoById(userId);
+        return ResponseEntity.ok().body(userService.getUserDtoById(userId));
     }
 
     @GetMapping
     public ResponseEntity<List<UserDto>> getUsersByIds(@RequestBody List<Long> userIds) {
-        return userService.getUserDtosByIds(userIds);
+        return ResponseEntity.ok().body(userService.getUserDtosByIds(userIds));
     }
 }
