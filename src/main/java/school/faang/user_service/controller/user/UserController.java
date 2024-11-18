@@ -3,6 +3,7 @@ package school.faang.user_service.controller.user;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,7 @@ public class UserController {
 
     private final UserService userService;
 
+    @PutMapping("update-users-rank")
     public ResponseEntity<Void> updateUsersRankByUserIds(@RequestBody @Valid UpdateUsersRankDto usersDto) {
         return userService.updateUsersRankByUserIds(usersDto);
     }
