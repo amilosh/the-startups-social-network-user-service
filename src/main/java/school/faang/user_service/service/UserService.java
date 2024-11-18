@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ public class UserService {
     private final MentorshipService mentorshipService;
     private final EventService eventService;
 
+    @Autowired
     public UserService(UserRepository userRepository,
                        UserMapper userMapper,
                        UserValidator userValidator,
