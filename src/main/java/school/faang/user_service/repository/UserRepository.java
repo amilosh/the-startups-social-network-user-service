@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.entity.User;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -36,6 +37,20 @@ public interface UserRepository extends JpaRepository<User, Long> {
             UPDATE User u SET u.rankScore = u.rankScore + :rank WHERE u.id = :userId
             """)
     void updateUserRankByUserId(@Param("userId") Long userId, @Param("rank") double rank);
+
+    @Transactional
+    @Modifying
+    @Query("""
+            UPDATE User u SET u.rankScore = :minValue WHERE u.id = :userId
+            """)
+    void updateUserRankByUserIdToMin(@Param("userId") Long userId, @Param("minValue") BigDecimal minValue);
+
+    @Transactional
+    @Modifying
+    @Query("""
+        UPDATE User u SET u.rankScore = :maxValue WHERE u.id = :userId
+        """)
+    void updateUserRankByUserIdToMax(@Param("userId") Long userId, @Param("maxValue") BigDecimal maxValue);
 
     @Modifying
     @Transactional

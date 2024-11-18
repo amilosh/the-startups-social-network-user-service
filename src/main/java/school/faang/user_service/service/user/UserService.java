@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
@@ -29,6 +30,7 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
+    @Transactional
     public ResponseEntity<Void> updateUsersRankByUserIds(UpdateUsersRankDto userDto) {
         log.info("batch is starting {}", userDto);
         int batchCounter = 1;
@@ -41,9 +43,9 @@ public class UserService {
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                     if (roundedValue > userDto.getHalfUserRank()) {
-                        userRepository.updateUserRankByUserId(userNewRank.getKey(), BigDecimal.valueOf(userDto.getMaximumUserRating()).doubleValue());
+                        userRepository.updateUserRankByUserIdToMax(userNewRank.getKey(), BigDecimal.valueOf(userDto.getMaximumUserRating()));
                     } else {
-                        userRepository.updateUserRankByUserId(userNewRank.getKey(), BigDecimal.valueOf(userDto.getMinimumUserRating()).doubleValue());
+                        userRepository.updateUserRankByUserIdToMin(userNewRank.getKey(), BigDecimal.valueOf(userDto.getMinimumUserRating()));
                     }
                 }
                 batchCounter++;
@@ -57,7 +59,8 @@ public class UserService {
         return ResponseEntity.ok().build();
     }
 
-    private void updatePassiveUsersRating(UpdateUsersRankDto userDto) {
+    @Transactional
+    public void updatePassiveUsersRating(UpdateUsersRankDto userDto) {
         BigDecimal maxPossibleRating = BigDecimal.valueOf(userDto.getMaximumGrowthRating() * userDto.getRatingGrowthIntensive());
         BigDecimal roundedValue = maxPossibleRating.setScale(2, RoundingMode.HALF_UP);
         Set<Long> activeUsersIds = userDto.getUsersRankByIds().keySet();
@@ -66,6 +69,7 @@ public class UserService {
         flushAndClear();
     }
 
+    @Transactional
     public void flushAndClear() {
         entityManager.flush();
         entityManager.clear();
