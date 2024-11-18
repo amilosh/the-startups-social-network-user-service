@@ -6,15 +6,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.request.UsersDto;
-import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.service.UserService;
+import school.faang.user_service.validator.UserValidator;
 
 import java.util.List;
 
@@ -33,8 +32,8 @@ class UserControllerTest {
     @Mock
     private UserService userService;
 
-    @Spy
-    private UserMapper userMapper;
+    @Mock
+    private UserValidator userValidator;
 
     @InjectMocks
     private UserController userController;
