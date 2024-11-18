@@ -22,22 +22,18 @@ public class SkillController {
         return skillService.create(skillDto);
     }
 
-    public List<SkillDto> getUserSkills(@Positive @NotNull
-                                        Long userId) {
+    public List<SkillDto> getUserSkills(@Positive @NotNull Long userId) {
         return skillService.getUserSkills(userId);
     }
 
-    public List<SkillCandidateDto> getOfferedSkills(@Positive
-                                                    @NotNull
-                                                    Long userId) {
+    public List<SkillCandidateDto> getOfferedSkills(
+            @Positive @NotNull Long userId
+    ) {
         return skillService.getOfferedSkills(userId);
     }
 
-    public SkillDto acquireSkillFromOffers(@Positive @NotNull
-                                           Long skillId,
-                                           @Positive
-                                           @NotNull
-                                           Long userId) {
+    public SkillDto acquireSkillFromOffers(@Positive @NotNull Long skillId,
+                                           @Positive @NotNull Long userId) {
         return skillService.acquireSkillFromOffers(skillId, userId);
     }
 }
