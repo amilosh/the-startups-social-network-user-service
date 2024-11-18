@@ -22,7 +22,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/mentorshipRequest")
+@RequestMapping("api/v1/mentorship-request")
 @Tag(name = "Mentorship Request", description = "Контроллер для запроса на менторство")
 @ApiResponse(description = "Успешная отработка метода", responseCode = "200")
 @ApiResponse(description = "Ошибка клиента", responseCode = "400")
