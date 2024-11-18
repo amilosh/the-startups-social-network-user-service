@@ -27,7 +27,7 @@ public class UserController {
         return ResponseEntity.ok(userService.findUserDtoById(userId));
     }
 
-    @PutMapping("{userId}")
+    @PutMapping("/{userId}")
     public ResponseEntity<UserDto> deactivateProfile(@PathVariable @Positive long userId) {
         userValidator.validateUserById(userId);
         return ResponseEntity.ok(userService.deactivateProfile(userId));
