@@ -115,7 +115,7 @@ public class MentorshipServiceTest {
         mentor.getMentees().add(mentee);
         when(userService.findUser(mentor.getId())).thenReturn(mentor);
 
-        mentorshipService.deleteMentee(mentee.getId(), mentor.getId());
+        mentorshipService.deleteMentee( mentor.getId(),mentee.getId());
 
         verify(userService, times(1)).saveUser(mentor);
         assertTrue(mentor.getMentees().isEmpty());
@@ -128,7 +128,7 @@ public class MentorshipServiceTest {
         mentor.setMentees(new ArrayList<>());
         when(userService.findUser(mentor.getId())).thenReturn(mentor);
 
-        mentorshipService.deleteMentee(3L, mentor.getId());
+        mentorshipService.deleteMentee( mentor.getId(), 3L);
 
         verify(userService, never()).saveUser(mentor);
     }

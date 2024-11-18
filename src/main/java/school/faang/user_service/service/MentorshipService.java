@@ -26,7 +26,7 @@ public class MentorshipService {
         return userMapper.toDto(user.getMentors());
     }
 
-    public void deleteMentee(long menteeId, long mentorId) {
+    public void deleteMentee(long mentorId, long menteeId) {
         User mentor = userService.findUser(mentorId);
         boolean remove = mentor.getMentees().removeIf(mentee -> mentee.getId().equals(menteeId));
         if (remove) {
