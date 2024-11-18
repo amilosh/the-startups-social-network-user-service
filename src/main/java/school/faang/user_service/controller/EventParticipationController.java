@@ -2,31 +2,52 @@ package school.faang.user_service.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.service.EventParticipationService;
 
 import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping("/api/v1/event")
 @RequiredArgsConstructor
 public class EventParticipationController {
+
     private final EventParticipationService eventParticipationService;
 
-    public void registerParticipant(@Valid UserDto userDto, @Valid EventDto eventDto) {
+    @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<String> registerParticipant(@RequestBody @Valid UserDto userDto,
+                                                      @RequestBody @Valid EventDto eventDto) {
         eventParticipationService.registerParticipant(userDto, eventDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body("User successfully registered for the event.");
     }
 
-    public void unregisterParticipant(@Valid UserDto userDto, @Valid EventDto eventDto) {
+    @PostMapping("/unregister")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<String> unregisterParticipant(@RequestBody @Valid UserDto userDto,
+                                                        @RequestBody @Valid EventDto eventDto) {
         eventParticipationService.unregisterParticipant(userDto, eventDto);
+        return ResponseEntity.ok("User successfully unregistered from the event.");
     }
 
-    public List<UserDto> getParticipants(@Valid EventDto eventDto) {
-        return eventParticipationService.getParticipants(eventDto);
+    @GetMapping("/participants")
+    public ResponseEntity<List<UserDto>> getParticipants(@RequestBody @Valid EventDto eventDto) {
+        List<UserDto> participants = eventParticipationService.getParticipants(eventDto);
+        return ResponseEntity.ok(participants);
     }
 
-    public long getParticipantsCount(@Valid EventDto eventDto) {
-        return eventParticipationService.getParticipantsCount(eventDto);
+    @GetMapping("/participants/count")
+    public ResponseEntity<Integer> getParticipantsCount(@RequestBody @Valid EventDto eventDto) {
+        int count = eventParticipationService.getParticipantsCount(eventDto);
+        return ResponseEntity.ok(count);
     }
 }
