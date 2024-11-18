@@ -41,3 +41,5 @@ payment-service:
   host: localhost
   port: 9080
   name: PaymentService
+
+rating-growth-intensive: 0.05
