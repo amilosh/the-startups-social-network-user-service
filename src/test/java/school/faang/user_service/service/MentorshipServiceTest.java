@@ -32,8 +32,9 @@ class MentorshipServiceTest {
     void testGetMentees() {
         long mentorId = 1L;
 
-        User mockUser1 = new User();
-        User mockUser2 = new User();
+        User mockUser1 = mock(User.class);
+        User mockUser2 = mock(User.class);
+
         List<User> mockMentees = List.of(mockUser1, mockUser2);
 
         UserDto dto1 = new UserDto(1L, "Alex", "alex@alex.com", "1234567890", "About Alex");
@@ -58,8 +59,8 @@ class MentorshipServiceTest {
     void testGetMentors() {
         long menteeId = 2L;
 
-        User mockUser1 = new User();
-        User mockUser2 = new User();
+        User mockUser1 = mock(User.class);
+        User mockUser2 = mock(User.class);
         List<User> mockMentors = List.of(mockUser1, mockUser2);
 
         UserDto dto1 = new UserDto(1L, "Alex", "alex@alex.com", "1234567890", "About Alex");

@@ -26,11 +26,12 @@ public class SubscriptionService {
         validateUserIds(followerId, followeeId);
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             log.warn("Подписка между пользователями {} и {} уже существует.", followerId, followeeId);
-            throw new StringIndexOutOfBoundsException("Подписка уже существует.");
+            throw new IllegalArgumentException("Подписка уже существует.");
         }
         subscriptionRepository.followUser(followerId, followeeId);
         log.info("Пользователь {} успешно подписался на пользователя {}.", followerId, followeeId);
     }
+
 
     public void unfollowUser(Long followerId, Long followeeId) {
         log.info("Пользователь {} пытается отписаться от пользователя {}", followerId, followeeId);
