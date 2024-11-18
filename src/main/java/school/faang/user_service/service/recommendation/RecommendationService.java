@@ -13,7 +13,7 @@ import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.service.UserService;
+import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.RecommendationValidator;
 
@@ -43,7 +43,7 @@ public class RecommendationService {
                 recommendationDto.getReceiverId(),
                 recommendationDto.getContent());
         skillOfferService.saveSkillOffers(recommendationDto.getSkillOffers(), recommendationId);
-        hanldeGuarantees(recommendationDto);
+        handleGuarantees(recommendationDto);
         recommendationDto.setId(recommendationId);
         return recommendationDto;
     }
@@ -60,7 +60,7 @@ public class RecommendationService {
                 recommendationDto.getContent());
         skillOfferService.deleteAllByRecommendationId(recommendationDto.getId());
         skillOfferService.saveSkillOffers(recommendationDto.getSkillOffers(), recommendationDto.getId());
-        hanldeGuarantees(recommendationDto);
+        handleGuarantees(recommendationDto);
         return recommendationDto;
     }
 
@@ -99,7 +99,7 @@ public class RecommendationService {
         }
     }
 
-    private void hanldeGuarantees(RecommendationDto recommendationDto) {
+    private void handleGuarantees(RecommendationDto recommendationDto) {
         User receiver = userService.findById(recommendationDto.getReceiverId())
                 .orElseThrow(() -> new DataValidationException("Receiver not found"));
         User guarantor = userService.findById(recommendationDto.getAuthorId())

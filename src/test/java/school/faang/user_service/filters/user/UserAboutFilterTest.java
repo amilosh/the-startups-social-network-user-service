@@ -1,9 +1,10 @@
-package school.faang.user_service.service.user.filter;
+package school.faang.user_service.filters.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.filter.UserFilterDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.filters.user.UserAboutFilter;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -12,21 +13,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UserPhoneFilterTest {
-    private final UserPhoneFilter userPhoneFilter = new UserPhoneFilter();
+public class UserAboutFilterTest {
+    private final UserAboutFilter userAboutFilter = new UserAboutFilter();
     private List<User> usersStream;
 
     @BeforeEach
     public void initFilter() {
         usersStream = List.of(
                 User.builder()
-                        .phone("+7-922-111-05-00")
+                        .aboutMe("Comic book fan.")
                         .build(),
                 User.builder()
-                        .phone("+7-800-555-35-35")
+                        .aboutMe("I play hockey")
                         .build(),
                 User.builder()
-                        .phone("+7-987-636-28-19")
+                        .aboutMe("I attend comic book conventions")
                         .build()
         );
     }
@@ -35,7 +36,7 @@ public class UserPhoneFilterTest {
     public void testReturnFalseIfFilterIsNotApplicable() {
         UserFilterDto filters = new UserFilterDto();
 
-        boolean isApplicable = userPhoneFilter.isApplicable(filters);
+        boolean isApplicable = userAboutFilter.isApplicable(filters);
 
         assertFalse(isApplicable);
     }
@@ -43,10 +44,10 @@ public class UserPhoneFilterTest {
     @Test
     public void testReturnTrueIfFilterIsApplicable() {
         UserFilterDto filters = UserFilterDto.builder()
-                .phonePattern("+7")
+                .aboutPattern("Comic")
                 .build();
 
-        boolean isApplicable = userPhoneFilter.isApplicable(filters);
+        boolean isApplicable = userAboutFilter.isApplicable(filters);
 
         assertTrue(isApplicable);
     }
@@ -54,25 +55,20 @@ public class UserPhoneFilterTest {
     @Test
     public void testReturnFilteredUserList() {
         UserFilterDto filters = UserFilterDto.builder()
-                .phonePattern("+7")
+                .aboutPattern("Comic")
                 .build();
         List<User> expectedUsers = List.of(
                 User.builder()
-                        .phone("+7-922-111-05-00")
+                        .aboutMe("Comic book fan.")
                         .build(),
                 User.builder()
-                        .phone("+7-800-555-35-35")
-                        .build(),
-                User.builder()
-                        .phone("+7-987-636-28-19")
+                        .aboutMe("I attend comic book conventions")
                         .build()
         );
 
-        Stream<User> actualUsers = userPhoneFilter.apply(usersStream.stream(), filters);
+        Stream<User> actualUsers = userAboutFilter.apply(usersStream.stream(), filters);
 
         assertEquals(expectedUsers, actualUsers.toList());
     }
 }
-
-
 

@@ -1,9 +1,11 @@
-package school.faang.user_service.service.user.filter;
+package school.faang.user_service.filters.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.filter.UserFilterDto;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.filters.user.UserCountryFilter;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -12,21 +14,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UserNameFilterTest {
-    private final UserNameFilter userNameFilter = new UserNameFilter();
+public class UserCountryFilterTest {
+    private final UserCountryFilter userCountryFilter = new UserCountryFilter();
     private List<User> usersStream;
 
     @BeforeEach
     public void initFilter() {
+        Country germany = new Country();
+        germany.setTitle("Germany");
+        Country nigeria = new Country();
+        nigeria.setTitle("Nigeria");
+        Country argentina = new Country();
+        argentina.setTitle("Argentina");
         usersStream = List.of(
                 User.builder()
-                        .username("Richard Maclaners")
+                        .country(germany)
                         .build(),
                 User.builder()
-                        .username("Gray Forester")
+                        .country(nigeria)
                         .build(),
                 User.builder()
-                        .username("Johnson Richman")
+                        .country(argentina)
                         .build()
         );
     }
@@ -35,7 +43,7 @@ public class UserNameFilterTest {
     public void testReturnFalseIfFilterIsNotApplicable() {
         UserFilterDto filters = new UserFilterDto();
 
-        boolean isApplicable = userNameFilter.isApplicable(filters);
+        boolean isApplicable = userCountryFilter.isApplicable(filters);
 
         assertFalse(isApplicable);
     }
@@ -43,10 +51,10 @@ public class UserNameFilterTest {
     @Test
     public void testReturnTrueIfFilterIsApplicable() {
         UserFilterDto filters = UserFilterDto.builder()
-                .namePattern("Richard")
+                .countryPattern("GE")
                 .build();
 
-        boolean isApplicable = userNameFilter.isApplicable(filters);
+        boolean isApplicable = userCountryFilter.isApplicable(filters);
 
         assertTrue(isApplicable);
     }
@@ -54,19 +62,15 @@ public class UserNameFilterTest {
     @Test
     public void testReturnFilteredUserList() {
         UserFilterDto filters = UserFilterDto.builder()
-                .namePattern("Rich")
+                .countryPattern("GE")
                 .build();
-        List<User> expectedUsers = List.of(
-                User.builder()
-                        .username("Richard Maclaners")
-                        .build(),
-                User.builder()
-                        .username("Johnson Richman")
-                        .build()
-        );
+        List<User> expectedUsers = usersStream.stream().toList();
 
-        Stream<User> actualUsers = userNameFilter.apply(usersStream.stream(), filters);
+        Stream<User> actualUsers = userCountryFilter.apply(usersStream.stream(), filters);
 
         assertEquals(expectedUsers, actualUsers.toList());
     }
 }
+
+
+

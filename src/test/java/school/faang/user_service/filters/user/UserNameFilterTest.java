@@ -1,9 +1,10 @@
-package school.faang.user_service.service.user.filter;
+package school.faang.user_service.filters.user;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.filter.UserFilterDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.filters.user.UserNameFilter;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -12,21 +13,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class UserEmailFilterTest {
-    private final UserEmailFilter userEmailFilter = new UserEmailFilter();
+public class UserNameFilterTest {
+    private final UserNameFilter userNameFilter = new UserNameFilter();
     private List<User> usersStream;
 
     @BeforeEach
     public void initFilter() {
         usersStream = List.of(
                 User.builder()
-                        .email("yandex@gmail.com")
+                        .username("Richard Maclaners")
                         .build(),
                 User.builder()
-                        .email("dmtry@gmail.com")
+                        .username("Gray Forester")
                         .build(),
                 User.builder()
-                        .email("augsgipspb@mail.ru")
+                        .username("Johnson Richman")
                         .build()
         );
     }
@@ -35,7 +36,7 @@ public class UserEmailFilterTest {
     public void testReturnFalseIfFilterIsNotApplicable() {
         UserFilterDto filters = new UserFilterDto();
 
-        boolean isApplicable = userEmailFilter.isApplicable(filters);
+        boolean isApplicable = userNameFilter.isApplicable(filters);
 
         assertFalse(isApplicable);
     }
@@ -43,10 +44,10 @@ public class UserEmailFilterTest {
     @Test
     public void testReturnTrueIfFilterIsApplicable() {
         UserFilterDto filters = UserFilterDto.builder()
-                .emailPattern(".com")
+                .namePattern("Richard")
                 .build();
 
-        boolean isApplicable = userEmailFilter.isApplicable(filters);
+        boolean isApplicable = userNameFilter.isApplicable(filters);
 
         assertTrue(isApplicable);
     }
@@ -54,21 +55,19 @@ public class UserEmailFilterTest {
     @Test
     public void testReturnFilteredUserList() {
         UserFilterDto filters = UserFilterDto.builder()
-                .emailPattern("com")
+                .namePattern("Rich")
                 .build();
         List<User> expectedUsers = List.of(
                 User.builder()
-                        .email("yandex@gmail.com")
+                        .username("Richard Maclaners")
                         .build(),
                 User.builder()
-                        .email("dmtry@gmail.com")
+                        .username("Johnson Richman")
                         .build()
         );
 
-        Stream<User> actualUsers = userEmailFilter.apply(usersStream.stream(), filters);
+        Stream<User> actualUsers = userNameFilter.apply(usersStream.stream(), filters);
 
         assertEquals(expectedUsers, actualUsers.toList());
     }
 }
-
-
