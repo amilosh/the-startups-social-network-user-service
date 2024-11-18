@@ -44,9 +44,4 @@ public class RecommendationRequestController {
     public RecommendationRequestDto rejectRequest(@PathVariable Long id, @RequestBody RejectionDto rejection) {
         return recommendationRequestService.rejectRequest(id, rejection);
     }
-
-    @PutMapping("/{id}/accept")
-    public RecommendationRequestDto acceptRequest(@PathVariable long id) {
-        return recommendationRequestService.acceptRequest(id);
-    }
 }

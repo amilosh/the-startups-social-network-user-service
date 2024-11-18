@@ -72,13 +72,4 @@ public class RecommendationRequestService {
         log.info("Recommendation request with id {} was rejected", id);
         return recommendationRequestMapper.toDto(recommendationRequest);
     }
-
-    public RecommendationRequestDto acceptRequest(long id) {
-        RecommendationRequest recommendationRequest = recommendationRequestValidator.validateRecommendationFromBd(id);
-        recommendationRequestValidator.checkRequestsStatus(id, recommendationRequest.getStatus());
-        recommendationRequest.setStatus(RequestStatus.ACCEPTED);
-        recommendationRequestRepository.save(recommendationRequest);
-        log.info("Recommendation request with id {} was accepted", id);
-        return recommendationRequestMapper.toDto(recommendationRequest);
-    }
 }

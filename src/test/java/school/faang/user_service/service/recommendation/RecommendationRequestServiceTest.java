@@ -191,19 +191,4 @@ public class RecommendationRequestServiceTest {
         assertEquals(RequestStatus.REJECTED, recommendationRequest.getStatus());
         assertEquals(rejectionDto.getRejectionReason(), recommendationRequest.getRejectionReason());
     }
-
-    @Test
-    @DisplayName("Accept recommendation request successfully")
-    void testAcceptRequest() {
-        when(recommendationRequestValidator.validateRecommendationFromBd(RECOMMENDATION_REQUEST_ID)).thenReturn(recommendationRequest);
-        when(recommendationRequestMapper.toDto(recommendationRequest)).thenReturn(recommendationRequestDto);
-
-        recommendationRequestService.acceptRequest(RECOMMENDATION_REQUEST_ID);
-
-        verify(recommendationRequestValidator).validateRecommendationFromBd(RECOMMENDATION_REQUEST_ID);
-        verify(recommendationRequestRepository).save(recommendationRequest);
-        verify(recommendationRequestMapper).toDto(recommendationRequest);
-
-        assertEquals(RequestStatus.ACCEPTED, recommendationRequest.getStatus());
-    }
 }
