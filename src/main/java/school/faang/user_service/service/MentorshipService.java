@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
@@ -26,6 +27,7 @@ public class MentorshipService {
         return userMapper.toDto(user.getMentors());
     }
 
+    @Transactional
     public void deleteMentee(long menteeId, long mentorId) {
         User mentor = userService.findUser(mentorId);
         boolean remove = mentor.getMentees().removeIf(mentee -> mentee.getId().equals(menteeId));
@@ -37,6 +39,7 @@ public class MentorshipService {
         }
     }
 
+    @Transactional
     public void deleteMentor(long menteeId, long mentorId) {
         User mentee = userService.findUser(menteeId);
         boolean remove = mentee.getMentors().removeIf(mentor -> mentor.getId().equals(mentorId));
@@ -48,9 +51,10 @@ public class MentorshipService {
         }
     }
 
+    @Transactional
     public void moveGoalsToMentee(long menteeId, long mentorId) {
-        User mentor = userService.findUser(mentorId);
-        User mentee = userService.findUser(menteeId);
+        User mentor = userService.findUserById(mentorId);
+        User mentee = userService.findUserById(menteeId);
         mentor.getSetGoals()
                 .forEach(goal -> {
                     if (goal.getUsers().contains(mentee)) {
@@ -58,5 +62,6 @@ public class MentorshipService {
                     }
                 });
     }
+
 }
 

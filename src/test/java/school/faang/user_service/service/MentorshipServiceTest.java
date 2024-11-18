@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -8,19 +9,15 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.mapper.UserMapperImpl;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MentorshipServiceTest {
@@ -31,6 +28,24 @@ public class MentorshipServiceTest {
     private UserMapperImpl userMapper;
     @InjectMocks
     public MentorshipService mentorshipService;
+
+    private User mentor;
+    private User mentee;
+
+    @BeforeEach
+    public void setUp() {
+        mentor = new User();
+        mentor.setId(1L);
+        mentee = new User();
+        mentee.setId(2L);
+
+        Goal goalWithMentee = new Goal();
+        goalWithMentee.setUsers(List.of(mentee));
+        Goal goalWithoutMentee = new Goal();
+        goalWithoutMentee.setUsers(new ArrayList<>());
+
+        mentor.setSetGoals(List.of(goalWithMentee, goalWithoutMentee));
+    }
 
     @Test
     public void getMenteesWhenUserHasMentees() {
@@ -160,5 +175,20 @@ public class MentorshipServiceTest {
 
         verify(userService, never()).saveUser(mentee);
     }
+
+    @Test
+    public void testMoveGoalsToMentee_Successful() {
+        when(userService.findUser(1)).thenReturn(mentor);
+        when(userService.findUser(2)).thenReturn(mentee);
+
+        mentorshipService.moveGoalsToMentee(2, 1);
+
+        assertEquals(mentee, mentor.getSetGoals().stream()
+                .filter(goal -> goal.getUsers().contains(mentee))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Goal not found"))
+                .getMentor());
+    }
 }
+
 

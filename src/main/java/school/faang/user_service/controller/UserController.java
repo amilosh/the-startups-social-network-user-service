@@ -1,5 +1,6 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,8 +28,8 @@ public class UserController {
         return ResponseEntity.ok(userService.getUsersByIds(ids));
     }
 
-    @PatchMapping("{userId}")
-    public UserDto deactivateProfile(@PathVariable long userId) {
-        return userService.deactivateProfile(userId);
+    @PutMapping("{userId}")
+    public ResponseEntity<UserDto> deactivateProfile(@PathVariable @Positive long userId) {
+        return ResponseEntity.ok(userService.deactivateProfile(userId));
     }
 }
