@@ -13,6 +13,7 @@ import school.faang.user_service.dto.recommendation.SkillRequestDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.recommendation.RequestStatusException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 
@@ -36,6 +37,7 @@ public class RecommendationRequestValidatorTest {
     private static final long SKILL_REQUEST_ID = 1L;
     private static final long RECOMMENDATION_REQUEST_ID = 1L;
     private static final RequestStatus RECOMMENDATION_REQUEST_STATUS = RequestStatus.PENDING;
+    private static final RequestStatus RECOMMENDATION_REQUEST_STATUS_REJECTED = RequestStatus.REJECTED;
     private static final String MESSAGE = "message";
     private static final String SKILL_TITLE = "Java";
 
@@ -162,5 +164,24 @@ public class RecommendationRequestValidatorTest {
 
         assertEquals("SKILL WITH NAME " + SKILL_TITLE + " DOES NOT EXIST IN SYSTEM", exception.getMessage());
         verify(skillRepository).existsByTitle(SKILL_TITLE);
+    }
+
+    @Test
+    @DisplayName("Check request status - request is not pending")
+    void testCheckRequestStatusNotPending() {
+        RequestStatusException exception = assertThrows(RequestStatusException.class, () ->
+                recommendationRequestValidator
+                        .checkRequestsStatus(RECOMMENDATION_REQUEST_ID, RECOMMENDATION_REQUEST_STATUS_REJECTED)
+        );
+
+        assertEquals("REQUEST WITH ID " + RECOMMENDATION_REQUEST_ID + " HAS THE STATUS "
+                + RECOMMENDATION_REQUEST_STATUS_REJECTED + ". OPERATION CANNOT BE PERFORMED", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Check request status - request is pending")
+    void testCheckRequestStatusPending() {
+        assertDoesNotThrow(() -> recommendationRequestValidator
+                .checkRequestsStatus(RECOMMENDATION_REQUEST_ID, RECOMMENDATION_REQUEST_STATUS));
     }
 }

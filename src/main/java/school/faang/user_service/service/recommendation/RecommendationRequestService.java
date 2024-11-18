@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
+import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
@@ -50,14 +50,9 @@ public class RecommendationRequestService {
 
     public List<RecommendationRequestDto> getRequests(RecommendationRequestFilterDto requestFilter) {
         Stream<RecommendationRequest> recommendationRequests = recommendationRequestRepository.findAll().stream();
-
         recommendationRequestFilters.stream()
                 .filter(filter -> filter.isApplicable(requestFilter))
-                .reduce(recommendationRequests,
-                        (currentStream, filter) -> filter.apply(currentStream, requestFilter).stream(),
-                        Stream::concat);
-
-
+                .forEach(filter -> filter.apply(recommendationRequests, requestFilter));
         log.info("Getting a list of recommendation requests after filtering");
         return recommendationRequestMapper.toDtoList(recommendationRequests.toList());
     }
@@ -69,11 +64,21 @@ public class RecommendationRequestService {
 
     public RecommendationRequestDto rejectRequest(Long id, RejectionDto rejectionDto) {
         RecommendationRequest recommendationRequest = recommendationRequestValidator.validateRecommendationFromBd(id);
+        recommendationRequestValidator.checkRequestsStatus(id, recommendationRequest.getStatus());
         recommendationRequest.setStatus(RequestStatus.REJECTED);
         recommendationRequest.setRejectionReason(rejectionDto.getRejectionReason());
         recommendationRequestRepository.save(recommendationRequest);
 
         log.info("Recommendation request with id {} was rejected", id);
+        return recommendationRequestMapper.toDto(recommendationRequest);
+    }
+
+    public RecommendationRequestDto acceptRequest(long id) {
+        RecommendationRequest recommendationRequest = recommendationRequestValidator.validateRecommendationFromBd(id);
+        recommendationRequestValidator.checkRequestsStatus(id, recommendationRequest.getStatus());
+        recommendationRequest.setStatus(RequestStatus.ACCEPTED);
+        recommendationRequestRepository.save(recommendationRequest);
+        log.info("Recommendation request with id {} was accepted", id);
         return recommendationRequestMapper.toDto(recommendationRequest);
     }
 }

@@ -6,16 +6,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.SkillRequestDto;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.recommendation.ErrorMessage;
 import school.faang.user_service.exception.recommendation.RequestErrorMessage;
+import school.faang.user_service.exception.recommendation.RequestStatusException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import static school.faang.user_service.exception.recommendation.RequestErrorMessage.REQUEST_STATUS;
 
 @Slf4j
 @Component
@@ -50,6 +54,13 @@ public class RecommendationRequestValidator {
     public void validateRecommendation(RecommendationRequestDto recommendation) {
         checkIfAcceptableTimeForRequest(recommendation);
         checkIfOfferedSkillsExist(recommendation);
+    }
+
+    public void checkRequestsStatus(Long id, RequestStatus status) {
+        if (!status.equals(RequestStatus.PENDING)) {
+            log.error("Request with ID {}  has the status {}. Operation is not allowed.", id, status);
+            throw new RequestStatusException(REQUEST_STATUS, id, status);
+        }
     }
 
     private void checkIfAcceptableTimeForRequest(RecommendationRequestDto recommendationRequestDto) {
