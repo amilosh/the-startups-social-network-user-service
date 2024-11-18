@@ -10,6 +10,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundExceptionWithID;
 import school.faang.user_service.filters.recommendation_request.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.UserRepository;
@@ -52,8 +53,9 @@ public class RecommendationRequestService {
             entityRecommendationRequest.setSkills(new ArrayList<>());
         }
         entitySkillRequests.forEach(entityRecommendationRequest::addSkillRequest);
-
+    //TODO: Нужно вернуть из метода дто после save , заммапить перед этим энтити в дто
         recommendationRequestRepository.save(entityRecommendationRequest);
+
     }
 
     public List<RecommendationRequestDto> getRequests(RequestFilterDto filterDto) {
@@ -69,7 +71,8 @@ public class RecommendationRequestService {
 
         return mapper.allToDTO(recommendationRequestsFiltered);
     }
-
+    //TODO: Поменять ошибки DataValidationException, он используется для ошибки при валидации
+    //TODO: Тут может подойти EntityNotFoundExceptionWithID
     public RecommendationRequestDto getRequest(Long id) {
         RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
                 .orElseThrow(() -> new DataValidationException("The RecommendationRequest for this id-"
