@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.request.UsersDto;
 import school.faang.user_service.service.UserService;
+import school.faang.user_service.validator.UserValidator;
 
 import java.util.List;
 
@@ -18,9 +19,11 @@ import java.util.List;
 @Validated
 public class UserController {
     private final UserService userService;
+    private final UserValidator userValidator;
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto> getUser(@PathVariable @Positive long userId) {
+        userValidator.validateUserById(userId);
         return ResponseEntity.ok(userService.findUserDtoById(userId));
     }
 
@@ -31,6 +34,7 @@ public class UserController {
 
     @PutMapping("{userId}")
     public ResponseEntity<UserDto> deactivateProfile(@PathVariable @Positive long userId) {
+        userValidator.validateUserById(userId);
         return ResponseEntity.ok(userService.deactivateProfile(userId));
     }
 }
