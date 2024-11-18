@@ -180,15 +180,14 @@ public class RecommendationRequestServiceTest {
     @DisplayName("Reject recommendation request successfully")
     void testRejectRequest() {
         when(recommendationRequestValidator.validateRecommendationFromBd(RECOMMENDATION_REQUEST_ID)).thenReturn(recommendationRequest);
-        when(recommendationRequestMapper.toRejectionDto(recommendationRequest)).thenReturn(rejectionDto);
+        when(recommendationRequestMapper.toDto(recommendationRequest)).thenReturn(recommendationRequestDto);
 
-        RejectionDto result = recommendationRequestService.rejectRequest(RECOMMENDATION_REQUEST_ID, rejectionDto);
+        recommendationRequestService.rejectRequest(RECOMMENDATION_REQUEST_ID, rejectionDto);
 
         verify(recommendationRequestValidator).validateRecommendationFromBd(RECOMMENDATION_REQUEST_ID);
         verify(recommendationRequestRepository).save(recommendationRequest);
-        verify(recommendationRequestMapper).toRejectionDto(recommendationRequest);
+        verify(recommendationRequestMapper).toDto(recommendationRequest);
 
-        assertEquals(rejectionDto, result);
         assertEquals(RequestStatus.REJECTED, recommendationRequest.getStatus());
         assertEquals(rejectionDto.getRejectionReason(), recommendationRequest.getRejectionReason());
     }

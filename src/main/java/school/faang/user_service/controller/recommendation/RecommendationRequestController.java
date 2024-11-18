@@ -18,7 +18,7 @@ import school.faang.user_service.validator.recommendation.RecommendationRequestV
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/recommendation-requests")
+@RequestMapping("api/v1/recommendationRequests")
 @RequiredArgsConstructor
 public class RecommendationRequestController {
     private final RecommendationRequestValidator recommendationRequestValidator;
@@ -35,13 +35,13 @@ public class RecommendationRequestController {
         return recommendationRequestService.getRequests(filter);
     }
 
-    @GetMapping("/{recommendationRequestId}")
+    @GetMapping("/{id}")
     public RecommendationRequestDto getRecommendationRequest(@PathVariable Long id) {
         return recommendationRequestService.getRequest(id);
     }
 
-    @PutMapping("/reject/{recommendationRequestId}")
-    public RejectionDto rejectRequest(@PathVariable Long id, @RequestBody RejectionDto rejection) {
+    @PutMapping("/{id}/reject")
+    public RecommendationRequestDto rejectRequest(@PathVariable Long id, @RequestBody RejectionDto rejection) {
         return recommendationRequestService.rejectRequest(id, rejection);
     }
 }

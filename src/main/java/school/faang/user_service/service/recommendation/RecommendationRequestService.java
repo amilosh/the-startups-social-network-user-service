@@ -67,13 +67,13 @@ public class RecommendationRequestService {
         return recommendationRequestMapper.toDto(recommendationRequest);
     }
 
-    public RejectionDto rejectRequest(Long id, RejectionDto rejectionDto) {
+    public RecommendationRequestDto rejectRequest(Long id, RejectionDto rejectionDto) {
         RecommendationRequest recommendationRequest = recommendationRequestValidator.validateRecommendationFromBd(id);
         recommendationRequest.setStatus(RequestStatus.REJECTED);
         recommendationRequest.setRejectionReason(rejectionDto.getRejectionReason());
         recommendationRequestRepository.save(recommendationRequest);
 
         log.info("Recommendation request with id {} was rejected", id);
-        return recommendationRequestMapper.toRejectionDto(recommendationRequest);
+        return recommendationRequestMapper.toDto(recommendationRequest);
     }
 }

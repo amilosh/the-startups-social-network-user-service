@@ -4,7 +4,6 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 
@@ -25,6 +24,4 @@ public interface RecommendationRequestMapper {
     RecommendationRequest toEntity(RecommendationRequestDto recommendationRequest);
 
     List<RecommendationRequestDto> toDtoList(List<RecommendationRequest> recommendationRequests);
-
-    RejectionDto toRejectionDto(RecommendationRequest recommendationRequest);
 }
