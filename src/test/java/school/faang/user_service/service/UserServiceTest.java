@@ -104,7 +104,7 @@ class UserServiceTest {
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
                 () -> userService.findUserById(userId));
-        assertEquals("User with ID " + userId + " not found", exception.getMessage());
+        assertEquals(String.format("User not found by id: %s", userId), exception.getMessage());
 
         verify(userRepository, times(1)).findById(userId);
     }
