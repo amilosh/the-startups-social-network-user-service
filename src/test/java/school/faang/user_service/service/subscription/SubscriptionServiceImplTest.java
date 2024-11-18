@@ -13,6 +13,7 @@ import school.faang.user_service.model.dto.user.UserDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.model.entity.User;
 import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.impl.subscription.SubscriptionServiceImpl;
@@ -24,6 +25,9 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.anyLong;
 
 @ExtendWith(MockitoExtension.class)
 public class SubscriptionServiceImplTest {
@@ -119,5 +123,11 @@ public class SubscriptionServiceImplTest {
         assertEquals(amount, result);
     }
 
-
+    @Test
+    public void testGetFollowers() {
+        when(subscriptionRepository.findByFolloweeId(anyLong())).thenReturn(Stream.of(User.builder().id(2L).build()));
+        List<Long> followers = subscriptionService.getFollowers(1L);
+        verify(subscriptionRepository).findByFolloweeId(anyLong());
+        assertEquals(followers.get(0), 2L);
+    }
 }
