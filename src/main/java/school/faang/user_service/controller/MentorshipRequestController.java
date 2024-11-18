@@ -1,8 +1,12 @@
 package school.faang.user_service.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorshiprequest.RejectionDto;
@@ -13,22 +17,28 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/mentorship-requests")
 public class MentorshipRequestController {
     private final MentorshipRequestService mentorshipRequestService;
 
-    public MentorshipRequestDto requestMentorship(@Valid MentorshipRequestDto mentorshipRequestDto) {
+    @PostMapping
+    public MentorshipRequestDto requestMentorship(@RequestBody @Valid MentorshipRequestDto mentorshipRequestDto) {
         return mentorshipRequestService.requestMentorship(mentorshipRequestDto);
     }
 
-    public List<MentorshipRequestDto> getRequests(RequestFilterDto requestFilterDto) {
+    @PostMapping("/filter")
+    public List<MentorshipRequestDto> getRequests(@RequestBody RequestFilterDto requestFilterDto) {
         return mentorshipRequestService.getRequests(requestFilterDto);
     }
 
-    public MentorshipRequestDto acceptRequest(@NotNull Long requestId) {
+    @PatchMapping("/{requestId}/accept")
+    public MentorshipRequestDto acceptRequest(@PathVariable long requestId) {
         return mentorshipRequestService.acceptRequest(requestId);
     }
 
-    public MentorshipRequestDto rejectRequest(@NotNull Long requestId, @Valid RejectionDto rejectionDto) {
+    @PatchMapping("/{requestId}/reject")
+    public MentorshipRequestDto rejectRequest(@PathVariable long requestId,
+                                              @RequestBody @Valid RejectionDto rejectionDto) {
         return mentorshipRequestService.rejectRequest(requestId, rejectionDto);
     }
 }
