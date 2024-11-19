@@ -4,6 +4,9 @@ spring:
     url: jdbc:postgresql://localhost:5432/postgres
     username: user
     password: password
+  profiles:
+    active: local
+
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -31,7 +34,7 @@ server:
 
 logging:
   level:
-    root: info
+    root: debug
 
 project-service:
   host: localhost
