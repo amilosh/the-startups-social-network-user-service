@@ -1,6 +1,5 @@
 package school.faang.user_service.dto.filter;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +17,6 @@ public class RequestFilterDto {
     private Long id;
     private Long requesterId;
     private Long receiverId;
-    @NotNull
     private RequestStatus status;
 
     private LocalDateTime createdAfter;
