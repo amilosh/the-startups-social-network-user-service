@@ -4,23 +4,24 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import school.faang.user_service.dto.recommendation.SkillOfferDto;
-import school.faang.user_service.entity.recommendation.SkillOffer;
+import school.faang.user_service.dto.recommendation.SkillRequestDto;
+import school.faang.user_service.entity.recommendation.SkillRequest;
 
 @Mapper(
         componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE,
         injectionStrategy = InjectionStrategy.CONSTRUCTOR
 )
-public interface SkillOfferMapper {
+public interface SkillRequestMapper {
 
     @Mapping(source = "skill.id", target = "skillId")
     @Mapping(source = "skill.title", target = "skillTitle")
-    @Mapping(source = "recommendation.id", target = "recommendationId")
-    SkillOfferDto toDto(SkillOffer skillOffer);
+    @Mapping(source = "request.id", target = "recommendationRequestId")
+    SkillRequestDto toDto(SkillRequest skillRequest);
 
     @Mapping(source = "skillId", target = "skill.id")
     @Mapping(source = "skillTitle", target = "skill.title")
-    @Mapping(source = "recommendationId", target = "recommendation.id")
-    SkillOffer toEntity(SkillOfferDto skillOfferDto);
+    @Mapping(source = "recommendationRequestId", target = "request.id")
+    @Mapping(target = "id", ignore = true)
+    SkillRequest toEntity(SkillRequestDto skillRequestDto);
 }
