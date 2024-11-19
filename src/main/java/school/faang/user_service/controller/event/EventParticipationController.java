@@ -1,7 +1,6 @@
 package school.faang.user_service.controller.event;
 
 import jakarta.validation.Valid;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.MethodArgumentNotValidException;
