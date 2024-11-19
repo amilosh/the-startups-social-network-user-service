@@ -4,9 +4,8 @@ import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
@@ -14,28 +13,34 @@ import school.faang.user_service.service.event.EventParticipationService;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
+@RequestMapping("/eventParticipations")
 public class EventParticipationController {
     private final EventParticipationService eventParticipationService;
 
-    public void registerParticipant(@NonNull @Valid EventDto eventDto, @NonNull @Valid UserDto userDto) {
+    @PostMapping
+    public void registerParticipant(@RequestBody @Valid EventDto eventDto, @RequestBody @Valid UserDto userDto) {
         eventParticipationService.registerParticipant(eventDto.getId(), userDto.getId());
     }
 
-    public void unregisterParticipant(@NonNull @Valid EventDto eventDto, @NonNull @Valid UserDto userDto) {
+    @DeleteMapping
+    public void unregisterParticipant(@RequestBody @Valid EventDto eventDto, @RequestBody @Valid UserDto userDto) {
         eventParticipationService.unregisterParticipant(eventDto.getId(), userDto.getId());
     }
 
-    public List<User> getParticipant(@NonNull @Valid EventDto eventDto) {
+    @GetMapping("/users")
+    public List<User> getParticipant(@RequestBody @Valid EventDto eventDto) {
         return eventParticipationService.getParticipant(eventDto.getId());
     }
 
-    public int getParticipantsCount(@NonNull @Valid EventDto eventDto) {
+    @GetMapping("/count")
+    public int getParticipantsCount(@RequestBody @Valid EventDto eventDto) {
         return eventParticipationService.getParticipantsCount(eventDto.getId());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
+    //@ResponseStatus(org.springframework.http.HttpStatus.BAD_REQUEST)
     public void handleValidationExceptions(@NotNull MethodArgumentNotValidException ex) {
         throw new IllegalArgumentException("Validation failed", ex);
     }
