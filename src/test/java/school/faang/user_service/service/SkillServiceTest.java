@@ -107,7 +107,7 @@ class SkillServiceTest {
         recommendation.setReceiver(User.builder().id(1L).skills(List.of()).build());
         recommendation.setAuthor(User.builder().id(2L).build());
         recommendation.setSkillOffers(List.of(SkillOffer.builder().id(1L).build()));
-        when(userService.findUser(recommendation.getReceiver().getId())).thenReturn(userMock);
+        when(userService.findUserById(recommendation.getReceiver().getId())).thenReturn(userMock);
         when(userMock.getSkills()).thenReturn(List.of(skill));
 
         skillService.addGuarantee(recommendation);

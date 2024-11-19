@@ -19,9 +19,9 @@ import school.faang.user_service.validator.goal.GoalInvitationValidator;
 import java.util.List;
 import java.util.stream.Stream;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class GoalInvitationService {
 
     private final GoalInvitationRepository goalInvitationRepository;
