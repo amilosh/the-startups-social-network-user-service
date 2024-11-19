@@ -36,6 +36,4 @@ class UserValidatorTest {
         assertDoesNotThrow(() -> userValidator.validateUserById(1L));
         verify(userRepository, times(1)).existsById(1L);
     }
-
-
 }
