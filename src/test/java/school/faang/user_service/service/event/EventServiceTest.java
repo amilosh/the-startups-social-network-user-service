@@ -8,30 +8,29 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import school.faang.user_service.dto.event.EventDto;
-import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filter.EventFilter;
-import school.faang.user_service.filter.EventIdFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.UserService;
 import school.faang.user_service.validator.EventValidation;
+import school.faang.user_service.validator.UserValidator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -52,10 +51,11 @@ public class EventServiceTest {
     @Mock
     private List<EventFilter> eventFilters;
     @Mock
-    private EventIdFilter eventIdFilter;
+    private UserValidator userValidator;
 
     private EventDto eventDto;
     private Event event;
+    private final long userId = 1L;
 
     @BeforeEach
     public void setUp() {
@@ -123,7 +123,7 @@ public class EventServiceTest {
         User user = new User();
         user.setSkills(new ArrayList<>());
 
-        when(userService.findUser(eventDto.getOwnerId())).thenReturn(user);
+        when(userService.findUserById(eventDto.getOwnerId())).thenReturn(user);
         when(eventMapper.dtoToEventWithId(eventDto, event.getId())).thenReturn(event);
         when(eventRepository.save(event)).thenReturn(event);
         when(eventMapper.eventToDto(event)).thenReturn(eventDto);
@@ -200,22 +200,26 @@ public class EventServiceTest {
     }
 
     @Test
-    void testGetEventsByFilterShouldReturnFilteredList() {
-        EventFilterDto filterDto = EventFilterDto.builder().id(1L).build();
-        eventFilters = List.of(eventIdFilter);
-        eventService = new EventService(eventValidation, eventRepository, eventMapper, userService, eventFilters);
+    public void testGetEvents_InvalidUserId() {
+        doThrow(new EntityNotFoundException("User with id #" + userId + " not found"))
+                .when(userValidator).validateUserById(userId);
 
-        when(eventRepository.findAll()).thenReturn(List.of(event));
-        when(eventIdFilter.isApplicable(filterDto)).thenReturn(true);
-        when(eventIdFilter.apply(any(), eq(filterDto))).thenReturn(Stream.of(event));
-        when(eventMapper.eventToDto(event)).thenReturn(eventDto);
+        Exception exception = assertThrows(EntityNotFoundException.class, () -> eventService.getEvents(userId));
 
-        List<EventDto> result = eventService.getEventsByFilter(filterDto);
+        assertEquals("User with id #" + userId + " not found", exception.getMessage());
+        verify(userValidator).validateUserById(userId);
+        verify(eventRepository, never()).findAllByUserId(userId);
+    }
 
-        verify(eventIdFilter, times(1)).isApplicable(any(EventFilterDto.class));
-        verify(eventIdFilter, times(1)).apply(any(), any(EventFilterDto.class));
-        verify(eventMapper, times(1)).eventToDto(any(Event.class));
-        verify(eventRepository, times(1)).findAll();
-        assertTrue(result.contains(eventDto));
+    @Test
+    public void testGetEvents_ValidUserId() {
+        List<Event> expectedEvents = Arrays.asList(event, new Event());
+        when(eventRepository.findAllByUserId(userId)).thenReturn(expectedEvents);
+
+        List<Event> actualEvents = eventService.getEvents(userId);
+
+        assertEquals(expectedEvents, actualEvents);
+        verify(userValidator).validateUserById(userId);
+        verify(eventRepository).findAllByUserId(userId);
     }
 }

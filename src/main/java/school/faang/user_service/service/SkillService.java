@@ -52,7 +52,7 @@ public class SkillService {
 
     @Transactional
     public void addGuarantee(Recommendation recommendation) {
-        List<Skill> userSkills = userService.findUser(recommendation.getReceiver().getId()).getSkills();
+        List<Skill> userSkills = userService.findUserById(recommendation.getReceiver().getId()).getSkills();
         List<Long> recommendedSkillsIds = recommendation.getSkillOffers().stream().map(SkillOffer::getId).toList();
 
         userSkills.stream()
