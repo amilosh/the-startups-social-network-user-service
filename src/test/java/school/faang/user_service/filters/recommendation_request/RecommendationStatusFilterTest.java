@@ -7,12 +7,12 @@ import school.faang.user_service.entity.recommendation.RecommendationRequest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class StatusFilterRecommendationTest {
+class RecommendationStatusFilterTest {
 
-    private final StatusFilterRecommendation statusFilter = new StatusFilterRecommendation();
+    private final RecommendationStatusFilter statusFilter = new RecommendationStatusFilter();
 
     @Test
-    void isFilterApplicableFieldIsPresent() {
+    void testIsFilterApplicableFieldIsPresent() {
         RequestFilterDto requestFilterDto = new RequestFilterDto()
                 .setStatus(RequestStatus.REJECTED);
         boolean filterApplicable = statusFilter.isFilterApplicable(requestFilterDto);
@@ -20,14 +20,14 @@ class StatusFilterRecommendationTest {
     }
 
     @Test
-    void isFilterApplicableFieldIsNotPresent() {
+    void testIsFilterApplicableFieldIsNotPresent() {
         RequestFilterDto requestFilterDto = new RequestFilterDto();
         boolean filterApplicable = statusFilter.isFilterApplicable(requestFilterDto);
         assertFalse(filterApplicable);
     }
 
     @Test
-    void passedFilter() {
+    void testPassedFilter() {
         RecommendationRequest recommendationRequest = new RecommendationRequest()
                 .setStatus(RequestStatus.REJECTED);
         RequestFilterDto requestFilterDto = new RequestFilterDto()
@@ -37,7 +37,7 @@ class StatusFilterRecommendationTest {
     }
 
     @Test
-    void failedFilter() {
+    void testFailedFilter() {
         RecommendationRequest recommendationRequest = new RecommendationRequest()
                 .setStatus(RequestStatus.PENDING);
         RequestFilterDto requestFilterDto = new RequestFilterDto()

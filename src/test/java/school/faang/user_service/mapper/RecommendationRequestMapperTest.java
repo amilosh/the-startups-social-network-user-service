@@ -94,14 +94,14 @@ class RecommendationRequestMapperTest {
     }
 
     @Test
-    void toDTO() {
+    void testToDTO() {
         RecommendationRequestDto dtoForMapper = mapper.toDTO(entity);
         assertEquals(dto, dtoForMapper);
 
     }
 
     @Test
-    void toEntity() {
+    void testToEntity() {
         RecommendationRequest entityForToEntity = mapper.toEntity(dto);
         assertEquals(entityForToEntityExpected, entityForToEntity);
     }

@@ -8,11 +8,11 @@ import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CreatedBeforeFilterRecommendationTest {
-    private final CreatedBeforeFilterRecommendation createdBeforeFilter = new CreatedBeforeFilterRecommendation();
+class RecommendationCreatedBeforeFilterTest {
+    private final RecommendationCreatedBeforeFilter createdBeforeFilter = new RecommendationCreatedBeforeFilter();
 
     @Test
-    void isFilterApplicableFieldIsPresent() {
+    void testIsFilterApplicableFieldIsPresent() {
         RequestFilterDto requestFilterDto = new RequestFilterDto()
                 .setCreatedBefore(LocalDateTime.now());
         boolean filterApplicable = createdBeforeFilter.isFilterApplicable(requestFilterDto);
@@ -20,14 +20,14 @@ class CreatedBeforeFilterRecommendationTest {
     }
 
     @Test
-    void isFilterApplicableFieldIsNotPresent() {
+    void testIsFilterApplicableFieldIsNotPresent() {
         RequestFilterDto requestFilterDto = new RequestFilterDto();
         boolean filterApplicable = createdBeforeFilter.isFilterApplicable(requestFilterDto);
         assertFalse(filterApplicable);
     }
 
     @Test
-    void passedFilter() {
+    void testPassedFilter() {
         RecommendationRequest recommendationRequestDto = new RecommendationRequest()
                 .setCreatedAt(LocalDateTime.of(2024, 11, 14, 23, 35, 58));
         RequestFilterDto requestFilterDto = new RequestFilterDto()
@@ -37,7 +37,7 @@ class CreatedBeforeFilterRecommendationTest {
     }
 
     @Test
-    void failedFilter() {
+    void testFailedFilter() {
         RecommendationRequest recommendationRequestDto = new RecommendationRequest()
                 .setCreatedAt(LocalDateTime.of(2024, 11, 15, 23, 35, 58));
         RequestFilterDto requestFilterDto = new RequestFilterDto()

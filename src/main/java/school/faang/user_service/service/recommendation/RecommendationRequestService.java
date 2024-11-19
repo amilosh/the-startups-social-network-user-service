@@ -2,9 +2,9 @@ package school.faang.user_service.service.recommendation;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.filter.RequestFilterDto;
+import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
@@ -32,7 +32,7 @@ public class RecommendationRequestService {
     private final List<RecommendationRequestFilter> recommendationRequestFilters;
 
 
-    public void create(RecommendationRequestDto recommendationRequestDto) {
+    public RecommendationRequestDto create(RecommendationRequestDto recommendationRequestDto) {
         validator.validateExistsRequesterAndReceiverInDatabase(recommendationRequestDto);
         validator.validateSixMonthRequestLimit(recommendationRequestDto);
         validator.validateExistsSkillsInDatabase(recommendationRequestDto);
@@ -53,9 +53,8 @@ public class RecommendationRequestService {
             entityRecommendationRequest.setSkills(new ArrayList<>());
         }
         entitySkillRequests.forEach(entityRecommendationRequest::addSkillRequest);
-    //TODO: Нужно вернуть из метода дто после save , заммапить перед этим энтити в дто
-        recommendationRequestRepository.save(entityRecommendationRequest);
-
+        RecommendationRequest savedEntity = recommendationRequestRepository.save(entityRecommendationRequest);
+        return mapper.toDTO(savedEntity);
     }
 
     public List<RecommendationRequestDto> getRequests(RequestFilterDto filterDto) {
@@ -71,19 +70,16 @@ public class RecommendationRequestService {
 
         return mapper.allToDTO(recommendationRequestsFiltered);
     }
-    //TODO: Поменять ошибки DataValidationException, он используется для ошибки при валидации
-    //TODO: Тут может подойти EntityNotFoundExceptionWithID
+
     public RecommendationRequestDto getRequest(Long id) {
         RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
-                .orElseThrow(() -> new DataValidationException("The RecommendationRequest for this id-"
-                        + id + " will not be found in the database"));
+                .orElseThrow(() -> new EntityNotFoundExceptionWithID("The RecommendationRequest will not be found in the database", id));
         return mapper.toDTO(recommendationRequest);
     }
 
     public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection) {
         RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
-                .orElseThrow(() -> new DataValidationException("The RecommendationRequest for this id-"
-                        + id + " will not be found in the database"));
+                .orElseThrow(() -> new EntityNotFoundExceptionWithID("The RecommendationRequest will not be found in the database", id));
 
         RequestStatus status = recommendationRequest.getStatus();
         if (status != RequestStatus.PENDING) {

@@ -19,10 +19,10 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.filters.recommendation_request.CreatedAfterFilterRecommendation;
-import school.faang.user_service.filters.recommendation_request.CreatedBeforeFilterRecommendation;
+import school.faang.user_service.filters.recommendation_request.RecommendationCreatedAfterFilter;
+import school.faang.user_service.filters.recommendation_request.RecommendationCreatedBeforeFilter;
 import school.faang.user_service.filters.recommendation_request.RecommendationRequestFilter;
-import school.faang.user_service.filters.recommendation_request.StatusFilterRecommendation;
+import school.faang.user_service.filters.recommendation_request.RecommendationStatusFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -66,11 +66,11 @@ class RecommendationRequestServiceTest {
     @Spy
     private ArrayList<RecommendationRequestFilter> recommendationRequestFilters;
     @Mock
-    CreatedAfterFilterRecommendation createdAfterFilter;
+    RecommendationCreatedAfterFilter createdAfterFilter;
     @Mock
-    CreatedBeforeFilterRecommendation createdBeforeFilter;
+    RecommendationCreatedBeforeFilter createdBeforeFilter;
     @Mock
-    StatusFilterRecommendation statusFilter;
+    RecommendationStatusFilter statusFilter;
 
 
     @BeforeEach
@@ -80,7 +80,7 @@ class RecommendationRequestServiceTest {
     }
 
     @Test
-    void createWithValidData() {
+    void testCreateWithValidData() {
         List<Long> skillIds = Arrays.asList(1L, 2L);
         RecommendationRequestDto recommendationRequestDto = new RecommendationRequestDto()
                 .setId(1L)

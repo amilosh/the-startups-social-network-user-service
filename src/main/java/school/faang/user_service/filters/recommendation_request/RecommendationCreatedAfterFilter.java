@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.filter.RequestFilterDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 @Component
-public class CreatedAfterFilterRecommendation implements RecommendationRequestFilter {
+public class RecommendationCreatedAfterFilter implements RecommendationRequestFilter {
     @Override
     public boolean isFilterApplicable(RequestFilterDto requestFilterDto) {
         return requestFilterDto.getCreatedAfter() != null;
