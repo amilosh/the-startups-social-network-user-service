@@ -17,7 +17,7 @@ import java.util.List;
 public class MentorshipRequestController {
     private final MentorshipRequestService mentorshipRequestService;
 
-    @GetMapping
+    @PostMapping
     public List<MentorshipRequestDto> getRequests(@RequestBody MentorshipRequestFilterDto filter) {
         return mentorshipRequestService.getRequests(filter);
     }

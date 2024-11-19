@@ -35,7 +35,7 @@ public class SubscriptionController {
         return subscriptionService.unfollowUser(followerId, followeeId);
     }
 
-    @GetMapping
+    @PostMapping
     public List<SubscriptionUserDto> getFollowers(Long followeeId, SubscriptionUserFilterDto filter) {
         return subscriptionService.getFollowers(followeeId, filter);
     }
