@@ -1,96 +1,136 @@
 package school.faang.user_service.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.dto.RejectionDto;
-import school.faang.user_service.dto.RequestFilterDto;
-import school.faang.user_service.entity.MentorshipRequest;
-import school.faang.user_service.mapper.MentorshipRequestMapper;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestCreateDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorship_request.RejectionDto;
+import school.faang.user_service.dto.mentorship_request.RequestFilterDto;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.service.MentorshipRequestService;
-import school.faang.user_service.validator.MentorshipRequestValidator;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class MentorshipRequestControllerTest {
 
     @Mock
     private MentorshipRequestService requestService;
-    @Mock
-    private MentorshipRequestValidator requestValidator;
-    @Spy
-    private MentorshipRequestMapper requestMapper = Mappers.getMapper(MentorshipRequestMapper.class);
 
     @InjectMocks
-    private MentorshipRequestController requestController;
+    MentorshipRequestController mentorshipRequestController;
 
-    private MentorshipRequest firstRequest;
-    private MentorshipRequest secondRequest;
+    private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
+    private MentorshipRequestCreateDto requestCreateDto;
+    private MentorshipRequestDto expectedDto;
     private RequestFilterDto filterDto;
-    private MentorshipRequestDto firstRequestDto;
-    private MentorshipRequestDto secondRequestDto;
     private RejectionDto rejectionDto;
+    private long id;
 
     @BeforeEach
     void setUp() {
-        firstRequest = MentorshipRequest.builder().id(1L).build();
-        secondRequest = MentorshipRequest.builder().id(2L).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(mentorshipRequestController).build();
+        objectMapper = new ObjectMapper();
+
+        requestCreateDto = MentorshipRequestCreateDto.builder()
+                .requesterId(1L)
+                .receiverId(2L)
+                .description("test description")
+                .build();
+
+        expectedDto = MentorshipRequestDto.builder()
+                .id(1L)
+                .requesterId(1L)
+                .receiverId(2L)
+                .description("test description")
+                .status(RequestStatus.PENDING)
+                .build();
+
         filterDto = RequestFilterDto.builder().build();
-        rejectionDto = RejectionDto.builder().build();
-        firstRequestDto = requestMapper.toDto(firstRequest);
-        secondRequestDto = requestMapper.toDto(secondRequest);
+        rejectionDto = RejectionDto.builder().reason("reason").build();
+        id = expectedDto.getId();
     }
 
     @Test
-    void testControllerCreateRequest() {
-        requestController.requestMentorship(firstRequestDto);
+    void testRequestMentorship() throws Exception {
+        when(requestService.requestMentorship(requestCreateDto)).thenReturn(expectedDto);
 
-        verify(requestService, times(1)).requestMentorship(any(MentorshipRequestDto.class));
+        mockMvc.perform(post("/mentorship-requests")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestCreateDto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(expectedDto.getId()))
+                .andExpect(jsonPath("$.description").value(expectedDto.getDescription()))
+                .andExpect(jsonPath("$.requesterId").value(expectedDto.getRequesterId()))
+                .andExpect(jsonPath("$.receiverId").value(expectedDto.getReceiverId()))
+                .andExpect(jsonPath("$.status").value(expectedDto.getStatus().name()));
+
+        verify(requestService, times(1)).requestMentorship(requestCreateDto);
     }
 
     @Test
-    void testControllerGettingRequests() {
-        List<MentorshipRequestDto> dtos = List.of(firstRequestDto, secondRequestDto);
-        when(requestService.getRequests(filterDto)).thenReturn(dtos);
+    void testGetRequests() throws Exception {
+        when(requestService.getRequests(filterDto)).thenReturn(List.of(expectedDto));
 
-        List<MentorshipRequestDto> result = requestController.getRequests(filterDto).getBody();
+        mockMvc.perform(post("/mentorship-requests/filtered")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(filterDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(expectedDto.getId()))
+                .andExpect(jsonPath("$[0].description").value(expectedDto.getDescription()))
+                .andExpect(jsonPath("$[0].requesterId").value(expectedDto.getRequesterId()))
+                .andExpect(jsonPath("$[0].receiverId").value(expectedDto.getReceiverId()))
+                .andExpect(jsonPath("$[0].status").value(expectedDto.getStatus().name()));
 
         verify(requestService, times(1)).getRequests(filterDto);
-        assertEquals(dtos, result);
     }
 
     @Test
-    void testControllerAcceptRequest() {
-        long id = firstRequest.getId();
-        when(requestService.acceptRequest(id)).thenReturn(firstRequestDto);
+    void testAcceptRequest() throws Exception {
+        when(requestService.acceptRequest(id)).thenReturn(expectedDto);
 
-        MentorshipRequestDto result = requestController.acceptRequest(id).getBody();
+        mockMvc.perform((put("/mentorship-requests/accepts/{id}", id)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(expectedDto.getId()))
+                .andExpect(jsonPath("$.description").value(expectedDto.getDescription()))
+                .andExpect(jsonPath("$.requesterId").value(expectedDto.getRequesterId()))
+                .andExpect(jsonPath("$.receiverId").value(expectedDto.getReceiverId()))
+                .andExpect(jsonPath("$.status").value(expectedDto.getStatus().name()));
 
         verify(requestService, times(1)).acceptRequest(id);
-        assertEquals(result, firstRequestDto);
     }
 
     @Test
-    void testControllerRejectRequest() {
-        long id = firstRequest.getId();
-        when(requestService.rejectRequest(id, rejectionDto)).thenReturn(firstRequestDto);
+    void testRejectRequest() throws Exception {
+        when(requestService.rejectRequest(id, rejectionDto)).thenReturn(expectedDto);
 
-        MentorshipRequestDto result = requestController.rejectRequest(id, rejectionDto).getBody();
+        mockMvc.perform(put("/mentorship-requests/rejects/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(rejectionDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(expectedDto.getId()))
+                .andExpect(jsonPath("$.description").value(expectedDto.getDescription()))
+                .andExpect(jsonPath("$.requesterId").value(expectedDto.getRequesterId()))
+                .andExpect(jsonPath("$.receiverId").value(expectedDto.getReceiverId()))
+                .andExpect(jsonPath("$.status").value(expectedDto.getStatus().name()));
 
         verify(requestService, times(1)).rejectRequest(id, rejectionDto);
-        assertEquals(result, firstRequestDto);
     }
 }

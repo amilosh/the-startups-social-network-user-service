@@ -7,14 +7,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.dto.RejectionDto;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestCreateDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorship_request.RejectionDto;
+import school.faang.user_service.dto.mentorship_request.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.Filter;
-import school.faang.user_service.filter.MentorshipRequestFilter.DescriptionFilter;
+import school.faang.user_service.filter.mentorshipRequestFilter.DescriptionFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.validator.MentorshipRequestValidator;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -57,6 +59,7 @@ class MentorshipRequestServiceTest {
     private MentorshipRequest firstRequest;
     private MentorshipRequest secondRequest;
     private MentorshipRequestDto firstRequestDto;
+    private MentorshipRequestCreateDto requestCreateDto;
     private RequestFilterDto filterDto;
     private Long firstRequestId;
     private RejectionDto rejectionDto;
@@ -77,6 +80,12 @@ class MentorshipRequestServiceTest {
                 .receiverId(2L)
                 .description("Need help with java.")
                 .status(RequestStatus.PENDING)
+                .build();
+
+        requestCreateDto = MentorshipRequestCreateDto.builder()
+                .requesterId(1L)
+                .receiverId(2L)
+                .description("Need help with java.")
                 .build();
 
         filterDto = RequestFilterDto.builder()
@@ -105,11 +114,15 @@ class MentorshipRequestServiceTest {
 
     @Test
     void testServiceRequestMentorshipShouldCreateRequest() {
-        MentorshipRequestDto result = requestService.requestMentorship(firstRequestDto);
+        when(userService.findUserById(requestCreateDto.getRequesterId())).thenReturn(requester);
+        when(userService.findUserById(requestCreateDto.getReceiverId())).thenReturn(receiver);
+        when(requestRepository.save(any(MentorshipRequest.class))).thenReturn(firstRequest);
+        when(requestMapper.toDto(firstRequest)).thenReturn(firstRequestDto);
 
-        verify(requestRepository).create(firstRequestDto.getRequesterId(),
-                firstRequestDto.getReceiverId(), firstRequestDto.getDescription());
-        assertEquals(result, firstRequestDto);
+        MentorshipRequestDto result = requestService.requestMentorship(requestCreateDto);
+
+        verify(requestRepository, times(1)).save(any(MentorshipRequest.class));
+        assertThat(result).isEqualTo(firstRequestDto);
     }
 
     @Test

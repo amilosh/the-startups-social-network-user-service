@@ -7,8 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.dto.RejectionDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestCreateDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorship_request.RejectionDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -44,6 +45,7 @@ class MentorshipRequestValidatorTest {
     private MentorshipRequestValidator requestValidator;
 
     private MentorshipRequestDto requestDto;
+    private MentorshipRequestCreateDto requestCreateDto;
     private RejectionDto rejectionDto;
 
     @BeforeEach
@@ -56,6 +58,12 @@ class MentorshipRequestValidatorTest {
                 .status(RequestStatus.PENDING)
                 .build();
 
+        requestCreateDto = MentorshipRequestCreateDto.builder()
+                .requesterId(1L)
+                .receiverId(2L)
+                .description("Need help with java.")
+                .build();
+
         rejectionDto = RejectionDto.builder().reason("Reason").build();
     }
 
@@ -64,7 +72,7 @@ class MentorshipRequestValidatorTest {
         doThrow(new EntityNotFoundException("User does not exists"))
                 .when(userValidator).validateUserById(requestDto.getRequesterId());
 
-        assertThrows(EntityNotFoundException.class, () -> requestValidator.validateMentorshipRequest(requestDto));
+        assertThrows(EntityNotFoundException.class, () -> requestValidator.validateMentorshipRequest(requestCreateDto));
     }
 
     @Test
@@ -73,7 +81,7 @@ class MentorshipRequestValidatorTest {
         doThrow(new EntityNotFoundException("User does not exist"))
                 .when(userValidator).validateUserById(requestDto.getReceiverId());
 
-        assertThrows(EntityNotFoundException.class, () -> requestValidator.validateMentorshipRequest(requestDto));
+        assertThrows(EntityNotFoundException.class, () -> requestValidator.validateMentorshipRequest(requestCreateDto));
     }
 
     @Test
@@ -85,17 +93,17 @@ class MentorshipRequestValidatorTest {
                 .thenReturn(Optional.of(request));
 
         assertThrows(InvalidMentorshipRequestException.class,
-                () -> requestValidator.validateMentorshipRequest(requestDto));
+                () -> requestValidator.validateMentorshipRequest(requestCreateDto));
     }
 
     @Test
     void testSelfRequestShouldThrowException() {
-        requestDto.setReceiverId(requestDto.getRequesterId());
+        requestCreateDto.setReceiverId(requestCreateDto.getRequesterId());
         MentorshipRequest request = new MentorshipRequest();
         request.setCreatedAt(LocalDateTime.now(ZoneId.of("UTC")).minusMonths(4));
 
         assertThrows(InvalidMentorshipRequestException.class,
-                () -> requestValidator.validateMentorshipRequest(requestDto));
+                () -> requestValidator.validateMentorshipRequest(requestCreateDto));
     }
 
     @Test
@@ -108,7 +116,7 @@ class MentorshipRequestValidatorTest {
         doNothing().when(userValidator).validateUserById(requestDto.getRequesterId());
         doNothing().when(userValidator).validateUserById(requestDto.getReceiverId());
 
-        assertDoesNotThrow(() -> requestValidator.validateMentorshipRequest(requestDto));
+        assertDoesNotThrow(() -> requestValidator.validateMentorshipRequest(requestCreateDto));
     }
 
     @Test

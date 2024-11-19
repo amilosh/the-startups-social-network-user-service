@@ -5,9 +5,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.dto.RejectionDto;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestCreateDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorship_request.RejectionDto;
+import school.faang.user_service.dto.mentorship_request.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -29,13 +30,22 @@ public class MentorshipRequestService {
     private final MentorshipRequestMapper requestMapper;
     private final List<Filter<MentorshipRequest, RequestFilterDto>> filters;
 
-    public MentorshipRequestDto requestMentorship(MentorshipRequestDto dto) {
+    @Transactional
+    public MentorshipRequestDto requestMentorship(MentorshipRequestCreateDto dto) {
         requestValidator.validateMentorshipRequest(dto);
-        requestRepository.create(dto.getRequesterId(), dto.getReceiverId(), dto.getDescription());
+        MentorshipRequest result = requestRepository.save(
+                MentorshipRequest.builder()
+                        .description(dto.getDescription())
+                        .requester(userService.findUserById(dto.getRequesterId()))
+                        .receiver(userService.findUserById(dto.getReceiverId()))
+                        .status(RequestStatus.PENDING)
+                        .build()
+        );
 
         log.info("Mentorship request with id #{} from UserId #{} to UserId #{} created successfully.",
-                dto.getId(), dto.getRequesterId(), dto.getReceiverId());
-        return dto;
+                result.getId(), dto.getRequesterId(), dto.getReceiverId());
+
+        return requestMapper.toDto(result);
     }
 
     public List<MentorshipRequestDto> getRequests(RequestFilterDto filters) {

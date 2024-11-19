@@ -6,19 +6,23 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.service.event.EventParticipationService;
 
-import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-public class EventParticipationControllerTest {
+class EventParticipationControllerTest {
 
     @Mock
     private EventParticipationService eventParticipationService;
@@ -26,48 +30,73 @@ public class EventParticipationControllerTest {
     @InjectMocks
     private EventParticipationController eventParticipationController;
 
+    private MockMvc mockMvc;
     private long eventId;
     private long userId;
+    private List<UserDto> participants;
+    private int participantsAmount;
 
     @BeforeEach
     void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(eventParticipationController).build();
+
         eventId = 1L;
-        userId = 1L;
+        userId = 2L;
+        participants = List.of(
+                UserDto.builder()
+                        .id(1L)
+                        .username("John")
+                        .email("john@example.com")
+                        .build(),
+                UserDto.builder()
+                        .id(2L)
+                        .username("Jane")
+                        .email("jane@example.com")
+                        .build()
+        );
+
+        participantsAmount = participants.size();
     }
 
     @Test
-    public void testFindAllParticipantsByEventId() {
-        List<UserDto> expectedParticipants = Arrays.asList(new UserDto(), new UserDto());
-        when(eventParticipationService.findAllParticipantsByEventId(eventId)).thenReturn(expectedParticipants);
+    void testFindAllParticipantsByEventId() throws Exception {
+        when(eventParticipationService.findAllParticipantsByEventId(eventId)).thenReturn(participants);
 
-        List<UserDto> actualParticipants = eventParticipationController.findAllParticipantsByEventId(eventId);
+        mockMvc.perform(get("/event-participation/participants-list/{eventId}", eventId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(participants.get(0).getId()))
+                .andExpect(jsonPath("$[0].username").value(participants.get(0).getUsername()))
+                .andExpect(jsonPath("$[0].email").value(participants.get(0).getEmail()))
+                .andExpect(jsonPath("$[1].id").value(participants.get(1).getId()))
+                .andExpect(jsonPath("$[1].username").value(participants.get(1).getUsername()))
+                .andExpect(jsonPath("$[1].email").value(participants.get(1).getEmail()));
 
-        assertEquals(expectedParticipants, actualParticipants);
+        verify(eventParticipationService, times(1)).findAllParticipantsByEventId(eventId);
     }
 
     @Test
-    public void testFindParticipantsAmountByEventId() {
-        int expectedAmount = 2;
-        when(eventParticipationService.findParticipantsAmountByEventId(eventId)).thenReturn(expectedAmount);
+    void testFindParticipantsAmountByEventId() throws Exception {
+        when(eventParticipationService.findParticipantsAmountByEventId(eventId)).thenReturn(participantsAmount);
 
-        int actualAmount = eventParticipationController.findParticipantsAmountByEventId(eventId);
+        mockMvc.perform(get("/event-participation/participants-number/{eventId}", eventId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").value(participantsAmount));
 
-        assertEquals(expectedAmount, actualAmount);
+        verify(eventParticipationService, times(1)).findParticipantsAmountByEventId(eventId);
     }
 
     @Test
-    public void testRegisterParticipant() {
-        eventParticipationController.registerParticipant(eventId, userId);
+    void testRegisterParticipant() throws Exception {
+        mockMvc.perform(put("/event-participation/register/{eventId}/{userId}", eventId, userId))
+                .andExpect(status().isOk());
 
         verify(eventParticipationService, times(1)).registerParticipant(eventId, userId);
     }
 
     @Test
-    public void testUnregisterParticipant() {
-        long eventId = 1L;
-        long userId = 1L;
-
-        eventParticipationController.unregisterParticipant(eventId, userId);
+    void testUnregisterParticipant() throws Exception {
+        mockMvc.perform(put("/event-participation/unregister/{eventId}/{userId}", eventId, userId))
+                .andExpect(status().isOk());
 
         verify(eventParticipationService, times(1)).unregisterParticipant(eventId, userId);
     }

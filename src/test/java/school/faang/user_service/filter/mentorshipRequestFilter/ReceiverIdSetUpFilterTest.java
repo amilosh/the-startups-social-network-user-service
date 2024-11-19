@@ -1,4 +1,4 @@
-package school.faang.user_service.filter.MentorshipRequestFilter;
+package school.faang.user_service.filter.mentorshipRequestFilter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

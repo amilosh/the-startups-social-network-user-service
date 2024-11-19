@@ -34,6 +34,16 @@ class SkillValidatorTest {
     }
 
     @Test
+    void testValidateSkillNotExists() {
+        when(skillRepository.existsById(id)).thenReturn(false);
+
+        boolean result = skillValidator.validateSkillExists(id);
+
+        verify(skillRepository, times(1)).existsById(id);
+        assertFalse(result);
+    }
+
+    @Test
     void testValidateSkillExists() {
         when(skillRepository.existsById(id)).thenReturn(true);
 

@@ -17,7 +17,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class MentorshipControllerTest {
+class MentorshipControllerTest {
     @InjectMocks
     private MentorshipController mentorshipController;
 
@@ -25,7 +25,7 @@ public class MentorshipControllerTest {
     private MentorshipService mentorshipService;
 
     @Test
-    public void testGetMentees() {
+    void testGetMentees() {
         UserDto userDto = UserDto.builder().build();
         when(mentorshipService.getMentees(anyLong())).thenReturn(List.of(userDto));
 
@@ -36,7 +36,7 @@ public class MentorshipControllerTest {
     }
 
     @Test
-    public void testGetMentors() {
+    void testGetMentors() {
         UserDto userDto = UserDto.builder().build();
         when(mentorshipService.getMentors(anyLong())).thenReturn(List.of(userDto));
 
@@ -47,14 +47,14 @@ public class MentorshipControllerTest {
     }
 
     @Test
-    public void testDeleteMentee() {
+    void testDeleteMentee() {
         mentorshipController.deleteMentee(1L, 2L);
 
         verify(mentorshipService, times(1)).deleteMentee(1L, 2L);
     }
 
     @Test
-    public void testDeleteMentor() {
+    void testDeleteMentor() {
         mentorshipController.deleteMentor(1L, 2L);
 
         verify(mentorshipService, times(1)).deleteMentor(1L, 2L);
