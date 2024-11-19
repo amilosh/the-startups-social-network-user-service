@@ -30,10 +30,6 @@ public class RecommendationRequestController {
         return recommendationRequestService.create(recommendationRequest);
     }
 
-    //TODO: Добавить везде логирование
-    //TODO: Исправить по комментариям другие моменты
-    //TODO: Написать тесты для контроллера
-    //TODO: Запустить тесты проверить ничего ли не сломалось
     @PostMapping("/requests")
     public List<RecommendationRequestDto> getRecommendationRequests(@Valid @RequestBody RequestFilterDto filter) {
         log.info("A request has been received to receive recommendation requests matching the filter: {}", filter);
