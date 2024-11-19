@@ -11,6 +11,7 @@ public class UserDto {
     private String username;
     private boolean active;
     private String aboutMe;
+    private String country;
     private Integer experience;
     private LocalDateTime createdAt;
     private List<Long> followersIds;
@@ -19,5 +20,4 @@ public class UserDto {
     private List<Long> mentorsIds;
     private List<Long> goalsIds;
     private List<Long> skillsIds;
-
 }
