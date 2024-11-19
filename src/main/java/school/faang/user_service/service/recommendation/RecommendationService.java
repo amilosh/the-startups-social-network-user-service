@@ -42,50 +42,21 @@ public class RecommendationService {
         recommendationValidator.validateRecommendation(requestRecommendationDto);
 
         Recommendation recommendation = recommendationMapper.toEntity(requestRecommendationDto);
-
-        Recommendation finalRecommendation = recommendation;
-        List<SkillOffer> skillOffers = recommendation.getSkillOffers().stream()
-                .map(skillDto -> {
-                    Skill skill = getSkill(skillDto.getSkill().getId());
-                    return SkillOffer.builder()
-                            .recommendation(finalRecommendation)
-                            .skill(skill)
-                            .build();
-                }).toList();
-
-        recommendation.setSkillOffers(skillOffers);
-
-        recommendation = recommendationRepository.save(recommendation);
-        log.info("Recommendation with id {} successfully created", recommendation.getId());
-        addGuarantees(recommendation);
+        recommendation = processAndSaveRecommendation(recommendation);
 
         return recommendationMapper.toDto(recommendation);
     }
 
-    ResponseRecommendationDto createRecommendationAfterRequestAccepting(RecommendationRequest recommendationRequest) {
+    @Transactional
+    public ResponseRecommendationDto createRecommendationAfterRequestAccepting(RecommendationRequest recommendationRequest) {
         log.info("Creating a recommendation from user with id {} for user with id {}",
                 recommendationRequest.getReceiver().getId(), recommendationRequest.getRequester().getId());
 
         recommendationValidator.checkIfAcceptableTimeForRecommendation(recommendationRequest);
 
         Recommendation recommendation = recommendationMapper.fromRequestEntity(recommendationRequest);
+        recommendation = processAndSaveRecommendation(recommendation);
 
-        Recommendation finalRecommendation = recommendation;
-        List<SkillOffer> skillOffers = recommendation.getSkillOffers().stream()
-                .map(skillDto -> {
-                    Skill skill = getSkill(skillDto.getSkill().getId());
-                    return SkillOffer.builder()
-                            .recommendation(finalRecommendation)
-                            .skill(skill)
-                            .build();
-                }).toList();
-
-        recommendation.setSkillOffers(skillOffers);
-
-        recommendation = recommendationRepository.save(recommendation);
-        log.info("Recommendation with id {} successfully created", recommendation.getId());
-
-        addGuarantees(recommendation);
         recommendationRequest.setRecommendation(recommendation);
 
         return recommendationMapper.toDto(recommendation);
@@ -185,5 +156,25 @@ public class RecommendationService {
 
         skill.getGuarantees().add(guarantee);
         skillRepository.save(skill);
+    }
+
+    private Recommendation processAndSaveRecommendation(Recommendation recommendation) {
+        Recommendation finalRecommendation = recommendation;
+        List<SkillOffer> skillOffers = recommendation.getSkillOffers().stream()
+                .map(skillDto -> {
+                    Skill skill = getSkill(skillDto.getSkill().getId());
+                    return SkillOffer.builder()
+                            .recommendation(finalRecommendation)
+                            .skill(skill)
+                            .build();
+                }).toList();
+        recommendation.setSkillOffers(skillOffers);
+
+        recommendation = recommendationRepository.save(recommendation);
+        log.info("Recommendation with id {} successfully created", recommendation.getId());
+
+        addGuarantees(recommendation);
+
+        return recommendation;
     }
 }
