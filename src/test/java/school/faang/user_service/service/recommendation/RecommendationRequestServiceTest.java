@@ -19,6 +19,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.EntityNotFoundExceptionWithID;
 import school.faang.user_service.filters.recommendation_request.RecommendationCreatedAfterFilter;
 import school.faang.user_service.filters.recommendation_request.RecommendationCreatedBeforeFilter;
 import school.faang.user_service.filters.recommendation_request.RecommendationRequestFilter;
@@ -114,7 +115,7 @@ class RecommendationRequestServiceTest {
         Long id = 1L;
         when(recommendationRequestRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(DataValidationException.class, () -> recommendationRequestService.getRequest(id));
+        assertThrows(EntityNotFoundExceptionWithID.class, () -> recommendationRequestService.getRequest(id));
         verify(recommendationRequestRepository).findById(id);
     }
 
@@ -140,7 +141,7 @@ class RecommendationRequestServiceTest {
         Long id = 1L;
         when(recommendationRequestRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(DataValidationException.class, () -> recommendationRequestService.rejectRequest(id, new RejectionDto()));
+        assertThrows(EntityNotFoundExceptionWithID.class, () -> recommendationRequestService.rejectRequest(id, new RejectionDto()));
         verify(recommendationRequestRepository).findById(id);
     }
 
