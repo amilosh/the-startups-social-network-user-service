@@ -1,4 +1,4 @@
-package school.faang.user_service.dto.mentorship_request;
+package school.faang.user_service.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

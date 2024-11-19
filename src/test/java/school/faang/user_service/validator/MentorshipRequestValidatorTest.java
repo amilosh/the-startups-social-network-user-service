@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestCreateDto;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
-import school.faang.user_service.dto.mentorship_request.RejectionDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;

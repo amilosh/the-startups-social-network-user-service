@@ -7,10 +7,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestCreateDto;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
-import school.faang.user_service.dto.mentorship_request.RejectionDto;
-import school.faang.user_service.dto.mentorship_request.RequestFilterDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
@@ -53,14 +53,14 @@ class MentorshipRequestServiceTest {
     @InjectMocks
     private MentorshipRequestService requestService;
 
-    private List<Filter<MentorshipRequest, RequestFilterDto>> filters;
+    private List<Filter<MentorshipRequest, MentorshipRequestFilterDto>> filters;
     private User requester;
     private User receiver;
     private MentorshipRequest firstRequest;
     private MentorshipRequest secondRequest;
     private MentorshipRequestDto firstRequestDto;
     private MentorshipRequestCreateDto requestCreateDto;
-    private RequestFilterDto filterDto;
+    private MentorshipRequestFilterDto filterDto;
     private Long firstRequestId;
     private RejectionDto rejectionDto;
 
@@ -88,7 +88,7 @@ class MentorshipRequestServiceTest {
                 .description("Need help with java.")
                 .build();
 
-        filterDto = RequestFilterDto.builder()
+        filterDto = MentorshipRequestFilterDto.builder()
                 .descriptionPattern("HELP")
                 .build();
 
@@ -139,8 +139,8 @@ class MentorshipRequestServiceTest {
 
         List<MentorshipRequestDto> result = requestService.getRequests(filterDto);
 
-        verify(descriptionFilter, times(1)).isApplicable(any(RequestFilterDto.class));
-        verify(descriptionFilter, times(1)).apply(any(), any(RequestFilterDto.class));
+        verify(descriptionFilter, times(1)).isApplicable(any(MentorshipRequestFilterDto.class));
+        verify(descriptionFilter, times(1)).apply(any(), any(MentorshipRequestFilterDto.class));
         verify(requestMapper, times(1)).toDto(any(MentorshipRequest.class));
         verify(requestRepository, times(1)).findAll();
         assertTrue(result.contains(firstRequestDto));

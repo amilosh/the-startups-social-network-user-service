@@ -10,10 +10,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestCreateDto;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
-import school.faang.user_service.dto.mentorship_request.RejectionDto;
-import school.faang.user_service.dto.mentorship_request.RequestFilterDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.service.MentorshipRequestService;
 
@@ -40,7 +40,7 @@ class MentorshipRequestControllerTest {
     private ObjectMapper objectMapper;
     private MentorshipRequestCreateDto requestCreateDto;
     private MentorshipRequestDto expectedDto;
-    private RequestFilterDto filterDto;
+    private MentorshipRequestFilterDto filterDto;
     private RejectionDto rejectionDto;
     private long id;
 
@@ -63,7 +63,7 @@ class MentorshipRequestControllerTest {
                 .status(RequestStatus.PENDING)
                 .build();
 
-        filterDto = RequestFilterDto.builder().build();
+        filterDto = MentorshipRequestFilterDto.builder().build();
         rejectionDto = RejectionDto.builder().reason("reason").build();
         id = expectedDto.getId();
     }

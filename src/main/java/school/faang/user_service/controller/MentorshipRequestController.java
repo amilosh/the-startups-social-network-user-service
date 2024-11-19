@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestCreateDto;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
-import school.faang.user_service.dto.mentorship_request.RejectionDto;
-import school.faang.user_service.dto.mentorship_request.RequestFilterDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestFilterDto;
 import school.faang.user_service.service.MentorshipRequestService;
 
 import java.util.List;
@@ -37,7 +37,7 @@ public class MentorshipRequestController {
     }
 
     @PostMapping("/filtered")
-    public ResponseEntity<List<MentorshipRequestDto>> getRequests(@Valid @RequestBody RequestFilterDto filters) {
+    public ResponseEntity<List<MentorshipRequestDto>> getRequests(@Valid @RequestBody MentorshipRequestFilterDto filters) {
         log.info("Getting all requests by filters: {}.", filters);
         return ResponseEntity.ok(requestService.getRequests(filters));
     }
