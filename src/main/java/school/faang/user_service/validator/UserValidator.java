@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
 
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -18,7 +17,7 @@ public class UserValidator {
         if (!repository.existsById(userId)) {
             throw new EntityNotFoundException("User with id #" + userId + " not found");
         }
-        log.info("User '{}' exist.", userId);
+        log.info("User '{}' exists.", userId);
     }
 
     public boolean isUserMentor(User user) {

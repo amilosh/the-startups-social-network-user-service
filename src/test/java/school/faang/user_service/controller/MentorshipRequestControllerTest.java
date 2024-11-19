@@ -22,6 +22,8 @@ import java.util.List;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -63,7 +65,12 @@ class MentorshipRequestControllerTest {
                 .status(RequestStatus.PENDING)
                 .build();
 
-        filterDto = MentorshipRequestFilterDto.builder().build();
+        filterDto = MentorshipRequestFilterDto.builder()
+                .requesterId(1L)
+                .receiverId(2L)
+                .descriptionPattern("test description")
+                .status(RequestStatus.PENDING)
+                .build();
         rejectionDto = RejectionDto.builder().reason("reason").build();
         id = expectedDto.getId();
     }
@@ -88,10 +95,14 @@ class MentorshipRequestControllerTest {
     @Test
     void testGetRequests() throws Exception {
         when(requestService.getRequests(filterDto)).thenReturn(List.of(expectedDto));
+        String url = "/mentorship-requests/filtered"
+                + (expectedDto.getDescription() != null ? "?description=" + expectedDto.getDescription() : "")
+                + (expectedDto.getRequesterId() != null ? "&requesterId=" + expectedDto.getRequesterId() : "")
+                + (expectedDto.getReceiverId() != null ? "&receiverId=" + expectedDto.getReceiverId() : "")
+                + (expectedDto.getStatus() != null ? "&status=" + expectedDto.getStatus().name() : "");
 
-        mockMvc.perform(post("/mentorship-requests/filtered")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(filterDto)))
+        mockMvc.perform(get(url)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(expectedDto.getId()))
                 .andExpect(jsonPath("$[0].description").value(expectedDto.getDescription()))
@@ -121,7 +132,7 @@ class MentorshipRequestControllerTest {
     void testRejectRequest() throws Exception {
         when(requestService.rejectRequest(id, rejectionDto)).thenReturn(expectedDto);
 
-        mockMvc.perform(put("/mentorship-requests/rejects/{id}", id)
+        mockMvc.perform(patch("/mentorship-requests/rejects/{id}", id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(rejectionDto)))
                 .andExpect(status().isOk())

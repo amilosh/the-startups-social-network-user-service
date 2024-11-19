@@ -33,14 +33,13 @@ public class MentorshipRequestService {
     @Transactional
     public MentorshipRequestDto requestMentorship(MentorshipRequestCreateDto dto) {
         requestValidator.validateMentorshipRequest(dto);
-        MentorshipRequest result = requestRepository.save(
-                MentorshipRequest.builder()
-                        .description(dto.getDescription())
-                        .requester(userService.findUserById(dto.getRequesterId()))
-                        .receiver(userService.findUserById(dto.getReceiverId()))
-                        .status(RequestStatus.PENDING)
-                        .build()
-        );
+        MentorshipRequest newRequest = MentorshipRequest.builder()
+                .description(dto.getDescription())
+                .requester(userService.findUserById(dto.getRequesterId()))
+                .receiver(userService.findUserById(dto.getReceiverId()))
+                .status(RequestStatus.PENDING)
+                .build();
+        MentorshipRequest result = requestRepository.save(newRequest);
 
         log.info("Mentorship request with id #{} from UserId #{} to UserId #{} created successfully.",
                 result.getId(), dto.getRequesterId(), dto.getReceiverId());
