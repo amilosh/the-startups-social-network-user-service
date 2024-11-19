@@ -8,11 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.recommendation.RequestRecommendationDto;
 import school.faang.user_service.dto.recommendation.ResponseRecommendationDto;
-import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.recommendation.ErrorMessage;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
@@ -22,6 +23,7 @@ import school.faang.user_service.validator.recommendation.RecommendationValidato
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -40,10 +42,51 @@ public class RecommendationService {
         recommendationValidator.validateRecommendation(requestRecommendationDto);
 
         Recommendation recommendation = recommendationMapper.toEntity(requestRecommendationDto);
-        addGuarantees(requestRecommendationDto);
-        recommendation = recommendationRepository.save(recommendation);
 
-        log.info("Recommendation with id {} successfully saved", recommendation.getId());
+        Recommendation finalRecommendation = recommendation;
+        List<SkillOffer> skillOffers = recommendation.getSkillOffers().stream()
+                .map(skillDto -> {
+                    Skill skill = getSkill(skillDto.getSkill().getId());
+                    return SkillOffer.builder()
+                            .recommendation(finalRecommendation)
+                            .skill(skill)
+                            .build();
+                }).toList();
+
+        recommendation.setSkillOffers(skillOffers);
+
+        recommendation = recommendationRepository.save(recommendation);
+        log.info("Recommendation with id {} successfully created", recommendation.getId());
+        addGuarantees(recommendation);
+
+        return recommendationMapper.toDto(recommendation);
+    }
+
+    ResponseRecommendationDto createRecommendationAfterRequestAccepting(RecommendationRequest recommendationRequest) {
+        log.info("Creating a recommendation from user with id {} for user with id {}",
+                recommendationRequest.getReceiver().getId(), recommendationRequest.getRequester().getId());
+
+        recommendationValidator.checkIfAcceptableTimeForRecommendation(recommendationRequest);
+
+        Recommendation recommendation = recommendationMapper.fromRequestEntity(recommendationRequest);
+
+        Recommendation finalRecommendation = recommendation;
+        List<SkillOffer> skillOffers = recommendation.getSkillOffers().stream()
+                .map(skillDto -> {
+                    Skill skill = getSkill(skillDto.getSkill().getId());
+                    return SkillOffer.builder()
+                            .recommendation(finalRecommendation)
+                            .skill(skill)
+                            .build();
+                }).toList();
+
+        recommendation.setSkillOffers(skillOffers);
+
+        recommendation = recommendationRepository.save(recommendation);
+        log.info("Recommendation with id {} successfully created", recommendation.getId());
+
+        addGuarantees(recommendation);
+        recommendationRequest.setRecommendation(recommendation);
 
         return recommendationMapper.toDto(recommendation);
     }
@@ -55,7 +98,7 @@ public class RecommendationService {
         recommendationValidator.validateRecommendation(requestRecommendationDto);
         Recommendation existingRecommendation = getRecommendation(id);
         recommendationMapper.updateFromDto(requestRecommendationDto, existingRecommendation);
-        addGuarantees(requestRecommendationDto);
+        addGuarantees(existingRecommendation);
 
         existingRecommendation = recommendationRepository.save(existingRecommendation);
         log.info("Recommendation with id {} successfully updated", id);
@@ -102,38 +145,37 @@ public class RecommendationService {
                 });
     }
 
-    private void addGuarantees(RequestRecommendationDto requestRecommendationDto) {
-        List<SkillOfferDto> skillOfferDtoList = requestRecommendationDto.getSkillOffers();
+    private void addGuarantees(Recommendation recommendation) {
+        List<SkillOffer> skillOfferList = Optional.ofNullable(recommendation.getSkillOffers())
+                .orElseThrow(() -> {
+                    log.warn("No skill offers to process for recommendation with id {}", recommendation.getId());
+                    return new DataValidationException(ErrorMessage.NO_SKILL_OFFERS);
+                });
 
-        if (skillOfferDtoList == null || skillOfferDtoList.isEmpty()) {
-            log.warn("No skill offers to process for recommendation with id {}", requestRecommendationDto.getId());
-            throw new DataValidationException(ErrorMessage.NO_SKILL_OFFERS);
-        }
+        for (SkillOffer skillOffer : skillOfferList) {
+            Skill skill = getSkill(skillOffer.getSkill().getId());
 
-        for (SkillOfferDto skillOfferDto : skillOfferDtoList) {
-            Skill skill = getSkill(skillOfferDto.getSkillId());
-
-            skillRepository.findUserSkill(skillOfferDto.getSkillId(), requestRecommendationDto.getReceiverId())
+            skillRepository.findUserSkill(skillOffer.getSkill().getId(), recommendation.getReceiver().getId())
                     .ifPresent(existingSkill -> {
-                        if (!isAuthorAlreadyGuarantor(requestRecommendationDto, existingSkill)) {
-                            addGuaranteeToSkill(requestRecommendationDto, existingSkill);
+                        if (!isAuthorAlreadyGuarantor(recommendation, existingSkill)) {
+                            addGuaranteeToSkill(recommendation, existingSkill);
                             log.debug("Added guarantee for skill '{}' to user '{}'",
-                                    skill.getTitle(), requestRecommendationDto.getReceiverId());
+                                    skill.getTitle(), recommendation.getReceiver().getId());
                         }
                     });
         }
     }
 
-    private boolean isAuthorAlreadyGuarantor(RequestRecommendationDto requestRecommendationDto, Skill skill) {
+    private boolean isAuthorAlreadyGuarantor(Recommendation recommendation, Skill skill) {
         return skill.getGuarantees().stream()
                 .map(UserSkillGuarantee::getGuarantor)
                 .map(User::getId)
-                .anyMatch(requestRecommendationDto.getAuthorId()::equals);
+                .anyMatch(recommendation.getAuthor().getId()::equals);
     }
 
-    private void addGuaranteeToSkill(RequestRecommendationDto requestRecommendationDto, Skill skill) {
-        User receiver = recommendationValidator.validateUser(requestRecommendationDto.getReceiverId());
-        User author = recommendationValidator.validateUser(requestRecommendationDto.getAuthorId());
+    private void addGuaranteeToSkill(Recommendation recommendation, Skill skill) {
+        User receiver = recommendationValidator.validateUser(recommendation.getReceiver().getId());
+        User author = recommendationValidator.validateUser(recommendation.getAuthor().getId());
 
         UserSkillGuarantee guarantee = UserSkillGuarantee.builder()
                 .user(receiver)

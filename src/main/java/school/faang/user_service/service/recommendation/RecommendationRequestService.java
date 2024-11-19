@@ -7,16 +7,20 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
 import school.faang.user_service.dto.recommendation.RejectionDto;
+import school.faang.user_service.dto.recommendation.ResponseRecommendationDto;
 import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
+import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
-import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.service.recommendation.filter.RecommendationRequestFilter;
 import school.faang.user_service.validator.recommendation.RecommendationRequestValidator;
 import school.faang.user_service.validator.user.UserValidator;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -24,11 +28,12 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class RecommendationRequestService {
     private final RecommendationRequestRepository recommendationRequestRepository;
-    private final SkillRequestRepository skillRequestRepository;
     private final UserValidator userValidator;
     private final RecommendationRequestValidator recommendationRequestValidator;
     private final RecommendationRequestMapper recommendationRequestMapper;
     private final List<RecommendationRequestFilter> recommendationRequestFilters;
+    private final RecommendationService recommendationService;
+    private final SkillRepository skillRepository;
 
     @Transactional
     public RecommendationRequestDto create(RecommendationRequestDto recommendationRequest) {
@@ -40,11 +45,22 @@ public class RecommendationRequestService {
         recommendationRequestValidator.validateRecommendation(recommendationRequest);
 
         RecommendationRequest request = recommendationRequestMapper.toEntity(recommendationRequest);
-        request.getSkills().forEach(skillRequest ->
-                skillRequestRepository.create(skillRequest.getId(), skillRequest.getSkill().getId()));
-        request = recommendationRequestRepository.save(request);
 
+        RecommendationRequest finalRequest = request;
+        List<SkillRequest> skillRequests = recommendationRequest.getSkillRequests().stream()
+                .map(skillDto -> {
+                    Skill skill = getSkill(skillDto.getSkillId());
+                    return SkillRequest.builder()
+                            .request(finalRequest)
+                            .skill(skill)
+                            .build();
+                }).toList();
+
+        request.setSkills(skillRequests);
+
+        request = recommendationRequestRepository.save(request);
         log.info("Recommendation request with id {} successfully saved", request.getId());
+
         return recommendationRequestMapper.toDto(request);
     }
 
@@ -71,5 +87,25 @@ public class RecommendationRequestService {
 
         log.info("Recommendation request with id {} was rejected", id);
         return recommendationRequestMapper.toDto(recommendationRequest);
+    }
+
+    @Transactional
+    public ResponseRecommendationDto acceptRequest(long id) {
+        RecommendationRequest recommendationRequest = recommendationRequestValidator.validateRecommendationFromBd(id);
+        recommendationRequestValidator.checkRequestsStatus(id, recommendationRequest.getStatus());
+        recommendationRequest.setStatus(RequestStatus.ACCEPTED);
+        recommendationRequestRepository.save(recommendationRequest);
+        log.info("Recommendation request with id {} was accepted", id);
+
+        return recommendationService.createRecommendationAfterRequestAccepting(recommendationRequest);
+    }
+
+    private Skill getSkill(Long skillId) {
+        return skillRepository.findById(skillId)
+                .orElseThrow(() -> {
+                    log.warn("Skill with id {} not found", skillId);
+                    return new NoSuchElementException(
+                            String.format("There is no skill with id = %d", skillId));
+                });
     }
 }

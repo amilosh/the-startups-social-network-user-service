@@ -12,6 +12,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -48,6 +49,7 @@ public class EventPromotion {
 
     @OneToOne
     @JoinColumn(name = "event_id", nullable = false)
+    @EqualsAndHashCode.Exclude
     private Event event;
 
     @Column(name = "number_of_views")

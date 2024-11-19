@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestFilterDto;
+import school.faang.user_service.dto.recommendation.ResponseRecommendationDto;
 import school.faang.user_service.service.recommendation.RecommendationRequestService;
 import school.faang.user_service.validator.recommendation.RecommendationRequestValidator;
 
@@ -43,5 +44,10 @@ public class RecommendationRequestController {
     @PutMapping("/{id}/reject")
     public RecommendationRequestDto rejectRequest(@PathVariable Long id, @RequestBody RejectionDto rejection) {
         return recommendationRequestService.rejectRequest(id, rejection);
+    }
+
+    @PutMapping("/{id}/accept")
+    public ResponseRecommendationDto acceptRequest(@PathVariable long id) {
+        return recommendationRequestService.acceptRequest(id);
     }
 }

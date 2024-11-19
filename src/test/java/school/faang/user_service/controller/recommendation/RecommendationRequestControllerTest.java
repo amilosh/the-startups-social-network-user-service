@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
+import school.faang.user_service.dto.recommendation.ResponseRecommendationDto;
 import school.faang.user_service.service.recommendation.RecommendationRequestService;
 import school.faang.user_service.validator.recommendation.RecommendationRequestValidator;
 
@@ -32,6 +33,7 @@ public class RecommendationRequestControllerTest {
     private static final Long REQUESTER_ID = 1L;
     private static final Long RECEIVER_ID = 2L;
     private static final Long REQUEST_ID = 1L;
+    private static final Long RESPONSE_ID = 1L;
     private static final String REJECTION_REASON = "Reason for rejection";
 
     private MockMvc mockMvc;
@@ -48,6 +50,7 @@ public class RecommendationRequestControllerTest {
     private RecommendationRequestDto requestDto;
     private RecommendationRequestDto responseDto;
     private  List<RecommendationRequestDto> responseList;
+    private ResponseRecommendationDto responseRecommendationDto;
 
     @BeforeEach
     public void setUp() {
@@ -65,6 +68,12 @@ public class RecommendationRequestControllerTest {
                 .build();
 
         responseList = Collections.singletonList(responseDto);
+
+        responseRecommendationDto = ResponseRecommendationDto.builder()
+                .id(RESPONSE_ID)
+                .authorId(RECEIVER_ID)
+                .receiverId(REQUEST_ID)
+                .build();
     }
 
     @Test
@@ -124,5 +133,19 @@ public class RecommendationRequestControllerTest {
                 .andExpect(jsonPath("$.receiverId").value(RECEIVER_ID));
 
         verify(recommendationRequestService).rejectRequest(eq(REQUEST_ID), any());
+    }
+
+    @Test
+    public void testAcceptRequest() throws Exception {
+        when(recommendationRequestService.acceptRequest(REQUEST_ID)).thenReturn(responseRecommendationDto);
+
+        mockMvc.perform(put("/api/v1/recommendation-requests/" + REQUEST_ID + "/accept")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(RESPONSE_ID))
+                .andExpect(jsonPath("$.authorId").value(RECEIVER_ID))
+                .andExpect(jsonPath("$.receiverId").value(REQUESTER_ID));
+
+        verify(recommendationRequestService).acceptRequest(REQUEST_ID);
     }
 }

@@ -12,10 +12,13 @@ import org.springframework.data.domain.Pageable;
 import school.faang.user_service.dto.recommendation.RequestRecommendationDto;
 import school.faang.user_service.dto.recommendation.ResponseRecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
+import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillOffer;
+import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
@@ -46,6 +49,9 @@ public class RecommendationServiceTest {
     private static final long RECOMMENDATION_ID = 1L;
     private static final String CONTENT = "content";
     private static final String SKILL_TITLE = "Java";
+    private static final long RECOMMENDATION_REQUEST_ID = 1L;
+    private static final RequestStatus RECOMMENDATION_REQUEST_STATUS = RequestStatus.PENDING;
+    private static final long SKILL_REQUEST_ID = 1L;
 
     @InjectMocks
     private RecommendationService recommendationService;
@@ -71,13 +77,17 @@ public class RecommendationServiceTest {
     private ResponseRecommendationDto responseRecommendationDto;
     private List<Recommendation> recommendations;
     private List<ResponseRecommendationDto> recommendationDtos;
+    private RecommendationRequest recommendationRequest;
 
     @BeforeEach
     public void setUp() {
         User author = User.builder().id(AUTHOR_ID).build();
         User receiver = User.builder().id(RECEIVER_ID).build();
-        SkillOffer skillOffer = SkillOffer.builder().id(SKILL_OFFER_ID).build();
         skill = Skill.builder().id(SKILL_ID).build();
+        SkillOffer skillOffer = SkillOffer.builder()
+                .id(SKILL_OFFER_ID)
+                .skill(skill)
+                .build();
 
         SkillOfferDto skillOfferDto = SkillOfferDto.builder()
                 .id(SKILL_OFFER_ID)
@@ -114,21 +124,25 @@ public class RecommendationServiceTest {
                 .build();
 
         recommendations = List.of(new Recommendation(), new Recommendation());
+
         recommendationDtos = List.of(ResponseRecommendationDto.builder().build(),
                 ResponseRecommendationDto.builder().build());
-    }
 
-    @Test
-    @DisplayName("Test create recommendation with empty skill offers list")
-    public void testCreateWhenSkillOffersListIsEmpty() {
-        requestRecommendationDto.setSkillOffers(null);
-        when(recommendationMapper.toEntity(requestRecommendationDto)).thenReturn(recommendation);
+        SkillRequest skillRequest = SkillRequest.builder()
+                .id(SKILL_REQUEST_ID)
+                .skill(skill)
+                .build();
 
-        assertThrows(DataValidationException.class, () -> recommendationService.create(requestRecommendationDto));
-
-        verify(recommendationValidator).validateRecommendation(requestRecommendationDto);
-        verify(recommendationMapper).toEntity(requestRecommendationDto);
-        verify(recommendationRepository, never()).save(recommendation);
+        recommendationRequest = RecommendationRequest.builder()
+                .id(RECOMMENDATION_REQUEST_ID)
+                .requester(receiver)
+                .receiver(author)
+                .message(CONTENT)
+                .status(RECOMMENDATION_REQUEST_STATUS)
+                .skills(List.of(skillRequest))
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 
     @Test
@@ -144,6 +158,24 @@ public class RecommendationServiceTest {
         assertNotNull(resultRecommendationDto);
         verify(recommendationValidator).validateRecommendation(requestRecommendationDto);
         verify(recommendationMapper).toEntity(requestRecommendationDto);
+        verify(recommendationRepository).save(eq(recommendation));
+        verify(recommendationMapper).toDto(recommendation);
+    }
+
+    @Test
+    @DisplayName("Successful creation of a recommendation after accepting a request")
+    public void testCreateRecommendationAfterRequestAccepting() {
+        when(recommendationMapper.fromRequestEntity(recommendationRequest)).thenReturn(recommendation);
+        when(recommendationRepository.save(any(Recommendation.class))).thenReturn(recommendation);
+        when(recommendationMapper.toDto(recommendation)).thenReturn(responseRecommendationDto);
+        when(skillRepository.findById(SKILL_ID)).thenReturn(Optional.of(skill));
+
+        ResponseRecommendationDto resultRecommendationDto =
+                recommendationService.createRecommendationAfterRequestAccepting(recommendationRequest);
+
+        assertNotNull(resultRecommendationDto);
+        verify(recommendationValidator).checkIfAcceptableTimeForRecommendation(recommendationRequest);
+        verify(recommendationMapper).fromRequestEntity(recommendationRequest);
         verify(recommendationRepository).save(eq(recommendation));
         verify(recommendationMapper).toDto(recommendation);
     }
@@ -179,7 +211,7 @@ public class RecommendationServiceTest {
     @Test
     @DisplayName("Test update recommendation with empty skill offers list")
     public void testUpdateWhenSkillOffersListIsEmpty() {
-        requestRecommendationDto.setSkillOffers(null);
+        recommendation.setSkillOffers(null);
         when(recommendationRepository.findById(RECOMMENDATION_ID)).thenReturn(Optional.of(recommendation));
 
         assertThrows(DataValidationException.class, () -> recommendationService.update(RECOMMENDATION_ID, requestRecommendationDto));

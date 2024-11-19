@@ -22,5 +22,6 @@ public interface SkillRequestMapper {
     @Mapping(source = "skillId", target = "skill.id")
     @Mapping(source = "skillTitle", target = "skill.title")
     @Mapping(source = "recommendationRequestId", target = "request.id")
+    @Mapping(target = "id", ignore = true)
     SkillRequest toEntity(SkillRequestDto skillRequestDto);
 }
