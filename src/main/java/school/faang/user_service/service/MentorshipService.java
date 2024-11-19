@@ -25,22 +25,14 @@ public class MentorshipService {
 
     public List<MenteesDto> getMentees(long userId) {
         User user = getUser(userId);
-        if (!user.getMentees().isEmpty()) {
+            log.info("User_id {} sent his mentees", userId);
             return menteesMapper.toDto(user.getMentees());
-        } else {
-            log.info("User_id {} has no mentees", userId);
-            return new ArrayList<>();
-        }
     }
 
     public List<MentorsDto> getMentors(long userId) {
         User user = getUser(userId);
-        if (!user.getMentors().isEmpty()) {
+            log.info("User_id {} sent his mentors", userId);
             return mentorsMapper.toDto(user.getMentors());
-        } else {
-            log.info("User_id {} has no mentors", userId);
-            return new ArrayList<>();
-        }
     }
 
     public void deleteMentee(long menteeId, long mentorId) {
@@ -86,6 +78,7 @@ public class MentorshipService {
             log.info("User_id {} has saved user in DB", user.getId());
         } catch (Exception e) {
             log.error("SaveUser exception {}", e.getMessage());
+            throw new RuntimeException("SaveUser exception " + e.getMessage());
         }
     }
 }
