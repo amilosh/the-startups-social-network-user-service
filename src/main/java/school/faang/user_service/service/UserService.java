@@ -13,6 +13,7 @@ import school.faang.user_service.mapper.user.PersonMapper;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.model.person.Person;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.validator.UserServiceValidator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PersonMapper personMapper;
+    private final UserServiceValidator validator;
 
     private final CsvMapper csvMapper;
 
@@ -54,7 +56,9 @@ public class UserService {
                     .with(CsvSchema.emptySchema().withHeader())
                     .readValues(inputStream);
 
-            return personIterator.readAll();
+            return personIterator.readAll().stream()
+                    .peek(validator::validatePerson)
+                    .toList();
         } catch (IOException e) {
             throw new IllegalArgumentException("Error while reading file", e);
         }

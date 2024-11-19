@@ -7,5 +7,5 @@ import school.faang.user_service.entity.Country;
 @Repository
 public interface CountryRepository extends JpaRepository<Country, Long> {
     boolean existsByTitle(String title);
-    Country findByTitle(String title);
+    Country getByTitle(String title);
 }

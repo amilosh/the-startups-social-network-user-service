@@ -14,9 +14,9 @@ public class Education {
     @JsonProperty(index = 12)
     private String faculty;
     @JsonProperty(index = 13)
-    private int yearOfStudy;
+    private Integer yearOfStudy;
     @JsonProperty(index = 14)
     private String major;
     @JsonProperty(value = "GPA", index = 15)
-    private float gpa;
+    private Float gpa;
 }

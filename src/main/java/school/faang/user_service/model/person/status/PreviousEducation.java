@@ -16,5 +16,5 @@ public class PreviousEducation {
     @JsonProperty(index = 20)
     private String institution;
     @JsonProperty(index = 21)
-    private int completionYear;
+    private Integer completionYear;
 }

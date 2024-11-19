@@ -2,6 +2,7 @@ package school.faang.user_service.model.person;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,15 +16,17 @@ import school.faang.user_service.model.person.status.Status;
 @Builder
 public class Person {
     @JsonProperty(index = 0)
+    @NotBlank
     private String firstName;
+    @NotBlank
     @JsonProperty(index = 1)
     private String lastName;
     @JsonProperty(index = 2)
-    private int yearOfBirth;
+    private Integer yearOfBirth;
     @JsonProperty(index = 3)
     private String group;
     @JsonProperty(value = "studentID", index = 4)
-    private long studentId;
+    private Long studentId;
     @JsonUnwrapped
     private ContactInfo contactInfo;
     @JsonUnwrapped
@@ -31,7 +34,7 @@ public class Person {
     @JsonUnwrapped
     private Status status;
     @JsonProperty(index = 22)
-    private boolean scholarship;
+    private Boolean scholarship;
     @JsonProperty(index = 23)
     private String employer;
 }

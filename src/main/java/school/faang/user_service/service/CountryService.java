@@ -14,6 +14,6 @@ public class CountryService {
         if (!countryRepository.existsByTitle(title)) {
             return countryRepository.save(Country.builder().title(title).build());
         }
-        return countryRepository.findByTitle(title);
+        return countryRepository.getByTitle(title);
     }
 }

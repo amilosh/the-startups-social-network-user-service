@@ -37,11 +37,19 @@ public interface PersonMapper {
         }
 
         if (person.getEducation() != null) {
-            aboutMe.append(person.getEducation().getFaculty())
-                    .append(", ")
-                    .append(person.getEducation().getYearOfStudy())
-                    .append(", ")
-                    .append(person.getEducation().getMajor());
+            if(person.getEducation().getFaculty() != null) {
+                aboutMe.append(person.getEducation().getFaculty())
+                        .append(", ");
+            }
+
+            if(person.getEducation().getYearOfStudy() != null) {
+                aboutMe.append(person.getEducation().getYearOfStudy())
+                        .append(", ");
+            }
+
+            if(person.getEducation().getMajor() != null) {
+                aboutMe.append(person.getEducation().getMajor());
+            }
         }
 
         if (person.getEmployer() != null) {
