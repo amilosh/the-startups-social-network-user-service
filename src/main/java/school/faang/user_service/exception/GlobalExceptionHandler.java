@@ -3,6 +3,7 @@ package school.faang.user_service.exception;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -38,5 +39,12 @@ public class GlobalExceptionHandler {
     public ExceptionDto handlerEntityNotFoundException(EntityNotFoundException e) {
         log.error("Entity Not Found Exception", e);
         return new ExceptionDto(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ExceptionDto handlerMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        log.error("Method Argument Not Valid Exception", e);
+        return new ExceptionDto(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST, "Validation failed");
     }
 }
