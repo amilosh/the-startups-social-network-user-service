@@ -1,6 +1,7 @@
 package school.faang.user_service.service.recommendation;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.filter.RequestFilterDto;
@@ -23,6 +24,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RecommendationRequestService {
     private final RecommendationRequestRepository recommendationRequestRepository;
     private final RecommendationRequestServiceValidator validator;
@@ -33,6 +35,7 @@ public class RecommendationRequestService {
 
 
     public RecommendationRequestDto create(RecommendationRequestDto recommendationRequestDto) {
+        log.info("Start creating RecommendationRequest: {}", recommendationRequestDto);
         validator.validateExistsRequesterAndReceiverInDatabase(recommendationRequestDto);
         validator.validateSixMonthRequestLimit(recommendationRequestDto);
         validator.validateExistsSkillsInDatabase(recommendationRequestDto);
@@ -54,10 +57,15 @@ public class RecommendationRequestService {
         }
         entitySkillRequests.forEach(entityRecommendationRequest::addSkillRequest);
         RecommendationRequest savedEntity = recommendationRequestRepository.save(entityRecommendationRequest);
+
+        log.info("The {} was created in the database", savedEntity);
+
         return mapper.toDTO(savedEntity);
     }
 
     public List<RecommendationRequestDto> getRequests(RequestFilterDto filterDto) {
+        log.info("Start processing getRequests with filter: {}", filterDto);
+
         List<RecommendationRequest> recommendationRequestsAll = recommendationRequestRepository.findAll();
         List<RecommendationRequestFilter> suitableFilters = recommendationRequestFilters.stream()
                 .filter(requestFilter -> requestFilter.isFilterApplicable(filterDto))
@@ -68,26 +76,40 @@ public class RecommendationRequestService {
                         .allMatch(suitableFilter -> suitableFilter.apply(recommendationRequest, filterDto)))
                 .toList();
 
+        log.info("Completed processing getRequests. Filtered results count: {}", recommendationRequestsFiltered.size());
+
         return mapper.allToDTO(recommendationRequestsFiltered);
     }
 
     public RecommendationRequestDto getRequest(Long id) {
+        log.info("Start processing getRequest for ID: {}", id);
+
         RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundExceptionWithID("The RecommendationRequest will not be found in the database", id));
-        return mapper.toDTO(recommendationRequest);
+        RecommendationRequestDto result = mapper.toDTO(recommendationRequest);
+
+        log.info("Completed processing getRequest for ID: {}. Result: {}", id, result);
+
+        return result;
     }
 
     public RecommendationRequestDto rejectRequest(long id, RejectionDto rejection) {
+        log.info("Start processing rejectRequest for ID: {} with Rejection: {}", id, rejection);
+
         RecommendationRequest recommendationRequest = recommendationRequestRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundExceptionWithID("The RecommendationRequest will not be found in the database", id));
 
         RequestStatus status = recommendationRequest.getStatus();
         if (status != RequestStatus.PENDING) {
-            throw new DataValidationException("the status of the RecommendationRequest by id-" + id + ", not pending");
+            throw new DataValidationException("The status of the RecommendationRequest by id-" + id + ", not pending");
         }
         recommendationRequest.setStatus(RequestStatus.REJECTED);
         recommendationRequest.setRejectionReason(rejection.getReason());
 
-        return mapper.toDTO(recommendationRequest);
+        RecommendationRequestDto result = mapper.toDTO(recommendationRequest);
+
+        log.info("Completed processing rejectRequest for ID: {}. Result: {}", id, result);
+
+        return result;
     }
 }

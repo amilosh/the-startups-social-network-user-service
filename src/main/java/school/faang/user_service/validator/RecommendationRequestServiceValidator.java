@@ -1,6 +1,7 @@
 package school.faang.user_service.validator;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
@@ -16,6 +17,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class RecommendationRequestServiceValidator {
     private final UserRepository userRepository;
     private final RecommendationRequestRepository recommendationRequestRepository;
@@ -24,17 +26,28 @@ public class RecommendationRequestServiceValidator {
     public void validateExistsRequesterAndReceiverInDatabase(RecommendationRequestDto recommendationRequest) {
         Long requesterId = recommendationRequest.getRequesterId();
         Long receiverId = recommendationRequest.getReceiverId();
+
+        log.info("Start validation: requester and receiver exist in database. Requester ID: {}, Receiver ID: {}",
+                requesterId, receiverId);
+
         if (!userRepository.existsById(requesterId)) {
             throw new DataValidationException("requester with ID " + requesterId + " not found in database");
         }
         if (!userRepository.existsById(receiverId)) {
             throw new DataValidationException("receiver with ID " + receiverId + " not found in database");
         }
+
+        log.info("Validation passed: Requester and Receiver exist in database. Requester ID: {}, Receiver ID: {}",
+                requesterId, receiverId);
     }
 
     public void validateSixMonthRequestLimit(RecommendationRequestDto recommendationRequestDto) {
         Long requesterId = recommendationRequestDto.getRequesterId();
         Long receiverId = recommendationRequestDto.getReceiverId();
+
+        log.info("Start validation: six-month request limit. Requester ID: {}, Receiver ID: {}",
+                requesterId, receiverId);
+
         Optional<RecommendationRequest> latestPendingRequest = recommendationRequestRepository.findLatestPendingRequest(requesterId, receiverId);
 
         if (latestPendingRequest.isPresent()) {
@@ -50,10 +63,14 @@ public class RecommendationRequestServiceValidator {
                         "between months: " + betweenMonths + ", ID RecommendationRequest: " + recommendationRequest.getId());
             }
         }
+
+        log.info("Validation passed: six-month request limit. Requester ID: {}, Receiver ID: {}", requesterId, receiverId);
     }
 
     public void validateExistsSkillsInDatabase(RecommendationRequestDto recommendationRequestDto) {
         List<Long> skillIds = recommendationRequestDto.getSkillIds();
+
+        log.info("Start validation: all skills exist in database. Skill IDs: {}", skillIds);
 
         List<Long> skillsNotDatabase = skillIds.stream()
                 .filter(id -> !(skillRepository.existsById(id)))
@@ -62,5 +79,7 @@ public class RecommendationRequestServiceValidator {
         if (!skillsNotDatabase.isEmpty()) {
             throw new DataValidationException("The following skills were not found in the database: " + skillsNotDatabase);
         }
+
+        log.info("Validation passed: all skills exist in database. Skill IDs: {}", skillIds);
     }
 }
