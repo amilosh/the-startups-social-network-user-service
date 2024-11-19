@@ -66,10 +66,6 @@ class MentorshipRequestControllerTest {
                 .build();
 
         filterDto = MentorshipRequestFilterDto.builder()
-                .requesterId(1L)
-                .receiverId(2L)
-                .descriptionPattern("test description")
-                .status(RequestStatus.PENDING)
                 .build();
         rejectionDto = RejectionDto.builder().reason("reason").build();
         id = expectedDto.getId();
@@ -96,10 +92,10 @@ class MentorshipRequestControllerTest {
     void testGetRequests() throws Exception {
         when(requestService.getRequests(filterDto)).thenReturn(List.of(expectedDto));
         String url = "/mentorship-requests/filtered"
-                + (expectedDto.getDescription() != null ? "?description=" + expectedDto.getDescription() : "")
-                + (expectedDto.getRequesterId() != null ? "&requesterId=" + expectedDto.getRequesterId() : "")
-                + (expectedDto.getReceiverId() != null ? "&receiverId=" + expectedDto.getReceiverId() : "")
-                + (expectedDto.getStatus() != null ? "&status=" + expectedDto.getStatus().name() : "");
+                + (filterDto.getDescriptionPattern() != null ? "?description=" + filterDto.getDescriptionPattern() : "")
+                + (filterDto.getRequesterId() != null ? "&requesterId=" + filterDto.getRequesterId() : "")
+                + (filterDto.getReceiverId() != null ? "&receiverId=" + filterDto.getReceiverId() : "")
+                + (filterDto.getStatus() != null ? "&status=" + filterDto.getStatus().name() : "");
 
         mockMvc.perform(get(url)
                         .contentType(MediaType.APPLICATION_JSON))
