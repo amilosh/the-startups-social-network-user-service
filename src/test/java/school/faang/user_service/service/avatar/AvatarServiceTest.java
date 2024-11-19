@@ -176,7 +176,7 @@ class AvatarServiceTest {
         user.setUserProfilePic(new UserProfilePic(null, null));
         when(userService.getUserEntity(USER_ID)).thenReturn(user);
 
-        UserProfilePic result = avatarService.uploadUserAvatar(USER_ID, mockFile, false);
+        UserProfilePic result = avatarService.uploadUserAvatar(USER_ID, mockFile);
 
         assertNotNull(result);
         verify(minioService, times(2)).uploadFile(anyLong(), anyString(), any(byte[].class), eq("image/jpeg"));
@@ -190,7 +190,7 @@ class AvatarServiceTest {
         when(userService.getUserEntity(USER_ID)).thenReturn(user);
 
         MinioException exception = assertThrows(MinioException.class, () -> {
-            avatarService.uploadUserAvatar(USER_ID, null, false);
+            avatarService.uploadUserAvatar(USER_ID, null);
         });
 
         assertTrue(exception.getMessage().contains("Avatar is already uploaded for user ID"));
@@ -236,7 +236,7 @@ class AvatarServiceTest {
         when(userService.getUserEntity(USER_ID)).thenReturn(user);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            spyService.uploadUserAvatar(USER_ID, mockFile, false);
+            spyService.uploadUserAvatar(USER_ID, mockFile);
         });
 
         assertEquals(AVATAR_PROCESS_ERROR, exception.getMessage());
@@ -254,7 +254,7 @@ class AvatarServiceTest {
         user.setUserProfilePic(new UserProfilePic(null, null));
         when(userService.getUserEntity(USER_ID)).thenReturn(user);
 
-        UserProfilePic result = spyAvatarService.uploadUserAvatar(USER_ID, null, true);
+        UserProfilePic result = spyAvatarService.uploadUserAvatar(USER_ID, null);
 
         assertNotNull(result);
         verify(minioService, times(2)).uploadFile(anyLong(), anyString(), any(byte[].class), eq("image/jpeg"));
@@ -271,7 +271,7 @@ class AvatarServiceTest {
         when(userService.getUserEntity(USER_ID)).thenReturn(user);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            avatarService.uploadUserAvatar(USER_ID, mockFile, false);
+            avatarService.uploadUserAvatar(USER_ID, mockFile);
         });
 
         assertTrue(exception.getMessage().contains("Failed to read the uploaded file"));

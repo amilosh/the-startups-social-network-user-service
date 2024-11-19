@@ -70,14 +70,14 @@ public class AvatarService {
     }
 
     @Transactional
-    public UserProfilePic uploadUserAvatar(Long userId, MultipartFile file, boolean generate) {
+    public UserProfilePic uploadUserAvatar(Long userId, MultipartFile file) {
         log.info("Start uploading avatar for user ID: {}", userId);
         checkAvatarExists(userId);
 
         byte[] avatarData;
         String contentType;
 
-        if (generate) {
+        if (file == null) {
             log.info("No file provided for user ID: {}. Generating random avatar.", userId);
             avatarData = getRandomDiceBearAvatar(userId)
                     .orElseThrow(() -> new DiceBearException(DICE_BEAR_GENERATING_ERROR));

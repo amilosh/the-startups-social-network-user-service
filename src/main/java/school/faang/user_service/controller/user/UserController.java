@@ -90,9 +90,8 @@ public class UserController {
 
     @PostMapping("/{userId}/avatar")
     public ResponseEntity<UserProfilePicDto> uploadUserAvatar(@PathVariable Long userId,
-                                                              @RequestParam(value = "file", required = false) MultipartFile file,
-                                                              @RequestParam(value = "generate", required = false, defaultValue = "false") boolean generate) {
-        UserProfilePic userProfilePic = avatarService.uploadUserAvatar(userId, file, generate);
+                                                              @RequestParam(value = "file", required = false) MultipartFile file) {
+        UserProfilePic userProfilePic = avatarService.uploadUserAvatar(userId, file);
         return ResponseEntity.ok(userProfilePicMapper.toDto(userProfilePic));
     }
 
