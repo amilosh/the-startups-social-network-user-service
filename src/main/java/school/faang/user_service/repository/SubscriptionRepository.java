@@ -6,7 +6,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.entity.User;
 
+
 import java.util.stream.Stream;
+import java.util.List;
 
 @Repository
 public interface SubscriptionRepository extends JpaRepository<User, Long> {
@@ -55,4 +57,15 @@ public interface SubscriptionRepository extends JpaRepository<User, Long> {
             where follower_id = :followerId
             """)
     int findFolloweesAmountByFollowerId(long followerId);
+
+    @Query(nativeQuery = true, value = """
+        select
+            s.follower_id
+        from "subscription" s
+        where s.followee_id = :followeeId
+            and s.follower_id > :lastId
+        order by s.follower_id
+        limit :limit
+        """)
+    List<Long> findFollowerByFolloweeIdWithLimit(Long followeeId, long lastId, int limit);
 }

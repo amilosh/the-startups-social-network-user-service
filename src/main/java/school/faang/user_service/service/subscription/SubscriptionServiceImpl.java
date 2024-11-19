@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.event.FollowerEventDto;
 import school.faang.user_service.dto.subscription.SubscriptionUserDto;
+import school.faang.user_service.dto.subscription.SubscriptionUserIdDto;
 import school.faang.user_service.dto.subscription.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
@@ -75,5 +76,14 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public int getFollowingCounts(Long followerId) {
         validator.validateUserIds(followerId);
         return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
+    }
+
+    @Override
+    public List<SubscriptionUserIdDto> getFollowerIds(Long followeeId, long lastId, int limit) {
+        validator.validateUserIds(followeeId);
+        List<Long> followerIds = subscriptionRepository.findFollowerByFolloweeIdWithLimit(followeeId, lastId, limit);
+        return followerIds.stream()
+            .map(SubscriptionUserIdDto::new)
+            .toList();
     }
 }

@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.subscription.EntityCountDto;
 import school.faang.user_service.dto.subscription.SubscriptionUserDto;
+import school.faang.user_service.dto.subscription.SubscriptionUserIdDto;
 import school.faang.user_service.dto.subscription.UserFilterDto;
 import school.faang.user_service.dto.subscription.responses.SuccessResponse;
 import school.faang.user_service.service.subscription.SubscriptionService;
@@ -60,5 +62,14 @@ public class SubscriptionController {
     public EntityCountDto getFollowingCount(@PathVariable Long followerId) {
         int count = subscriptionService.getFollowingCounts(followerId);
         return new EntityCountDto(count);
+    }
+
+    @GetMapping("follower/ids")
+    public List<SubscriptionUserIdDto> getFollowerIds(
+        @PathVariable Long followeeId,
+        @RequestParam long lastId,
+        @RequestParam int limit
+    ) {
+        return subscriptionService.getFollowerIds(followeeId, lastId, limit);
     }
 }
