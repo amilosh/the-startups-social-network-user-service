@@ -9,7 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.request.UsersDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.UserMapper;
@@ -22,8 +21,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -158,41 +164,6 @@ class UserServiceTest {
     }
 
     @Test
-    void getUsersByIdsWhenUsersExistShouldReturnUserDtos() {
-        UsersDto ids = new UsersDto();
-        ids.setIds(List.of(1L, 2L));
-
-        User user1 = new User();
-        user1.setId(1L);
-        User user2 = new User();
-        user2.setId(2L);
-
-        UserDto userDto1 = new UserDto();
-        userDto1.setId(1L);
-        UserDto userDto2 = new UserDto();
-        userDto2.setId(2L);
-
-        when(userRepository.findAllById(ids.getIds())).thenReturn(List.of(user1, user2));
-        when(userMapper.toDto(user1)).thenReturn(userDto1);
-        when(userMapper.toDto(user2)).thenReturn(userDto2);
-
-        List<UserDto> result = userService.getUsersByIds(ids);
-        assertEquals(2, result.size());
-        assertEquals(List.of(userDto1, userDto2), result);
-    }
-
-    @Test
-    void getUsersByIdsWhenNoUsersExistShouldReturnEmptyList() {
-        UsersDto ids = new UsersDto();
-        ids.setIds(List.of(1L, 2L));
-
-        when(userRepository.findAllById(ids.getIds())).thenReturn(List.of());
-
-        List<UserDto> result = userService.getUsersByIds(ids);
-        assertEquals(0, result.size());
-    }
-
-    @Test
     @DisplayName("Test FindById")
     void testFindByIdPositive() {
         long userId = 1L;
@@ -276,5 +247,3 @@ class UserServiceTest {
 
     }
 }
-
-

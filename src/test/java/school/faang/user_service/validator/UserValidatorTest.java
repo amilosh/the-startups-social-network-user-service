@@ -21,8 +21,6 @@ class UserValidatorTest {
     @InjectMocks
     private UserValidator userValidator;
 
-    long userId;
-
     @Test
     void validateUserByIdWrongId() {
         when(userRepository.existsById(1L)).thenReturn(false);

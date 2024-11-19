@@ -8,9 +8,9 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
 
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class UserValidator {
     private final UserRepository repository;
 
