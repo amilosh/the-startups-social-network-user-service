@@ -100,7 +100,7 @@ class UserControllerTest {
     }
 
     @Test
-    void testGetNotPremiumUsers() throws Exception {
+    void getNotPremiumUsersTest() throws Exception {
         UserDto userDto1 = UserDto.builder()
                 .id(1L)
                 .username("Charlie")
@@ -128,7 +128,7 @@ class UserControllerTest {
     }
 
     @Test
-    void testGetPremiumUsers() throws Exception {
+    void getPremiumUsersTest() throws Exception {
         UserDto userDto1 = UserDto.builder()
                 .id(1L).username("Charlie")
                 .build();

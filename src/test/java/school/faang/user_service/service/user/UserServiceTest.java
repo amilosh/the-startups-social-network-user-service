@@ -110,7 +110,7 @@ class UserServiceTest {
     }
 
     @Test
-    void existsByIdTrue() {
+    void existsByIdTrueTest() {
         long userId = 1L;
         when(userRepository.existsById(userId)).thenReturn(true);
 
@@ -119,7 +119,7 @@ class UserServiceTest {
     }
 
     @Test
-    void existsByIdFalse() {
+    void existsByIdFalseTest() {
         long userId = 1L;
         when(userRepository.existsById(userId)).thenReturn(false);
 
@@ -128,7 +128,7 @@ class UserServiceTest {
     }
 
     @Test
-    void saveUser() {
+    void saveUserTest() {
         User user = new User();
         userService.saveUser(user);
 
