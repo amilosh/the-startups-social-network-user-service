@@ -8,7 +8,7 @@ import school.faang.user_service.entity.goal.GoalStatus;
 @Data
 @NoArgsConstructor
 public class GoalFilterDto {
-    @Size(min = 1, max = 255, message = "The goal name should be between 1 and 255 characters long")
+    @Size(min = 1, max = 255, message = "The goal name pattern should be between 1 and 255 characters long")
     private String title;
 
     private GoalStatus status;

@@ -16,7 +16,7 @@ public class RecommendationRequestFilterDto {
 
     private Long receiverIdPattern;
 
-    @Size(min = 1, max = 255, message = "The message should be between 1 and 255 characters long")
+    @Size(min = 1, max = 255, message = "The message pattern should be between 1 and 255 characters long")
     private String messagePattern;
 
     private RequestStatus statusPattern;

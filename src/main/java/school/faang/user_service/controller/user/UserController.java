@@ -1,7 +1,9 @@
 package school.faang.user_service.controller.user;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,38 +15,35 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.validator.user.UserValidator;
 
 import java.util.List;
 
-@Slf4j
+@Validated
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
-    private final UserValidator userValidator;
 
     @PutMapping("/{userId}/deactivate")
-    public void deactivateUser(@PathVariable Long userId) {
+    public void deactivateUser(@PathVariable @NotNull(message = "User ID should not be null") Long userId) {
         userService.deactivateUser(userId);
-        log.info("User with ID {} has been scheduled for the deactivation", userId);
     }
 
     @GetMapping
-    public List<UserDto> getUsers(@ModelAttribute UserFilterDto filterDto) {
+    public List<UserDto> getUsers(@Valid @ModelAttribute UserFilterDto filterDto) {
         return userService.getUser(filterDto).toList();
     }
 
     @GetMapping("/{userId}")
-    public UserDto getUser(@PathVariable long userId) {
+    public UserDto getUser(@PathVariable @NotNull(message = "User ID should not be null") Long userId) {
         return userService.getUser(userId);
     }
 
     @PostMapping
-    public List<UserDto> getUsersByIds(@RequestBody List<Long> ids) {
-        userValidator.validateIds(ids);
+    public List<UserDto> getUsersByIds(@RequestBody @NotNull(message = "The list of IDs should not be null")
+                                       List<@NotNull(message = "Each ID in the list should not be null") Long> ids) {
         return userService.getUsersByIds(ids);
     }
 }

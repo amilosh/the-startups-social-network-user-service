@@ -1,39 +1,58 @@
 package school.faang.user_service.controller.subscription;
 
-import lombok.Data;
-import org.springframework.stereotype.Controller;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.service.subscription.SubscriptionService;
 
 import java.util.List;
 
-@Data
-@Controller
+@Validated
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/subscriptions")
 public class SubscriptionController {
-    private SubscriptionService subscriptionService;
+    private final SubscriptionService subscriptionService;
 
-    public void followUser(long followerId, long followeeId) {
+    @PostMapping("/{followerId}/follow/{followeeId}")
+    public void followUser(
+            @PathVariable @NotNull(message = "Follower ID should not be null") Long followerId,
+            @PathVariable @NotNull(message = "Followee ID should not be null") Long followeeId) {
         subscriptionService.followUser(followerId, followeeId);
     }
 
-    public void unfollowUser(long followerId, long followeeId) {
+    @DeleteMapping("/{followerId}/unfollow/{followeeId}")
+    public void unfollowUser(
+            @PathVariable @NotNull(message = "Follower ID should not be null") Long followerId,
+            @PathVariable @NotNull(message = "Followee ID should not be null") Long followeeId) {
         subscriptionService.unfollowUser(followerId, followeeId);
     }
 
-    public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
+    @GetMapping("/{followeeId}/followers")
+    public List<UserDto> getFollowers(
+            @PathVariable @NotNull(message = "Followee ID should not be null") Long followeeId,
+            @Valid @ModelAttribute UserFilterDto filter) {
         return subscriptionService.getFollowers(followeeId, filter);
     }
 
-    public List<UserDto> getFollowing(long followerId, UserFilterDto filter) {
+    @GetMapping("/{followerId}/following")
+    public List<UserDto> getFollowing(
+            @PathVariable @NotNull(message = "Follower ID should not be null") Long followerId,
+            @Valid @ModelAttribute UserFilterDto filter) {
         return subscriptionService.getFollowing(followerId, filter);
     }
 
-    public int getFollowersCount(long followeeId) {
+    @GetMapping("/{followeeId}/followers/count")
+    public int getFollowersCount(@PathVariable @NotNull(message = "Followee ID should not be null") Long followeeId) {
         return subscriptionService.getFollowersCount(followeeId);
     }
 
-    public int getFollowingCount(long followerId) {
+    @GetMapping("/{followerId}/following/count")
+    public int getFollowingCount(@PathVariable @NotNull(message = "Follower ID should not be null") Long followerId) {
         return subscriptionService.getFollowingCount(followerId);
     }
 }
