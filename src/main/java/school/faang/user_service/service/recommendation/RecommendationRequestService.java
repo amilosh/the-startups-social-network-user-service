@@ -11,9 +11,9 @@ import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
+import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +25,7 @@ public class RecommendationRequestService {
     private final UserRepository userRepository;
     private final RecommendationRequestMapper recommendationRequestMapper;
     private final SkillRepository skillRepository;
+    private final SkillRequestRepository skillRequestRepository;
 
     @Transactional
     public RecommendationRequestDto create(RecommendationRequestDto dto) {
@@ -55,8 +56,10 @@ public class RecommendationRequestService {
         /*todo: Приходится создавать пустой список, так как в RecommendationRequest не инициализируется список skills
            и при попытке добавить в него SkillRequest будет NullPointerException.
            Как было бы идеально?
+              - Инициализировать список skills в RecommendationRequest: savedRequest.setSkills(new ArrayList<>())
+              - Создавать RecommendationRequest через new не получится, его создает mapStruct, в нем не инициализируются списки.
+              - Или создавать в savedRequest.addSkillRequest(skillRequest) проверку на null и инициализацию списка (сделал так)
         */
-        savedRequest.setSkills(new ArrayList<>());
 
         dto.getSkills().forEach(skillId -> {
             SkillRequest skillRequest = new SkillRequest();
@@ -67,11 +70,22 @@ public class RecommendationRequestService {
             savedRequest.addSkillRequest(skillRequest);
         });
 
+        /*todo: При использовании create (как сказано в задании) в SkillRequestRepository возникает ошибка:
+        [http-nio-8080-exec-2] WARN  o.s.w.s.m.m.a.ExceptionHandlerExceptionResolver - Resolved [org.springframework.dao.InvalidDataAccessApiUsageException:
+         Modifying queries can only use void or int/Integer as return type;
+         Offending method: public abstract school.faang.user_service.entity.recommendation.SkillRequest
+        school.faang.user_service.repository.recommendation.SkillRequestRepository.create(long,long)"
 
-//        dto.getSkills().forEach(skillId -> {
-//            SkillRequest skillRequest = skillRequestRepository.create(savedRequest.getId(), skillId);
-//            savedRequest.addSkillRequest(skillRequest); //видимо так произойдет связка по ключам в БД по СascadeType.ALL
-//        });
+        Метод create реализован не корректно?
+
+        dto.getSkills().forEach(skillId -> {
+            SkillRequest skillRequest = skillRequestRepository.create(savedRequest.getId(), skillId);
+            savedRequest.addSkillRequest(skillRequest);
+        });
+        */
+
+        //Явное сохранение RecommendationRequest после добавления SkillRequest. Можно и не делать, но так понятнее.
+        recommendationRequestRepository.save(savedRequest);
 
         return recommendationRequestMapper.toDto(savedRequest);
     }

@@ -17,16 +17,13 @@ public interface RecommendationRequestMapper {
     @Mapping(source = "requester.id", target = "requesterId")
     @Mapping(source = "receiver.id", target = "receiverId")
     @Mapping(source = "skills", target = "skills", qualifiedByName = "mapSkillsToIds")
-    //todo Не работает dateFormat, why?
-    @Mapping(source = "createdAt", target = "createdAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @Mapping(source = "updatedAt", target = "updatedAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
     RecommendationRequestDto toDto(RecommendationRequest entity);
 
     @Mapping(source = "requesterId", target = "requester.id")
     @Mapping(source = "receiverId", target = "receiver.id")
     //todo видимо правильно тут проигнорировать skills, так как SkillRequest из skills создаются в Service после создания RecommendationRequest
     @Mapping(target = "skills", ignore = true)
-    //todo правильно ли игнорировать id, createdAt, updatedAt? Они ведь создадутся в БД автоматически.
+    //todo правильно ли игнорировать id, createdAt, updatedAt? Так как они создадутся в БД автоматически.
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
