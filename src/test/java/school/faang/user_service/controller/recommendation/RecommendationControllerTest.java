@@ -1,4 +1,4 @@
-package school.faang.user_service.service.controller.recommendation;
+package school.faang.user_service.controller.recommendation;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
-import school.faang.user_service.controller.recommendation.RecommendationController;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.service.recommendation.RecommendationService;
 
