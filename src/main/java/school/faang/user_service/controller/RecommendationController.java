@@ -14,7 +14,7 @@ import school.faang.user_service.service.RecommendationService;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/recommendations")
+@RequestMapping("/recommendations")
 @RequiredArgsConstructor
 @Validated
 public class RecommendationController {

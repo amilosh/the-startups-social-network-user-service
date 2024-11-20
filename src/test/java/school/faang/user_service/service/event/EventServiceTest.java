@@ -15,9 +15,11 @@ import school.faang.user_service.filter.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.UserService;
-import school.faang.user_service.validation.event.EventValidation;
+import school.faang.user_service.validator.EventValidation;
+import school.faang.user_service.validator.UserValidator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -27,10 +29,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
 public class EventServiceTest {
@@ -47,19 +50,21 @@ public class EventServiceTest {
     private UserService userService;
     @Mock
     private List<EventFilter> eventFilters;
+    @Mock
+    private UserValidator userValidator;
 
     private EventDto eventDto;
     private Event event;
+    private final long userId = 1L;
 
     @BeforeEach
-   public void setUp() {
+    public void setUp() {
         eventDto = EventDto.builder()
                 .id(1L)
                 .title("Test Event")
                 .ownerId(1L)
                 .relatedSkills(new ArrayList<>())
                 .build();
-
 
         event = new Event();
         event.setId(1L);
@@ -118,7 +123,7 @@ public class EventServiceTest {
         User user = new User();
         user.setSkills(new ArrayList<>());
 
-        when(userService.findUser(eventDto.getOwnerId())).thenReturn(user);
+        when(userService.findUserById(eventDto.getOwnerId())).thenReturn(user);
         when(eventMapper.dtoToEventWithId(eventDto, event.getId())).thenReturn(event);
         when(eventRepository.save(event)).thenReturn(event);
         when(eventMapper.eventToDto(event)).thenReturn(eventDto);
@@ -192,5 +197,29 @@ public class EventServiceTest {
         when(eventRepository.existsById(id)).thenReturn(true);
         eventService.checkEventExistence(id);
         verify(eventRepository, times(1)).existsById(id);
+    }
+
+    @Test
+    public void testGetEvents_InvalidUserId() {
+        doThrow(new EntityNotFoundException("User with id #" + userId + " not found"))
+                .when(userValidator).validateUserById(userId);
+
+        Exception exception = assertThrows(EntityNotFoundException.class, () -> eventService.getEvents(userId));
+
+        assertEquals("User with id #" + userId + " not found", exception.getMessage());
+        verify(userValidator).validateUserById(userId);
+        verify(eventRepository, never()).findAllByUserId(userId);
+    }
+
+    @Test
+    public void testGetEvents_ValidUserId() {
+        List<Event> expectedEvents = Arrays.asList(event, new Event());
+        when(eventRepository.findAllByUserId(userId)).thenReturn(expectedEvents);
+
+        List<Event> actualEvents = eventService.getEvents(userId);
+
+        assertEquals(expectedEvents, actualEvents);
+        verify(userValidator).validateUserById(userId);
+        verify(eventRepository).findAllByUserId(userId);
     }
 }

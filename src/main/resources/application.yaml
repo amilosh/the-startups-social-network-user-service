@@ -28,10 +28,18 @@ spring:
 
 server:
   port: 8080
+  servlet:
+    context-path: /api/v1
 
 logging:
   level:
     root: info
+
+minio:
+  url: http://localhost:9000
+  accessKey: LbtJkdBst2Fzh9PQWMbn
+  secretKey: ZQsUFl0ToSUn8U6xH6dAoBnpWruKS0kvkiAvsVXN
+  bucketName: corpbucket
 
 project-service:
   host: localhost

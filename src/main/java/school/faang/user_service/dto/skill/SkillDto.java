@@ -10,11 +10,12 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Builder
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class SkillDto {
+
     @Positive(message = "Id must be a positive integer")
     private Long id;
 

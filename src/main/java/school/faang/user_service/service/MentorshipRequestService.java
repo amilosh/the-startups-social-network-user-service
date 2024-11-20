@@ -1,20 +1,20 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RejectionDto;
-import school.faang.user_service.dto.RequestFilterDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestCreateDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.MentorshipRequestValidator;
 
 import java.util.List;
@@ -28,18 +28,26 @@ public class MentorshipRequestService {
     private final MentorshipRequestRepository requestRepository;
     private final MentorshipRequestValidator requestValidator;
     private final MentorshipRequestMapper requestMapper;
-    private final List<Filter<MentorshipRequest, RequestFilterDto>> filters;
+    private final List<Filter<MentorshipRequest, MentorshipRequestFilterDto>> filters;
 
-    public MentorshipRequestDto requestMentorship(MentorshipRequestDto dto) {
+    @Transactional
+    public MentorshipRequestDto requestMentorship(MentorshipRequestCreateDto dto) {
         requestValidator.validateMentorshipRequest(dto);
-        requestRepository.create(dto.getRequesterId(), dto.getReceiverId(), dto.getDescription());
+        MentorshipRequest newRequest = MentorshipRequest.builder()
+                .description(dto.getDescription())
+                .requester(userService.findUserById(dto.getRequesterId()))
+                .receiver(userService.findUserById(dto.getReceiverId()))
+                .status(RequestStatus.PENDING)
+                .build();
+        MentorshipRequest result = requestRepository.save(newRequest);
 
         log.info("Mentorship request with id #{} from UserId #{} to UserId #{} created successfully.",
-                dto.getId(), dto.getRequesterId(), dto.getReceiverId());
-        return dto;
+                result.getId(), dto.getRequesterId(), dto.getReceiverId());
+
+        return requestMapper.toDto(result);
     }
 
-    public List<MentorshipRequestDto> getRequests(RequestFilterDto filters) {
+    public List<MentorshipRequestDto> getRequests(MentorshipRequestFilterDto filters) {
         Stream<MentorshipRequest> requests = requestRepository.findAll().stream();
 
         return this.filters.stream()

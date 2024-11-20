@@ -12,9 +12,8 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
-import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.validation.recommendation.RecommendationValidator;
-import school.faang.user_service.validation.skill.SkillValidator;
+import school.faang.user_service.validator.RecommendationValidator;
+import school.faang.user_service.validator.SkillValidator;
 
 import static org.mockito.Mockito.*;
 
@@ -36,7 +35,7 @@ class UserSkillGuaranteeServiceTest {
     @InjectMocks
     private UserSkillGuaranteeService userSkillGuaranteeService;
 
-    private TestObjectGenerator testObjectGenerator = new TestObjectGenerator();
+    private final TestObjectGenerator testObjectGenerator = new TestObjectGenerator();
     private UserSkillGuarantee userSkillGuarantee;
     private User user;
     private Skill skill;
@@ -52,7 +51,7 @@ class UserSkillGuaranteeServiceTest {
 
     @Test
     void testAddSkillGuarantee() {
-        when(userService.findUser(recommendation.getReceiver().getId())).thenReturn(user);
+        when(userService.findUserById(recommendation.getReceiver().getId())).thenReturn(user);
 
         userSkillGuaranteeService.addSkillGuarantee(skill, recommendation);
 

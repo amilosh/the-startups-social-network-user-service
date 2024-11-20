@@ -6,9 +6,8 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
-import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.validation.recommendation.RecommendationValidator;
-import school.faang.user_service.validation.skill.SkillValidator;
+import school.faang.user_service.validator.RecommendationValidator;
+import school.faang.user_service.validator.SkillValidator;
 
 @Component
 @RequiredArgsConstructor
@@ -23,9 +22,9 @@ public class UserSkillGuaranteeService {
         skillValidator.validateSkillExists(skill.getId());
 
         UserSkillGuarantee userSkillGuarantee = UserSkillGuarantee.builder()
-                .user(userService.findUser(recommendation.getReceiver().getId()))
+                .user(userService.findUserById(recommendation.getReceiver().getId()))
                 .skill(skill)
-                .guarantor(userService.findUser(recommendation.getAuthor().getId()))
+                .guarantor(userService.findUserById(recommendation.getAuthor().getId()))
                 .build();
         skill.getGuarantees().add(userSkillGuarantee);
         userSkillGuaranteeRepository.save(userSkillGuarantee);

@@ -20,7 +20,7 @@ import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("/api/skills")  // Базовый URL для контроллера
+@RequestMapping("/skills")
 @RequiredArgsConstructor
 public class SkillController {
     private final SkillService skillService;

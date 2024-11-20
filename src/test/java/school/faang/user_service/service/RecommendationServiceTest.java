@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,9 +17,10 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
+import school.faang.user_service.validator.RecommendationValidator;
+import school.faang.user_service.validator.UserValidator;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validation.recommendation.RecommendationValidator;
@@ -82,8 +84,8 @@ class RecommendationServiceTest {
 
     @Test
     void createRecommendationFromDto() {
-        when(userService.findUser(dto.getAuthorId())).thenReturn(User.builder().id(1L).build());
-        when(userService.findUser(dto.getReceiverId())).thenReturn(User.builder().id(2L).build());
+        when(userService.findUserById(dto.getAuthorId())).thenReturn(User.builder().id(1L).build());
+        when(userService.findUserById(dto.getReceiverId())).thenReturn(User.builder().id(2L).build());
         when(skillOfferService.findAllByUserId(dto.getReceiverId())).thenReturn(List.of(SkillOffer.builder().
                 id(1L)
                 .skill(Skill.builder().id(1L).build())
@@ -101,8 +103,8 @@ class RecommendationServiceTest {
     @Test
     void testCreateSuccessful() {
         recommendation.setId(10L);
-        when(userService.findUser(dto.getAuthorId())).thenReturn(User.builder().id(1L).build());
-        when(userService.findUser(dto.getReceiverId())).thenReturn(User.builder().id(2L).build());
+        when(userService.findUserById(dto.getAuthorId())).thenReturn(User.builder().id(1L).build());
+        when(userService.findUserById(dto.getReceiverId())).thenReturn(User.builder().id(2L).build());
         when(skillOfferService.findAllByUserId(dto.getReceiverId())).thenReturn(List.of(SkillOffer.builder().
                 id(1L)
                 .skill(Skill.builder().id(1L).build())
@@ -117,8 +119,8 @@ class RecommendationServiceTest {
         verify(recommendationValidator, times(1)).validateAuthorAndReceiverId(dto);
         verify(recommendationValidator, times(1)).validateSkillAndTimeRequirementsForGuarantee(dto);
         verify(recommendationValidator, times(1)).validateRecommendationExistsById(recommendation.getId());
-        verify(userService, times(1)).findUser(dto.getAuthorId());
-        verify(userService, times(1)).findUser(dto.getReceiverId());
+        verify(userService, times(1)).findUserById(dto.getAuthorId());
+        verify(userService, times(1)).findUserById(dto.getReceiverId());
         verify(skillOfferService, times(1)).findAllByUserId(dto.getReceiverId());
         verify(skillOfferService, times(1)).create(1L, recommendation.getId());
         verify(skillService, times(1)).addGuarantee(recommendation);

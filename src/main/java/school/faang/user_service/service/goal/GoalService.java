@@ -1,5 +1,6 @@
 package school.faang.user_service.service.goal;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.GoalDto;
@@ -7,12 +8,11 @@ import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
-import school.faang.user_service.service.skill.SkillService;
-import school.faang.user_service.service.user.UserService;
-import school.faang.user_service.validation.goal.GoalValidator;
+import school.faang.user_service.service.SkillService;
+import school.faang.user_service.service.UserService;
+import school.faang.user_service.validator.GoalValidator;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,15 +23,15 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class GoalService {
     private final GoalRepository goalRepository;
-
     private final UserService userService;
     private final SkillService skillService;
     private final List<GoalFilter> goalFilters;
-
     private final GoalMapper goalMapper;
-
     private final GoalValidator goalValidation;
 
+    public Goal findGoalById(Long id) {
+        return goalRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(String.format("Goal not found by id: %s", id)));
+    }
 
     /**
      * Creates a new goal with the given details for the given user ID.

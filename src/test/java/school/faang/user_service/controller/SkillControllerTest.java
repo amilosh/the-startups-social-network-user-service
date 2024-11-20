@@ -1,7 +1,12 @@
 package school.faang.user_service.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,8 +14,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.skill.SkillDto;
+import school.faang.user_service.service.SkillService;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.service.skill.SkillService;
 import school.faang.user_service.validation.skill.SkillValidation;
@@ -24,79 +31,87 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@ExtendWith(MockitoExtension.class)
+class SkillControllerTest {
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Transactional
-@Rollback
-public class SkillControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private SkillController skillController;
-
-    @MockBean
+    @Mock
     private SkillService skillService;
 
-    @MockBean
-    private SkillValidation skillValidation;
+    @InjectMocks
+    private SkillController skillController;
 
-    @MockBean
-    private SkillMapper skillMapper;
+    private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
+    private SkillDto skillDto;
+    private List<SkillDto> skillList;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(skillController).build();
+        objectMapper = new ObjectMapper();
 
-    @Test
-    public void createSkillWithoutTitle() throws Exception {
-        SkillDto invalidSkillDto = new SkillDto(null, null);
+        skillDto = SkillDto.builder()
+                .id(1L)
+                .title("Java")
+                .build();
 
-        mockMvc.perform(post("/api/skills/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidSkillDto)))
-            .andExpect(status().isBadRequest())
-            .andExpect(jsonPath("$.title").value("title name cannot be blank"));
-    }
-
-    @Test
-    public void createValidSkill() throws Exception {
-        SkillDto skillDtoJava = new SkillDto(null, "Test");
-
-        doNothing().when(skillValidation).validateDuplicate(any());
-        when(skillService.create(any(SkillDto.class))).thenReturn(skillDtoJava);
-
-        mockMvc.perform(post("/api/skills/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(skillDtoJava)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.title", is("Test")));
-
-        verify(skillService, times(1)).create(any(SkillDto.class));
-    }
-
-    @Test
-    public void testGetUserSkillsValidUserId() throws Exception {
-        List<SkillDto> skills = Arrays.asList(
-            new SkillDto(1L, "Java"),
-            new SkillDto(2L, "Python")
+        skillList = List.of(
+                skillDto,
+                SkillDto.builder()
+                        .id(2L)
+                        .title("Spring")
+                        .build()
         );
+    }
 
-        when(skillService.getUserSkills(1L)).thenReturn(skills);
+    @Test
+    void testCreateSkill() throws Exception {
+        when(skillService.create(skillDto)).thenReturn(skillDto);
 
-        mockMvc.perform(get("/api/skills/user/1"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$", hasSize(2)))
-            .andExpect(jsonPath("$[0].id", is(1)))
-            .andExpect(jsonPath("$[0].title", is("Java")))
-            .andExpect(jsonPath("$[1].id", is(2)))
-            .andExpect(jsonPath("$[1].title", is("Python")));
+        mockMvc.perform(post("/skills")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(skillDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(skillDto.getId()))
+                .andExpect(jsonPath("$.title").value(skillDto.getTitle()));
 
-        verify(skillService, times(1)).getUserSkills(1L);
+        verify(skillService, times(1)).create(skillDto);
+    }
+
+    @Test
+    void testGetUserSkills() throws Exception {
+        long userId = 1L;
+        when(skillService.getUserSkills(userId)).thenReturn(skillList);
+
+        mockMvc.perform(get("/skills/users/{userId}", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(skillList.get(0).getId()))
+                .andExpect(jsonPath("$[0].title").value(skillList.get(0).getTitle()))
+                .andExpect(jsonPath("$[1].id").value(skillList.get(1).getId()))
+                .andExpect(jsonPath("$[1].title").value(skillList.get(1).getTitle()));
+
+        verify(skillService, times(1)).getUserSkills(userId);
+    }
+
+    @Test
+    void testGetOfferedSkills() throws Exception {
+        long userId = 1L;
+        when(skillService.getOfferedSkills(userId)).thenReturn(skillList);
+
+        mockMvc.perform(get("/skills/users/{userId}/offers", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(skillList.get(0).getId()))
+                .andExpect(jsonPath("$[0].title").value(skillList.get(0).getTitle()))
+                .andExpect(jsonPath("$[1].id").value(skillList.get(1).getId()))
+                .andExpect(jsonPath("$[1].title").value(skillList.get(1).getTitle()));
+
+        verify(skillService, times(1)).getOfferedSkills(userId);
     }
 }

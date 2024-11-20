@@ -1,5 +1,9 @@
 package school.faang.user_service.exception;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,6 +15,9 @@ import school.faang.user_service.exception.skill.SkillDuplicateException;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.util.stream.Collectors;
+
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(SkillDuplicateException.class)
@@ -38,27 +45,79 @@ public class GlobalExceptionHandler {
             .body("Ошибка сервера: " + ex.getMessage());
     }
 
-    /**
-     * Handle {@link DataValidationException} by returning a {@link ResponseEntity} with a 400 status code
-     * and the error message.
-     *
-     * @param ex the {@link DataValidationException} thrown
-     * @return a {@link ResponseEntity} with the error message
-     */
+    @ExceptionHandler(SkillNotFoundException.class)
+    public ResponseEntity<String> handleSkillNotFoundException(SkillNotFoundException exception) {
+        log.error("SkillNotFoundException: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException exception) {
+        log.error("UserNotFoundException: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException exception) {
+        log.error("IllegalArgumentException: {}", exception.getMessage(), exception);
+        return ResponseEntity.badRequest().body(exception.getMessage());
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<String> handleIllegalStateException(IllegalStateException exception) {
+        log.error("IllegalStateException: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
     @ExceptionHandler(DataValidationException.class)
     public ResponseEntity<String> handleDataValidationException(DataValidationException ex) {
+        log.error("DataValidationException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
-    /**
-     * Handle {@link EntityNotFoundException} by returning a {@link ResponseEntity} with a 404 status code
-     * and the error message.
-     *
-     * @param ex the {@link EntityNotFoundException} thrown
-     * @return a {@link ResponseEntity} with the error message
-     */
+    @ExceptionHandler(RecommendationRequestNotFoundException.class)
+    public ResponseEntity<String> handleRecommendationRequestNotFoundException(
+            RecommendationRequestNotFoundException exception) {
+        log.error("RecommendationRequestNotFoundException: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+    }
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
+        log.error("EntityNotFoundException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidMentorshipRequestException.class)
+    public ResponseEntity<String> handleInvalidMentorshipRequestException(InvalidMentorshipRequestException ex) {
+        log.error("InvalidMentorshipRequestException: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidRequestFilterException.class)
+    public ResponseEntity<String> handleInvalidRequestFilterException(InvalidRequestFilterException ex) {
+        log.error("InvalidRequestFilterException: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(SkillDuplicateException.class)
+    public ResponseEntity<String> handleSkillDuplicateException(SkillDuplicateException ex) {
+        log.error("SkillDuplicateException: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleAllExceptions(Exception exception) {
+        log.error("Unhandled exception: {}", exception.getMessage(), exception);
+        return ResponseEntity.badRequest().body(exception.getMessage());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<String> handleConstraintViolationException(ConstraintViolationException ex) {
+        String errorMessage = ex.getConstraintViolations().stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.joining(", "));
+        log.error("ConstraintViolationException: {}", errorMessage, ex);
+        return ResponseEntity.badRequest().body(errorMessage);
     }
 }
