@@ -1,5 +1,7 @@
 package school.faang.user_service.controller.recommendation;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,55 +14,45 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.recommendation.RequestRecommendationDto;
 import school.faang.user_service.dto.recommendation.ResponseRecommendationDto;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.recommendation.ErrorMessage;
 import school.faang.user_service.service.recommendation.RecommendationService;
 
 import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("/recommendations")
+@RequestMapping("/api/v1/recommendations")
 @RequiredArgsConstructor
 public class RecommendationController {
     private final RecommendationService recommendationService;
 
-    @PostMapping("/give")
-    public ResponseRecommendationDto giveRecommendation(@RequestBody RequestRecommendationDto requestRecommendationDto) {
-        validateRecommendation(requestRecommendationDto);
+    @PostMapping()
+    public ResponseRecommendationDto giveRecommendation(
+            @Valid @RequestBody RequestRecommendationDto requestRecommendationDto) {
         return recommendationService.create(requestRecommendationDto);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseRecommendationDto updateRecommendation(@PathVariable long id, @RequestBody RequestRecommendationDto updatedRequestRecommendationDto) {
-        validateRecommendation(updatedRequestRecommendationDto);
+    @PutMapping()
+    public ResponseRecommendationDto updateRecommendation(
+            @PathVariable @NotNull(message = "Recommendation ID should not be null") Long id,
+            @Valid @RequestBody RequestRecommendationDto updatedRequestRecommendationDto) {
         return recommendationService.update(id, updatedRequestRecommendationDto);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public void deleteRecommendation(@PathVariable Long id) {
+    @DeleteMapping()
+    public void deleteRecommendation(
+            @PathVariable @NotNull(message = "Recommendation ID should not be null") Long id) {
         recommendationService.delete(id);
     }
 
-    @GetMapping("/user/{receiverId}")
-    public List<ResponseRecommendationDto> getAllUserRecommendations(@PathVariable long receiverId) {
+    @GetMapping("/received/{receiverId}")
+    public List<ResponseRecommendationDto> getAllUserRecommendations(
+            @PathVariable @NotNull(message = "Receiver ID should not be null") Long receiverId) {
         return recommendationService.getAllUserRecommendations(receiverId);
     }
 
-    @GetMapping("/user/{authorId}")
-    public List<ResponseRecommendationDto> getAllGivenRecommendations(@PathVariable long authorId) {
+    @GetMapping("/given/{authorId}")
+    public List<ResponseRecommendationDto> getAllGivenRecommendations(
+            @PathVariable @NotNull(message = "Author ID should not be null") Long authorId) {
         return recommendationService.getAllGivenRecommendations(authorId);
-    }
-
-    private void validateRecommendation(RequestRecommendationDto requestRecommendationDto) {
-        if (requestRecommendationDto.getContent() == null || requestRecommendationDto.getContent().isBlank()) {
-            throw new DataValidationException(ErrorMessage.RECOMMENDATION_CONTENT);
-        }
-        if (requestRecommendationDto.getAuthorId() == null) {
-            throw new DataValidationException(ErrorMessage.RECOMMENDATION_AUTHOR);
-        }
-        if (requestRecommendationDto.getReceiverId() == null) {
-            throw new DataValidationException(ErrorMessage.RECOMMENDATION_RECEIVER);
-        }
     }
 }

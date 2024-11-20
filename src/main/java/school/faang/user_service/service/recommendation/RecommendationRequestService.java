@@ -48,8 +48,8 @@ public class RecommendationRequestService {
 
         RecommendationRequest finalRequest = request;
         List<SkillRequest> skillRequests = recommendationRequest.getSkillRequests().stream()
-                .map(skillDto -> {
-                    Skill skill = getSkill(skillDto.getSkillId());
+                .map(skillRequestDto -> {
+                    Skill skill = getSkill(skillRequestDto.getSkillId());
                     return SkillRequest.builder()
                             .request(finalRequest)
                             .skill(skill)
