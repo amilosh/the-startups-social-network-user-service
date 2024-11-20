@@ -21,30 +21,26 @@ public class RecommendationValidator {
     private final RecommendationRepository recommendationRepository;
     private final SkillRepository skillRepository;
 
-    public void validate(RecommendationDto dto) {
+    public void validateData(RecommendationDto dto) {
         validateContent(dto.getContent());
-        validateDate(dto);
         checkDuplicateSkills(dto.getSkillOffers());
         checkExistAllSkills(dto.getSkillOffers());
+        checkAuthorAndReceiverId(dto.getAuthorId(), dto.getReceiverId());
         if (dto.getSkillOffers() == null) {
             dto.setSkillOffers(Collections.emptyList());
         }
     }
 
-    public void validate(RecommendationDto dto, boolean checkRecommendationId) {
-        validate(dto);
-        if (checkRecommendationId) {
-            validateRecommendationId(dto.getId());
-        }
-    }
-
     public void validateContent(String content) {
+        if (content == null) {
+            throw new DataValidationException("Null content in recommendation");
+        }
         if (content.isBlank()) {
             throw new DataValidationException("Empty content in recommendation");
         }
     }
 
-    public void validateDate(RecommendationDto dto) {
+    public void checkDate(RecommendationDto dto) {
         recommendationRepository
                 .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(dto.getAuthorId(), dto.getReceiverId())
                 .ifPresent(lastRecommendation -> {
@@ -75,9 +71,9 @@ public class RecommendationValidator {
         }
     }
 
-    public void validateRecommendationId(Long id) {
-        if (!recommendationRepository.existsById(id)) {
-            throw new DataValidationException("Id of a non-existing recommendation has been sent");
+    public void checkAuthorAndReceiverId(long authorId, long receiverId) {
+        if (authorId == receiverId) {
+            throw new DataValidationException("You can't make a recommendation to yourself");
         }
     }
 }
