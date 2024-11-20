@@ -12,14 +12,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.user.DeactivatedUserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.repository.premium.PremiumRepository;
 
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,6 +43,13 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
+
+    @Mock
+    private PremiumRepository premiumRepo;
+
+    @Mock
+    private List<UserFilter> filters;
+
     @Mock
     private UserRepository userRepository;
 
@@ -76,14 +87,29 @@ class UserServiceTest {
     private List<Goal> settingGoals;
     private User userToDeactivate;
     private User attendee1;
+    private UserDto userDto;
+    private UserFilterDto userFilterDto;
+    private List<User> userList = new ArrayList<>();
 
     @BeforeEach
     void setUp() {
-
         user = User.builder()
                 .id(1L)
+                .username("testuser")
+                .email("user@gmail.com")
                 .build();
 
+        userDto = UserDto.builder()
+                .id(1L)
+                .username("testuser")
+                .email("user@gmail.com")
+                .build();
+
+        userFilterDto = UserFilterDto.builder()
+                .namePattern("testuser")
+                .build();
+
+        userList.add(user);
 
         eventOwned1 = new Event();
         eventOwned1.setTitle("Event 1");
@@ -330,5 +356,30 @@ class UserServiceTest {
         when(userRepository.findById(anyLong())).thenThrow(DataValidationException.class);
 
         assertThrows(DataValidationException.class, () -> userService.deactivateUser(anyLong()));
+    }
+
+    @Test
+    void testGetPremiumUsers() {
+        user = User.builder()
+                .id(1L)
+                .username("testuser")
+                .email("user@gmail.com")
+                .build();
+
+        userDto = UserDto.builder()
+                .id(1L)
+                .username("testuser")
+                .email("user@gmail.com")
+                .build();
+
+        userFilterDto = UserFilterDto.builder()
+                .namePattern("testuser")
+                .build();
+        userList.add(user);
+        when(premiumRepo.findPremiumUsers()).thenReturn(userList.stream());
+
+        userService.getPremiumUsers(userFilterDto);
+
+        verify(premiumRepo, times(1)).findPremiumUsers();
     }
 }

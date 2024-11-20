@@ -7,14 +7,11 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.user.DeactivatedUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.Skill;
-
-import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
@@ -28,7 +25,7 @@ public interface UserMapper {
 
     List<UserDto> toDto(List<User> users);
 
-    List<User> toEntity(List<UserDto> userDtos)
+    List<User> toEntity(List<UserDto> userDtos);
 
     @Mapping(source = "settingGoals", target = "idsSettingGoals", qualifiedByName = "mapGoalsToListId")
     @Mapping(source = "goals", target = "idsGoals", qualifiedByName = "mapGoalsToListId")
