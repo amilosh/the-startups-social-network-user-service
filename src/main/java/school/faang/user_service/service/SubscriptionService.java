@@ -3,8 +3,8 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.UserDTO;
-import school.faang.user_service.dto.UserFilterDTO;
+import school.faang.user_service.dto.subscribe.UserDTO;
+import school.faang.user_service.dto.subscribe.UserFilterDTO;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.InvalidUserIdException;
 import school.faang.user_service.exception.SubscriptionNotFoundException;
@@ -26,11 +26,12 @@ public class SubscriptionService {
         validateUserIds(followerId, followeeId);
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             log.warn("Подписка между пользователями {} и {} уже существует.", followerId, followeeId);
-            throw new StringIndexOutOfBoundsException("Подписка уже существует.");
+            throw new IllegalArgumentException("Подписка уже существует.");
         }
         subscriptionRepository.followUser(followerId, followeeId);
         log.info("Пользователь {} успешно подписался на пользователя {}.", followerId, followeeId);
     }
+
 
     public void unfollowUser(Long followerId, Long followeeId) {
         log.info("Пользователь {} пытается отписаться от пользователя {}", followerId, followeeId);

@@ -1,10 +1,10 @@
 package school.faang.user_service.service;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
@@ -135,13 +135,19 @@ class SkillServiceTest {
         when(skillRepository.findById(SKILL_ID)).thenReturn(Optional.of(skill));
         when(skillMapper.toDto(skill)).thenReturn(new SkillDto(SKILL_ID, "Java"));
 
-        verify(skillRepository).assignSkillToUser(SKILL_ID, USER_ID);
-        verify(userSkillGuaranteeRepository, times(3)).save(any(UserSkillGuarantee.class));
+        ArgumentCaptor<Long> skillIdCaptor = ArgumentCaptor.forClass(Long.class);
+        ArgumentCaptor<Long> userIdCaptor = ArgumentCaptor.forClass(Long.class);
 
         SkillDto result = skillService.acquireSkillFromOffers(SKILL_ID, USER_ID);
 
+        verify(skillRepository).assignSkillToUser(skillIdCaptor.capture(), userIdCaptor.capture());
+        assertEquals(SKILL_ID, skillIdCaptor.getValue());
+        assertEquals(USER_ID, userIdCaptor.getValue());
+
         assertNotNull(result, "SkillDto should not be null if the skill acquisition is successful.");
         assertEquals("Java", result.getTitle());
+
+        verify(userSkillGuaranteeRepository, times(3)).save(any(UserSkillGuarantee.class));
     }
 
     @Test
