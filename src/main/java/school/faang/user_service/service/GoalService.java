@@ -1,10 +1,12 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
@@ -33,9 +35,10 @@ import static school.faang.user_service.logging.goal.GoalMessages.NO_SKILLS_FOUN
 import static school.faang.user_service.logging.goal.GoalMessages.NUMBER_OF_ACTIVE_GOALS_REACHED_FOR_A_USER_IN_GOAL_WITH_ID;
 import static school.faang.user_service.logging.goal.GoalMessages.SUCCESSFULLY_DELETED_GOAL_AND_ALL_ITS_CHILDREN;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@Validated
 public class GoalService {
     private static final int MAX_NUM_ACTIVE_GOALS = 3;
 
@@ -56,11 +59,31 @@ public class GoalService {
         return goalMapper.toResponseDto(persistantGoal);
     }
 
+    public Goal getGoalById(long id) {
+        return goalRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Goal do not found"));
+    }
+
+    public void removeGoalsWithoutExecutingUsers(List<Goal> goals) {
+        goals.stream()
+                .filter(Goal::isEmptyExecutingUsers)
+                .forEach(goal -> goalRepository.deleteById(goal.getId()));
+        log.info("Goals without users is removed");
+    }
+
     private Goal createInitialGoal(CreateGoalDto dto) {
         Goal goal = goalMapper.toEntity(dto);
         goal.setStatus(GoalStatus.ACTIVE);
         return goal;
     }
+
+
+    public List<Goal> mapListIdsToGoals(List<Long> goalsIds) {
+        return goalsIds.stream()
+                .map(id -> getGoalById(id))
+                .toList();
+    }
+
 
     private void establishAllRelations(Goal goal, CreateGoalDto dto) {
         log.debug("Establishing relations for goal with title: {}", goal.getTitle());
