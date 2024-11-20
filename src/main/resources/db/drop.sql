@@ -18,6 +18,7 @@ DROP TABLE rating;
 DROP TABLE event;
 DROP TABLE goal;
 DROP TABLE skill;
+DROP TABLE files;
 DROP TABLE users;
 DROP TABLE country;
 

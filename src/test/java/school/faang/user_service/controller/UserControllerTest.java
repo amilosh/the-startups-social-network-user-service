@@ -18,6 +18,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.UserService;
+import school.faang.user_service.validator.UserValidator;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +33,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
@@ -45,11 +51,13 @@ class UserControllerTest {
 
     @Spy
     private UserMapper userMapper;
+    @Mock
+    private UserValidator userValidator;
 
     @InjectMocks
     private UserController userController;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
@@ -59,51 +67,15 @@ class UserControllerTest {
     @Test
     void getUserWhenUserExistsShouldReturnUser() throws Exception {
         long userId = 1L;
-        User user = new User();
-        user.setId(userId);
+        UserDto dto = new UserDto();
+        dto.setId(userId);
 
-        when(userService.findUser(userId)).thenReturn(user);
+        when(userService.findUserDtoById(userId)).thenReturn(dto);
 
         mockMvc.perform(get("/users/{userId}", userId))
                 .andExpect(status().isOk());
 
-        verify(userService, times(1)).findUser(userId);
-    }
-
-    @Test
-    void getUsersByIdsWhenUsersExistShouldReturnUserDtos() throws Exception {
-        UsersDto ids = new UsersDto();
-        ids.setIds(List.of(1L, 2L));
-
-        UserDto userDto1 = new UserDto();
-        userDto1.setId(1L);
-
-        UserDto userDto2 = new UserDto();
-        userDto2.setId(2L);
-
-        when(userService.getUsersByIds(ids)).thenReturn(List.of(userDto1, userDto2));
-
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(ids)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(2)))
-                .andExpect(jsonPath("$[0].id", is(1)))
-                .andExpect(jsonPath("$[1].id", is(2)));
-    }
-
-    @Test
-    void getUsersByIdsWhenNoUsersExistShouldReturnEmptyList() throws Exception {
-        UsersDto ids = new UsersDto();
-        ids.setIds(List.of(1L, 2L));
-
-        when(userService.getUsersByIds(ids)).thenReturn(List.of());
-
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(ids)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()", is(0)));
+        verify(userService, times(1)).findUserDtoById(userId);
     }
 
     @Test

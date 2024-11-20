@@ -23,7 +23,25 @@ jobs:
           java-version: 17
 
       - name: Unit Tests
-        run: ./gradlew test
+        run: ./gradlew test jacocoTestReport
 
       - name: Build the application
         run: ./gradlew build
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Run coverage verification
+        run: ./gradlew jacocoTestCoverageVerification
+
+      - name: Upload JaCoCo report
+        uses: actions/upload-artifact@v3
+        with:
+          name: jacoco-report
+          path: build/jacocoHtml
