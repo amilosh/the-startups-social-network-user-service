@@ -69,8 +69,16 @@ public class SkillService {
         return skillRequestRepository.create(requestId, skillId);
     }
 
-    public Optional<Skill> findUserSkill(long userId, long skillId) {
-        return skillRepository.findUserSkill(userId, skillId);
+    public void assignSkillToUser(long skillId, long receiverId) {
+        skillRepository.assignSkillToUser(skillId, receiverId);
+    }
+
+    public Optional<Skill> findUserSkill(long skillId, long receiverId) {
+        return skillRepository.findUserSkill(skillId, receiverId);
+    }
+
+    public int countExisting(List<Long> ids){
+        return skillRepository.countExisting(ids);
     }
 
     public boolean existsById(long id) {
