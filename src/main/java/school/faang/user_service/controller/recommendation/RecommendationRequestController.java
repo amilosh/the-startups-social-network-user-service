@@ -31,7 +31,7 @@ public class RecommendationRequestController {
     }
 
     @PostMapping("/requests")
-    public List<RecommendationRequestDto> getRecommendationRequests(@Valid @RequestBody RequestFilterDto filter) {
+    public List<RecommendationRequestDto> getRecommendationRequests(@RequestBody RequestFilterDto filter) {
         log.info("A request has been received to receive recommendation requests matching the filter: {}", filter);
         return recommendationRequestService.getRequests(filter);
     }

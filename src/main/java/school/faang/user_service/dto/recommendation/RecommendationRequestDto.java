@@ -20,7 +20,7 @@ public class RecommendationRequestDto {
     @NotBlank(message = "message cannot be empty or consist of whitespace characters")
     private String message;
     private RequestStatus status;
-    @NotNull
+    @NotNull(message = "skillIds cannot be null")
     private List<Long> skillIds;
     @NotNull(message = "requested cannot be null")
     private Long requesterId;
