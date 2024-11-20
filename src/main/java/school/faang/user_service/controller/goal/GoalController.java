@@ -1,47 +1,54 @@
 package school.faang.user_service.controller.goal;
 
-import lombok.Data;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
 
-@Data
+@Validated
+@RestController
 @RequiredArgsConstructor
-@Component
+@RequestMapping("api/v1/goals")
 public class GoalController {
 
     private final GoalService goalService;
 
-    public GoalDto createGoal(Long userId, GoalDto goalDto) {
-        validateGoalTitle(goalDto);
+    @PostMapping("/{userId}")
+    public GoalDto createGoal(
+            @PathVariable @NotNull(message = "User ID should not be null") Long userId,
+            @Valid @RequestBody GoalDto goalDto) {
         return goalService.createGoal(userId, goalDto);
     }
 
-    public GoalDto updateGoal(Long goalId, GoalDto goalDto) {
-        validateGoalTitle(goalDto);
+    @PutMapping("/{goalId}")
+    public GoalDto updateGoal(
+            @PathVariable @NotNull(message = "Goal ID should not be null") Long goalId,
+            @Valid @RequestBody GoalDto goalDto) {
         return goalService.updateGoal(goalId, goalDto);
     }
 
-    public void deleteGoal(Long goalId) {
+    @DeleteMapping("/{goalId}")
+    public void deleteGoal(@PathVariable @NotNull(message = "Goal ID should not be null") Long goalId) {
         goalService.deleteGoal(goalId);
     }
 
-    public List<GoalDto> findSubtasksByGoalId(Long goalId, GoalFilterDto filters){
+    @GetMapping("/{goalId}/subtasks")
+    public List<GoalDto> findSubtasksByGoalId(
+            @PathVariable @NotNull(message = "Goal ID should not be null") Long goalId,
+            @Valid @ModelAttribute GoalFilterDto filters) {
         return goalService.findSubtasksByGoalId(goalId, filters);
     }
 
-    public List<GoalDto> getGoalsByUser(Long userId, GoalFilterDto filters){
+    @GetMapping("/users/{userId}")
+    public List<GoalDto> getGoalsByUser(
+            @PathVariable @NotNull(message = "User ID should not be null") Long userId,
+            @Valid @ModelAttribute GoalFilterDto filters) {
         return goalService.getGoalsByUser(userId, filters);
-    }
-
-    private void validateGoalTitle(GoalDto goalDto) {
-        if (goalDto.getTitle() == null || goalDto.getTitle().isBlank()) {
-            throw new DataValidationException("Title can't be empty");
-        }
     }
 }

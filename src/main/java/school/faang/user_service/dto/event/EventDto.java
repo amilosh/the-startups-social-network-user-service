@@ -28,7 +28,7 @@ public class EventDto {
 
     private LocalDateTime endDate;
 
-    @NotNull(message = "The organizer's ID should not be empty.")
+    @NotNull(message = "The organizer's ID should not be empty")
     private Long ownerId;
 
     @NotEmpty(message = "The description of the event should not be blank")
