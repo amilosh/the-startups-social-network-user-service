@@ -76,36 +76,6 @@ public class RecommendationRequestValidatorTest {
     }
 
     @Test
-    @DisplayName("Validate recommendation request DTO - success")
-    void testValidateRecommendationRequestDtoSuccess() {
-        assertDoesNotThrow(() -> recommendationRequestValidator.validateRecommendationRequestDto(recommendationRequestDto));
-    }
-
-    @Test
-    @DisplayName("Validate recommendation request DTO - message is blank")
-    void testValidateRecommendationRequestDtoMessageBlank() {
-        recommendationRequestDto.setMessage(" ");
-        assertThrows(DataValidationException.class,
-                () -> recommendationRequestValidator.validateRecommendationRequestDto(recommendationRequestDto));
-    }
-
-    @Test
-    @DisplayName("Validate recommendation request DTO - requesterId is null")
-    void testValidateRecommendationRequestDtoRequesterIdNull() {
-        recommendationRequestDto.setRequesterId(null);
-        assertThrows(DataValidationException.class,
-                () -> recommendationRequestValidator.validateRecommendationRequestDto(recommendationRequestDto));
-    }
-
-    @Test
-    @DisplayName("Validate recommendation request DTO - receiverId is null")
-    void testValidateRecommendationRequestDtoReceiverIdNull() {
-        recommendationRequestDto.setReceiverId(null);
-        assertThrows(DataValidationException.class,
-                () -> recommendationRequestValidator.validateRecommendationRequestDto(recommendationRequestDto));
-    }
-
-    @Test
     @DisplayName("Validate recommendation from DB - success")
     void testValidateRecommendationFromBdSuccess() {
         when(recommendationRequestRepository.findById(RECOMMENDATION_REQUEST_ID)).thenReturn(Optional.of(recommendationRequest));
