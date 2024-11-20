@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
@@ -33,7 +34,8 @@ public class RecommendationService {
     private final RecommendationMapper recommendationMapper;
 
     public RecommendationDto create(RecommendationDto dto) {
-        recommendationValidator.validate(dto);
+        recommendationValidator.validateData(dto);
+        recommendationValidator.checkDate(dto);
         Long recommendationId = recommendationRepository.create(
                 dto.getAuthorId(),
                 dto.getReceiverId(),
@@ -44,15 +46,16 @@ public class RecommendationService {
         return dto;
     }
 
+    @Transactional
     public RecommendationDto update(RecommendationDto dto) {
-        recommendationValidator.validate(dto, true);
+        recommendationValidator.validateData(dto);
         skillOfferRepository.deleteAllByRecommendationId(dto.getId());
+        recommendationRepository.update(dto.getAuthorId(),dto.getReceiverId(), dto.getContent());
         handleSkillOffers(dto);
         return dto;
     }
 
     public void delete(long id) {
-        recommendationValidator.validateRecommendationId(id);
         recommendationRepository.deleteById(id);
     }
 
@@ -82,7 +85,7 @@ public class RecommendationService {
         return recommendationMapper.toListDto(recommendations);
     }
 
-    public void handleSkillOffers(RecommendationDto dto) {
+    private void handleSkillOffers(RecommendationDto dto) {
         User receiver = userService.findById(dto.getReceiverId());
         User author = userService.findById(dto.getAuthorId());
         List<Long> receiverSkillsId = receiver.getSkills().stream()
@@ -104,7 +107,7 @@ public class RecommendationService {
         );
     }
 
-    public void addGuaranteeIfAbsent(User author, User receiver, int indexOfSkill) {
+    private void addGuaranteeIfAbsent(User author, User receiver, int indexOfSkill) {
         Skill skill = receiver.getSkills().get(indexOfSkill);
         Set<User> guarantors = skill.getGuarantees().stream()
                 .map(UserSkillGuarantee::getGuarantor)
@@ -121,7 +124,7 @@ public class RecommendationService {
         }
     }
 
-    public void addGuarantee(User author, User receiver, long skillId) {
+    private void addGuarantee(User author, User receiver, long skillId) {
         Skill skill = skillService.findById(skillId);
         userSkillGuaranteeRepository.save(
                 UserSkillGuarantee.builder()
@@ -132,7 +135,7 @@ public class RecommendationService {
         );
     }
 
-    public void checkPageIndexAndSize(int page, int size) {
+    private void checkPageIndexAndSize(int page, int size) {
         if (page < 1 || size < 1) {
             throw new DataValidationException("The page number and size must be greater than 1");
         }
