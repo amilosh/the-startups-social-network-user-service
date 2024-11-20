@@ -11,6 +11,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -48,7 +49,11 @@ public class RecommendationRequest {
     private Recommendation recommendation;
 
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)
-    private List<SkillRequest> skills;
+    //todo new ArrayList<>() - и так инициализация не работает.
+    // Объект создает mapStruct, в его Impl сетяться только поля, которые не null в DTO.
+    // skill в mapper в ignored
+    // Потому, кажется, самое простое создавать List в методе addSkillRequest
+    private List<SkillRequest> skills = new ArrayList<>();
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -61,6 +66,9 @@ public class RecommendationRequest {
     private LocalDateTime updatedAt;
 
     public void addSkillRequest(SkillRequest skillRequest) {
+        if (skills == null) {
+            skills = new ArrayList<>();
+        }
         skills.add(skillRequest);
     }
 }
