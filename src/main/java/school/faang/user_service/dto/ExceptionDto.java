@@ -1,13 +1,16 @@
 package school.faang.user_service.dto;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 
+import java.util.List;
+
 @Data
-@AllArgsConstructor
+@Builder
 public class ExceptionDto {
-    private int status;
-    private HttpStatus error;
+    private int statusCode;
+    private HttpStatus status;
     private String description;
+    private List<String> errorMessages;
 }

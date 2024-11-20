@@ -19,5 +19,4 @@ public class UserDto {
     private List<Long> mentorsIds;
     private List<Long> goalsIds;
     private List<Long> skillsIds;
-
 }
