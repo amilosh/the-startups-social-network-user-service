@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import school.faang.user_service.dto.user.UserDto;
@@ -53,8 +54,8 @@ public class SubscriptionController {
             @ApiResponse(responseCode = "200", description = "Followers were found"),
             @ApiResponse(responseCode = "400", description = "Invalid followee ID")
     })
-    @GetMapping("/{followeeId}")
-    public List<UserDto> getFollowers(@PathVariable long followeeId, @RequestParam UserFilterDto filter) {
+    @PostMapping("/{followeeId}")
+    public List<UserDto> getFollowers(@PathVariable long followeeId, @RequestBody UserFilterDto filter) {
         return subscriptionService.getFollowers(followeeId, filter);
     }
 
@@ -72,8 +73,8 @@ public class SubscriptionController {
             @ApiResponse(responseCode = "200", description = "Followings' information found successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid followee ID")
     })
-    @GetMapping("/followings/{followeeId}")
-    public List<UserDto> getFollowing(@PathVariable long followeeId, @RequestParam UserFilterDto filter) {
+    @PostMapping("/followings/{followeeId}")
+    public List<UserDto> getFollowing(@PathVariable long followeeId, @RequestBody UserFilterDto filter) {
         return subscriptionService.getFollowing(followeeId, filter);
     }
 

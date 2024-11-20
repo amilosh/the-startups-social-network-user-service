@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user.UserIdsDto;
 import school.faang.user_service.service.user.UserService;
 
@@ -63,5 +64,15 @@ public class UserController {
     public ResponseEntity<List<Long>> getNotExistingUserIds(@RequestBody @Valid UserIdsDto request) {
         List<Long> notExistingUserIds = userService.getNotExistingUserIds(request.getUserIds());
         return ResponseEntity.ok(notExistingUserIds);
+    }
+
+    @PostMapping("/not-premium")
+    public List<UserDto> getNotPremiumUsers(@RequestBody UserFilterDto filters) {
+        return userService.getNotPremiumUsers(filters);
+    }
+
+    @PostMapping("/premium")
+    public List<UserDto> getPremiumUsers(@RequestBody UserFilterDto filters) {
+        return userService.getPremiumUsers(filters);
     }
 }
