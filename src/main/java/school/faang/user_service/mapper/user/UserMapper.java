@@ -8,6 +8,7 @@ import school.faang.user_service.dto.promotion.UserResponseDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.promotion.UserPromotion;
+import school.faang.user_service.pojo.person.Person;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,13 @@ public interface UserMapper {
     List<UserDto> toListDto(List<User> users);
 
     List<User> toListUser(List<UserDto> users);
+
+    @Mapping(target = "username", expression = "java(person.getFirstName() + ' ' + person.getLastName())")
+    @Mapping(target = "aboutMe", expression = "java(person.getState() + ' ' + person.getState()" +
+            " + ' ' + person.getFaculty() + ' ' + person.getYearOfStudy()")
+    User toUser(Person person);
+
+    List<User> toListUserFromPersons(List<Person> persons);
 
     @Mapping(source = "promotion", target = "promotionTariff", qualifiedByName = "mapTariff")
     @Mapping(source = "promotion", target = "numberOfViews", qualifiedByName = "mapNumberOfViews")

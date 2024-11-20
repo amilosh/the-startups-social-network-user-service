@@ -6,4 +6,9 @@ import school.faang.user_service.entity.Country;
 
 @Repository
 public interface CountryRepository extends CrudRepository<Country, Long> {
+
+
+
+
+
 }
