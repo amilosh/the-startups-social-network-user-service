@@ -1,7 +1,6 @@
 package school.faang.user_service.dto.event;
 
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import school.faang.user_service.dto.skill.SkillDto;
@@ -10,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class EventFilterDto {
     @Size(min = 1, max = 255, message = "The event name should be between 1 and 255 characters long")
