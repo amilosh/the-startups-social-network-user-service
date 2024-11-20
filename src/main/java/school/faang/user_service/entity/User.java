@@ -15,6 +15,7 @@ import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.entity.event.Rating;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.entity.userJira.UserJira;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -131,7 +132,7 @@ public class User {
     private List<Rating> ratings;
 
     @OneToMany(mappedBy = "user")
-    private List<UserJiraInfo> jiraAccounts;
+    private List<UserJira> jiraAccounts;
 
     @Embedded
     @AttributeOverrides({
