@@ -130,6 +130,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Rating> ratings;
 
+    @OneToMany(mappedBy = "user")
+    private List<UserJiraInfo> jiraAccounts;
+
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "fileId", column = @Column(name = "profile_pic_file_id")),
