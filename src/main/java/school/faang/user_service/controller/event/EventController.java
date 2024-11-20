@@ -1,58 +1,63 @@
 package school.faang.user_service.controller.event;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.event.EventService;
 
 import java.util.List;
 
-@Controller
+@Validated
+@RestController
 @RequiredArgsConstructor
+@RequestMapping("api/v1/events")
 public class EventController {
     private final EventService eventService;
 
-    public EventDto create(EventDto event) {
-        validateByTitleOwnerIdStartDate(event);
+    @PostMapping
+    public EventDto create(@Valid @RequestBody EventDto event) {
         return eventService.create(event);
     }
 
-    public EventDto get(long eventId) {
+    @GetMapping("/{eventId}")
+    public EventDto get(@PathVariable @NotNull(message = "Event ID should not be null") Long eventId) {
         return eventService.get(eventId);
     }
 
-    public List<EventDto> getByFilter(EventFilterDto filter) {
+    @GetMapping
+    public List<EventDto> getByFilter(@Valid @ModelAttribute EventFilterDto filter) {
         return eventService.getByFilter(filter);
     }
 
-    public void delete(long eventId) {
+    @DeleteMapping("/{eventId}")
+    public void delete(@PathVariable @NotNull(message = "Event ID should not be null") Long eventId) {
         eventService.delete(eventId);
     }
 
-    public EventDto update(EventDto event) {
-        validateByTitleOwnerIdStartDate(event);
+    @PutMapping
+    public EventDto update(@Valid @RequestBody EventDto event) {
         return eventService.update(event);
     }
 
-    private void validateByTitleOwnerIdStartDate(EventDto event) {
-        if (event.getTitle() == null || event.getTitle().trim().isEmpty()) {
-            throw new DataValidationException("Event name is required!");
-        }
-        if (event.getOwnerId() == null) {
-            throw new DataValidationException("Event owner id is required");
-        }
-        if (event.getStartDate() == null) {
-            throw new DataValidationException("Event start date is required");
-        }
-    }
-
-    private List<EventDto> getOwnedEvents(long userId) {
+    @GetMapping("/users/{userId}/owned-events")
+    public List<EventDto> getOwnedEvents(@PathVariable @NotNull(message = "User ID should not be null") Long userId) {
         return eventService.getOwnedEvents(userId);
     }
 
-    private List<EventDto> getParticipatedEvents(long userId) {
+    @GetMapping("/users/{userId}/participated-events")
+    public List<EventDto> getParticipatedEvents(@PathVariable @NotNull(message = "User ID should not be null") Long userId) {
         return eventService.getParticipatedEvents(userId);
     }
 }
