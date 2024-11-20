@@ -1,8 +1,10 @@
 package school.faang.user_service.controller.recommendation;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +22,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 @RequestMapping("/recommendation")
 public class RecommendationRequestController {
     private final RecommendationRequestService recommendationRequestService;
@@ -37,13 +40,13 @@ public class RecommendationRequestController {
     }
 
     @GetMapping("/request/{id}")
-    public RecommendationRequestDto getRecommendationRequest(@PathVariable long id) {
+    public RecommendationRequestDto getRecommendationRequest(@PathVariable @Positive(message = "ID must be positive") long id) {
         log.info("Received a request to receive a recommendation request by id: {}", id);
         return recommendationRequestService.getRequest(id);
     }
 
     @PutMapping("/request/{id}")
-    public RecommendationRequestDto rejectRequest(@PathVariable long id, @Valid @RequestBody RejectionDto rejection) {
+    public RecommendationRequestDto rejectRequest(@PathVariable @Positive(message = "ID must be positive") long id, @Valid @RequestBody RejectionDto rejection) {
         log.info("A request was received to reject a recommendation request, by id: {}, with a rejection: {}", id, rejection);
         return recommendationRequestService.rejectRequest(id, rejection);
     }
