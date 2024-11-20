@@ -14,4 +14,7 @@ public class ErrorMessage {
     public static final String SKILL_NOT_EXIST = "THAT SKILL \"%s\" DOESN'T EXIST!";
     public static final String SKILL_OFFERS_IS_EMPTY = "THE SKILL OFFERS IS EMPTY";
 
+    public static final String DICE_BEAR_EMPTY_CONTENT = "Avatar content is empty.";
+    public static final String DICE_BEAR_RETRIEVAL_ERROR = "Error retrieving avatar: status %s";
+    public static final String DICE_BEAR_UNEXPECTED_ERROR = "Unexpected error occurred while retrieving avatar.";
 }
