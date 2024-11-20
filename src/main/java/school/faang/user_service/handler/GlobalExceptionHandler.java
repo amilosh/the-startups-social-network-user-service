@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.InvalidUserIdException;
 import school.faang.user_service.exception.ParticipantRegistrationException;
 import school.faang.user_service.exception.SubscriptionAlreadyExistsException;
@@ -56,5 +57,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleSubscriptionNotFoundException(SubscriptionNotFoundException ex) {
         log.warn("Произошло исключение SubscriptionNotFoundException: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(DataValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleDataValidationException(DataValidationException exception){
+        log.error("Произошло исключение DataValidationException: {}", exception.getMessage());
+        return new ErrorResponse("DataValidationException: {}", exception.getMessage());
     }
 }
