@@ -1,6 +1,7 @@
 package school.faang.user_service.service.user;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -10,11 +11,9 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.UserRepository;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -26,26 +25,28 @@ public class UserServiceTest {
     @Mock
     private UserMapper userMapper;
 
+    private UserDto userDto;
+
     @InjectMocks
     private UserService userService;
 
+    @BeforeEach
+    void init() {
+        userDto = createUserDto(1L, "johndoe", "jh@example.com", "https://minio.com/1.jpg", 12L);
+    }
+
     @Test
     public void testGetUserByIdNotFound() {
-        UserDto user = createUserDto();
-        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
-        assertThrows(EntityNotFoundException.class, () -> userService.getUser(user.getId()));
+        when(userRepository.findById(userDto.getId())).thenReturn(Optional.empty());
+        assertThrows(EntityNotFoundException.class, () -> userService.getUser(userDto.getId()));
 
-        verify(userRepository, times(1)).findById(user.getId());
+        verify(userRepository, times(1)).findById(userDto.getId());
         verifyNoMoreInteractions(userRepository);
     }
 
     @Test
     public void testGetUserByIdSuccess() {
-        UserDto userDto = createUserDto();
-        User user = new User();
-        user.setId(userDto.getId());
-        user.setUsername(userDto.getUsername());
-
+        User user = createUser(userDto.getId(), userDto.getUsername());
         when(userRepository.findById(userDto.getId())).thenReturn(Optional.of(user));
         when(userMapper.toDto(user)).thenReturn(userDto);
 
@@ -62,10 +63,8 @@ public class UserServiceTest {
 
     @Test
     public void testGetUsersEmptyList() {
-        UserDto firstUser = createUserDto();
-        UserDto secondUser = createUserDto();
-        secondUser.setId(2L);
-        List<Long> userIds = List.of(firstUser.getId(), secondUser.getId());
+        UserDto secondUser = createUserDto(2L, "johndoe", "jh@example.com", "https://minio.com/1.jpg", 12L);
+        List<Long> userIds = List.of(userDto.getId(), secondUser.getId());
         when(userRepository.findAllById(userIds)).thenReturn(new ArrayList<>());
         List<UserDto> result = userService.getUsers(userIds);
 
@@ -76,21 +75,13 @@ public class UserServiceTest {
 
     @Test
     public void testGetUsersSuccess() {
-        UserDto firstUserDto = createUserDto();
-        UserDto secondUserDto = createUserDto();
-        secondUserDto.setId(2L);
-        secondUserDto.setUsername("tomcat");
-        List<Long> userIds = List.of(firstUserDto.getId(), secondUserDto.getId());
-        User firstUser = new User();
-        firstUser.setId(firstUserDto.getId());
-        firstUser.setUsername(firstUserDto.getUsername());
-
-        User secondUser = new User();
-        secondUser.setId(secondUserDto.getId());
-        secondUser.setUsername(secondUserDto.getUsername());
+        UserDto secondUserDto = createUserDto(2L, "hj", "hj@example.com", "https://minio.com/1.jpg", 12L);
+        List<Long> userIds = List.of(userDto.getId(), secondUserDto.getId());
+        User firstUser = createUser(userDto.getId(), userDto.getUsername());
+        User secondUser = createUser(secondUserDto.getId(), secondUserDto.getUsername());
 
         when(userRepository.findAllById(userIds)).thenReturn(List.of(firstUser, secondUser));
-        when(userMapper.toDto(firstUser)).thenReturn(firstUserDto);
+        when(userMapper.toDto(firstUser)).thenReturn(userDto);
         when(userMapper.toDto(secondUser)).thenReturn(secondUserDto);
         List<UserDto> result = userService.getUsers(userIds);
 
@@ -98,21 +89,25 @@ public class UserServiceTest {
         verify(userMapper, times(2)).toDto(any(User.class));
         verifyNoMoreInteractions(userRepository);
         assertEquals(result.size(), 2);
-        assertEquals(firstUserDto.getId(), result.get(0).getId());
+        assertEquals(userDto.getId(), result.get(0).getId());
         assertEquals(secondUserDto.getId(), result.get(1).getId());
         assertEquals(firstUser.getUsername(), result.get(0).getUsername());
         assertEquals(secondUser.getUsername(), result.get(1).getUsername());
     }
 
-    private UserDto createUserDto() {
+    private UserDto createUserDto(long id, String username, String email, String picUrl, long premiumId) {
         UserDto user = UserDto.builder()
-                .id(1L)
-                .username("johndoe")
-                .email("johndoe@example.com")
-                .userProfilePicFileId("https://amazon.com/s3/profilepic.jpg")
-                .premiumId(12L).build();
+                .id(id)
+                .username(username)
+                .email(email)
+                .userProfilePicFileId(picUrl)
+                .premiumId(premiumId).build();
         return user;
     }
 
-
+    private User createUser(long id, String username) {
+        return User.builder()
+                .id(id)
+                .username(username).build();
+    }
 }

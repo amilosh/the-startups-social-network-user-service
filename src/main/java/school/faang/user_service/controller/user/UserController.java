@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.user;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,14 +21,14 @@ public class UserController {
 
     @GetMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public UserDto getUser(@PathVariable("userId") long userId) {
+    public UserDto getUser(@Valid @PathVariable("userId") long userId) {
         log.info("Received a request to get a user with ID: {}", userId);
         return userService.getUser(userId);
     }
 
-    @GetMapping()
+    @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<UserDto> getUsers(@RequestBody List<Long> ids) {
+    public List<UserDto> getUsers(@Valid @RequestBody List<Long> ids) {
         log.info("Received a request to get users");
         return userService.getUsers(ids);
     }

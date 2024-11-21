@@ -10,14 +10,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.user.UserService;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(classes = {UserController.class, UserService.class})
 public class UserControllerTest {
     private static final String GET_USER_URL = "/users/{userId}";
-    private static final String GET_USERS_URL = "/users";
+    private static final String POST_USERS_URL = "/users";
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     @Autowired
@@ -52,7 +51,7 @@ public class UserControllerTest {
     public void testGetUsersFail() throws Exception {
         when(userService.getUsers(anyList())).thenReturn(new ArrayList<>());
 
-        mockMvc.perform(get(GET_USERS_URL)
+        mockMvc.perform(post(POST_USERS_URL)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
     }
@@ -65,7 +64,7 @@ public class UserControllerTest {
         secondUser.setUsername("tomcat");
         when(userService.getUsers(List.of(1L, 2L))).thenReturn(List.of(firstUser, secondUser));
 
-        mockMvc.perform(get(GET_USERS_URL)
+        mockMvc.perform(post(POST_USERS_URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(OBJECT_MAPPER.writeValueAsString(List.of(firstUser.getId(), secondUser.getId()))))
                 .andExpect(status().isOk())

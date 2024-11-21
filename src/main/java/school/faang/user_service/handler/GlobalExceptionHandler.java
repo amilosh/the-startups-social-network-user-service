@@ -90,10 +90,4 @@ public class GlobalExceptionHandler {
         log.error("Value Exceeded: {}", e.getMessage(), e);
         return new ErrorResponse("Value Exceeded", e.getMessage());
     }
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException e) {
-        log.error("Entity Not Found: {}", e.getMessage(), e);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-    }
 }
