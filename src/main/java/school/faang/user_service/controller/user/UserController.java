@@ -85,4 +85,5 @@ public class UserController {
     public ResponseEntity<List<UserDto>> parsePersonDataIntoUserDto(@RequestParam("file") MultipartFile csvFile) {
         return ResponseEntity.ok(userService.parsePersonDataIntoUserDto(csvFile));
     }
+
 }
