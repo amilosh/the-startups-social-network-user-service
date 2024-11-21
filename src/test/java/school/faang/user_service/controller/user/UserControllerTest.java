@@ -19,6 +19,7 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.controller.UserController;
 import school.faang.user_service.model.dto.UserDto;
 import school.faang.user_service.exception.handler.GlobalRestExceptionHandler;
+import school.faang.user_service.model.dto.UserWithFollowersDto;
 import school.faang.user_service.model.filter_dto.user.UserFilterDto;
 import school.faang.user_service.service.impl.UserServiceImpl;
 
@@ -262,5 +263,50 @@ public class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(2L))
                 .andExpect(jsonPath("$.username").value("Test User"));
+    }
+
+    @Test
+    @DisplayName("Should return user with followers when valid user ID is provided")
+    public void testGetUserWithFollowers_Success() throws Exception {
+        long userId = 1L;
+
+        UserWithFollowersDto userWithFollowersDto = new UserWithFollowersDto(
+                userId,
+                "testUsername",
+                "profilePicFileId",
+                "smallProfilePicFileId",
+                List.of(2L, 3L, 4L) // follower IDs
+        );
+
+        when(userService.getUserWithFollowers(userId)).thenReturn(userWithFollowersDto);
+
+        mockMvc.perform(get("/users/{userId}/with-followers", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(userId))
+                .andExpect(jsonPath("$.username").value("testUsername"))
+                .andExpect(jsonPath("$.fileId").value("profilePicFileId"))
+                .andExpect(jsonPath("$.smallFileId").value("smallProfilePicFileId"))
+                .andExpect(jsonPath("$.followerIds", hasSize(3)))
+                .andExpect(jsonPath("$.followerIds[0]").value(2L))
+                .andExpect(jsonPath("$.followerIds[1]").value(3L))
+                .andExpect(jsonPath("$.followerIds[2]").value(4L));
+
+        verify(userService, times(1)).getUserWithFollowers(userId);
+    }
+
+    @Test
+    @DisplayName("Should return 404 when user is not found")
+    public void testGetUserWithFollowers_NotFound() throws Exception {
+        long userId = 100500L;
+
+        when(userService.getUserWithFollowers(userId)).thenThrow(new EntityNotFoundException("User not found with id: " + userId));
+
+        mockMvc.perform(get("/users/{userId}/with-followers", userId))
+                .andExpect(status().isNotFound())
+                .andExpect(result -> assertInstanceOf(EntityNotFoundException.class, result.getResolvedException()))
+                .andExpect(result -> assertTrue(Objects.requireNonNull(result.getResolvedException())
+                        .getMessage().contains("User not found with id: " + userId)));
+
+        verify(userService, times(1)).getUserWithFollowers(userId);
     }
 }

@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.model.dto.UserDto;
+import school.faang.user_service.model.dto.UserWithFollowersDto;
 import school.faang.user_service.model.event.ProfileViewEvent;
 import school.faang.user_service.model.entity.TelegramContact;
 import school.faang.user_service.model.filter_dto.user.UserFilterDto;
@@ -39,6 +40,7 @@ import school.faang.user_service.repository.TelegramContactRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.EventRepository;
 import school.faang.user_service.repository.GoalRepository;
+import school.faang.user_service.validator.UserServiceValidator;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -61,6 +63,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -94,6 +97,8 @@ public class UserServiceImplTest {
     private ProfileViewEventPublisher profileViewEventPublisher;
     @Mock
     private UserContext userContext;
+    @Mock
+    private UserServiceValidator validator;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -115,6 +120,8 @@ public class UserServiceImplTest {
         user.setGoals(new ArrayList<>());
         user.setOwnedEvents(new ArrayList<>());
         user.setParticipatedEvents(new ArrayList<>());
+
+        userContext.setUserId(1L);
 
         userDto = new UserDto();
         userDto.setId(user.getId());
@@ -547,4 +554,54 @@ public class UserServiceImplTest {
 
         verify(profileViewEventPublisher, never()).publish(any(ProfileViewEvent.class));
     }
+
+    @Test
+    @DisplayName("Should return user with followers when user exists")
+    public void testGetUserWithFollowers_Success() {
+        Long userId = 1L;
+
+        UserWithFollowersDto expectedUser = new UserWithFollowersDto(
+                userId,
+                "testUsername",
+                "profilePicFileId",
+                "smallProfilePicFileId",
+                List.of(2L, 3L, 4L)
+        );
+
+        when(userRepository.findUserBasicInfo(userId)).thenReturn(Optional.of(
+                new UserWithFollowersDto(userId, "testUsername", "profilePicFileId", "smallProfilePicFileId", null)
+        ));
+        when(userRepository.findFollowerIdsByUserId(userId)).thenReturn(List.of(2L, 3L, 4L));
+
+        UserWithFollowersDto result = userService.getUserWithFollowers(userId);
+
+        assertNotNull(result);
+        assertEquals(expectedUser.getId(), result.getId());
+        assertEquals(expectedUser.getUsername(), result.getUsername());
+        assertEquals(expectedUser.getFileId(), result.getFileId());
+        assertEquals(expectedUser.getSmallFileId(), result.getSmallFileId());
+        assertEquals(expectedUser.getFollowerIds(), result.getFollowerIds());
+
+        verify(userRepository, times(1)).findUserBasicInfo(userId);
+        verify(userRepository, times(1)).findFollowerIdsByUserId(userId);
+        verify(validator, times(1)).validateUser(userContext.getUserId(), userId);
+    }
+
+    @Test
+    @DisplayName("Should throw EntityNotFoundException when user is not found")
+    public void testGetUserWithFollowers_UserNotFound() {
+        Long userId = 1L;
+
+        when(userRepository.findUserBasicInfo(userId)).thenReturn(Optional.empty());
+
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
+                () -> userService.getUserWithFollowers(userId));
+
+        assertEquals(String.format("User with id = %d not found", userId), exception.getMessage());
+
+        verify(userRepository, times(1)).findUserBasicInfo(userId);
+        verify(userRepository, never()).findFollowerIdsByUserId(userId);
+        verify(validator, times(1)).validateUser(userContext.getUserId(), userId);
+    }
+
 }

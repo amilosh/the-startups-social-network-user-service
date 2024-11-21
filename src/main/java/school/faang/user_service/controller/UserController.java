@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.model.dto.UserDto;
+import school.faang.user_service.model.dto.UserWithFollowersDto;
 import school.faang.user_service.model.filter_dto.user.UserFilterDto;
 import school.faang.user_service.service.UserService;
 
@@ -70,6 +72,13 @@ public class UserController {
             throw new IllegalArgumentException("Invalid user ID: " + userId);
         }
         return userService.getUser(userId);
+    }
+
+    @Parameter(name = "x-user-id", in = ParameterIn.HEADER, required = true,
+            description = "ID of the user making the request", schema = @Schema(type = "string"))
+    @GetMapping("/{userId}/with-followers")
+    public UserWithFollowersDto getUserWithFollowers(@PathVariable @NotNull long userId) {
+        return userService.getUserWithFollowers(userId);
     }
 
     @PostMapping()
