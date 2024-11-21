@@ -16,5 +16,5 @@ public interface UserJiraMapper {
 
     UserJira toEntity(UserJiraCreateUpdateDto createUpdateDto);
 
-    void update(UserJiraCreateUpdateDto updateDto, @MappingTarget UserJira userJiraTarget);
+    void update(UserJiraCreateUpdateDto createUpdateDto, @MappingTarget UserJira userJiraTarget);
 }

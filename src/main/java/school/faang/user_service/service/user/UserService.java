@@ -66,8 +66,8 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(ErrorMessage.USER_NOT_FOUND, userId)));
         UserJira userJira = userJiraMapper.toEntity(createUpdateDto);
-        userJira.setJiraDomain(jiraDomain);
         userJira.setUser(user);
+        userJira.setJiraDomain(jiraDomain);
         UserJira savedUserJira = userJiraService.saveOrUpdate(userJira);
 
         log.info("Request to save or update user (ID {}) Jira account information for Jira domain {} processed successfully",

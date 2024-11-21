@@ -7,6 +7,8 @@ import school.faang.user_service.entity.userJira.UserJira;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.userJira.UserJiraRepository;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class UserJiraService {
@@ -15,6 +17,14 @@ public class UserJiraService {
 
     @Transactional
     public UserJira saveOrUpdate(UserJira userJira) {
+        Optional<UserJira> existingUserJiraOptional = userJiraRepository.findByUserIdAndJiraDomain(userJira.getUser().getId(), userJira.getJiraDomain());
+        if (existingUserJiraOptional.isPresent()) {
+            UserJira existingUserJira = existingUserJiraOptional.get();
+            existingUserJira.setJiraDomain(userJira.getJiraDomain());
+            existingUserJira.setJiraEmail(userJira.getJiraEmail());
+            existingUserJira.setJiraToken(userJira.getJiraToken());
+            return userJiraRepository.save(existingUserJira);
+        }
         return userJiraRepository.save(userJira);
     }
 
