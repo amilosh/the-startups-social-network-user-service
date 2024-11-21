@@ -24,7 +24,7 @@ public class DataSyncService {
     private final UserMapper userMapper;
     private final JedisPool jedisPool;
 
-    @Scheduled(cron = "0 0/10 * * * ?")
+    @Scheduled(cron = "0 0/1 * * * ?")
     @Transactional
     public void syncData() {
         log.info("Starting data synchronization from PostgreSQL to Elasticsearch...");

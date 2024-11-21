@@ -22,7 +22,12 @@ public class UserSearchService {
         SearchRequest.Builder searchRequest = new SearchRequest.Builder().index("users");
         boolean isNumber = isNumber(query);
 
-        if (isNumber) {
+
+        if (query == null || query.isBlank()) {
+            searchRequest.query(q -> q
+                    .matchAll(m -> m)
+            );
+        } else if (isNumber) {
             searchRequest.query(q -> q
                     .term(t -> t
                             .field("experience")
@@ -31,35 +36,35 @@ public class UserSearchService {
             );
         } else {
             searchRequest.query(q -> q
-                            .bool(b -> b
-                                    .should(s -> s
-                                            .multiMatch(m -> m
-                                                    .query(query)
-                                                    .fields("username^2", "aboutMe^1.5", "country^1.2", "city")
-                                                    .fuzziness("AUTO")
-                                                    .prefixLength(2)
-                                                    .tieBreaker(0.3)
-                                            )
+                    .bool(b -> b
+                            .should(s -> s
+                                    .multiMatch(m -> m
+                                            .query(query)
+                                            .fields("username^2", "aboutMe^1.5", "country^1.2", "city")
+                                            .fuzziness("AUTO")
+                                            .prefixLength(2)
+                                            .tieBreaker(0.3)
                                     )
-                                    .should(s -> s
-                                            .match(m -> m
-                                                    .query(query)
-                                                    .field("skills")
-                                                    .fuzziness("AUTO")
-                                                    .prefixLength(2)
-                                            )
+                            )
+                            .should(s -> s
+                                    .match(m -> m
+                                            .query(query)
+                                            .field("skills")
+                                            .fuzziness("AUTO")
+                                            .prefixLength(2)
                                     )
                             )
                     )
-                    .sort(s -> s
-                            .field(f -> f
-                                    .field("searchScore")
-                                    .order(SortOrder.Desc)
-                            )
-                    )
-                    .from(page * size)
-                    .size(size);
+            );
         }
+        searchRequest.sort(s -> s
+                        .field(f -> f
+                                .field("searchScore")
+                                .order(SortOrder.Desc)
+                        )
+                )
+                .from(page * size)
+                .size(size);
 
         try {
             SearchResponse<UserDocument> searchResponse = elasticsearchClient.search(searchRequest.build(), UserDocument.class);
