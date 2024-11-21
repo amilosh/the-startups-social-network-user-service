@@ -31,6 +31,7 @@ public class MentorshipServiceTest {
 
     private User mentor;
     private User mentee;
+    private User mentee2;
 
     @BeforeEach
     public void setUp() {
@@ -38,6 +39,8 @@ public class MentorshipServiceTest {
         mentor.setId(1L);
         mentee = new User();
         mentee.setId(2L);
+        mentee2 = new User();
+        mentee2.setId(3L);
 
         Goal goalWithMentee = new Goal();
         goalWithMentee.setUsers(List.of(mentee));
@@ -54,8 +57,6 @@ public class MentorshipServiceTest {
         user.setId(userId);
         User mentee1 = new User();
         mentee1.setId(2L);
-        User mentee2 = new User();
-        mentee2.setId(3L);
         List<User> mentees = List.of(mentee1, mentee2);
         user.setMentees(mentees);
         when(userService.findUserById(userId)).thenReturn(user);
@@ -143,7 +144,7 @@ public class MentorshipServiceTest {
         mentor.setMentees(new ArrayList<>());
         when(userService.findUserById(mentor.getId())).thenReturn(mentor);
 
-        mentorshipService.deleteMentee( mentor.getId(), 3L);
+        mentorshipService.deleteMentee( mentor.getId(), mentee2.getId());
 
         verify(userService, never()).saveUser(mentor);
     }

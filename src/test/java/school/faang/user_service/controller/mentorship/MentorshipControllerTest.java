@@ -75,7 +75,7 @@ public class MentorshipControllerTest {
         mockMvc.perform(get("/mentorship/users/{userId}/mentees", userId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-//                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id").value(userDto1.getId()));
 
         verify(mentorshipService, times(1)).getMentees(userId);
@@ -103,7 +103,7 @@ public class MentorshipControllerTest {
         mockMvc.perform(get("/mentorship/users/{userId}/mentors", userId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-//                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id").value(userDto1.getId()));
 
         verify(mentorshipService, times(1)).getMentors(userId);
