@@ -19,6 +19,7 @@ import school.faang.user_service.service.user.filter.UserFilter;
 import school.faang.user_service.service.user.random_password.PasswordGenerator;
 import school.faang.user_service.validator.user.UserValidator;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -85,7 +86,7 @@ public class UserService {
         return userMapper.toListDto(users);
     }
 
-    public void test(List<Person> persons) {
+    public void loadingUsersViaFile(List<Person> persons){
         ExecutorService executors = Executors.newCachedThreadPool();
         for (int i = 0; i < persons.size(); i++) {
             int finalI = i;
@@ -95,6 +96,7 @@ public class UserService {
     }
 
     private void createNewUser(Person person) {
+        userValidator.validateUserForCreate(person);
         User user = userMapper.toUser(person);
         String password = createRandomPassword();
         user.setPassword(password);
@@ -110,14 +112,19 @@ public class UserService {
     }
 
     private Country getCountry(String countryFromPerson) {
+      if (countryFromPerson == null) {
+          return null;
+      }
       Iterable<Country> manyCountry = countryRepository.findAll();
+      Iterator<Country> iterator = manyCountry.iterator();
       Country country = null;
-      while (manyCountry.iterator().hasNext()) {
-          Country countryFromRepository = manyCountry.iterator().next();
+      while (iterator.hasNext()) {
+          Country countryFromRepository = iterator.next();
           String correctCountryFromPerson = countryFromPerson.toLowerCase();
           String correctCountryFromRepository = countryFromRepository.getTitle().toLowerCase();
           if (correctCountryFromPerson.equals(correctCountryFromRepository)) {
              country = countryFromRepository;
+             break;
           }
       }
       if (country == null) {

@@ -56,13 +56,14 @@ public class UserController {
         return userService.getUsersByIds(ids);
     }
 
-    public void test(@RequestParam("file") MultipartFile file)  {
+    @PostMapping("/upload-file")
+    public void loadingUsersViaFile(@RequestParam("file") MultipartFile file)  {
         try (InputStream inputStream = file.getInputStream()) {
             CsvSchema schema = CsvSchema.emptySchema().withHeader();
             CsvMapper mapper = new CsvMapper();
             MappingIterator<Person> iterator = mapper.readerFor(Person.class).with(schema).readValues(inputStream);
             List<Person> persons = iterator.readAll();
-            userService.test(persons);
+            userService.loadingUsersViaFile(persons);
         } catch (IOException e) {
             log.error(e.getMessage());
             throw new RuntimeException(e);
