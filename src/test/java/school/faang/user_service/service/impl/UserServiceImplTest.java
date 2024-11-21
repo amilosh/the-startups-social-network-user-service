@@ -565,11 +565,12 @@ public class UserServiceImplTest {
                 "testUsername",
                 "profilePicFileId",
                 "smallProfilePicFileId",
+                LocalDateTime.of(2024, 1, 1, 0, 0),
                 List.of(2L, 3L, 4L)
         );
 
         when(userRepository.findUserBasicInfo(userId)).thenReturn(Optional.of(
-                new UserWithFollowersDto(userId, "testUsername", "profilePicFileId", "smallProfilePicFileId", null)
+                new UserWithFollowersDto(userId, "testUsername", "profilePicFileId", "smallProfilePicFileId", LocalDateTime.of(2024, 1, 1, 0, 0), null)
         ));
         when(userRepository.findFollowerIdsByUserId(userId)).thenReturn(List.of(2L, 3L, 4L));
 
@@ -580,6 +581,7 @@ public class UserServiceImplTest {
         assertEquals(expectedUser.getUsername(), result.getUsername());
         assertEquals(expectedUser.getFileId(), result.getFileId());
         assertEquals(expectedUser.getSmallFileId(), result.getSmallFileId());
+        assertEquals(expectedUser.getCreatedAt(), result.getCreatedAt());
         assertEquals(expectedUser.getFollowerIds(), result.getFollowerIds());
 
         verify(userRepository, times(1)).findUserBasicInfo(userId);

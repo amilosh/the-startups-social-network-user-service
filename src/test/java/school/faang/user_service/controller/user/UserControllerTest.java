@@ -23,6 +23,7 @@ import school.faang.user_service.model.dto.UserWithFollowersDto;
 import school.faang.user_service.model.filter_dto.user.UserFilterDto;
 import school.faang.user_service.service.impl.UserServiceImpl;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -275,7 +276,8 @@ public class UserControllerTest {
                 "testUsername",
                 "profilePicFileId",
                 "smallProfilePicFileId",
-                List.of(2L, 3L, 4L) // follower IDs
+                LocalDateTime.of(2024,1,1,0,0),
+                List.of(2L, 3L, 4L)
         );
 
         when(userService.getUserWithFollowers(userId)).thenReturn(userWithFollowersDto);
@@ -286,6 +288,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.username").value("testUsername"))
                 .andExpect(jsonPath("$.fileId").value("profilePicFileId"))
                 .andExpect(jsonPath("$.smallFileId").value("smallProfilePicFileId"))
+                .andExpect(jsonPath("$.createdAt").value("2024-01-01T00:00:00"))
                 .andExpect(jsonPath("$.followerIds", hasSize(3)))
                 .andExpect(jsonPath("$.followerIds[0]").value(2L))
                 .andExpect(jsonPath("$.followerIds[1]").value(3L))

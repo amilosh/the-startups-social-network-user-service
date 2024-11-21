@@ -57,7 +57,8 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
         u.id, 
         u.username, 
         u.userProfilePic.fileId, 
-        u.userProfilePic.smallFileId
+        u.userProfilePic.smallFileId, 
+        u.createdAt
     ) 
     FROM User u
     WHERE u.id = :id
