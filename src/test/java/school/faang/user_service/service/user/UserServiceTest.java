@@ -8,16 +8,22 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.userJira.UserJiraCreateUpdateDto;
+import school.faang.user_service.dto.userJira.UserJiraDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.userJira.UserJira;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.mapper.userJira.UserJiraMapper;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.userJira.UserJiraService;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,13 +37,19 @@ import static org.mockito.Mockito.when;
 class UserServiceTest {
 
     @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Spy
-    UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+
+    @Spy
+    private UserJiraMapper userJiraMapper = Mappers.getMapper(UserJiraMapper.class);
+
+    @Mock
+    private UserJiraService userJiraService;
 
     @InjectMocks
-    UserService userService;
+    private UserService userService;
 
     @Test
     void getUserTest() {
@@ -131,5 +143,49 @@ class UserServiceTest {
 
         assertEquals(1, notExistingUserIds.size());
         assertTrue(notExistingUserIds.contains(1L));
+    }
+
+    @Test
+    void saveOrUpdateUserJiraInfoTest() {
+        long userId = 1L;
+        User user = new User();
+        user.setId(userId);
+        String jiraDomain = "itmad1x";
+        String jiraEmail = "mad1x@example.com";
+        String jiraAccountId = "oiu1293oi5yuh1i2u5yh1i92u5h1";
+        String jiraToken = "921804vk019248v10928v40129v8412908v412980v4218-90v41204";
+        UserJiraCreateUpdateDto createUpdateDto = UserJiraCreateUpdateDto.builder()
+                .jiraEmail(jiraEmail)
+                .jiraAccountId(jiraAccountId)
+                .jiraToken(jiraToken)
+                .build();
+        UserJira userJira = userJiraMapper.toEntity(createUpdateDto);
+        userJira.setJiraDomain(jiraDomain);
+        userJira.setUser(user);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userJiraService.saveOrUpdate(userJira)).thenReturn(userJira);
+
+        UserJiraDto responseDto = assertDoesNotThrow(() -> userService.saveOrUpdateUserJiraInfo(userId, jiraDomain, createUpdateDto));
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(userJiraService, times(1)).saveOrUpdate(userJira);
+
+        assertEquals(userId, responseDto.getUserId());
+        assertEquals(jiraDomain, responseDto.getJiraDomain());
+        assertEquals(jiraEmail, responseDto.getJiraEmail());
+        assertEquals(jiraAccountId, responseDto.getJiraAccountId());
+        assertEquals(jiraToken, responseDto.getJiraToken());
+    }
+
+    @Test
+    void getUserJiraInfoTest() {
+        long userId = 1L;
+        String jiraDomain = "itmad1x";
+        when(userJiraService.getByUserIdAndJiraDomain(userId, jiraDomain)).thenReturn(new UserJira());
+
+        assertDoesNotThrow(() -> userService.getUserJiraInfo(userId, jiraDomain));
+
+        verify(userJiraService, times(1)).getByUserIdAndJiraDomain(userId, jiraDomain);
     }
 }

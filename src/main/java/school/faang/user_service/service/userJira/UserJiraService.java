@@ -20,7 +20,7 @@ public class UserJiraService {
         Optional<UserJira> existingUserJiraOptional = userJiraRepository.findByUserIdAndJiraDomain(userJira.getUser().getId(), userJira.getJiraDomain());
         if (existingUserJiraOptional.isPresent()) {
             UserJira existingUserJira = existingUserJiraOptional.get();
-            existingUserJira.setJiraDomain(userJira.getJiraDomain());
+            existingUserJira.setJiraAccountId(userJira.getJiraAccountId());
             existingUserJira.setJiraEmail(userJira.getJiraEmail());
             existingUserJira.setJiraToken(userJira.getJiraToken());
             return userJiraRepository.save(existingUserJira);
