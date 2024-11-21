@@ -27,6 +27,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,6 +45,12 @@ public class MentorshipControllerTest {
 
     private long userId = 1L;
     private long deleteUserId = 2L;
+    long mentee1Id = 2L;
+    long mentee2Id = 3L;
+    long mentee3Id = 4L;
+    long mentor1Id = 5L;
+    long mentor2Id = 6L;
+    long mentor3Id = 7L;
     private UserDto userDto;
     private UserDto user1;
     private UserDto user2;
@@ -68,7 +75,9 @@ public class MentorshipControllerTest {
 
         mockMvc.perform(get("/mentorship/users/{userId}/mentees", userId)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(users.size()))
+                .andExpect(jsonPath("$[0].id").value(users.get(0).getId()));
 
         verify(mentorshipService, times(1)).getMentees(userId);
     }
@@ -94,7 +103,9 @@ public class MentorshipControllerTest {
 
         mockMvc.perform(get("/mentorship/users/{userId}/mentors", userId)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(users.size()))
+                .andExpect(jsonPath("$[0].id").value(users.get(0).getId()));
 
         verify(mentorshipService, times(1)).getMentors(userId);
     }
@@ -169,8 +180,8 @@ public class MentorshipControllerTest {
         return UserDto.builder()
                 .id(1L)
                 .username("User1")
-                .menteesId(List.of(2L, 3L, 4L))
-                .mentorsId(List.of(5L, 6L, 7L))
+                .menteesId(List.of(mentee1Id, mentee2Id, mentee3Id))
+                .mentorsId(List.of(mentor1Id, mentor2Id, mentor3Id))
                 .build();
     }
 
@@ -178,8 +189,8 @@ public class MentorshipControllerTest {
         return UserDto.builder()
                 .id(2L)
                 .username("Mentee1")
-                .menteesId(List.of(2L, 3L, 4L))
-                .mentorsId(List.of(5L, 6L, 7L))
+                .menteesId(List.of(mentee1Id, mentee2Id, mentee3Id))
+                .mentorsId(List.of(mentor1Id, mentor2Id, mentor3Id))
                 .build();
     }
 
@@ -187,8 +198,8 @@ public class MentorshipControllerTest {
         return UserDto.builder()
                 .id(3L)
                 .username("Mentee1")
-                .menteesId(List.of(2L, 3L, 4L))
-                .mentorsId(List.of(5L, 6L, 7L))
+                .menteesId(List.of(mentee1Id, mentee2Id, mentee3Id))
+                .mentorsId(List.of(mentor1Id, mentor2Id, mentor3Id))
                 .build();
     }
 }

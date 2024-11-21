@@ -29,7 +29,7 @@ public class MentorshipController {
     public ResponseEntity<List<UserDto>> getMentees(
             @PathVariable @NotNull(message = "id field is required ")
             @Positive(message = "UserId must be greater than 0 ")
-            long userId) {
+            Long userId) {
         log.info("Getting list of user mentees with id {} ", userId);
 
         return ResponseEntity.ok(mentorshipService.getMentees(userId));
@@ -39,7 +39,7 @@ public class MentorshipController {
     public ResponseEntity<List<UserDto>> getMentors(
             @PathVariable @NotNull(message = "id field is required ")
             @Positive(message = "UserId must be greater than 0 ")
-            long userId) {
+            Long userId) {
         log.info("Getting list of user mentors with id {} ", userId);
 
         return ResponseEntity.ok(mentorshipService.getMentors(userId));
@@ -49,10 +49,10 @@ public class MentorshipController {
     public ResponseEntity<Void> deleteMentee(
             @PathVariable @NotNull(message = "id field is required ")
             @Positive(message = "MentorId must be greater than 0 ")
-            long mentorId,
+            Long mentorId,
             @PathVariable @NotNull(message = "id field is required ")
             @Positive(message = "MenteeId must be greater than 0 ")
-            long menteeId) {
+            Long menteeId) {
         mentorshipService.deleteMentee(mentorId, menteeId);
         log.info("Removing a mentee with  Id {} from the list of a mentor with Id {} ", menteeId, mentorId);
 
@@ -63,10 +63,10 @@ public class MentorshipController {
     public ResponseEntity<Void> deleteMentor(
             @PathVariable @NotNull(message = "id field is required ")
             @Positive(message = "MenteeId must be greater than 0 ")
-            long menteeId,
+            Long menteeId,
             @PathVariable @NotNull(message = "id field is required ")
             @Positive(message = "MentorId must be greater than 0 ")
-            long mentorId) {
+            Long mentorId) {
         mentorshipService.deleteMentor(menteeId, mentorId);
         log.info("Removing a mentor with  Id {} from the list of a mentee with Id {} ", mentorId, menteeId);
 
