@@ -10,11 +10,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.mapper.skill.SkillMapperImpl;
+import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.event_filters.EventDateRangeFilter;
 import school.faang.user_service.service.event.event_filters.EventFilter;
@@ -32,6 +34,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,11 +45,14 @@ public class EventServiceTest {
     @Mock
     private EventRepository eventRepository;
     @Mock
+    private SkillRepository skillRepository;
+    @Mock
     private EventServiceValidator eventServiceValidator;
     @InjectMocks
     private EventService eventService;
 
     private EventMapperImpl eventMapper;
+    private SkillMapperImpl skillMapper;
 
     private User userJohn;
     private Event eventBaking;
@@ -58,9 +64,10 @@ public class EventServiceTest {
                 new EventMaxAttendeesFilter(), new EventOwnerNameFilter(),
                 new EventSkillsFilter(), new EventLocationFilter());
         ReflectionTestUtils.setField(eventService, "eventFilters", eventFilters);
-        SkillMapperImpl skillMapper = new SkillMapperImpl();
+        skillMapper = new SkillMapperImpl();
         eventMapper = new EventMapperImpl(skillMapper);
-        eventService = new EventService(eventRepository, eventServiceValidator, eventMapper, eventFilters);
+        eventService = new EventService
+                (eventRepository, eventServiceValidator, eventMapper, skillMapper, eventFilters, skillRepository);
     }
 
     @BeforeEach
@@ -99,6 +106,9 @@ public class EventServiceTest {
     @Test
     public void testCreateSavingEvent() {
         EventDto eventBakingDto = eventMapper.toDto(eventBaking);
+        SkillDto skillDto = new SkillDto();
+        skillDto.setTitle("Baking");
+        eventBakingDto.setRelatedSkills(List.of(skillDto));
 
         when(eventServiceValidator.validateUserId(eventBakingDto.getOwnerId())).thenReturn(userJohn);
         doNothing().when(eventServiceValidator).validateOwnerSkills(userJohn, eventBakingDto);
@@ -109,15 +119,28 @@ public class EventServiceTest {
             return event;
         });
 
-        eventService.create(eventBakingDto);
+        when(skillRepository.saveAll(anyList())).thenAnswer(invocation -> {
+            List<Skill> skills = invocation.getArgument(0);
+            skills.forEach(s -> s.setId(100L));
+            return skills;
+        });
+
+        EventDto result = eventService.create(eventBakingDto);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        assertNotNull(result.getRelatedSkills());
+        assertEquals(1, result.getRelatedSkills().size());
+        assertEquals("Baking", result.getRelatedSkills().get(0).getTitle());
 
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-        verify(eventRepository, times(1)).save(eventCaptor.capture());
+        verify(eventRepository, times(2)).save(eventCaptor.capture());
         Event capturedEvent = eventCaptor.getValue();
 
-        assertEquals(eventBakingDto.getOwnerId(), capturedEvent.getOwner().getId());
-        assertNotNull(capturedEvent.getId());
-        assertEquals(1L, capturedEvent.getId());
+        assertNotNull(capturedEvent.getRelatedSkills());
+        assertEquals(1, capturedEvent.getRelatedSkills().size());
+        assertEquals("Baking", capturedEvent.getRelatedSkills().get(0).getTitle());
+        verify(skillRepository, times(1)).saveAll(anyList());
     }
 
     @Test
@@ -176,16 +199,32 @@ public class EventServiceTest {
         updatingEventDto.setMaxAttendees(40);
         updatingEventDto.setOwnerId(1L);
 
+        SkillDto skillDto = new SkillDto();
+        skillDto.setTitle("Cooking");
+        updatingEventDto.setRelatedSkills(List.of(skillDto));
+
         when(eventServiceValidator.validateEventId(updatingEventDto.getId())).thenReturn(eventBaking);
         when(eventServiceValidator.validateUserId(updatingEventDto.getOwnerId())).thenReturn(userJohn);
+
         Event event = eventMapper.toEntity(updatingEventDto);
         when(eventRepository.save(any(Event.class))).thenReturn(event);
+
+        when(skillRepository.saveAll(anyList())).thenAnswer(invocation -> {
+            List<Skill> skills = invocation.getArgument(0);
+            skills.forEach(s -> s.setId(200L));
+            return skills;
+        });
 
         EventDto result = eventService.update(updatingEventDto);
 
         assertNotNull(result);
         assertEquals(updatingEventDto.getId(), result.getId());
-        verify(eventRepository).save(any(Event.class));
+        assertNotNull(result.getRelatedSkills());
+        assertEquals(1, result.getRelatedSkills().size());
+        assertEquals("Cooking", result.getRelatedSkills().get(0).getTitle());
+
+        verify(eventRepository, times(2)).save(any(Event.class));
+        verify(skillRepository, times(1)).saveAll(anyList());
     }
 
     @Test

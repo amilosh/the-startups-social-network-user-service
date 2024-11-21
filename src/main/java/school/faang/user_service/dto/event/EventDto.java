@@ -1,5 +1,6 @@
 package school.faang.user_service.dto.event;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import school.faang.user_service.dto.skill.SkillDto;
 
@@ -14,6 +15,7 @@ public class EventDto {
     private LocalDateTime endDate;
     private Long ownerId;
     private String description;
+    @NotNull
     private List<SkillDto> relatedSkills;
     private String location;
     private int maxAttendees;
