@@ -4,6 +4,9 @@ app:
       max-goals-amount: 3
 
 spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
   mvc:
     servlet:
       path: /api/v1

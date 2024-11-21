@@ -1,6 +1,7 @@
 package school.faang.user_service.validator.user;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import school.faang.user_service.exception.EntityNotFoundException;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -8,7 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserValidatorTest {
 
-    private final UserValidator userValidator = new UserValidator();
+    @InjectMocks
+    private UserValidator userValidator;
 
     @Test
     public void validateUserExistenceThrowExceptionTest() {

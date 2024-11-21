@@ -12,12 +12,13 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.filter.user.UserEmailFilter;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNameFilter;
-import school.faang.user_service.mapper.user.UserMapperImpl;
+import school.faang.user_service.validator.user.UserValidator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -47,6 +48,8 @@ class UserServiceTest {
     @Spy
     UserMapper userMapper;
 
+    private UserValidator userValidator;
+    private CountryService countryService;
     private UserService userService;
     private List<UserFilter> userFilters;
 
@@ -57,7 +60,7 @@ class UserServiceTest {
         userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
         userMapper = new UserMapperImpl();
 
-        userService = new UserService(userRepository, userFilters, userMapper);
+        userService = new UserService(userRepository, userFilters, userMapper, userValidator, countryService);
     }
 
     @Test
