@@ -35,7 +35,6 @@ public class Person {
     private boolean scholarship;
     @JsonProperty("employer")
     private String employer;
-    private String aboutMe = createAboutMe();
     private String name = concatFirstAndLastName();
 
 
@@ -43,7 +42,7 @@ public class Person {
         return getFirstName() + getLastName();
     }
 
-    private String createAboutMe() {
+    public String createAboutMe() {
         StringBuilder aboutMe = new StringBuilder();
         if (getContactInfo().getAddress().getState() != null
                 && !getContactInfo().getAddress().getState().isEmpty()) {

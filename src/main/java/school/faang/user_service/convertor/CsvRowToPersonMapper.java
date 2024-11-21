@@ -9,6 +9,7 @@ import school.faang.user_service.dto.pojo.PreviousEducation;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -29,7 +30,7 @@ public class CsvRowToPersonMapper {
         person.setStatus(row.get("status"));
         person.setAdmissionDate(LocalDate.parse(row.get("admissionDate")));
         person.setGraduationDate(LocalDate.parse(row.get("graduationDate")));
-        person.setPreviousEducation(new ArrayList<>());
+        person.setPreviousEducation(List.of(previousEducation));
         person.setScholarship(Boolean.parseBoolean(row.get("scholarship")));
         person.setEmployer(row.get("employer"));
 

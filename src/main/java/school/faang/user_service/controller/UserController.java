@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.convertor.CsvToPojoConverter;
@@ -35,36 +36,29 @@ public class UserController {
     private final CsvToPojoConverter csvToPojoConverter;
 
     @PostMapping("/import")
-    public ResponseEntity<String> uploadToCsv(@RequestBody
-                                              MultipartFile file) throws IOException {
+    public ResponseEntity<String> uploadToCsv(@RequestParam("file") MultipartFile file) throws IOException {
         System.out.println(file.getSize());
         System.out.println(file.getName());
+        if (file.isEmpty()) {
+            log.error("File is empty");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File is empty");
+        }
+
+        log.info("File name: {}", file.getOriginalFilename());
+        log.info("File size: {}", file.getSize());
+        log.info("File content type: {}", file.getContentType());
+
         if (!"text/csv".equals(file.getContentType())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Invalid file type. Please upload the CSV file");
         }
         InputStream inputStream = file.getInputStream();
-//        byte[] arrayByte = inputStream.readAllBytes().clone();
-//        String students = Arrays.toString(arrayByte);
-//        System.out.println(students);
+
         List<Person> persons = csvToPojoConverter.convertCsvToPojo(inputStream);
         userService.processUsers(persons);
         log.info("file upload");
-//        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                String[] values = line.split(",");
-//                System.out.println("Parsed values: ");
-//                for (String value : values) {
-//                    System.out.println(value);
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
-//        return null;
     }
 
     @GetMapping("/{userId}")

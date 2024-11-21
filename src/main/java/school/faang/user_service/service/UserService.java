@@ -18,8 +18,10 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -87,7 +89,11 @@ public class UserService {
     }
 
     public void processUsers(List<Person> persons) {
+//        Set<String> emailSet = new HashSet<>();
         for (Person person : persons) {
+//            if (!emailSet.add(person.getContactInfo().getEmail())) {
+//                throw new IllegalArgumentException("Duplicate email found in CSV: " + person.getContactInfo().getEmail());
+//            }
             String password = generateRandomPassword();
             User user = personToUserMapper.personToUser(person);
             user.setPassword(password);

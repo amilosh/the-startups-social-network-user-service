@@ -22,40 +22,7 @@ import java.util.Map;
 public class CsvToPojoConverter {
     private final CsvSchemaFactory csvSchemaFactory;
     private final CsvRowToPersonMapper csvRowToPersonMapper;
-//    public List<Person>  convertCsvToPojo (InputStream csvInputStream) throws IOException {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        objectMapper.registerModule(new JavaTimeModule());
-//        CsvMapper csvMapper = new CsvMapper();
-//        CsvSchema csvSchema = CsvSchema.builder()
-//                .addColumn("firstName")
-//                .addColumn("lastName")
-//                .addColumn("yearOfBirth")
-//                .addColumn("group")
-//                .addColumn("studentID")
-//                .addColumn("email")
-//                .addColumn("phone")
-//                .addColumn("address")
-//                .addColumn("faculty")
-//                .addColumn("yearOfStudy")
-//                .addColumn("major")
-//                .addColumn("GPA")
-//                .addColumn("degree")
-//                .addColumn("institution")
-//                .addColumn("completionYear")
-//                .addColumn("admissionDate")
-//                .addColumn("graduationDate")
-//                .addColumn("scholarship")
-//                .addColumn("employer")
-//                .setColumnSeparator(',')
-//                .build().withHeader();
 
-
-//        MappingIterator<Person> personMappingIterator = csvMapper
-//                .readerFor(Person.class)
-//                .with(csvSchema)
-//                .readValues(csvInputStream);
-//
-//        return personMappingIterator.readAll();
     public List<Person> convertCsvToPojo(InputStream csvInputStream) throws IOException {
         CsvMapper csvMapper = new CsvMapper();
         CsvSchema csvSchema = csvSchemaFactory.createPersonSchema();
@@ -68,7 +35,6 @@ public class CsvToPojoConverter {
         List<Person> persons = new ArrayList<>();
         while (rows.hasNext()) {
             Map<String, String> row = rows.next();
-            System.out.println("Degree: " + row.get("degree"));
             Person person = csvRowToPersonMapper.mapRowToPerson(row);
             persons.add(person);
         }
