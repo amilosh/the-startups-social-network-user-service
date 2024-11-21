@@ -45,12 +45,12 @@ public class MentorshipControllerTest {
 
     private long userId = 1L;
     private long deleteUserId = 2L;
-    long mentee1Id = 2L;
-    long mentee2Id = 3L;
-    long mentee3Id = 4L;
-    long mentor1Id = 5L;
-    long mentor2Id = 6L;
-    long mentor3Id = 7L;
+    Long mentee1Id = 2L;
+    Long mentee2Id = 3L;
+    Long mentee3Id = 4L;
+    Long mentor1Id = 5L;
+    Long mentor2Id = 6L;
+    Long mentor3Id = 7L;
     private UserDto userDto;
     private UserDto user1;
     private UserDto user2;
