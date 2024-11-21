@@ -17,7 +17,7 @@ public class EventController {
 
     private final EventService eventService;
 
-       public EventDto create(EventDto event) {
+    public EventDto create(EventDto event) {
         validateEvent(event);
         return eventService.create(event);
     }
@@ -35,7 +35,7 @@ public class EventController {
     }
 
     public EventDto updateEvent(EventDto event) {
-        validateEventUpdate(event);
+        validateEvent(event);
         return eventService.updateEvent(event);
     }
 
@@ -48,37 +48,23 @@ public class EventController {
 
     }
 
-    public void validateEvent(EventDto event) {
+    private void validateEvent(EventDto event) {
 
         if (event == null) {
-            throw new IllegalArgumentException("The event cannot be null.");
+            throw new DataValidationException("The event cannot be null.");
         }
         if (event.getTitle().isBlank() || event.getTitle() == null) {
-            throw new IllegalArgumentException("The title cannot be null or empty.");
+            throw new DataValidationException("The title cannot be null or empty.");
         }
         if (event.getStartDate() == null) {
-            throw new IllegalArgumentException("The start date is required.");
+            throw new DataValidationException("The start date is required.");
         }
         if (event.getOwnerId() == null) {
-            throw new IllegalArgumentException("The event must have an associated user (ownerId)");
+            throw new DataValidationException("The event must have an associated user (ownerId)");
         }
 
     }
 
-    public void validateEventUpdate(EventDto event) {
-        if (event == null) {
-            throw new DataValidationException("This event doesn't exist!");
-        }
-        if (event.getTitle().isBlank()) {
-            throw new DataValidationException("This event doesn't have the title!");
-        }
-        if (event.getStartDate().equals(null)) {
-            throw new DataValidationException("This event doesn't have start date!");
-        }
-        if (event.getOwnerId().equals(null)) {
-            throw new DataValidationException("This eent does't have an owner!");
-        }
-    }
 }
 
 
