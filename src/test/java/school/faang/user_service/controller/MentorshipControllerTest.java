@@ -17,6 +17,7 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.exception.GlobalExceptionHandler;
 import school.faang.user_service.service.MentorshipService;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
@@ -64,7 +65,7 @@ public class MentorshipControllerTest {
         userDto = mockUserDto();
         userDto1 = mockUser1();
         userDto2 = mockUser2();
-        userDtos = List.of(userDto1, userDto2);
+        userDtos = Arrays.asList(userDto1, userDto2);
     }
 
     @Test
