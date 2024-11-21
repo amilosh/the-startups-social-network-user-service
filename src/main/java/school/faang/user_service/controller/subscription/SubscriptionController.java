@@ -4,12 +4,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.exception.DataValidationException;
@@ -17,7 +19,7 @@ import school.faang.user_service.service.subscription.SubscriptionService;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/subscriptions")
 @RequiredArgsConstructor
 public class SubscriptionController {
@@ -53,8 +55,8 @@ public class SubscriptionController {
             @ApiResponse(responseCode = "200", description = "Followers were found"),
             @ApiResponse(responseCode = "400", description = "Invalid followee ID")
     })
-    @GetMapping("/{followeeId}")
-    public List<UserDto> getFollowers(@PathVariable long followeeId, @RequestParam UserFilterDto filter) {
+    @PostMapping("/{followeeId}")
+    public List<UserDto> getFollowers(@PathVariable long followeeId, @RequestBody UserFilterDto filter) {
         return subscriptionService.getFollowers(followeeId, filter);
     }
 
@@ -72,8 +74,8 @@ public class SubscriptionController {
             @ApiResponse(responseCode = "200", description = "Followings' information found successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid followee ID")
     })
-    @GetMapping("/followings/{followeeId}")
-    public List<UserDto> getFollowing(@PathVariable long followeeId, @RequestParam UserFilterDto filter) {
+    @PostMapping("/followings/{followeeId}")
+    public List<UserDto> getFollowing(@PathVariable long followeeId, @RequestBody UserFilterDto filter) {
         return subscriptionService.getFollowing(followeeId, filter);
     }
 
@@ -84,6 +86,11 @@ public class SubscriptionController {
     @GetMapping("/followings/count/{followeeId}")
     public int getFollowingCount(@PathVariable long followeeId) {
         return subscriptionService.getFollowingCount(followeeId);
+    }
+
+    @GetMapping("/{followeeId}/followers/{followerId}")
+    public boolean checkFollowerOfFollowee(@PathVariable long followeeId, @PathVariable long followerId) {
+        return subscriptionService.checkFollowerOfFollowee(followeeId, followerId);
     }
 
     private void isFollowerFolloweeIdsEqual(long followerId, long followeeId, String message) {

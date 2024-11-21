@@ -13,8 +13,9 @@ import school.faang.user_service.mapper.skill.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
-import school.faang.user_service.validator.SkillValidator;
-import school.faang.user_service.validator.UserValidator;
+import school.faang.user_service.service.user.UserService;
+import school.faang.user_service.validator.skill.SkillValidator;
+import school.faang.user_service.validator.user.UserValidator;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +34,7 @@ public class SkillService {
     private final SkillValidator skillValidator;
     private final SkillCandidateMapper skillCandidateMapper;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+    private final UserService userService;
 
     public SkillDto create(SkillDto skillDto) {
         skillValidator.validateTitle(skillDto);
@@ -44,7 +46,7 @@ public class SkillService {
     }
 
     public List<SkillDto> getUserSkills(long userId) {
-        userValidator.isUserExists(userId);
+        userValidator.validateUserExistence(userService.existsById(userId));
 
         List<Skill> skills = skillRepository.findAllByUserId(userId);
         log.info("У пользователя {} было найдено {} навыков", userId, skills.size());
@@ -52,7 +54,7 @@ public class SkillService {
     }
 
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
-        userValidator.isUserExists(userId);
+        userValidator.validateUserExistence(userService.existsById(userId));
 
         List<SkillDto> skills = skillMapper.toDtoList(skillRepository.findSkillsOfferedToUser(userId));
 
@@ -61,7 +63,7 @@ public class SkillService {
     }
 
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
-        userValidator.isUserExists(userId);
+        userValidator.validateUserExistence(userService.existsById(userId));
         Skill skill = skillValidator.skillAlreadyExists(skillId);
 
         Optional<Skill> skillOptional = skillRepository.findUserSkill(skillId, userId);

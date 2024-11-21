@@ -7,7 +7,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.constraints.Length;
+import org.springframework.http.HttpStatus;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +20,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user.UserIdsDto;
+import school.faang.user_service.dto.userJira.UserJiraCreateUpdateDto;
+import school.faang.user_service.dto.userJira.UserJiraDto;
 import school.faang.user_service.dto.userJira.UserJiraCreateUpdateDto;
 import school.faang.user_service.dto.userJira.UserJiraDto;
 import school.faang.user_service.service.user.UserService;
@@ -72,6 +80,16 @@ public class UserController {
     public ResponseEntity<List<Long>> getNotExistingUserIds(@RequestBody @Valid UserIdsDto request) {
         List<Long> notExistingUserIds = userService.getNotExistingUserIds(request.getUserIds());
         return ResponseEntity.ok(notExistingUserIds);
+    }
+
+    @PostMapping("/not-premium")
+    public List<UserDto> getNotPremiumUsers(@RequestBody UserFilterDto filters) {
+        return userService.getNotPremiumUsers(filters);
+    }
+
+    @PostMapping("/premium")
+    public List<UserDto> getPremiumUsers(@RequestBody UserFilterDto filters) {
+        return userService.getPremiumUsers(filters);
     }
 
     @Operation(
