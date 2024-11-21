@@ -8,6 +8,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository
@@ -27,6 +28,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
             WHERE up.end_date > NOW()
             """)
     Stream<User> findPremiumUsers();
+
+    List<User> findByUsernameLike(String username);
+
 
     @Modifying
     @Query("UPDATE User u SET u.userProfilePic = ?2 WHERE u.id = ?1")
