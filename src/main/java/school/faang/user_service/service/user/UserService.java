@@ -10,6 +10,7 @@ import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.pojo.person.Person;
+import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -19,7 +20,6 @@ import school.faang.user_service.service.user.random_password.PasswordGenerator;
 import school.faang.user_service.validator.user.UserValidator;
 
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
@@ -29,10 +29,9 @@ import java.util.stream.Stream;
 @Slf4j
 public class UserService {
 
-    private final Integer SIZE_OF_THREADS = 5;
-
     private final UserRepository userRepository;
     private final GoalRepository goalRepository;
+    private final CountryRepository countryRepository;
     private final EventRepository eventRepository;
     private final MentorshipService mentorshipService;
     private final UserMapper userMapper;
@@ -87,25 +86,46 @@ public class UserService {
     }
 
     public void test(List<Person> persons) {
-        ExecutorService executors = Executors.newFixedThreadPool(SIZE_OF_THREADS);
-
+        ExecutorService executors = Executors.newCachedThreadPool();
         for (int i = 0; i < persons.size(); i++) {
             int finalI = i;
             executors.submit(() -> createNewUser(persons.get(finalI)));
         }
+        executors.shutdown();
     }
 
     private void createNewUser(Person person) {
         User user = userMapper.toUser(person);
         String password = createRandomPassword();
         user.setPassword(password);
-        Country country = user.getCountry();
-        validateCountry(country);
-
+        String countryFromPerson = person.getContactInfo().getAddress().getCountry();
+        Country country = getCountry(countryFromPerson);
+        user.setCountry(country);
+        userRepository.save(user);
     }
 
     private String createRandomPassword() {
         return passwordGenerator.generatePassword(15, true,
                 true,true,true);
+    }
+
+    private Country getCountry(String countryFromPerson) {
+      Iterable<Country> manyCountry = countryRepository.findAll();
+      Country country = null;
+      while (manyCountry.iterator().hasNext()) {
+          Country countryFromRepository = manyCountry.iterator().next();
+          String correctCountryFromPerson = countryFromPerson.toLowerCase();
+          String correctCountryFromRepository = countryFromRepository.getTitle().toLowerCase();
+          if (correctCountryFromPerson.equals(correctCountryFromRepository)) {
+             country = countryFromRepository;
+          }
+      }
+      if (country == null) {
+          Country newCountry = new Country();
+          newCountry.setTitle(countryFromPerson);
+          return countryRepository.save(newCountry);
+      } else {
+          return country;
+      }
     }
 }

@@ -27,6 +27,7 @@ public interface UserMapper {
     @Mapping(target = "username", expression = "java(person.getFirstName() + ' ' + person.getLastName())")
     @Mapping(target = "aboutMe", expression = "java(person.getState() + ' ' + person.getState()" +
             " + ' ' + person.getFaculty() + ' ' + person.getYearOfStudy()")
+    @Mapping(target = "country", ignore = true)
     User toUser(Person person);
 
     List<User> toListUserFromPersons(List<Person> persons);

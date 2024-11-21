@@ -1,9 +1,6 @@
 package school.faang.user_service.pojo.person;
 
-import com.json.student.ContactInfo;
-import com.json.student.Education;
-import com.json.student.PreviousEducation;
-import com.opencsv.bean.CsvBindByName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,28 +12,21 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class Person {
-    @CsvBindByName(column = "Name")
+
     private String firstName;
-    @CsvBindByName(column = "Name")
     private String lastName;
-    @CsvBindByName(column = "Name")
     private Integer yearOfBirth;
-    @CsvBindByName(column = "Name")
     private String group;
-    @CsvBindByName(column = "studentID")
     private String studentID;
     private ContactInfo contactInfo;
     private Education education;
-    @CsvBindByName(column = "Name")
     private String status;
-    @CsvBindByName(column = "Name")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date admissionDate;
-    @CsvBindByName(column = "Name")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date graduationDate;
     private List<PreviousEducation> previousEducation;
-    @CsvBindByName(column = "Name")
     private Boolean scholarship;
-    @CsvBindByName(column = "Name")
     private String employer;
 
 }
