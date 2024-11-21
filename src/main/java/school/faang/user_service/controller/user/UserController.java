@@ -8,15 +8,19 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.service.user.UserService;
 
-
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
     @GetMapping("/{userId}")
     public UserDto getUser(@PathVariable long userId) {
         return userService.getUser(userId);
+    }
+
+    @GetMapping("/random_avatar")
+    public String generateRandomAvatar() {
+        return userService.generateRandomAvatar();
     }
 }
