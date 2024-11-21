@@ -19,6 +19,7 @@ import school.faang.user_service.service.MentorshipService;
 
 import java.util.List;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -52,9 +53,10 @@ public class MentorshipControllerTest {
     Long mentor2Id = 6L;
     Long mentor3Id = 7L;
     private UserDto userDto;
-    private UserDto user1;
-    private UserDto user2;
-    private List<UserDto> users;
+    private UserDto userDto1
+            ;
+    private UserDto userDto2;
+    private List<UserDto> userDtos;
 
     @BeforeEach
     void setUp() {
@@ -63,21 +65,21 @@ public class MentorshipControllerTest {
                 .build();
         objectMapper = new ObjectMapper();
         userDto = mockUserDto();
-        user1 = mockUser1();
-        user2 = mockUser2();
-        users = List.of(user1, user2);
+        userDto1 = mockUser1();
+        userDto2 = mockUser2();
+        userDtos = List.of(userDto1, userDto2);
     }
 
     @Test
     @DisplayName("Get mentees success")
     void testGetMenteesSuccess() throws Exception {
-        when(mentorshipService.getMentees(userId)).thenReturn(users);
+        when(mentorshipService.getMentees(userId)).thenReturn(userDtos);
 
         mockMvc.perform(get("/mentorship/users/{userId}/mentees", userId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(users.size()))
-                .andExpect(jsonPath("$[0].id").value(users.get(0).getId()));
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id").value(userDtos.get(0).getId()));
 
         verify(mentorshipService, times(1)).getMentees(userId);
     }
@@ -99,13 +101,13 @@ public class MentorshipControllerTest {
     @Test
     @DisplayName("Get mentors success")
     void testGetMentorsSuccess() throws Exception {
-        when(mentorshipService.getMentors(userId)).thenReturn(users);
+        when(mentorshipService.getMentors(userId)).thenReturn(userDtos);
 
         mockMvc.perform(get("/mentorship/users/{userId}/mentors", userId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(users.size()))
-                .andExpect(jsonPath("$[0].id").value(users.get(0).getId()));
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id").value(userDtos.get(0).getId()));
 
         verify(mentorshipService, times(1)).getMentors(userId);
     }
