@@ -53,6 +53,7 @@ public class PremiumService {
             newPremium.setUser(userService.getUserById(userId));
             newPremium.setStartDate(LocalDateTime.now());
             newPremium.setEndDate(LocalDateTime.now().plusDays(premiumPeriod.getDays()));
+            newPremium.setActive(true);
 
             return premiumMapper.toDto(premiumRepository.save(newPremium));
         }

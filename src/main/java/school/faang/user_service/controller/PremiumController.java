@@ -10,7 +10,7 @@ import school.faang.user_service.entity.PremiumPeriod;
 import school.faang.user_service.service.PremiumService;
 
 @RestController
-@RequestMapping("/buy-premium")
+@RequestMapping("/api/v1/buy-premium")
 @RequiredArgsConstructor
 public class PremiumController {
     private final PremiumService premiumService;

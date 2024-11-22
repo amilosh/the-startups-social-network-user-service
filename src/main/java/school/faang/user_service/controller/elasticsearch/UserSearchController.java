@@ -18,7 +18,7 @@ public class UserSearchController {
 
     @GetMapping("/search")
     public List<UserDocument> searchUsers(
-            @RequestParam String query,
+            @RequestParam(required = false) String query,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {

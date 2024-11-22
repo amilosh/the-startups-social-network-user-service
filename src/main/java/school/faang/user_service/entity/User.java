@@ -7,8 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
 import school.faang.user_service.entity.contact.Contact;
 import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.event.Event;
@@ -27,11 +25,12 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
+@NamedEntityGraph(name = "User.skills", attributeNodes = @NamedAttributeNode("skills"))
+@NamedEntityGraph(name = "User.premium", attributeNodes = @NamedAttributeNode("premium"))
 public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Field(type = FieldType.Keyword)
     private Long id;
 
     @Column(name = "username", length = 64, nullable = false, unique = true)

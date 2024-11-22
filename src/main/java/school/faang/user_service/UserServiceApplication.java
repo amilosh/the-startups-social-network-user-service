@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableFeignClients("school.faang.user_service.client")
 @EnableScheduling
+@EnableFeignClients("school.faang.user_service.client")
 public class UserServiceApplication {
 
     public static void main(String[] args) {

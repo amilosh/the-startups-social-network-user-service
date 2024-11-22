@@ -10,4 +10,5 @@ public class PremiumDto {
     private Long userId;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private boolean isActive;
 }
