@@ -2,7 +2,6 @@ package school.faang.user_service.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -17,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
-import school.faang.user_service.dto.request.UsersDto;
-import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.service.UserService;
 import school.faang.user_service.validator.UserValidator;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -42,29 +41,9 @@ public class UserController {
         return ResponseEntity.ok(userService.deactivateProfile(userId));
     }
 
-    /**
-     * Gets all users with optional filtering.
-     *
-     * @param filter DTO with filtering parameters
-     * @return list of UserDTOs of all users
-     */
-    @Operation(
-            summary = "Get all users with optional filtering",
-            description = "Returns a list of all users with optional filtering",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Success",
-                            content = @Content(mediaType = "application/json")
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Validation error",
-                            content = @Content
-                    )
-            }
-    )
     @GetMapping
+    @Operation(summary = "Get all users", description = "Retrieve a list of users with optional filtering and pagination")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved list of users")
     public List<UserDto> getAllUsers(
             @Valid
             @Parameter(description = "All users filtration parameters", required = false)
@@ -72,30 +51,9 @@ public class UserController {
         return userService.getAllUsers(filter);
     }
 
-    /**
-     * Gets a list of premium users with optional filtering
-     *
-     * @param filter DTO with filtering parameters
-     * @return list of UserDTOs of premium users
-     */
-    @Operation(
-            summary = "Get premium users",
-            description = "Returns list of premium users with filtration options",
-            responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Success",
-                            content = @Content(mediaType = "application/json")
-                    ),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Validation error",
-                            content = @Content
-                    )
-
-            }
-    )
     @GetMapping("/premium")
+    @Operation(summary = "Get premium users", description = "Retrieve a list of premium users with optional filtering and pagination")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved list premium users")
     public List<UserDto> getPremiumUsers(
             @Valid
             @Parameter(description = "Premium users filtration parameters", required = false)

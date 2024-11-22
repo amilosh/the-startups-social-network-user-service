@@ -2,26 +2,21 @@ package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
-import school.faang.user_service.dto.request.UsersDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.validator.UserValidator;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,18 +27,21 @@ public class UserService {
     private final UserValidator userValidator;
     private final MentorshipService mentorshipService;
     private final EventService eventService;
+    private final List<Filter<User, UserFilterDto>> userFilters;
 
     @Autowired
     public UserService(UserRepository userRepository,
                        UserMapper userMapper,
                        UserValidator userValidator,
                        @Lazy MentorshipService mentorshipService,
-                       @Lazy EventService eventService) {
+                       @Lazy EventService eventService,
+                       List<Filter<User, UserFilterDto>> userFilters) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.userValidator = userValidator;
         this.mentorshipService = mentorshipService;
         this.eventService = eventService;
+        this.userFilters = userFilters;
     }
 
     public boolean checkUserExistence(long userId) {
@@ -104,16 +102,10 @@ public class UserService {
         user.getSetGoals().removeIf(goal -> goal.getUsers().isEmpty());
     }
 
-    /**
-     * Returns list of premium users with optional filtering
-     *
-     * @param filter DTO with filtering parameters
-     * @return list of premium users UserDTOs
-     */
     @Transactional
-    public List<UserDto> getPremiumUsers(UserFilterDto filter) {
+    public List<UserDto> getPremiumUsers(UserFilterDto filterDto) {
         try (Stream<User> premiumUsersStream = userRepository.findPremiumUsers()) {
-            Stream<User> filteredStream = applyFilters(premiumUsersStream, filter);
+            Stream<User> filteredStream = applyFilters(premiumUsersStream, filterDto);
 
             return filteredStream
                     .map(userMapper::toDto)
@@ -121,97 +113,23 @@ public class UserService {
         }
     }
 
-    /**
-     * Returns list of all users with optional filtering.
-     *
-     * @param filter DTO with filtering parameters.
-     * @return ist of all users UserDTOs
-     */
     @Transactional
-    public List<UserDto> getAllUsers(UserFilterDto filter) {
-        List<User> users = userRepository.findAll();
+    public List<UserDto> getAllUsers(UserFilterDto filterDto) {
+        Stream<User> usersStream = userRepository.findAll().stream();
+        Stream<User> filteredStream = applyFilters(usersStream, filterDto);
 
-        try (Stream<User> usersStream = users.stream()) {
-            Stream<User> filteredStream = applyFilters(usersStream, filter);
-
-            return filteredStream
-                    .map(userMapper::toDto)
-                    .collect(Collectors.toList());
-        }
+        return filteredStream
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
     }
 
-    /**
-     * Applies filters from UserFilterDTO to users stream
-     *
-     * @param users  stream
-     * @param filter DTO with filtration parameters
-     * @return filtered users stream
-     */
-    private Stream<User> applyFilters(Stream<User> users, UserFilterDto filter) {
-        List<Predicate<User>> predicates = new ArrayList<>();
-
-        Optional.ofNullable(filter.getNamePattern())
-                .filter(name -> !name.isEmpty())
-                .ifPresent(namePattern -> predicates.add(
-                        user -> user.getUsername() != null &&
-                                user.getUsername().toLowerCase().contains(namePattern.toLowerCase())));
-
-        Optional.ofNullable(filter.getAboutPattern())
-                .filter(about -> !about.isEmpty())
-                .ifPresent(aboutPattern -> predicates.add(
-                        user -> user.getAboutMe() != null &&
-                                user.getAboutMe().toLowerCase().contains(aboutPattern.toLowerCase())));
-
-        Optional.ofNullable(filter.getEmailPattern())
-                .filter(email -> !email.isEmpty())
-                .ifPresent(emailPattern -> predicates.add(
-                        user -> user.getEmail() != null &&
-                                user.getEmail().toLowerCase().contains(emailPattern.toLowerCase())));
-
-        Optional.ofNullable(filter.getContactPattern())
-                .filter(contact -> !contact.isEmpty())
-                .ifPresent(contactPattern -> predicates.add(
-                        user -> user.getContacts() != null
-                                && user.getContacts().stream()
-                                .anyMatch(contact -> contact.getContact().toLowerCase().contains(contactPattern.toLowerCase()))));
-
-        Optional.ofNullable(filter.getCountryPattern())
-                .filter(country -> !country.isEmpty())
-                .ifPresent(countryPattern -> predicates.add(
-                        user -> user.getCountry() != null
-                                && user.getCountry().getTitle() != null
-                                && user.getCountry().getTitle().contains(countryPattern.toLowerCase())));
-
-        Optional.ofNullable(filter.getCityPattern())
-                .filter(city -> !city.isEmpty())
-                .ifPresent(cityPattern -> predicates.add(
-                        user -> user.getCity() != null && user.getCity().toLowerCase().contains(cityPattern.toLowerCase())));
-
-        Optional.ofNullable(filter.getPhonePattern())
-                .filter(phone -> !phone.isEmpty())
-                .ifPresent(phonePattern -> predicates.add(
-                        user -> user.getPhone() != null && user.getPhone().contains(phonePattern)));
-
-        Optional.ofNullable(filter.getSkillPattern())
-                .filter(skill -> !skill.isEmpty())
-                .ifPresent(skillPattern -> predicates.add(
-                        user -> user.getSkills() != null && user.getSkills().stream()
-                                .anyMatch(skill -> skill.getTitle().toLowerCase().contains(skillPattern.toLowerCase()))));
-
-        if (filter.getExperienceMin() != null) {
-            predicates.add(user -> user.getExperience() >= filter.getExperienceMin());
+    private Stream<User> applyFilters(Stream<User> users, UserFilterDto filterDto) {
+        for (Filter<User, UserFilterDto> filter : userFilters) {
+            if (filter.isApplicable(filterDto)) {
+                users = filter.apply(users, filterDto);
+            }
         }
-
-        if (filter.getExperienceMax() != null) {
-            predicates.add(user -> user.getExperience() <= filter.getExperienceMax());
-        }
-
-        Predicate<User> allPredicates = user -> true;
-        for (Predicate<User> predicate : predicates) {
-            allPredicates = allPredicates.and(predicate);
-        }
-
-        return users.filter(allPredicates);
+        return users;
     }
 
     private void removeOwnedEvents(User user) {
