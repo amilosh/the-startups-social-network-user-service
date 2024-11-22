@@ -23,11 +23,10 @@ public class UserValidatorTest {
     private UserRepository userRepository;
 
     private Person person;
-    private Education education;
 
     @BeforeEach
     public void setUp() {
-        education = Education.builder()
+        Education education = Education.builder()
                 .major("major")
                 .yearOfStudy(2024)
                 .faculty("faculty")
