@@ -2,12 +2,18 @@ package school.faang.user_service.dto.pojo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.mapstruct.Named;
 
 import java.time.LocalDate;
 import java.util.List;
 @Data
+@Builder
+@AllArgsConstructor
+@RequiredArgsConstructor
 public class Person {
     @JsonProperty("firstName")
     private String firstName;
@@ -35,25 +41,25 @@ public class Person {
     private boolean scholarship;
     @JsonProperty("employer")
     private String employer;
-    private String name = concatFirstAndLastName();
 
 
-    private String concatFirstAndLastName() {
-        return getFirstName() + getLastName();
-    }
 
-    public String createAboutMe() {
-        StringBuilder aboutMe = new StringBuilder();
-        if (getContactInfo().getAddress().getState() != null
-                && !getContactInfo().getAddress().getState().isEmpty()) {
-            aboutMe.append(getContactInfo().getAddress().getState()).append(" ");
-        }
-        aboutMe.append(getEducation().getFaculty()).append(" ")
-                .append(getEducation().getYearOfStudy()).append(" ")
-                .append(getEducation().getMajor());
-        if (getEmployer() != null && !getEmployer().isEmpty()) {
-            aboutMe.append(" at ").append(getEmployer());
-        }
-        return aboutMe.toString();
-    }
+//    private String concatFirstAndLastName() {
+//        return getFirstName() + getLastName();
+//    }
+
+//    public String createAboutMe() {
+//        StringBuilder aboutMe = new StringBuilder();
+//        if (getContactInfo().getAddress().getState() != null
+//                && !getContactInfo().getAddress().getState().isEmpty()) {
+//            aboutMe.append(getContactInfo().getAddress().getState()).append(" ");
+//        }
+//        aboutMe.append(getEducation().getFaculty()).append(" ")
+//                .append(getEducation().getYearOfStudy()).append(" ")
+//                .append(getEducation().getMajor());
+//        if (getEmployer() != null && !getEmployer().isEmpty()) {
+//            aboutMe.append(" at ").append(getEmployer());
+//        }
+//        return aboutMe.toString();
+//    }
 }

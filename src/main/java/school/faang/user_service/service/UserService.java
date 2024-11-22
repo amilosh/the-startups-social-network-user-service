@@ -1,6 +1,10 @@
 package school.faang.user_service.service;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -18,20 +22,23 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private final CountryRepository countryRepository;
     private final UserMapper userMapper;
     private final PersonToUserMapper personToUserMapper;
     private final UserValidator userValidator;
     private final MentorshipService mentorshipService;
+    private final CountryService countryService;
     private final EventService eventService;
 
 
@@ -41,13 +48,14 @@ public class UserService {
                        UserMapper userMapper,
                        PersonToUserMapper personToUserMapper,
                        UserValidator userValidator,
+                       CountryService countryService,
                        @Lazy MentorshipService mentorshipService,
                        @Lazy EventService eventService) {
         this.userRepository = userRepository;
-        this.countryRepository = countryRepository;
         this.userMapper = userMapper;
         this.personToUserMapper = personToUserMapper;
         this.userValidator = userValidator;
+        this.countryService = countryService;
         this.mentorshipService = mentorshipService;
         this.eventService = eventService;
 
@@ -88,26 +96,34 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
-    public void processUsers(List<Person> persons) {
+//    public void processUsers(List<Person> persons) {
 //        Set<String> emailSet = new HashSet<>();
-        for (Person person : persons) {
+//        for (Person person : persons) {
 //            if (!emailSet.add(person.getContactInfo().getEmail())) {
 //                throw new IllegalArgumentException("Duplicate email found in CSV: " + person.getContactInfo().getEmail());
 //            }
-            String password = generateRandomPassword();
-            User user = personToUserMapper.personToUser(person);
-            user.setPassword(password);
-            Country country = countryRepository.findByTitle(person.getContactInfo().getAddress().getCountry())
-                    .orElseGet(() -> {
-                        Country newCountry = new Country();
-                        newCountry.setTitle(person.getContactInfo().getAddress().getCountry());
-                        countryRepository.save(newCountry);
-                        return newCountry;
-                    });
-            user.setCountry(country);
-            userRepository.save(user);
-        }
+//            String password = generateRandomPassword();
+//            User user = personToUserMapper.personToUser(person);
+//            user.setPassword(password);
+//            Country country = countryRepository.findByTitle(person.getContactInfo().getAddress().getCountry())
+//                    .orElseGet(() -> {
+//                        Country newCountry = new Country();
+//                        newCountry.setTitle(person.getContactInfo().getAddress().getCountry());
+//                        countryRepository.save(newCountry);
+//                        return newCountry;
+//                    });
+//            user.setCountry(country);
+//            userRepository.save(user);
+//        }
+//    }
+
+    public void processUsers(List<Person> persons) {
+        validateEmails(persons)
+                .stream()
+                .map(this::createUserFromPerson)
+                .forEach(userRepository::save);
     }
+
 
     private void stopAllUserActivities(User user) {
         removeGoals(user);
@@ -138,5 +154,34 @@ public class UserService {
 
     private String generateRandomPassword() {
         return UUID.randomUUID().toString();
+    }
+
+    private List<Person> validateEmails(List<Person> persons) {
+        Set<String> emailSet = new HashSet<>();
+        for (Person person : persons) {
+            if (!emailSet.add(person.getContactInfo().getEmail())) {
+                throw new IllegalArgumentException("Duplicate email found in CSV: "
+                        + person.getContactInfo().getEmail());
+            }
+        }
+        return persons;
+    }
+
+    private User createUserFromPerson(Person person) {
+        String password = generateRandomPassword();
+        User user = personToUserMapper.personToUser(person);
+        user.setPassword(password);
+        Country country = countryService.findOrCreateCountry(
+                person.getContactInfo().getAddress().getCountry());
+        user.setCountry(country);
+        return user;
+    }
+
+    public void processCsv(InputStream inputStream) throws IOException {
+        CsvMapper csvMapper = new CsvMapper();
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+        MappingIterator<Person> iterator = csvMapper.readerFor(Person.class).with(schema).readValues(inputStream);
+        List<Person> persons = iterator.readAll();
+        log.info("List of person {} ", persons);
     }
 }

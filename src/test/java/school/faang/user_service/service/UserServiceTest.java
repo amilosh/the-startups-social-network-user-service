@@ -9,9 +9,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.pojo.Address;
+import school.faang.user_service.dto.pojo.ContactInfo;
+import school.faang.user_service.dto.pojo.Person;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.mapper.PersonToUserMapper;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
@@ -23,9 +29,11 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,6 +45,7 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+
     @Mock
     private UserMapper userMapper;
 
@@ -47,15 +56,28 @@ class UserServiceTest {
     private EventService eventService;
 
     @Mock
+    private CountryService countryService;
+
+    @Mock
     private UserValidator userValidator;
+    @Mock
+    private PersonToUserMapper personToUserMapper;
 
     @InjectMocks
     private UserService userService;
 
     private final long userId = 1L;
     private User user;
+    private User user1;
+    private Person person1;
+    private Person person2;
+    private Person person3;
+    private Country country1;
+    private Country country2;
     private List<Event> events;
     private UserDto dto;
+    private List<Person> persons;
+    private List<Person> personsDublicatEmail;
 
     @BeforeEach
     public void setUp() {
@@ -67,9 +89,55 @@ class UserServiceTest {
         user.setSetGoals(new ArrayList<>());
         events = new ArrayList<>();
 
+        user1 = new User();
+
         dto = UserDto.builder()
                 .id(userId)
                 .build();
+
+         person1 = Person.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .contactInfo(ContactInfo.builder()
+                        .email("email1@example.com")
+                        .address(Address.builder()
+                                .country("Country1")
+                                .build())
+                        .build())
+                .build();
+
+        person2 = Person.builder()
+                .firstName("Jane")
+                .lastName("Dav")
+                .contactInfo(ContactInfo.builder()
+                        .email("email2@example.com")
+                        .address(Address.builder()
+                                .country("Country2")
+                                .build())
+                        .build())
+                .build();
+
+        person3 = Person.builder()
+                .firstName("Jane")
+                .lastName("Dav")
+                .contactInfo(ContactInfo.builder()
+                        .email("email2@example.com")
+                        .address(Address.builder()
+                                .country("Country2")
+                                .build())
+                        .build())
+                .build();
+
+         country1 = Country.builder()
+                .title("Country1")
+                .build();
+
+        country2 = Country.builder()
+                .title("Country2")
+                .build();
+
+         persons = List.of(person1, person2);
+        personsDublicatEmail =List.of(person2,person3);
     }
 
     @Test
@@ -246,4 +314,51 @@ class UserServiceTest {
         return mentee;
 
     }
+
+    @Test
+    void testProcessUsersValidInputSavesUsers() {
+        List<Person> persons = List.of(person1, person2);
+
+        when(personToUserMapper.personToUser(person1)).thenReturn(user);
+        when(personToUserMapper.personToUser(person2)).thenReturn(user1);
+        when(countryService.findOrCreateCountry("Country1")).thenReturn(country1);
+        when(countryService.findOrCreateCountry("Country2")).thenReturn(country2);
+
+       userService.processUsers(persons);
+
+        verify(personToUserMapper, times(1)).personToUser(person1);
+        verify(personToUserMapper,times(1)).personToUser(person2);
+        verify(userRepository, times(1)).save(user);
+
+        verify(userRepository,times(1)).save(user1);
+        verify(countryService,times(1)).findOrCreateCountry("Country1");
+        verify(countryService,times(1)).findOrCreateCountry("Country2");
+    }
+
+    @Test
+    void testProcessUsersDuplicateEmailsThrowsException() {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.processUsers(personsDublicatEmail)
+        );
+
+        assertEquals("Duplicate email found in CSV: email2@example.com", exception.getMessage());
+    }
+
+    @Test
+    void testProcessUsersGeneratesPasswordsAndSetsCountry() {
+        List<Person> persons = List.of(person1);
+
+        when(personToUserMapper.personToUser(person1)).thenReturn(user);
+        when(countryService.findOrCreateCountry("Country1")).thenReturn(country1);
+
+        userService.processUsers(persons);
+
+        assertNotNull(user.getPassword());
+        assertEquals(country1, user.getCountry());
+        verify(userRepository).save(user);
+    }
 }
+
+
+

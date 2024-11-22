@@ -19,6 +19,8 @@ import school.faang.user_service.convertor.CsvToPojoConverter;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.pojo.Person;
 import school.faang.user_service.service.UserService;
+import school.faang.user_service.validator.CsvFile;
+import school.faang.user_service.validator.FileNotEmpty;
 import school.faang.user_service.validator.UserValidator;
 
 import java.io.IOException;
@@ -35,30 +37,29 @@ public class UserController {
     private final UserValidator userValidator;
     private final CsvToPojoConverter csvToPojoConverter;
 
-    @PostMapping("/import")
-    public ResponseEntity<String> uploadToCsv(@RequestParam("file") MultipartFile file) throws IOException {
-        System.out.println(file.getSize());
-        System.out.println(file.getName());
-        if (file.isEmpty()) {
-            log.error("File is empty");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File is empty");
+//    @PostMapping("/import")
+//    public ResponseEntity<String> uploadToCsv(@RequestParam("file")@FileNotEmpty @CsvFile MultipartFile file) throws IOException {
+////        System.out.println(file.getSize());
+////        System.out.println(file.getName());
+////        log.info("File name: {}", file.getOriginalFilename());
+////        log.info("File size: {}", file.getSize());
+////        log.info("File content type: {}", file.getContentType());
+//        InputStream inputStream = file.getInputStream();
+//        List<Person> persons = csvToPojoConverter.convertCsvToPojo(inputStream);
+//        userService.processUsers(persons);
+//        log.info("file upload");
+//
+//        return ResponseEntity.status(HttpStatus.CREATED).build();
+//    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<String> uploadToCsv(@RequestParam("file") MultipartFile file) {
+        try {
+          userService.processCsv(file.getInputStream());
+          return ResponseEntity.ok("Users processed successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload CSV");
         }
-
-        log.info("File name: {}", file.getOriginalFilename());
-        log.info("File size: {}", file.getSize());
-        log.info("File content type: {}", file.getContentType());
-
-        if (!"text/csv".equals(file.getContentType())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Invalid file type. Please upload the CSV file");
-        }
-        InputStream inputStream = file.getInputStream();
-
-        List<Person> persons = csvToPojoConverter.convertCsvToPojo(inputStream);
-        userService.processUsers(persons);
-        log.info("file upload");
-
-        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/{userId}")

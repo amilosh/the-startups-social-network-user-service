@@ -1,5 +1,7 @@
 package school.faang.user_service.convertor;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,7 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.MappingIterator;
+
+
 import school.faang.user_service.dto.pojo.Person;
 
 import java.io.ByteArrayInputStream;
@@ -40,25 +43,23 @@ class CsvToPojoConverterTest {
 
     @Test
     public void testConvertCsvToPojo() throws Exception {
-
-        String csvData = "firstName,lastName,yearOfBirth,group,John,Doe,1990,GroupA,Jane,Smith,1992,GroupB";
+        String csvData =  "firstName,lastName,yearOfBirth,group" + System.lineSeparator()
+                + "John,Doe,1990,GroupA" + System.lineSeparator()
+                + "Jane,Smith,1992,GroupB";
         InputStream csvInputStream = new ByteArrayInputStream(csvData.getBytes());
+        CsvSchema mockCsvSchema = mock(CsvSchema.class);
+        CsvMapper csvMapper = new CsvMapper();
+        MappingIterator<Map<String, String>> mockIterator = mock(MappingIterator.class);
 
-        CsvSchemaFactory mockCsvSchema = mock(CsvSchemaFactory.class);
         when(csvSchemaFactory.createPersonSchema()).thenReturn(mockCsvSchema);
 
-
-        MappingIterator<Map<String, String>> mockIterator = mock(MappingIterator.class);
         when(mockIterator.hasNext()).thenReturn(true, true, false);
-        when(mockIterator.next()).thenReturn(Map.of(
-                        "firstName", "John", "lastName", "Doe", "yearOfBirth", "1990", "group", "GroupA"))
-                .thenReturn(Map.of(
-                        "firstName", "Jane", "lastName", "Smith", "yearOfBirth", "1992", "group", "GroupB"));
+        when(mockIterator.next()).thenReturn(
+                Map.of("firstName", "John", "lastName", "Doe", "yearOfBirth", "1990", "group", "GroupA"),
+                Map.of("firstName", "Jane", "lastName", "Smith", "yearOfBirth", "1992", "group", "GroupB"));
 
-
-        CsvMapper mockCsvMapper = mock(CsvMapper.class);
-        when(mockCsvMapper.readerFor(Map.class).with(mockCsvSchema).readValues(csvInputStream)).thenReturn(mockIterator);
-
+        when(csvMapper.readerFor(Map.class).with(mockCsvSchema).readValues(csvInputStream))
+                .thenReturn((MappingIterator)mockIterator);
 
         Person person1 = new Person();
         person1.setFirstName("John");
@@ -97,7 +98,7 @@ class CsvToPojoConverterTest {
     public void testConvertCsvToPojo_emptyFile() throws Exception {
 
         String csvData = "";
-        InputStream csvInputStream = new java.io.ByteArrayInputStream(csvData.getBytes());
+        InputStream csvInputStream = new ByteArrayInputStream(csvData.getBytes());
 
         List<Person> persons = csvToPojoConverter.convertCsvToPojo(csvInputStream);
 
@@ -106,4 +107,3 @@ class CsvToPojoConverterTest {
     }
 }
 
-}
