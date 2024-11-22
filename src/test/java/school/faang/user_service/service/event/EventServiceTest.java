@@ -67,7 +67,7 @@ public class EventServiceTest {
         skillMapper = new SkillMapperImpl();
         eventMapper = new EventMapperImpl(skillMapper);
         eventService = new EventService
-                (eventRepository, eventServiceValidator, eventMapper, skillMapper, eventFilters, skillRepository);
+                (eventRepository, eventServiceValidator, eventMapper, eventFilters, skillRepository);
     }
 
     @BeforeEach
@@ -106,9 +106,13 @@ public class EventServiceTest {
     @Test
     public void testCreateSavingEvent() {
         EventDto eventBakingDto = eventMapper.toDto(eventBaking);
+
         SkillDto skillDto = new SkillDto();
+        skillDto.setId(1L);
         skillDto.setTitle("Baking");
         eventBakingDto.setRelatedSkills(List.of(skillDto));
+
+        when(skillRepository.findAllById(anyList())).thenReturn(List.of(skillMapper.toEntity(skillDto)));
 
         when(eventServiceValidator.validateUserId(eventBakingDto.getOwnerId())).thenReturn(userJohn);
         doNothing().when(eventServiceValidator).validateOwnerSkills(userJohn, eventBakingDto);
@@ -134,7 +138,7 @@ public class EventServiceTest {
         assertEquals("Baking", result.getRelatedSkills().get(0).getTitle());
 
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-        verify(eventRepository, times(2)).save(eventCaptor.capture());
+        verify(eventRepository, times(1)).save(eventCaptor.capture());
         Event capturedEvent = eventCaptor.getValue();
 
         assertNotNull(capturedEvent.getRelatedSkills());
@@ -223,7 +227,7 @@ public class EventServiceTest {
         assertEquals(1, result.getRelatedSkills().size());
         assertEquals("Cooking", result.getRelatedSkills().get(0).getTitle());
 
-        verify(eventRepository, times(2)).save(any(Event.class));
+        verify(eventRepository, times(1)).save(any(Event.class));
         verify(skillRepository, times(1)).saveAll(anyList());
     }
 

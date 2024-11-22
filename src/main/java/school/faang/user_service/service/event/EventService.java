@@ -1,20 +1,22 @@
 package school.faang.user_service.service.event;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.event.EventMapper;
-import school.faang.user_service.mapper.skill.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.event_filters.EventFilter;
 import school.faang.user_service.validator.event.EventServiceValidator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,17 +26,16 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventServiceValidator eventServiceValidator;
     private final EventMapper eventMapper;
-    private final SkillMapper skillMapper;
     private final List<EventFilter> eventFilters;
     private final SkillRepository skillRepository;
 
+    @Transactional
     public EventDto create(EventDto eventDto) {
         User eventOwner = eventServiceValidator.validateUserId(eventDto.getOwnerId());
         eventServiceValidator.validateOwnerSkills(eventOwner, eventDto);
 
         Event event = eventMapper.toEntity(eventDto);
         event.setId(null);
-        event = eventRepository.save(event);
         event = addRealtedSkillsToEvent(eventDto, event);
 
         log.info("New event saved to the database;");
@@ -69,9 +70,9 @@ public class EventService {
         User eventOwner = eventServiceValidator.validateUserId(eventDto.getOwnerId());
         eventServiceValidator.validateOwnerSkills(eventOwner, eventDto);
 
-        Event updatedEvent = eventMapper.toEntity(eventDto);
-        eventRepository.save(updatedEvent);
-        updatedEvent = addRealtedSkillsToEvent(eventDto, updatedEvent);
+        Event event = eventMapper.toEntity(eventDto);
+
+        Event updatedEvent = addRealtedSkillsToEvent(eventDto, event);
 
         log.info("An updated event with id {} has been saved to the database", eventToUpdate.getId());
         return eventMapper.toDto(updatedEvent);
@@ -90,16 +91,26 @@ public class EventService {
     }
 
     private Event addRealtedSkillsToEvent(EventDto eventDto, Event event) {
-        if(!eventDto.getRelatedSkills().isEmpty()) {
+        if (!eventDto.getRelatedSkills().isEmpty()) {
             Event finalEvent = event;
-            List<Skill> skills = eventDto.getRelatedSkills().stream()
-                    .map(skillMapper::toEntity)
-                    .peek(skill -> skill.setEvents(List.of(finalEvent)))
-                    .toList();
-            skillRepository.saveAll(skills);
-            event.setRelatedSkills(skills);
+            List<Skill> skillsByIds = getSkillsByIds(eventDto.getRelatedSkills());
+            skillsByIds.forEach(skill -> {
+                if (skill.getEvents() == null) {
+                    skill.setEvents(new ArrayList<>());
+                }
+                skill.getEvents().add(finalEvent);
+            });
+            skillRepository.saveAll(skillsByIds);
+            event.setRelatedSkills(skillsByIds);
             event = eventRepository.save(event);
         }
         return event;
+    }
+
+    private List<Skill> getSkillsByIds(List<SkillDto> skills) {
+        List<Long> ids = skills.stream()
+                .map(SkillDto::getId)
+                .toList();
+        return skillRepository.findAllById(ids);
     }
 }
