@@ -1,14 +1,17 @@
 package school.faang.user_service.service.user;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.repository.UserRepository;
 
 import java.math.BigDecimal;
@@ -16,6 +19,7 @@ import java.math.RoundingMode;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -25,6 +29,8 @@ public class UserService {
     @PersistenceContext
     private final EntityManager entityManager;
     private final UserRepository userRepository;
+    private final UserContext userContext;
+    private final AvatarService avatarService;
 
     public Optional<User> findById(long userId) {
         return userRepository.findById(userId);
@@ -73,5 +79,17 @@ public class UserService {
     public void flushAndClear() {
         entityManager.flush();
         entityManager.clear();
+    }
+
+    public String generateRandomAvatar() {
+        Long userId = userContext.getUserId();
+        User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+        String randomAvatarUrl = avatarService.generateRandomAvatar(UUID.randomUUID().toString(),
+                userId + ".svg");
+        UserProfilePic userProfilePic = new UserProfilePic();
+        userProfilePic.setFileId(randomAvatarUrl);
+        user.setUserProfilePic(userProfilePic);
+        userRepository.save(user);
+        return randomAvatarUrl;
     }
 }

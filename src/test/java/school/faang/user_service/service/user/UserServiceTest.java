@@ -1,12 +1,14 @@
 package school.faang.user_service.service.user;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
@@ -18,8 +20,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,6 +43,15 @@ public class UserServiceTest {
     private EntityManager entityManager;
 
     private UpdateUsersRankDto usersRankDto;
+
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private UserContext userContext;
+    @Mock
+    private AvatarService avatarService;
+    @InjectMocks
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
@@ -101,5 +117,34 @@ public class UserServiceTest {
 
         verify(entityManager, times(2)).flush();
         verify(entityManager, times(2)).clear();
+    }
+
+    @Test
+    void testGenerateRandomAvatarSuccess() {
+        Long userId = 1L;
+        String avatarUrl = "http://localhost/avatar/1.svg";
+        User user = new User();
+        user.setId(userId);
+        when(userContext.getUserId()).thenReturn(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(avatarService.generateRandomAvatar(anyString(), eq(userId + ".svg"))).thenReturn(avatarUrl);
+        String result = userService.generateRandomAvatar();
+        assertEquals(avatarUrl, result);
+        assertNotNull(user.getUserProfilePic());
+        assertEquals(avatarUrl, user.getUserProfilePic().getFileId());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void testGenerateRandomAvatarUserNotFound() {
+        Long userId = 1L;
+        when(userContext.getUserId()).thenReturn(userId);
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
+            userService.generateRandomAvatar();
+        });
+        assertEquals("User not found", exception.getMessage());
+        verify(avatarService, never()).generateRandomAvatar(anyString(), anyString());
+        verify(userRepository, never()).save(any(User.class));
     }
 }
