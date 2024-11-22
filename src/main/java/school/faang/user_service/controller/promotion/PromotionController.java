@@ -25,7 +25,7 @@ import java.util.List;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/promotions")
+@RequestMapping("api/v1/promotions")
 public class PromotionController {
     private final PromotionService promotionService;
     private final UserContext userContext;
@@ -47,7 +47,7 @@ public class PromotionController {
         return promotionService.buyEventPromotion(userId, eventId, tariff);
     }
 
-    @GetMapping("/per-page")
+    @GetMapping("/users/per-page")
     public List<UserResponseDto> getPromotedUsersBeforeAllPerPage(
             @RequestParam(name = "offset") @Min(value = 0, message = "Offset must be a non-negative number") int offset,
             @RequestParam(name = "limit") @Min(value = 1, message = "Limit must be at least 1") int limit) {

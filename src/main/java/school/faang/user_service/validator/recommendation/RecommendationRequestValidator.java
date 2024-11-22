@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static school.faang.user_service.exception.recommendation.RequestErrorMessage.REQUEST_STATUS;
+import static school.faang.user_service.exception.recommendation.ErrorMessage.REQUEST_STATUS;
 
 @Slf4j
 @Component

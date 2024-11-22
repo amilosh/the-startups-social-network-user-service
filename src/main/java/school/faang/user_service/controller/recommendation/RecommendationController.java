@@ -31,14 +31,14 @@ public class RecommendationController {
         return recommendationService.create(requestRecommendationDto);
     }
 
-    @PutMapping()
+    @PutMapping("{id}")
     public ResponseRecommendationDto updateRecommendation(
             @PathVariable @NotNull(message = "Recommendation ID should not be null") Long id,
             @Valid @RequestBody RequestRecommendationDto updatedRequestRecommendationDto) {
         return recommendationService.update(id, updatedRequestRecommendationDto);
     }
 
-    @DeleteMapping()
+    @DeleteMapping("{id}")
     public void deleteRecommendation(
             @PathVariable @NotNull(message = "Recommendation ID should not be null") Long id) {
         recommendationService.delete(id);
@@ -55,4 +55,5 @@ public class RecommendationController {
             @PathVariable @NotNull(message = "Author ID should not be null") Long authorId) {
         return recommendationService.getAllGivenRecommendations(authorId);
     }
+    //TODO добавить фильтрДто с двумя полями, объединить два метода запроса в один
 }

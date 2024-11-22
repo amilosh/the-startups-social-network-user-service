@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.service.goal.GoalService;
@@ -16,13 +17,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("api/v1/goals")
 public class GoalController {
-
     private final GoalService goalService;
+    private final UserContext userContext;
 
-    @PostMapping("/{userId}")
-    public GoalDto createGoal(
-            @PathVariable @NotNull(message = "User ID should not be null") Long userId,
-            @Valid @RequestBody GoalDto goalDto) {
+    @PostMapping()
+    public GoalDto createGoal(@Valid @RequestBody GoalDto goalDto) {
+        long userId = userContext.getUserId();
         return goalService.createGoal(userId, goalDto);
     }
 

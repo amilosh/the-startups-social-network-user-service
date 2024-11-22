@@ -14,13 +14,13 @@ import school.faang.user_service.entity.premium.PremiumPeriod;
 import school.faang.user_service.service.premium.PremiumService;
 
 @RestController
-@RequestMapping("/premiums")
+@RequestMapping("api/v1/premiums")
 @RequiredArgsConstructor
 public class PremiumController {
     private final PremiumService premiumService;
     private final UserContext userContext;
 
-    @PostMapping("/buy")
+    @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResponsePremiumDto buyPremium(@RequestBody RequestPremiumDto requestPremiumDto) {
         PremiumPeriod premiumPeriod = PremiumPeriod.fromDays(requestPremiumDto.days());

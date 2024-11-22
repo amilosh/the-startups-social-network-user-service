@@ -28,21 +28,21 @@ public class GoalInvitationController {
         return goalInvitationService.createInvitation(invitation);
     }
 
-    @PutMapping("/accept/{id}")
+    @PutMapping("/{id}/accept")
     @Operation(summary = "Accept an invitation to a goal")
     public GoalInvitationDto acceptGoalInvitation(
             @PathVariable @NotNull(message = "Invitation ID should not be null") Long id) {
         return goalInvitationService.acceptGoalInvitation(id);
     }
 
-    @PutMapping("/reject/{id}")
+    @PutMapping("/{id}/reject")
     @Operation(summary = "Decline an invitation to a goal")
     public GoalInvitationDto rejectGoalInvitation(
             @PathVariable @NotNull(message = "Invitation ID should not be null") Long id) {
         return goalInvitationService.rejectGoalInvitation(id);
     }
 
-    @PostMapping("/filters")
+    @GetMapping()
     @Operation(summary = "View all invitations with filters")
     public List<GoalInvitationDto> getInvitations(@Valid @RequestBody InvitationFilterDto filter) {
         return goalInvitationService.getInvitationsByFilter(filter);
