@@ -1,37 +1,10 @@
 package school.faang.user_service.pojo.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 
-@JsonPropertyOrder({
-        "firstName",
-        "lastName",
-        "yearOfBirth",
-        "group",
-        "studentID",
-        "email",
-        "phone",
-        "street",
-        "city",
-        "state",
-        "country",
-        "postalCode",
-        "faculty",
-        "yearOfStudy",
-        "major",
-        "GPA",
-        "status",
-        "admissionDate",
-        "graduationDate",
-        "degree",
-        "institution",
-        "completionYear",
-        "scholarship",
-        "employer"
-})
 @Getter
 @Setter
 public class Person {

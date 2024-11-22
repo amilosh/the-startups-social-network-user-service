@@ -82,8 +82,8 @@ public class UserController {
             @ApiResponse(responseCode = "400", description = "Invalid input data")
     })
     @PostMapping("/parser")
-    public ResponseEntity<List<UserDto>> parsePersonDataIntoUserDto(@RequestParam("file") MultipartFile csvFile) {
-        return ResponseEntity.ok(userService.parsePersonDataIntoUserDto(csvFile));
+    public List<UserDto> parsePersonDataIntoUserDto(@RequestParam("file") MultipartFile csvFile) {
+        return userService.parsePersonDataIntoUserDto(csvFile);
     }
 
 }
