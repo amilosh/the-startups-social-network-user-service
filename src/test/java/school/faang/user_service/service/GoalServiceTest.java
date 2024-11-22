@@ -2,8 +2,6 @@ package school.faang.user_service.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.GoalDto;
 import school.faang.user_service.dto.GoalFilterDto;
 import school.faang.user_service.entity.Skill;
@@ -27,7 +25,6 @@ import java.util.stream.Stream;
 
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
 public class GoalServiceTest {
 
     @InjectMocks

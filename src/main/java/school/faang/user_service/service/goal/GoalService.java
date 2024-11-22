@@ -21,6 +21,7 @@ public class GoalService {
     private final GoalRepository goalRepository;
     private final SkillRepository skillRepository;
 
+
     @Autowired
     public GoalService(GoalRepository goalRepository, SkillRepository skillRepository) {
         this.goalRepository = goalRepository;
@@ -42,7 +43,7 @@ public class GoalService {
         return new GoalDto(savedGoal);
     }
 
-    private void validateSkills(List<Long> skillIds, Long userId) {
+    private void validateSkills(List<Long> skillIds, Long userId)  {
         int activeGoals = goalRepository.countActiveGoalsPerUser(userId);
         if (activeGoals > MAX_ACTIVE_GOALS) {
             throw new IllegalArgumentException("User has reached the maximum goals");
