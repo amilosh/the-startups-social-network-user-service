@@ -71,7 +71,7 @@ public class MentorshipService {
     }
 
     public void stopMentorship(User mentor) {
-        if(mentor == null) {
+        if (mentor == null) {
             throw new IllegalArgumentException("Mentor can't be empty");
         }
 
