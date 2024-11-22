@@ -45,13 +45,9 @@ public class UserServiceTest {
     private UpdateUsersRankDto usersRankDto;
 
     @Mock
-    private UserRepository userRepository;
-    @Mock
     private UserContext userContext;
     @Mock
     private AvatarService avatarService;
-    @InjectMocks
-    private UserService userService;
 
     @BeforeEach
     void setUp() {
