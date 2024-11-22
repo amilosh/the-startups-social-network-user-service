@@ -24,9 +24,9 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserMapper userMapper;
     private final UserRepository userRepository;
     private final List<UserFilter> userFilters;
+    private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
     public UserDto getUser(long userId) {
