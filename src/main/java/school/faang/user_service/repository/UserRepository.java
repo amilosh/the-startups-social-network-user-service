@@ -8,7 +8,6 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository

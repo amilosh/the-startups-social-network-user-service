@@ -51,7 +51,7 @@ public class UserController {
                 .body(userService.getUserAvatar(id, UserAvatarSize.SMALL));
     }
 
-    @GetMapping(value = UrlUtils.ID + UrlUtils.AVATAR + UrlUtils.LARGE, produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = UrlUtils.ID + UrlUtils.AVATAR + UrlUtils.LARGE)
     public ResponseEntity<byte[]> getLargeAvatar(@PathVariable("id") @Min(1) Long id) {
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE)
