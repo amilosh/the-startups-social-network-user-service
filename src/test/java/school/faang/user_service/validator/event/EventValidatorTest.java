@@ -2,9 +2,11 @@ package school.faang.user_service.validator.event;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.exception.partiсipation.EventNotFoundException;
 import school.faang.user_service.exception.partiсipation.ParticipationException;
 import school.faang.user_service.exception.partiсipation.UserNotFoundException;
@@ -14,6 +16,8 @@ import school.faang.user_service.repository.event.EventRepository;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+
+//@ExtendWith(MockitoExtension.class)
 class EventValidatorTest {
 
     @Mock

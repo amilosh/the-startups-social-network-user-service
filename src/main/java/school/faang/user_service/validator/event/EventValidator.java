@@ -1,7 +1,7 @@
 package school.faang.user_service.validator.event;
 
 import lombok.RequiredArgsConstructor;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.exception.partiсipation.EventNotFoundException;
 import school.faang.user_service.exception.partiсipation.ParticipationException;
@@ -9,9 +9,7 @@ import school.faang.user_service.exception.partiсipation.UserNotFoundException;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class EventValidator {
@@ -19,41 +17,39 @@ public class EventValidator {
     private final EventRepository eventRepository;
     private final EventParticipationRepository eventParticipationRepository;
 
-    private static final Logger logger = Logger.getLogger(EventValidator.class.getName());
-
     public void validateUserExists(long userId) {
-        logger.info("Validating if user with ID " + userId + " exists");
+        log.info("Validating if user with ID {} exists", userId);
         if (!eventRepository.existsById(userId)) {
-            logger.log(Level.SEVERE, "Validation failed: User with ID " + userId + " does not exist");
+            log.error("Validation failed: User with ID {} does not exist", userId);
             throw new UserNotFoundException("User id " + userId + " does not exist");
         }
-        logger.info("Validation passed: User with ID " + userId + " exists");
+        log.info("Validation passed: User with ID {} exists", userId);
     }
 
     public void validateEventExists(long eventId) {
-        logger.info("Validating if event with ID " + eventId + " exists");
+        log.info("Validating if event with ID {} exists", eventId);
         if (!eventRepository.existsById(eventId)) {
-            logger.log(Level.SEVERE, "Validation failed: Event with ID " + eventId + " does not exist");
+            log.error("Validation failed: Event with ID {} does not exist", eventId);
             throw new EventNotFoundException("Event with ID " + eventId + " does not exist");
         }
-        logger.info("Validation passed: Event with ID " + eventId + " exists");
+        log.info("Validation passed: Event with ID {} exists", eventId);
     }
 
     public void validateUserIsRegistered(long eventId, long userId) {
-        logger.info("Validating if user with ID " + userId + " is registered for event with ID " + eventId);
+        log.info("Validating if user with ID {} is registered for event with ID {}", userId, eventId);
         if (!eventParticipationRepository.existsByEventIdAndUserId(eventId, userId)) {
-            logger.log(Level.SEVERE, "Validation failed: User with ID " + userId + " is not registered for event with ID " + eventId);
+            log.error("Validation failed: User with ID {} is not registered for event with ID {}", userId, eventId);
             throw new ParticipationException("User is not registered for this event.");
         }
-        logger.info("Validation passed: User with ID " + userId + " is registered for event with ID " + eventId);
+        log.info("Validation passed: User with ID {} is registered for event with ID {}", userId, eventId);
     }
 
     public void validateUserNotRegistered(long eventId, long userId) {
-        logger.info("Validating if user with ID " + userId + " is not registered for event with ID " + eventId);
+        log.info("Validating if user with ID {} is not registered for event with ID {}", userId, eventId);
         if (eventParticipationRepository.existsByEventIdAndUserId(eventId, userId)) {
-            logger.log(Level.SEVERE, "Validation failed: User with ID " + userId + " is already registered for event with ID " + eventId);
+            log.error("Validation failed: User with ID {} is already registered for event with ID {}", userId, eventId);
             throw new ParticipationException("User is already registered for this event.");
         }
-        logger.info("Validation passed: User with ID " + userId + " is not registered for event with ID " + eventId);
+        log.info("Validation passed: User with ID {} is not registered for event with ID {}", userId, eventId);
     }
 }
