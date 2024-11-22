@@ -144,7 +144,7 @@ public class RecommendationRequestValidatorTest {
                         .checkRequestsStatus(RECOMMENDATION_REQUEST_ID, RECOMMENDATION_REQUEST_STATUS_REJECTED)
         );
 
-        assertEquals("REQUEST WITH ID " + RECOMMENDATION_REQUEST_ID + " HAS THE STATUS "
+        assertEquals("RECOMMENDATION REQUEST WITH ID " + RECOMMENDATION_REQUEST_ID + " HAS THE STATUS "
                 + RECOMMENDATION_REQUEST_STATUS_REJECTED + ". OPERATION CANNOT BE PERFORMED", exception.getMessage());
     }
 
