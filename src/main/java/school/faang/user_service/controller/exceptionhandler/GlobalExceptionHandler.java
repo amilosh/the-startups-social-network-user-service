@@ -13,10 +13,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.goal.InvitationEntityNotFoundException;
-import school.faang.user_service.exception.partiсipation.EventNotFoundException;
-import school.faang.user_service.exception.partiсipation.ParticipationException;
-import school.faang.user_service.exception.partiсipation.UserNotFoundException;
-import school.faang.user_service.exception.payment.UnSuccessPaymentException;
+import school.faang.user_service.exception.participation.EventNotFoundException;
+import school.faang.user_service.exception.participation.ParticipationException;
+import school.faang.user_service.exception.participation.UserNotFoundException;
 import school.faang.user_service.exception.premium.ExistingPurchaseException;
 import school.faang.user_service.exception.premium.PremiumNotFoundException;
 import school.faang.user_service.exception.promotion.PromotionNotFoundException;
@@ -25,12 +24,12 @@ import school.faang.user_service.exception.recommendation.RequestStatusException
 
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ProblemDetail> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
@@ -40,150 +39,66 @@ public class GlobalExceptionHandler {
                                 fieldError.getDefaultMessage() != null ? fieldError.getDefaultMessage() : "Validation error"
                 ));
 
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Validation failed");
-        problemDetail.setProperty("errors", errors);
-
         log.warn("Validation failed: {}", errors);
-
-        return ResponseEntity.badRequest().body(problemDetail);
+        return buildProblemDetailResponse(HttpStatus.BAD_REQUEST, "Validation failed", Map.of("errors", errors));
     }
 
-    @ExceptionHandler(DataValidationException.class)
-    public ResponseEntity<ProblemDetail> handleDataValidationException(DataValidationException exception) {
-        log.warn(exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage()));
+    @ExceptionHandler({
+            IllegalArgumentException.class,
+            DataValidationException.class,
+            RequestStatusException.class,
+            PromotionValidationException.class,
+            ParticipationException.class
+    })
+    public ResponseEntity<ProblemDetail> handleBadRequestExceptions(RuntimeException ex) {
+        log.warn("Bad request: {}", ex.getMessage());
+        return buildProblemDetailResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ProblemDetail> handleEntityNotFoundException(EntityNotFoundException exception) {
-        log.error(exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage()));
+    @ExceptionHandler({
+            EntityNotFoundException.class,
+            UserNotFoundException.class,
+            InvitationEntityNotFoundException.class,
+            EventNotFoundException.class,
+            PremiumNotFoundException.class,
+            PromotionNotFoundException.class
+    })
+    public ResponseEntity<ProblemDetail> handleNotFoundExceptions(RuntimeException ex) {
+        log.warn("Resource not found: {}", ex.getMessage());
+        return buildProblemDetailResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ProblemDetail> handleIllegalArgumentException(IllegalArgumentException exception) {
-        log.warn(exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage()));
+    @ExceptionHandler({
+            DuplicateRequestException.class,
+            ExistingPurchaseException.class
+    })
+    public ResponseEntity<ProblemDetail> handleConflictExceptions(RuntimeException ex) {
+        log.warn("Conflict: {}", ex.getMessage());
+        return buildProblemDetailResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
-    @ExceptionHandler(InvitationEntityNotFoundException.class)
-    public ResponseEntity<ProblemDetail> handleInvitationEntityNotFoundException(InvitationEntityNotFoundException exception) {
-        log.error("invitation to a goal not found: {}", exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage()));
+    @ExceptionHandler({
+            SQLException.class,
+            UncategorizedSQLException.class
+    })
+    public ResponseEntity<ProblemDetail> handleDatabaseExceptions(Exception ex) {
+        log.error("Database error occurred: {}", ex.getMessage(), ex);
+        return buildProblemDetailResponse(HttpStatus.INTERNAL_SERVER_ERROR, "A database error occurred.");
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ProblemDetail> handleGenericException(Exception exception) {
-        log.error("Unexpected error occurred: {}", exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred"));
+    public ResponseEntity<ProblemDetail> handleGenericException(Exception ex) {
+        log.error("Unexpected error occurred: {}", ex.getMessage(), ex);
+        return buildProblemDetailResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred.");
     }
 
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<ProblemDetail> handleNoSuchElementException(NoSuchElementException exception) {
-        log.error(exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage()));
+    private ResponseEntity<ProblemDetail> buildProblemDetailResponse(HttpStatus status, String detail) {
+        return ResponseEntity.status(status).body(ProblemDetail.forStatusAndDetail(status, detail));
     }
 
-    @ExceptionHandler(NullPointerException.class)
-    public ResponseEntity<ProblemDetail> handleNullPointerException(NullPointerException exception) {
-        log.error("NullPointerException: {}", exception.getMessage(), exception);
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Null values are not allowed in the request."));
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ProblemDetail> handleUserNotFoundException(UserNotFoundException exception) {
-        log.warn("User not found: {}", exception.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage()));
-    }
-
-    @ExceptionHandler(EventNotFoundException.class)
-    public ResponseEntity<ProblemDetail> handleEventNotFoundException(EventNotFoundException exception) {
-        log.warn("Event not found: {}", exception.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage()));
-    }
-
-    @ExceptionHandler(ParticipationException.class)
-    public ResponseEntity<ProblemDetail> handleParticipationException(ParticipationException exception) {
-        log.warn("Participation error: {}", exception.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage()));
-    }
-
-    @ExceptionHandler(ExistingPurchaseException.class)
-    public ResponseEntity<ProblemDetail> handleExistingPurchaseException(ExistingPurchaseException exception) {
-        log.warn("Existing premium purchase error: {}", exception.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage()));
-    }
-
-    @ExceptionHandler(UnSuccessPaymentException.class)
-    public ResponseEntity<ProblemDetail> handleUnSuccessPaymentException(UnSuccessPaymentException exception) {
-        log.error("Unsuccessful payment error: {}", exception.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage()));
-    }
-
-    @ExceptionHandler(PremiumNotFoundException.class)
-    public ResponseEntity<ProblemDetail> handlePremiumNotFoundException(PremiumNotFoundException exception) {
-        log.warn("Premium not found: {}", exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage()));
-    }
-
-    @ExceptionHandler({SQLException.class, UncategorizedSQLException.class})
-    public ResponseEntity<ProblemDetail> handleSqlExceptions(Exception exception) {
-        log.error("SQL Exception occurred: {}", exception.getMessage(), exception);
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "A database error occurred."));
-    }
-
-    @ExceptionHandler(DuplicateRequestException.class)
-    public ResponseEntity<ProblemDetail> handleDuplicateRequestException(DuplicateRequestException exception) {
-        log.warn("Duplicate request: {}", exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, exception.getMessage()));
-    }
-
-    @ExceptionHandler(PromotionNotFoundException.class)
-    public ResponseEntity<ProblemDetail> handlePromotionNotFoundException(PromotionNotFoundException exception) {
-        log.warn("Promotion not found: {}", exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, exception.getMessage()));
-    }
-
-    @ExceptionHandler(PromotionValidationException.class)
-    public ResponseEntity<ProblemDetail> handlePromotionValidationException(PromotionValidationException exception) {
-        log.warn("Promotion validation error: {}", exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage()));
-    }
-
-    @ExceptionHandler(RequestStatusException.class)
-    public ResponseEntity<ProblemDetail> handleRequestStatusException(RequestStatusException exception) {
-        log.warn("Invalid request status: {}", exception.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage()));
+    private ResponseEntity<ProblemDetail> buildProblemDetailResponse(HttpStatus status, String detail, Map<String, Object> properties) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
+        properties.forEach(problemDetail::setProperty);
+        return ResponseEntity.status(status).body(problemDetail);
     }
 }
