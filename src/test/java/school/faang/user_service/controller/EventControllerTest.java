@@ -1,12 +1,12 @@
 package school.faang.user_service.controller;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.event.EventDto;
+import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.service.event.EventService;
 
 import java.util.List;
@@ -85,5 +85,39 @@ public class EventControllerTest {
 
         verify(eventService, times(1)).getParticipatedEvents(1L);
         assertEquals(List.of(eventDto), result);
+    }
+
+    @Test
+    public void testGetEventsByFilter() {
+        EventFilterDto filter = EventFilterDto.builder().build();
+        EventDto eventDto = EventDto.builder().build();
+        when(eventService.getEventsByFilter(filter)).thenReturn(List.of(eventDto));
+
+        List<EventDto> result = eventController.getEventsByFilter(filter);
+
+        verify(eventService, times(1)).getEventsByFilter(filter);
+        assertEquals(List.of(eventDto), result);
+    }
+
+    @Test
+    public void testDeleteEvent() {
+        eventController.deleteEvent(1L);
+
+        verify(eventService, times(1)).deleteEvent(1L);
+    }
+
+    @Test
+    public void testUpdateEvent() {
+        EventDto eventDto = EventDto.builder().build();
+        EventDto expectedEventDto = EventDto.builder().build();
+
+        when(eventService.updateEvent(eventDto)).thenReturn(expectedEventDto);
+
+        EventDto result = eventController.updateEvent(eventDto);
+
+        assertEquals(expectedEventDto, result);
+        assertNotNull(result);
+
+        verify(eventService, times(1)).updateEvent(eventDto);
     }
 }

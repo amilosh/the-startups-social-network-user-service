@@ -21,8 +21,6 @@ class UserValidatorTest {
     @InjectMocks
     private UserValidator userValidator;
 
-    long userId;
-
     @Test
     void validateUserByIdWrongId() {
         when(userRepository.existsById(1L)).thenReturn(false);
@@ -38,6 +36,4 @@ class UserValidatorTest {
         assertDoesNotThrow(() -> userValidator.validateUserById(1L));
         verify(userRepository, times(1)).existsById(1L);
     }
-
-
 }

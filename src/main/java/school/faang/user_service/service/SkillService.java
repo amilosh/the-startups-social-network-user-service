@@ -8,7 +8,6 @@ import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
-import school.faang.user_service.exception.SkillDuplicateException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.validator.SkillValidator;
@@ -27,12 +26,7 @@ public class SkillService {
 
     public SkillDto create(SkillDto skillDto) {
         Skill skill = skillMapper.toEntity(skillDto);
-        try {
-            skillValidator.validateDuplicate(skill);
-        } catch (SkillDuplicateException e) {
-            log.error(e.getMessage(), e);
-            throw e;
-        }
+        skillValidator.validateDuplicate(skill);
         skill = skillRepository.save(skill);
 
         return skillMapper.toDto(skill);
@@ -58,7 +52,7 @@ public class SkillService {
 
     @Transactional
     public void addGuarantee(Recommendation recommendation) {
-        List<Skill> userSkills = userService.findUser(recommendation.getReceiver().getId()).getSkills();
+        List<Skill> userSkills = userService.findUserById(recommendation.getReceiver().getId()).getSkills();
         List<Long> recommendedSkillsIds = recommendation.getSkillOffers().stream().map(SkillOffer::getId).toList();
 
         userSkills.stream()
@@ -68,6 +62,7 @@ public class SkillService {
                     skillRepository.save(skill);
                 });
     }
+
     public boolean checkIfSkillExistsById(Long skillId) {
         return skillRepository.existsById(skillId);
     }

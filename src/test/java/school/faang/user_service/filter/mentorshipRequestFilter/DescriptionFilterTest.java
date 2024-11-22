@@ -1,4 +1,4 @@
-package school.faang.user_service.filter.MentorshipRequestFilter;
+package school.faang.user_service.filter.mentorshipRequestFilter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class DescriptionSetUpFilterTest extends SetUpFilterTest {
+class DescriptionFilterTest extends SetUpFilterTest {
     private DescriptionFilter descriptionFilter;
 
     @BeforeEach

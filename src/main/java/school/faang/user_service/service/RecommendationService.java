@@ -80,8 +80,8 @@ public class RecommendationService {
 
     public Recommendation createRecommendationFromDto(RecommendationDto recommendationDto) {
         Recommendation recommendation = recommendationMapper.toEntity(recommendationDto);
-        recommendation.setAuthor(userService.findUser(recommendationDto.getAuthorId()));
-        recommendation.setReceiver(userService.findUser(recommendationDto.getReceiverId()));
+        recommendation.setAuthor(userService.findUserById(recommendationDto.getAuthorId()));
+        recommendation.setReceiver(userService.findUserById(recommendationDto.getReceiverId()));
         recommendation.setSkillOffers(skillOfferService.findAllByUserId(recommendationDto.getReceiverId()));
         return recommendation;
     }

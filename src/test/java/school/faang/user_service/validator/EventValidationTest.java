@@ -2,37 +2,37 @@ package school.faang.user_service.validator;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.exception.DataValidationException;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @MockitoSettings(strictness = Strictness.STRICT_STUBS)
 public class EventValidationTest {
-    @InjectMocks
-    private EventValidation eventValidation;
-
-    @Mock
+    private final EventValidation eventValidation = new EventValidation();
     private EventDto eventDto;
 
     @BeforeEach
     void setUp() {
         eventDto = EventDto.builder()
                 .title("Event Title")
+                .startDate(LocalDateTime.now(ZoneId.of("UTC")))
+                .ownerId(1L)
                 .build();
     }
 
     @Test
-    public void testEventEmptyOrBlankTitle() {
-        eventDto.setTitle("  ");
+    public void testEventEmptyTitle() {
+        eventDto.setTitle("");
         assertThrows(DataValidationException.class, () -> eventValidation.validateEvent(eventDto));
     }
 
@@ -40,6 +40,23 @@ public class EventValidationTest {
     public void testValidateEventNullTitle() {
         eventDto.setTitle(null);
         assertThrows(DataValidationException.class, () -> eventValidation.validateEvent(eventDto));
+    }
+
+    @Test
+    public void testValidateEventNullStartDate() {
+        eventDto.setStartDate(null);
+        assertThrows(DataValidationException.class, () -> eventValidation.validateEvent(eventDto));
+    }
+
+    @Test
+    public void testValidateEventNullOwnerId() {
+        eventDto.setOwnerId(null);
+        assertThrows(DataValidationException.class, () -> eventValidation.validateEvent(eventDto));
+    }
+
+    @Test
+    public void testValidateEventSuccess() {
+        assertDoesNotThrow(() -> eventValidation.validateEvent(eventDto));
     }
 
     @Test
@@ -65,9 +82,8 @@ public class EventValidationTest {
 
         List<Long> userSkills = List.of(1L);
 
-        assertThrows(DataValidationException.class, () -> {
-            eventValidation.validateRelatedSkills(event, userSkills);
-        }, "User does not have required skills");
+        assertThrows(DataValidationException.class, () ->
+                eventValidation.validateRelatedSkills(event, userSkills), "User does not have required skills");
     }
 
     @Test
