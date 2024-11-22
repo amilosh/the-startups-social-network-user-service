@@ -3,14 +3,21 @@ package school.faang.user_service.controller.user;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,11 +25,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user.UserIdsDto;
 import school.faang.user_service.dto.userJira.UserJiraCreateUpdateDto;
+import school.faang.user_service.dto.user.UserProfilePicDto;
+import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.mapper.user.UserProfilePicMapper;
+import school.faang.user_service.service.avatar.AvatarService;
 import school.faang.user_service.dto.userJira.UserJiraDto;
 import school.faang.user_service.service.user.UserService;
 
@@ -39,6 +52,8 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final AvatarService avatarService;
+    private final UserProfilePicMapper userProfilePicMapper;
 
     @Operation(summary = "Get user information by its ID")
     @ApiResponses(value = {
@@ -83,6 +98,29 @@ public class UserController {
     @PostMapping("/premium")
     public List<UserDto> getPremiumUsers(@RequestBody UserFilterDto filters) {
         return userService.getPremiumUsers(filters);
+    }
+
+    @PostMapping("/{userId}/avatar")
+    public ResponseEntity<UserProfilePicDto> uploadUserAvatar(@PathVariable Long userId,
+                                                              @RequestParam(value = "file", required = false) MultipartFile file) {
+        UserProfilePic userProfilePic = avatarService.uploadUserAvatar(userId, file);
+        return ResponseEntity.ok(userProfilePicMapper.toDto(userProfilePic));
+    }
+
+    @GetMapping("/{userId}/avatar")
+    public ResponseEntity<Resource> getUserAvatar(@PathVariable Long userId) {
+        byte[] avatarData = avatarService.getUserAvatar(userId);
+        ByteArrayResource resource = new ByteArrayResource(avatarData);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .contentLength(avatarData.length)
+                .body(resource);
+    }
+
+    @DeleteMapping("/{userId}/avatar")
+    public ResponseEntity<Void> deleteUserAvatar(@PathVariable Long userId) {
+        avatarService.deleteUserAvatar(userId);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(
