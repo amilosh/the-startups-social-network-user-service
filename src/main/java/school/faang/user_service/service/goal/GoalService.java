@@ -1,6 +1,5 @@
 package school.faang.user_service.service.goal;
 
-import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.GoalDto;
@@ -39,14 +38,13 @@ public class GoalService {
         savedGoal.setSkillsToAchieve(new ArrayList<>());
         savedGoal = goalRepository.save(savedGoal);
         savedGoal.getSkillsToAchieve().addAll(skills);
-        goalRepository.save(savedGoal);
 
         return new GoalDto(savedGoal);
     }
 
-    private void validateSkills(List<Long> skillIds, Long userId) throws ValidationException {
+    private void validateSkills(List<Long> skillIds, Long userId) {
         int activeGoals = goalRepository.countActiveGoalsPerUser(userId);
-        if (activeGoals >= MAX_ACTIVE_GOALS) {
+        if (activeGoals > MAX_ACTIVE_GOALS) {
             throw new IllegalArgumentException("User has reached the maximum goals");
         }
         for (Long skillId : skillIds) {
@@ -57,16 +55,13 @@ public class GoalService {
     }
 
     public GoalDto updateGoal(Long goalId, GoalDto goalDto) {
+        List<Long> skillsIds = goalDto.getSkillsIds();
         Goal existingGoal = goalRepository.findById(goalId).orElseThrow(() -> new IllegalArgumentException("Goal not found"));
         if (existingGoal.getStatus() == GoalStatus.COMPLETED) {
             throw new IllegalArgumentException("Cannot update a completed goal");
         }
 
-        if (goalDto.getTitle() == null || goalDto.getTitle().isBlank()) {
-            throw new IllegalArgumentException("Goal title cannot be empty");
-        }
-
-        validateSkills(goalDto.getSkillsIds(), goalId);
+        validateSkills(skillsIds, goalId);
         existingGoal.setTitle(goalDto.getTitle());
         existingGoal.setDescription(goalDto.getDescription());
         existingGoal.setStatus(goalDto.getStatus());
@@ -76,7 +71,7 @@ public class GoalService {
         }
 
         List<Skill> skills = new ArrayList<>();
-        for (Long skillId : goalDto.getSkillsIds()) {
+        for (Long skillId : skillsIds) {
             List<Skill> foundSkills = skillRepository.findAllByUserId(skillId);
             if (foundSkills.isEmpty()) {
                 throw new IllegalArgumentException("Skill with ID " + skillId + " doesn't exist");

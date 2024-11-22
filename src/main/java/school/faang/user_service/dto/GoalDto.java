@@ -15,6 +15,7 @@ public class GoalDto {
     private Long parentId;
     private GoalStatus status;
     private List<Long> skillsIds = new ArrayList<>();
+    private List<Long> goalIdList = getSkillsIds();
 
     public GoalDto() {
 
