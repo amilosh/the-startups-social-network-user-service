@@ -15,9 +15,13 @@ public class GoalController {
 
     private final GoalService goalService;
 
-    public GoalDto createGoal(Long userId, GoalDto goalDto) throws ValidationException {
+    public GoalDto createGoal(Long userId, GoalDto goalDto) {
         if (goalDto.getTitle() == null || goalDto.getTitle().isBlank()) {
-            throw new ValidationException("Goal title cannot be empty");
+            try {
+                throw new ValidationException("Goal title cannot be empty");
+            } catch (ValidationException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         return goalService.createGoal(userId, goalDto);
