@@ -2,7 +2,6 @@ package school.faang.user_service.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,11 +17,9 @@ public class UserFilterDto {
     public static final int DEFAULT_PAGE_SIZE = 10;
 
     @Schema(description = "Filter by user name")
-    @NotBlank(message = "Name cannot be empty")
     private String namePattern;
 
     @Schema(description = "Filter by 'About Me' content")
-    @Pattern(regexp = ".*", message = "About cannot be empty")
     private String aboutPattern;
 
     @Schema(description = "Filter by email (exact match)", example = "user@example.com")
