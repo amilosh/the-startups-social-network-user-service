@@ -1,6 +1,5 @@
 package school.faang.user_service.service.user;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +13,7 @@ import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
 import school.faang.user_service.service.user.filter.UserFilter;
+import school.faang.user_service.validator.user.UserValidator;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -29,11 +29,11 @@ public class UserService {
     private final MentorshipService mentorshipService;
     private final UserMapper userMapper;
     private final List<UserFilter> userFilters;
+    private final UserValidator userValidator;
 
     @Transactional
     public void deactivateUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User with ID" + userId + "not found"));
+        User user = userValidator.validateUser(userId);
 
         goalRepository.findGoalsByUserId(userId).forEach(goal -> {
             goalRepository.removeUserFromGoal(userId, goal.getId());
@@ -65,5 +65,15 @@ public class UserService {
         }
 
         return usersStream.map(userMapper::toDto);
+    }
+
+    public UserDto getUser(long userId) {
+        User user = userValidator.validateUser(userId);
+        return userMapper.toDto(user);
+    }
+
+    public List<UserDto> getUsersByIds(List<Long> ids) {
+        List<User> users = userRepository.findAllById(ids);
+        return userMapper.toListDto(users);
     }
 }

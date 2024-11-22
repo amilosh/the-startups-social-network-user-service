@@ -9,25 +9,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.user.UserDto;
-import school.faang.user_service.service.mentorship.request_filter.EventParticipationService;
+import school.faang.user_service.service.participation.event.EventParticipationService;
+
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/events")
+@RequestMapping("/api/v1/events")
 public class EventParticipationController {
 
     private final EventParticipationService eventParticipationService;
 
-    @PostMapping("/registerParticipant")
-    public String registerParticipation(@RequestParam Long eventId, @RequestParam Long userId) {
+    @PostMapping("/{eventId}/register")
+    public String registerParticipation(@PathVariable Long eventId, @RequestParam Long userId) {
         eventParticipationService.registerParticipant(eventId, userId);
         return "The user has successfully registered for the event";
     }
 
-    @DeleteMapping("/{eventId}/unregister/{userId}")
-    public String unregisterParticipant(@PathVariable Long eventId, @PathVariable Long userId) {
+    @DeleteMapping("/{eventId}/unregister")
+    public String unregisterParticipant(@PathVariable Long eventId, @RequestParam Long userId) {
         eventParticipationService.unregisterParticipant(eventId, userId);
         return "The user has successfully unregistered for the event";
     }

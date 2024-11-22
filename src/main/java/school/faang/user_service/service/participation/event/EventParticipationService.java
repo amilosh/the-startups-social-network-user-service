@@ -1,4 +1,4 @@
-package school.faang.user_service.service.mentorship.request_filter;
+package school.faang.user_service.service.participation.event;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -37,7 +37,7 @@ public class EventParticipationService {
     public List<UserDto> getParticipants(long eventId) {
         eventValidator.validateEventExists(eventId);
 
-        List<User> users = eventParticipationRepository.findUsersByEventId(eventId);
+        List<User> users = eventParticipationRepository.findAllParticipantsByEventId(eventId);
         return userMapper.toListDto(users);
     }
 

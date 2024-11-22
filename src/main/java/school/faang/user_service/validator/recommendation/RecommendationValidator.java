@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.recommendation.RequestRecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.recommendation.ErrorMessage;
 import school.faang.user_service.repository.SkillRepository;
@@ -19,7 +20,7 @@ import java.util.NoSuchElementException;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RecommendationDtoValidator {
+public class RecommendationValidator {
     private static final int NUMBER_OF_MONTHS_AFTER_PREVIOUS_RECOMMENDATION = 6;
     private final RecommendationRepository recommendationRepository;
     private final SkillRepository skillRepository;
@@ -35,6 +36,26 @@ public class RecommendationDtoValidator {
             log.error("Receiver with id {} not found", userId);
             return new NoSuchElementException(String.format("There isn't user with id = %d", userId));
         });
+    }
+
+    public void checkIfAcceptableTimeForRecommendation(RecommendationRequest recommendationRequest) {
+        recommendationRepository
+                .findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(
+                        recommendationRequest.getReceiver().getId(),
+                        recommendationRequest.getRequester().getId())
+                .ifPresent(recommendation -> {
+                    if (recommendation.getCreatedAt().isAfter(LocalDateTime.now().minusMonths(NUMBER_OF_MONTHS_AFTER_PREVIOUS_RECOMMENDATION))) {
+                        log.error("Recommendation creation failed: Time limit exceeded for author {} to recommend receiver {} ({} months).",
+                                recommendationRequest.getReceiver().getId(),
+                                recommendationRequest.getRequester().getId(),
+                                NUMBER_OF_MONTHS_AFTER_PREVIOUS_RECOMMENDATION);
+                        throw new DataValidationException(
+                                String.format(ErrorMessage.RECOMMENDATION_TIME_LIMIT,
+                                        recommendationRequest.getReceiver().getId(),
+                                        recommendationRequest.getRequester().getId(),
+                                        NUMBER_OF_MONTHS_AFTER_PREVIOUS_RECOMMENDATION));
+                    }
+                });
     }
 
     private void checkIfAcceptableTimeForRecommendation(RequestRecommendationDto requestRecommendationDto) {

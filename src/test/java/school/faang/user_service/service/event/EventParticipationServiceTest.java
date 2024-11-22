@@ -9,7 +9,7 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
-import school.faang.user_service.service.mentorship.request_filter.EventParticipationService;
+import school.faang.user_service.service.participation.event.EventParticipationService;
 import school.faang.user_service.validator.event.EventValidator;
 
 import java.util.Arrays;
@@ -64,14 +64,14 @@ public class EventParticipationServiceTest {
         List<User> users = Arrays.asList(new User(), new User());
         List<UserDto> userDtos = Arrays.asList(new UserDto(), new UserDto());
 
-        when(eventParticipationRepository.findUsersByEventId(eventId)).thenReturn(users);
+        when(eventParticipationRepository.findAllParticipantsByEventId(eventId)).thenReturn(users);
         when(userMapper.toListDto(users)).thenReturn(userDtos);
 
         List<UserDto> participants = eventParticipationService.getParticipants(eventId);
 
         assertEquals(2, participants.size());
         verify(eventValidator).validateEventExists(eventId);
-        verify(eventParticipationRepository).findUsersByEventId(eventId);
+        verify(eventParticipationRepository).findAllParticipantsByEventId(eventId);
         verify(userMapper).toListDto(users);
     }
 
