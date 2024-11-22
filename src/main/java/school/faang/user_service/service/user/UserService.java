@@ -3,6 +3,7 @@ package school.faang.user_service.service.user;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
@@ -23,7 +24,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 @Service
 @RequiredArgsConstructor
@@ -85,12 +88,12 @@ public class UserService {
         List<User> users = userRepository.findAllById(ids);
         return userMapper.toListDto(users);
     }
-
+    @Transactional
     public void loadingUsersViaFile(List<Person> persons){
         ExecutorService executors = Executors.newCachedThreadPool();
         for (int i = 0; i < persons.size(); i++) {
             int finalI = i;
-            executors.submit(() -> createNewUser(persons.get(finalI)));
+            executors.execute(() -> createNewUser(persons.get(finalI)));
         }
         executors.shutdown();
     }
@@ -103,7 +106,10 @@ public class UserService {
         String countryFromPerson = person.getContactInfo().getAddress().getCountry();
         Country country = getCountry(countryFromPerson);
         user.setCountry(country);
+        synchronized (userRepository) {
         userRepository.save(user);
+        log.info("User {} saved in database ", user.getUsername());
+        }
     }
 
     private String createRandomPassword() {
