@@ -7,7 +7,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import school.faang.user_service.config.redis.RedisProperties;
-import school.faang.user_service.dto.FollowerEvent;
 import school.faang.user_service.dto.RecommendationReceivedEvent;
 
 import java.util.Map;
