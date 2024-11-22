@@ -6,7 +6,10 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.entity.UserSkillGuarantee;
+import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -17,6 +20,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserContext userContext;
     private final AvatarService avatarService;
+    private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
     public Optional<User> findById(long userId) {
         return userRepository.findById(userId);
@@ -33,4 +37,13 @@ public class UserService {
         userRepository.save(user);
         return randomAvatarUrl;
     }
+
+    public UserSkillGuarantee addGuaranty(long userId, SkillOffer skillOffer) {
+        UserSkillGuarantee guarantee = UserSkillGuarantee.builder().user(
+                        userRepository.findById(userId).get()
+                ).guarantor(skillOffer.getRecommendation().getAuthor())
+                .build();
+        return userSkillGuaranteeRepository.save(guarantee);
+    }
 }
+
