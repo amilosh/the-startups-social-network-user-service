@@ -2,6 +2,7 @@ package school.faang.user_service.service.event;
 
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
@@ -19,6 +20,7 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class EventService {
 
     private final EventRepository eventRepository;
@@ -30,8 +32,8 @@ public class EventService {
 
     @PostConstruct
     public void init() {
-        System.out.println("Number of EventValidators injected: " + eventValidators.size());
-        System.out.println("Number of EventFilters injected: " + eventFilters.size());
+        log.info("Number of EventValidators injected = {}", eventValidators.size());
+        log.info("Number of EventFilters injected = {}", eventFilters.size());
         eventValidators.forEach(validator -> System.out.println("Validator: " + validator.getClass().getSimpleName()));
         eventFilters.forEach(filter -> System.out.println("Filter: " + filter.getClass().getSimpleName()));
     }
