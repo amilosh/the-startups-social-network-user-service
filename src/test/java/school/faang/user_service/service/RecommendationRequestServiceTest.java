@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.recommendation.RecommendationRejectionDto;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
@@ -15,7 +14,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.filter.recommendationRequestFilters.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
@@ -25,9 +24,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationRequestServiceTest {
@@ -56,7 +61,6 @@ public class RecommendationRequestServiceTest {
     private RecommendationRequestDto recommendationRequestDto;
     private SkillRequest skillRequest;
     private List<RecommendationRequest> recommendationRequests;
-    private List<SkillRequest> skillRequests;
 
     @BeforeEach
     public void setup() {
@@ -115,7 +119,7 @@ public class RecommendationRequestServiceTest {
         recommendationRequest.setCreatedAt(LocalDateTime.now());
         when(recommendationRequestMapper.toEntity(any())).thenReturn(recommendationRequest);
         when(recommendationRequestRepository.findLatestPendingRequest(recommendationRequest.getRequester().getId(),
-        recommendationRequest.getReceiver().getId())).thenReturn(Optional.of(recommendationRequest));
+                recommendationRequest.getReceiver().getId())).thenReturn(Optional.of(recommendationRequest));
         when(recommendationRequestMapper.toEntity(any())).thenReturn(recommendationRequest);
         when(userService.getUserById(requesterId)).thenReturn(requester);
         when(userService.getUserById(receiverId)).thenReturn(receiver);
@@ -203,10 +207,6 @@ public class RecommendationRequestServiceTest {
         verify(recommendationRequestMapper, times(1)).toDtoList(anyList());
         assertEquals(dtoList.size(), result.size());
     }
-
-
-
-
 
 
 }

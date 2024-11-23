@@ -4,31 +4,30 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
+import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.dto.user.DeactivatedUserDto;
-import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.MenteeResponseDto;
 import school.faang.user_service.entity.Skill;
-
-import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.goal.Goal;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
     @Mapping(source = "country.id", target = "countryId")
-    UserDto toUserDto(User user);
+    MenteeResponseDto toMenteeResponseDto(User user);
 
-    @Mapping(target = "country", ignore = true)
-    User toUser(UserDto userDto);
+    List<MenteeResponseDto> toMenteeResponseList(List<User> users);
 
-    List<UserDto> toDto(List<User> users);
+    UserSubResponseDto toUserSubResponseDto(User user);
 
-    List<User> toEntity(List<UserDto> userDtos)
+    List<UserSubResponseDto> toUserSubResponseList(List<User> users);
+
+    List<User> menteeResponsesToUserList(List<MenteeResponseDto> menteeResponseDtos);
 
     @Mapping(source = "settingGoals", target = "idsSettingGoals", qualifiedByName = "mapGoalsToListId")
     @Mapping(source = "goals", target = "idsGoals", qualifiedByName = "mapGoalsToListId")
@@ -44,9 +43,10 @@ public interface UserMapper {
     @Mapping(target = "skills", ignore = true)
     @Mapping(target = "mentors", ignore = true)
     @Mapping(target = "ownedEvents", ignore = true)
+
     @Mapping(target = "participatedEvents", ignore = true)
     @Mapping(target = "country", ignore = true)
-    User toEntity(DeactivatedUserDto deactivatedUserDto);
+    User deactivatedUserDtoToEntity(DeactivatedUserDto deactivatedUserDto);
 
     @Named("mapGoalsToListId")
     default List<Long> mapGoalsToListId(List<Goal> goals) {
@@ -54,7 +54,7 @@ public interface UserMapper {
             return new ArrayList<>();
         }
         return goals.stream()
-                .map(goal -> goal.getId())
+                .map(Goal::getId)
                 .toList();
     }
 
@@ -64,7 +64,7 @@ public interface UserMapper {
             return new ArrayList<>();
         }
         return skills.stream()
-                .map(skill -> skill.getId())
+                .map(Skill::getId)
                 .toList();
     }
 
@@ -74,7 +74,7 @@ public interface UserMapper {
             return new ArrayList<>();
         }
         return mentors.stream()
-                .map(mentor -> mentor.getId())
+                .map(User::getId)
                 .toList();
     }
 
@@ -84,7 +84,7 @@ public interface UserMapper {
             return new ArrayList<>();
         }
         return ownedEvents.stream()
-                .map(event -> event.getId())
+                .map(Event::getId)
                 .toList();
     }
 }

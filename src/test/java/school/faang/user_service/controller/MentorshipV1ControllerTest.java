@@ -16,10 +16,10 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class MentorshipControllerTest {
+public class MentorshipV1ControllerTest {
 
     @InjectMocks
-    private MentorshipController mentorshipController;
+    private MentorshipV1Controller mentorshipController;
 
     @Mock
     private MentorshipService mentorshipService;
