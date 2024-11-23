@@ -2,7 +2,6 @@ package school.faang.user_service.validator;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SubscriptionRepository;
 
@@ -36,12 +35,6 @@ public class SubscriptionValidator {
         }
         if (!subscriptionRepository.existsById(userId)) {
             throw new DataValidationException("User does not exist.");
-        }
-    }
-
-    public void validateFilter(UserFilterDto filter) {
-        if (filter == null) {
-            throw new DataValidationException("Filter cannot be null.");
         }
     }
 }

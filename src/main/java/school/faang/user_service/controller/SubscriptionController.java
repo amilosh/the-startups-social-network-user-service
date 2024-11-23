@@ -2,6 +2,7 @@ package school.faang.user_service.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,7 +21,8 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/subscription")
+@RequestMapping("/users")
+@Validated
 public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
@@ -37,25 +39,25 @@ public class SubscriptionController {
     }
 
     @PostMapping("/followers/{followeeId}")
-    public ResponseEntity<List<UserDto>> getFollowers(@PathVariable long followeeId, @Valid @RequestBody UserFilterDto filter) {
+    public ResponseEntity<List<UserDto>> getFollowers(@Valid @PathVariable long followeeId, @Valid @RequestBody UserFilterDto filter) {
         List<UserDto> followers = subscriptionService.getFollowers(followeeId, filter);
         return ResponseEntity.ok(followers);
     }
 
     @GetMapping("/followers-count/{followerId}")
-    public ResponseEntity<Long> getFollowersCount(@PathVariable long followerId) {
+    public ResponseEntity<Long> getFollowersCount(@Valid @PathVariable long followerId) {
         long count = subscriptionService.getFollowersCount(followerId);
         return ResponseEntity.ok(count);
     }
 
     @PostMapping("/following/{followeeId}")
-    public ResponseEntity<List<UserDto>> getFollowing(@PathVariable long followeeId, @Valid @RequestBody UserFilterDto filter) {
+    public ResponseEntity<List<UserDto>> getFollowing(@Valid @PathVariable long followeeId, @Valid @RequestBody UserFilterDto filter) {
         List<UserDto> following = subscriptionService.getFollowing(followeeId, filter);
         return ResponseEntity.ok(following);
     }
 
     @GetMapping("/following-count/{followerId}")
-    public ResponseEntity<Long> getFollowingCount(@PathVariable long followerId) {
+    public ResponseEntity<Long> getFollowingCount(@Valid @PathVariable long followerId) {
         long count = subscriptionService.getFollowingCount(followerId);
         return ResponseEntity.ok(count);
     }
