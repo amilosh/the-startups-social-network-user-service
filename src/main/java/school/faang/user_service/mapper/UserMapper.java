@@ -1,20 +1,20 @@
 package school.faang.user_service.mapper;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
-import org.mapstruct.ReportingPolicy;
-import school.faang.user_service.dto.SubscriptionUserDto;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import school.faang.user_service.dto.UserDto;
+ Murloc-master-stream7
 import school.faang.user_service.entity.User;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
+@Mapper(componentModel = "spring")
 public interface UserMapper {
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    UserDto userToUserDto(User user);
 
-    SubscriptionUserDto toDto(User user);
-
-    User toEntity(SubscriptionUserDto subscriptionUserDto);
-
-    List<SubscriptionUserDto> toDto(List<User> list);
-
-    List<User> toEntity(List<SubscriptionUserDto> list);
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    List<UserDto> userListToUserDtoList(List<User> users);
+ Murloc-master-stream7
 }
