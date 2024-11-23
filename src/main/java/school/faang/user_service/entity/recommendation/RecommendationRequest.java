@@ -40,7 +40,7 @@ public class RecommendationRequest {
     @Enumerated(EnumType.ORDINAL)
     private RequestStatus status;
 
-    @Column(name = "rejection_reason", length = 4096)
+    @Column(name = "rejection_reasonw", length = 4096)
     private String rejectionReason;
 
     @OneToOne
