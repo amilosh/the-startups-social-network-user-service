@@ -3,6 +3,7 @@ package school.faang.user_service.controller.event;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
@@ -27,36 +29,43 @@ public class EventController {
     private final EventService eventService;
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public EventDto create(@Valid @RequestBody EventDto event) {
         return eventService.create(event);
     }
 
     @GetMapping("/{eventId}")
+    @ResponseStatus(HttpStatus.OK)
     public EventDto get(@PathVariable @NotNull(message = "Event ID should not be null") Long eventId) {
         return eventService.get(eventId);
     }
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<EventDto> getByFilter(@Valid @ModelAttribute EventFilterDto filter) {
         return eventService.getByFilter(filter);
     }
 
     @DeleteMapping("/{eventId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable @NotNull(message = "Event ID should not be null") Long eventId) {
         eventService.delete(eventId);
     }
 
     @PutMapping
+    @ResponseStatus(HttpStatus.OK)
     public EventDto update(@Valid @RequestBody EventDto event) {
         return eventService.update(event);
     }
 
     @GetMapping("/users/{userId}/owned-events")
+    @ResponseStatus(HttpStatus.OK)
     public List<EventDto> getOwnedEvents(@PathVariable @NotNull(message = "User ID should not be null") Long userId) {
         return eventService.getOwnedEvents(userId);
     }
 
     @GetMapping("/users/{userId}/participated-events")
+    @ResponseStatus(HttpStatus.OK)
     public List<EventDto> getParticipatedEvents(@PathVariable @NotNull(message = "User ID should not be null") Long userId) {
         return eventService.getParticipatedEvents(userId);
     }

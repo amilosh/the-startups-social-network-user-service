@@ -114,7 +114,7 @@ public class RecommendationRequestControllerTest {
         mockMvc.perform(post("/api/v1/recommendation-requests")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(validJsonRequest))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(REQUEST_ID))
                 .andExpect(jsonPath("$.requesterId").value(REQUESTER_ID))
                 .andExpect(jsonPath("$.receiverId").value(RECEIVER_ID))

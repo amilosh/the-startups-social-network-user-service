@@ -6,15 +6,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.mentorship.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorship.RejectionDto;
 import school.faang.user_service.dto.mentorship.RequestFilterDto;
@@ -39,6 +33,7 @@ public class MentorshipRequestController {
             description = "Send a mentorship request to another user"
     )
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public void requestMentorship(@Valid @RequestBody MentorshipRequestDto mentorshipRequestDto) {
         mentorshipRequestService.requestMentorship(mentorshipRequestDto);
     }
@@ -48,6 +43,7 @@ public class MentorshipRequestController {
             description = "Retrieve all mentorship requests using filters"
     )
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<MentorshipRequestDto> getRequests(@Valid @ModelAttribute RequestFilterDto filter) {
         return mentorshipRequestService.getRequests(filter);
     }
@@ -57,6 +53,7 @@ public class MentorshipRequestController {
             description = "Allow a user to accept a mentorship request from another user"
     )
     @PutMapping("/accept/{mentorshipRequestId}")
+    @ResponseStatus(HttpStatus.OK)
     public void acceptRequest(
             @PathVariable @NotNull(message = "Mentorship request ID should not be null") Long mentorshipRequestId) {
         mentorshipRequestService.acceptRequest(mentorshipRequestId);
@@ -67,6 +64,7 @@ public class MentorshipRequestController {
             description = "Allow a user to reject a mentorship request"
     )
     @PutMapping("/reject/{mentorshipRequestId}")
+    @ResponseStatus(HttpStatus.OK)
     public void rejectRequest(
             @PathVariable @NotNull(message = "Mentorship request ID should not be null") Long mentorshipRequestId,
             @Valid @RequestBody RejectionDto rejection) {

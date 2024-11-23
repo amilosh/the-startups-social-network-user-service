@@ -5,12 +5,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.mentorship.MentorshipService;
 
@@ -33,6 +30,7 @@ public class MentorshipController {
             description = "Retrieve all mentees of a mentor by mentor ID"
     )
     @GetMapping("/mentors/{mentorId}/mentees")
+    @ResponseStatus(HttpStatus.OK)
     public List<UserDto> getMentees(
             @PathVariable @NotNull(message = "Mentor ID should not be null") Long mentorId) {
         return mentorshipService.getMentees(mentorId);
@@ -43,6 +41,7 @@ public class MentorshipController {
             description = "Retrieve all mentors of a mentee by mentee ID"
     )
     @GetMapping("/mentee/{menteeId}/mentors")
+    @ResponseStatus(HttpStatus.OK)
     public List<UserDto> getMentors(
             @PathVariable @NotNull(message = "Mentee ID should not be null") Long menteeId) {
         return mentorshipService.getMentors(menteeId);
@@ -53,6 +52,7 @@ public class MentorshipController {
             description = "Remove a mentee from a mentor using mentee ID and mentor ID"
     )
     @DeleteMapping("/mentors/{mentorId}/mentees/{menteeId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMentee(
             @PathVariable("menteeId") @NotNull(message = "Mentee ID should not be null") Long menteeId,
             @PathVariable("mentorId") @NotNull(message = "Mentor ID should not be null") Long mentorId) {
@@ -64,6 +64,7 @@ public class MentorshipController {
             description = "Remove a mentor from a mentee using mentee ID and mentor ID"
     )
     @DeleteMapping("/mentees/{menteeId}/mentors/{mentorId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteMentor(
             @PathVariable("menteeId") @NotNull(message = "Mentee ID should not be null") Long menteeId,
             @PathVariable("mentorId") @NotNull(message = "Mentor ID should not be null") Long mentorId) {
