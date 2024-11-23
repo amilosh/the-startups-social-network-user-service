@@ -16,7 +16,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -238,7 +238,7 @@ public class GoalService {
     }
 
     public Goal findGoalById(Long id) {
-        return goalRepo.findById(id)
+        return goalRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Goal with id: %s not found".formatted(id)));
     }
 
@@ -252,7 +252,7 @@ public class GoalService {
     }
 
     public Stream<Goal> findGoalsByUserId(long userId) {
-        return goalRepo.findGoalsByUserId(userId);
+        return goalRepository.findGoalsByUserId(userId);
     }
 
     private void validateGoalNotCompleted(Goal goal) {
@@ -263,6 +263,6 @@ public class GoalService {
     }
 
     public int countActiveGoalsPerUser(long userId) {
-        return goalRepo.countActiveGoalsPerUser(userId);
+        return goalRepository.countActiveGoalsPerUser(userId);
     }
 }
