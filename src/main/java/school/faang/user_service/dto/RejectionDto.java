@@ -11,6 +11,6 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(chain = true)
 public class RejectionDto {
-    @NotNull
+    @NotNull(message = "Reason must not be null")
     private String reason;
 }

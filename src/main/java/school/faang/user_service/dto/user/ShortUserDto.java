@@ -1,5 +1,6 @@
-package school.faang.user_service.dto;
+package school.faang.user_service.dto.user;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -7,6 +8,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class ShortUserDto {
     private Long id;
+    @NotNull(message = "Username must not be null")
     private String username;
     private String email;
 }
