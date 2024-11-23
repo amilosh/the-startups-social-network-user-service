@@ -1,4 +1,4 @@
-package school.faang.user_service.service.userJira;
+package school.faang.user_service.service.user_jira;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,7 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.userJira.UserJira;
 import school.faang.user_service.exception.EntityNotFoundException;
-import school.faang.user_service.repository.userJira.UserJiraRepository;
+import school.faang.user_service.repository.user_jira.UserJiraRepository;
 
 import java.util.Optional;
 

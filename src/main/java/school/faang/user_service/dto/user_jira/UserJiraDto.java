@@ -1,4 +1,4 @@
-package school.faang.user_service.dto.userJira;
+package school.faang.user_service.dto.user_jira;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

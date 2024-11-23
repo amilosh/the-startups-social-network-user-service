@@ -1,11 +1,11 @@
-package school.faang.user_service.service.userJira;
+package school.faang.user_service.service.user_jira;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.userJira.UserJira;
 import school.faang.user_service.exception.EntityNotFoundException;
-import school.faang.user_service.repository.userJira.UserJiraRepository;
+import school.faang.user_service.repository.user_jira.UserJiraRepository;
 
 import java.util.Optional;
 

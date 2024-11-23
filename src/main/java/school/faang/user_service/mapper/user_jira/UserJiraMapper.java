@@ -1,11 +1,11 @@
-package school.faang.user_service.mapper.userJira;
+package school.faang.user_service.mapper.user_jira;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
-import school.faang.user_service.dto.userJira.UserJiraCreateUpdateDto;
-import school.faang.user_service.dto.userJira.UserJiraDto;
+import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
+import school.faang.user_service.dto.user_jira.UserJiraDto;
 import school.faang.user_service.entity.userJira.UserJira;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)

@@ -1,4 +1,4 @@
-package school.faang.user_service.repository.userJira;
+package school.faang.user_service.repository.user_jira;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
