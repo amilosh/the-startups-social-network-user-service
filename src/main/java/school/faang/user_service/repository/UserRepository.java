@@ -11,6 +11,7 @@ import school.faang.user_service.entity.User;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @Repository
@@ -71,4 +72,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """)
     void updatePassiveUsersRatingWhichRatingLessThanRating(@Param("rank") double rank,
                                                            @Param("activeUsersIds") Set<Long> activeUsersIds);
+
+    @Query("""
+            SELECT u FROM User u
+            WHERE u.id IN(:ids)
+            """)
+    Optional<List<User>> findAllByIds(@Param("ids") List<Long> ids);
 }

@@ -9,13 +9,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -31,6 +35,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserContext userContext;
     private final AvatarService avatarService;
+    private final UserMapper userMapper;
 
     public Optional<User> findById(long userId) {
         return userRepository.findById(userId);
@@ -91,5 +96,19 @@ public class UserService {
         user.setUserProfilePic(userProfilePic);
         userRepository.save(user);
         return randomAvatarUrl;
+    }
+
+    public UserDto getUserDtoById(long userId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataValidationException("user not found!"));
+        return userMapper.toDto(user);
+    }
+
+    public List<UserDto> getUserDtosByIds(List<Long> userIds) {
+        List<User> users = userRepository.findAllByIds(userIds)
+                .orElseThrow(() -> new DataValidationException("users not found!"));
+        return users.stream()
+                .map(userMapper::toDto)
+                .toList();
     }
 }
