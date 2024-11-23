@@ -27,7 +27,7 @@ public class DataSyncService {
 
     private static final int PREMIUM_SCORE = 100;
 
-    @Scheduled(cron = "0 0/1 * * * ?")
+    @Scheduled(cron = "0 0/10 * * * ?")
     @Transactional
     public void syncData() {
         log.info("Starting data synchronization from PostgreSQL to Elasticsearch...");
