@@ -14,6 +14,12 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
 
     @Query(nativeQuery = true, value = """
             SELECT g.* FROM goal g
+            WHERE g.mentor_id = ?1
+            """)
+    Stream<Goal> findGoalsByMentorId(long mentorId);
+
+    @Query(nativeQuery = true, value = """
+            SELECT g.* FROM goal g
             JOIN user_goal ug ON g.id = ug.goal_id
             WHERE ug.user_id = ?1
             """)
