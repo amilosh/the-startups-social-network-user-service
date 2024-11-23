@@ -17,7 +17,13 @@ import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.validator.UserServiceValidator;
 
+<<<<<<< HEAD
 import java.io.IOException;
+=======
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+>>>>>>> 850a035afcc9bbdca60d8b6eafa7e135a817997c
 import java.util.List;
 import java.util.Optional;
 
@@ -52,9 +58,12 @@ public class UserServiceTest {
 
     private long userId;
 
+    private User user;
+
     @BeforeEach
     void setUp() {
         userId = 1L;
+        user = new User();
     }
 
     @Test
@@ -70,17 +79,24 @@ public class UserServiceTest {
     }
 
     @Test
-    public void testGetUserByIdNotfound() {
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+    public void testGetUserById() {
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        assertEquals(user, userService.getUserById(userId));
+    }
 
+    @Test
+    public void testThrowExceptionGetUserById() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
         assertThrows(EntityNotFoundException.class,
                 () -> userService.getUserById(userId));
     }
 
     @Test
-    public void testGetUserById() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(new User()));
-        userService.getUserById(userId);
+    public void testGetUserByIdNotfound() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class,
+                () -> userService.getUserById(userId));
     }
 
     @Test
