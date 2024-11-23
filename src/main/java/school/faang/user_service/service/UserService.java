@@ -3,15 +3,16 @@ package school.faang.user_service.service;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import org.springframework.dao.DataIntegrityViolationException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.faang.user_service.convertor.CsvSchemaFactory;
 import school.faang.user_service.dto.UserDto;
-import school.faang.user_service.dto.pojo.Person;
+import school.faang.user_service.domain.Person;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.EventStatus;
@@ -41,6 +42,8 @@ public class UserService {
     private final CountryService countryService;
     private final EventService eventService;
 
+    private final CsvSchemaFactory schemaFactory;
+
 
     @Autowired
     public UserService(UserRepository userRepository,
@@ -49,6 +52,7 @@ public class UserService {
                        PersonToUserMapper personToUserMapper,
                        UserValidator userValidator,
                        CountryService countryService,
+                       CsvSchemaFactory schemaFactory,
                        @Lazy MentorshipService mentorshipService,
                        @Lazy EventService eventService) {
         this.userRepository = userRepository;
@@ -56,6 +60,7 @@ public class UserService {
         this.personToUserMapper = personToUserMapper;
         this.userValidator = userValidator;
         this.countryService = countryService;
+        this.schemaFactory = schemaFactory;
         this.mentorshipService = mentorshipService;
         this.eventService = eventService;
 
@@ -117,12 +122,13 @@ public class UserService {
 //        }
 //    }
 
-    public void processUsers(List<Person> persons) {
+    public void processUsers(List<Person> persons) throws IOException {
         validateEmails(persons)
                 .stream()
                 .map(this::createUserFromPerson)
                 .forEach(userRepository::save);
     }
+
 
 
     private void stopAllUserActivities(User user) {
@@ -177,11 +183,13 @@ public class UserService {
         return user;
     }
 
-    public void processCsv(InputStream inputStream) throws IOException {
-        CsvMapper csvMapper = new CsvMapper();
-        CsvSchema schema = CsvSchema.emptySchema().withHeader();
-        MappingIterator<Person> iterator = csvMapper.readerFor(Person.class).with(schema).readValues(inputStream);
-        List<Person> persons = iterator.readAll();
-        log.info("List of person {} ", persons);
+
+
+//    public void processCsv(List<Person> persons) throws IOException {
+//        CsvMapper csvMapper = new CsvMapper();
+//        CsvSchema schema = schemaFactory.createPersonSchema();
+//        MappingIterator<Person> iterator = csvMapper.readerFor(Person.class).with(schema).readValues(inputStream);
+//        List<Person> persons = iterator.readAll();
+//        log.info("List of person {} ", persons);
+//    }
     }
-}

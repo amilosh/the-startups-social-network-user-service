@@ -1,4 +1,4 @@
-package school.faang.user_service.dto.pojo;
+package school.faang.user_service.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -11,10 +11,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class PreviousEducation {
-    @JsonProperty("degree")
     private String degree;
-    @JsonProperty("institution")
     private String institution;
-    @JsonProperty("completionYear")
     private int completionYear;
 }

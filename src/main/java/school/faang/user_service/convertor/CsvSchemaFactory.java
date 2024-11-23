@@ -5,11 +5,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.pojo.Person;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 
 @Component
 public class CsvSchemaFactory {

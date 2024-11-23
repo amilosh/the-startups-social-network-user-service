@@ -1,7 +1,6 @@
 package school.faang.user_service.convertor;
 
 import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,7 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 
-import school.faang.user_service.dto.pojo.Person;
+import school.faang.user_service.domain.Person;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

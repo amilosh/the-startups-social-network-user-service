@@ -1,6 +1,5 @@
-package school.faang.user_service.dto.pojo;
+package school.faang.user_service.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -13,11 +12,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class ContactInfo {
-    @Email(message = "Invalid email format")
-    @JsonProperty("email")
     private String email;
-    @JsonProperty("phone")
     private String phone;
-
     private Address address;
 }

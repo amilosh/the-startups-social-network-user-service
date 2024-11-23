@@ -1,14 +1,13 @@
 package school.faang.user_service.convertor;
 
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.pojo.Address;
-import school.faang.user_service.dto.pojo.ContactInfo;
-import school.faang.user_service.dto.pojo.Education;
-import school.faang.user_service.dto.pojo.Person;
-import school.faang.user_service.dto.pojo.PreviousEducation;
+import school.faang.user_service.domain.Address;
+import school.faang.user_service.domain.ContactInfo;
+import school.faang.user_service.domain.Education;
+import school.faang.user_service.domain.Person;
+import school.faang.user_service.domain.PreviousEducation;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 

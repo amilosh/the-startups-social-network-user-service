@@ -2,10 +2,8 @@ package school.faang.user_service.convertor;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.pojo.Person;
-import school.faang.user_service.dto.pojo.PreviousEducation;
+import school.faang.user_service.domain.Person;
+import school.faang.user_service.domain.PreviousEducation;
 
 import java.time.LocalDate;
 import java.util.HashMap;
