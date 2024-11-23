@@ -6,10 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
@@ -41,7 +41,7 @@ public class SubscriptionServiceTest {
     private User user1;
     private User user2;
     private List<User> users;
-    private List<UserDto> userDtos;
+    private List<UserSubResponseDto> userSubResponseDtos;
     private UserFilterDto filterDto;
     private UserFilter mockFilter;
 
@@ -59,9 +59,9 @@ public class SubscriptionServiceTest {
         user2.setUsername("user2");
         user2.setId(2L);
         users = List.of(user1, user2);
-        userDtos = List.of(
-                UserDto.builder().id(1L).username("user1").email("user1@example.com").build(),
-                UserDto.builder().id(2L).username("user2").email("user2@example.com").build()
+        userSubResponseDtos = List.of(
+                UserSubResponseDto.builder().id(1L).username("user1").email("user1@example.com").build(),
+                UserSubResponseDto.builder().id(2L).username("user2").email("user2@example.com").build()
         );
         mockFilter = mock(UserFilter.class);
         subscriptionService = new SubscriptionService(subscriptionRepository, userMapper, List.of(mockFilter));
@@ -127,17 +127,17 @@ public class SubscriptionServiceTest {
     public void testGetFollowers() {
         // Arrange
         when(subscriptionRepository.findByFolloweeId(followeeId)).thenReturn(users.stream());
-        when(userMapper.toDto(anyList())).thenReturn(userDtos);
+        when(userMapper.toUserSubResponseList(anyList())).thenReturn(userSubResponseDtos);
         when(mockFilter.isApplicable(filterDto)).thenReturn(true);
         when(mockFilter.apply(any(User.class))).thenReturn(true);
 
         // Act
-        List<UserDto> result = subscriptionService.getFollowers(followeeId, filterDto);
+        List<UserSubResponseDto> result = subscriptionService.getFollowers(followeeId, filterDto);
 
         // Assert
-        assertEquals(userDtos, result);
+        assertEquals(userSubResponseDtos, result);
         verify(subscriptionRepository).findByFolloweeId(followeeId);
-        verify(userMapper).toDto(anyList());
+        verify(userMapper).toMenteeResponseList(anyList());
     }
 
     @Test
@@ -157,17 +157,17 @@ public class SubscriptionServiceTest {
     public void testGetFollowing() {
         // Arrange
         when(subscriptionRepository.findByFollowerId(followerId)).thenReturn(users.stream());
-        when(userMapper.toDto(anyList())).thenReturn(userDtos);
+        when(userMapper.toUserSubResponseList(anyList())).thenReturn(userSubResponseDtos);
         when(mockFilter.isApplicable(filterDto)).thenReturn(true);
         when(mockFilter.apply(any(User.class))).thenReturn(true);
 
         // Act
-        List<UserDto> result = subscriptionService.getFollowing(followerId, filterDto);
+        List<UserSubResponseDto> result = subscriptionService.getFollowing(followerId, filterDto);
 
         // Assert
-        assertEquals(userDtos, result);
+        assertEquals(userSubResponseDtos, result);
         verify(subscriptionRepository).findByFollowerId(followerId);
-        verify(userMapper).toDto(anyList());
+        verify(userMapper).toMenteeResponseList(anyList());
     }
 
     @Test

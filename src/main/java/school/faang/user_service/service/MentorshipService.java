@@ -4,7 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.MenteeResponseDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
@@ -44,17 +44,17 @@ public class MentorshipService {
         if (isMentorDeleted) {
             deleteMentee(menteeId, mentorId);
         }
-
-        public List<UserDto> getMentees ( long userId){
-            return userMapper.toDto(
-                    userRepository.findById(userId)
-                            .map(User::getMentees)
-                            .orElseThrow(() -> new EntityNotFoundException("Mentor not found")));
-        }
     }
 
-    public List<UserDto> getMentors(long userId) {
-        return userMapper.toDto(
+    public List<MenteeResponseDto> getMentees (long userId){
+        return userMapper.toMenteeResponseList(
+                userRepository.findById(userId)
+                        .map(User::getMentees)
+                        .orElseThrow(() -> new EntityNotFoundException("Mentor not found")));
+    }
+
+    public List<MenteeResponseDto> getMentors(long userId) {
+        return userMapper.toMenteeResponseList(
                 userRepository.findById(userId)
                         .map(User::getMentors)
                         .orElseThrow(() -> new EntityNotFoundException("Mentee not found")));

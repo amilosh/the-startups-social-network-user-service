@@ -14,7 +14,7 @@ import school.faang.user_service.dto.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.mapper.SkillMapper;
@@ -110,7 +110,7 @@ class EventServiceTest {
 
         eventDto = EventDto.builder()
                 .id(22L)
-                .ownerId(user.getId())
+                .ownerId(100L)
                 .title("Java Conference 2024")
                 .relatedSkills(skillsDtos)
                 .build();
@@ -118,7 +118,7 @@ class EventServiceTest {
 
     @Test
     void testCreateEventSaveCorrectEvent() {
-        when(userService.getUserById(100L)).thenReturn(user);
+        when(userService.getUserById(Long.valueOf(100L))).thenReturn(user);
         when(eventMapper.toEntity(eventDto)).thenReturn(event);
         when(skillMapper.toDtoList(user.getSkills()))
                 .thenReturn(Arrays.asList(skillDto1, skillDto2));
@@ -144,7 +144,7 @@ class EventServiceTest {
                 .build();
 
 
-        when(userService.getUserById(100L)).thenReturn(user2);
+        when(userService.getUserById(Long.valueOf(100L))).thenReturn(user2);
         when(skillMapper.toDtoList(user2.getSkills()))
                 .thenReturn(Arrays.asList(skillDto1, sqlDto));
 
@@ -260,7 +260,8 @@ class EventServiceTest {
         participatedEventsDto.add(EventDto.builder().id(1L).build());
         participatedEventsDto.add(EventDto.builder().id(2L).build());
         user.setParticipatedEvents(participatedEvents);
-        when(userService.getUserById(user.getId())).thenReturn(user);
+
+        when(userService.getUserById((long) user.getId())).thenReturn(user);
         when((user.getParticipatedEvents())).thenReturn(participatedEvents);
         when(eventMapper.toDtoList(participatedEvents)).thenReturn(participatedEventsDto);
 

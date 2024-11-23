@@ -7,11 +7,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.client.payment.PaymentServiceClient;
+import school.faang.user_service.dto.premium.PaymentRequestDto;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.entity.PremiumPeriod;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.exceptions.DataValidationException;
+import school.faang.user_service.exceptions.PaymentException;
 import school.faang.user_service.mapper.PremiumMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
 
@@ -71,7 +73,10 @@ public class PremiumServiceTest {
         // arrange
         when(premiumRepository.existsById(userId)).thenReturn(false);
         when(userService.getUserById(userId)).thenReturn(user);
-        when(paymentServiceClient.sendPaymentRequest(userId, period.getDays())).thenReturn(true);
+        when(paymentServiceClient.sendPaymentRequest(
+                new PaymentRequestDto(userId, period.getDays())
+        ))
+                .thenReturn(true);
         when(premiumMapper.toDto(any(Premium.class))).thenReturn(premiumDto);
 
         // act
@@ -97,10 +102,13 @@ public class PremiumServiceTest {
         // arrange
         when(premiumRepository.existsById(userId)).thenReturn(false);
         when(userService.getUserById(userId)).thenReturn(user);
-        when(paymentServiceClient.sendPaymentRequest(userId, period.getDays())).thenReturn(false);
+        when(paymentServiceClient.sendPaymentRequest(
+                new PaymentRequestDto(userId, period.getDays())
+        ))
+                .thenReturn(false);
 
         // act & assert
-        assertThrows(DataValidationException.class, () -> premiumService.buyPremium(period, userId));
+        assertThrows(PaymentException.class, () -> premiumService.buyPremium(period, userId));
         verify(premiumRepository, never()).save(any(Premium.class));
     }
 }

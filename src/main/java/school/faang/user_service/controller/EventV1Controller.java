@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.dto.EventFilterDto;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.service.EventService;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/events")
+@RequestMapping("/api/v1/events")
 @Slf4j
 @Validated
-public class EventController {
+public class EventV1Controller {
     private final EventService eventService;
 
     @PostMapping

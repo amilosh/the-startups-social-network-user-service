@@ -11,7 +11,7 @@ import school.faang.user_service.dto.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.mapper.SkillMapper;
@@ -57,6 +57,10 @@ public class EventService {
         return eventMapper.toDto(savedEvent);
     }
 
+    public List<Event> updateAllEvents(List<Event> events) {
+        return eventRepository.saveAll(events);
+    }
+
     public EventDto getEvent(Long eventId) {
         log.info("Fetching event with ID: {}", eventId);
         Event event = getEventById(eventId);
@@ -96,6 +100,14 @@ public class EventService {
         eventRepository.deleteById(eventId);
 
         log.info("Event with ID: {} deleted", eventId);
+    }
+
+    public void deleteAllEvents(List<Event> eventsToDelete) {
+        log.info("Deleting events");
+
+        eventRepository.deleteAll(eventsToDelete);
+
+        log.info("Events deleted");
     }
 
 
@@ -140,12 +152,14 @@ public class EventService {
     }
 
     private void validateUserHaveSkillsForEvent(@NotNull User userOwner, @NotNull EventDto eventDto) {
-        Set<SkillDto> relatedSkills = eventDto.relatedSkills() != null ? new HashSet<>(eventDto.relatedSkills()) : new HashSet<>();
+        Set<SkillDto> relatedSkills = eventDto.relatedSkills() != null ? new HashSet<>(eventDto.relatedSkills())
+                : new HashSet<>();
 
         List<Skill> skills = userOwner.getSkills();
         List<SkillDto> skillDtoList = skillMapper.toDtoList(skills);
 
-        Set<SkillDto> userSkillsDto = skillDtoList != null ? new HashSet<>(skillDtoList) : new HashSet<>();
+        Set<SkillDto> userSkillsDto = skillDtoList != null ? new HashSet<>(skillDtoList)
+                : new HashSet<>();
 
         log.debug("Checking " + "if user has required skills: {}", relatedSkills);
         if (!userSkillsDto.containsAll(relatedSkills)) {
@@ -166,4 +180,6 @@ public class EventService {
                 event.getMaxAttendees()
         );
     }
+
+
 }
