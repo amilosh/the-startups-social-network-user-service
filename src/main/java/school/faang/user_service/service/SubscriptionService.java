@@ -2,10 +2,10 @@ package school.faang.user_service.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
@@ -37,7 +37,7 @@ public class SubscriptionService {
 
     }
 
-    public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
+    public List<UserSubResponseDto> getFollowers(long followeeId, UserFilterDto filter) {
         Stream<User> users = subscriptionRepository.findByFolloweeId(followeeId);
         return filterUsers(users, filter);
     }
@@ -46,7 +46,7 @@ public class SubscriptionService {
         return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
     }
 
-    public List<UserDto> getFollowing(long followerId, UserFilterDto filter) {
+    public List<UserSubResponseDto> getFollowing(long followerId, UserFilterDto filter) {
         Stream<User> users = subscriptionRepository.findByFollowerId(followerId);
         return filterUsers(users, filter);
     }
@@ -55,12 +55,12 @@ public class SubscriptionService {
         return subscriptionRepository.findFolloweesAmountByFollowerId(followerId);
     }
 
-    private List<UserDto> filterUsers(Stream<User> users, UserFilterDto filterDto) {
+    private List<UserSubResponseDto> filterUsers(Stream<User> users, UserFilterDto filterDto) {
         List<User> filtered_users = users
                 .filter(user -> filters.stream()
                         .filter(filter -> filter.isApplicable(filterDto))
                         .allMatch(filter -> filter.apply(user)))
                 .toList();
-        return userMapper.toDto(filtered_users);
+        return userMapper.toUserSubResponseList(filtered_users);
     }
 }

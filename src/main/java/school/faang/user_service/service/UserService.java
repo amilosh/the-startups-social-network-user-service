@@ -21,6 +21,19 @@ public class UserService {
         return userRepository.findAllById(ids);
     }
 
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
+
+    public void updateAllUsers(List<User> users) {
+        userRepository.saveAll(users);
+    }
+
+    public User getUserById(long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new
+                EntityNotFoundException("User do not found by " + userId));
+    }
+
     public void saveUser(User user) {
         userRepository.save(user);
     }
