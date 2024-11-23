@@ -15,7 +15,7 @@ public interface PremiumRepository extends CrudRepository<Premium, Long> {
 
     List<Premium> findAllByEndDateBefore(LocalDateTime endDate);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM user_premium WHERE isactive = true")
+    @Query(nativeQuery = true, value = "SELECT * FROM user_premium WHERE is_active = true")
     List<Premium> getAllActivePremium();
 
 }

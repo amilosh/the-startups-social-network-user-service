@@ -1,5 +1,6 @@
 package school.faang.user_service.dto.premium;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -10,6 +11,5 @@ public class PremiumDto {
     private Long userId;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-
     private boolean isActive;
 }

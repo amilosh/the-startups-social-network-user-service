@@ -12,7 +12,7 @@ import school.faang.user_service.service.premium.PremiumService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/buy-premium")
+@RequestMapping("/api/v1/users/buy-premium")
 @RequiredArgsConstructor
 public class PremiumController {
     private final PremiumService premiumService;

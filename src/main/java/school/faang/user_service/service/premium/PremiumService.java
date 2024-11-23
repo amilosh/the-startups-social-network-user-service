@@ -1,5 +1,6 @@
 package school.faang.user_service.service.premium;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,12 +46,12 @@ public class PremiumService {
     }
 
     private Premium getPremium(long id) {
-        log.warn("trying to get entity from db, might be thrown an exception");
+        log.info("trying to get premium entity from db");
         return premiumRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
     }
     private void save(Premium premium){
-        log.info("validate argument for null exception");
+        log.info("check argument for null exception");
         PremiumServiceValidator.checkPremiumNotNull(premium);
         premiumRepository.save(premium);
     }

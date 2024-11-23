@@ -8,12 +8,12 @@ import java.util.List;
 public class PremiumServiceValidator {
     public static void checkListForNull(List<PremiumDto> list){
         if (list == null) {
-            throw new NullPointerException("Пустой лист");
+            throw new IllegalArgumentException("Пустой лист");
         }
     }
     public static void checkPremiumNotNull(Premium premium){
         if(premium==null){
-            throw new NullPointerException("Пустой объект premium");
+            throw new IllegalArgumentException("Пустой объект premium");
         }
     }
 }

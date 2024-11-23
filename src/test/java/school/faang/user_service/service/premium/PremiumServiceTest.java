@@ -68,7 +68,7 @@ class PremiumServiceTest {
 
     @Test
     void testNullListForUpdatePremium(){
-        assertThrows(NullPointerException.class,
+        assertThrows(IllegalArgumentException.class,
                 ()-> premiumService.updatePremium(null));
     }
 

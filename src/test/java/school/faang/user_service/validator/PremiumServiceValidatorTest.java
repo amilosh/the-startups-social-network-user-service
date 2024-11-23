@@ -16,7 +16,7 @@ class PremiumServiceValidatorTest {
     }
     @Test
     void testNullListForCheckListForNull(){
-        assertThrows(NullPointerException.class,
+        assertThrows(IllegalArgumentException.class,
                 ()->PremiumServiceValidator.checkListForNull(null));
     }
     @Test
@@ -26,7 +26,7 @@ class PremiumServiceValidatorTest {
     }
     @Test
     void testNullListForCheckPremiumNotNull(){
-        assertThrows(NullPointerException.class,
+        assertThrows(IllegalArgumentException.class,
                 ()->PremiumServiceValidator.checkPremiumNotNull(null));
     }
 }
