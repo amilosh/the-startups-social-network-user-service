@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
+import school.faang.user_service.dto.RecommendationReceivedEvent;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
@@ -16,6 +17,11 @@ public interface RecommendationRequestMapper {
     @Mapping(target = "receiverId", source = "receiver.id")
     @Mapping(target = "skillsId", source = "skills", qualifiedByName = "skillsToIds")
     RecommendationRequestDto toDto(RecommendationRequest recommendationRequest);
+
+    @Mapping(target = "recommendationId", source = "id")
+    @Mapping(target = "requesterId", source = "requester.id")
+    @Mapping(target = "receiverId", source = "receiver.id")
+    RecommendationReceivedEvent toEvent(RecommendationRequest recommendationRequest);
 
     @Named("skillsToIds")
     default List<Long> skillsToIds(List<SkillRequest> skills) {
