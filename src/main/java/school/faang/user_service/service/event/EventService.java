@@ -1,7 +1,6 @@
 package school.faang.user_service.service.event;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
@@ -14,7 +13,6 @@ import school.faang.user_service.mapper.event.EventMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,7 +30,7 @@ public class EventService {
 
 
     public EventDto create(EventDto eventDto) {
-        hasNotRequiredSkills(eventDto);
+        validateRequiredSkills(eventDto);
         Event event = eventMapper.toEntity(eventDto);
         Event savedEvent = eventRepository.save(event);
         return eventMapper.toDto(savedEvent);
@@ -51,9 +49,10 @@ public class EventService {
         List<Event> events = eventRepository.findAll();
         Stream<Event> eventsStream = events.stream();
 
-        return eventFilters.stream().filter(eventFilter -> eventFilter.isApplicable(eventFilterDto)).reduce(eventsStream,
-                (stream, eventFilter) -> eventFilter.apply(stream, eventFilterDto),
-                (s1, s2) -> s1).map(eventMapper::toDto).toList();
+        return eventFilters.stream()
+                .filter(eventFilter -> eventFilter.isApplicable(eventFilterDto))
+                .reduce(eventsStream, (stream, eventFilter) -> eventFilter.apply(stream, eventFilterDto), (s1, s2) -> s1)
+                .map(eventMapper::toDto).toList();
     }
 
     public long deleteEvent(long eventId) {
@@ -62,7 +61,7 @@ public class EventService {
     }
 
     public EventDto updateEvent(EventDto event) {
-        hasNotRequiredSkills(event);
+        validateRequiredSkills(event);
         Event eventEntity = eventMapper.toEntity(event);
         Event savedEvent = eventRepository.save(eventEntity);
         return eventMapper.toDto(savedEvent);
@@ -86,7 +85,7 @@ public class EventService {
         return ownerSkillIds.containsAll(requiredSkillIds);
     }
 
-    private void hasNotRequiredSkills(EventDto event) throws DataValidationException {
+    private void validateRequiredSkills(EventDto event) throws DataValidationException {
         if (!hasRequiredSkills(event))
             throw new DataValidationException("User does not have the required skills to conduct this event");
 

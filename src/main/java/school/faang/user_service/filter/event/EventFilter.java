@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 public interface EventFilter {
 
-    boolean isApplicable (EventFilterDto filter);
+    boolean isApplicable(EventFilterDto filter);
 
-  Stream<Event> apply(Stream<Event> events, EventFilterDto filter);
+    Stream<Event> apply(Stream<Event> events, EventFilterDto filter);
 }
