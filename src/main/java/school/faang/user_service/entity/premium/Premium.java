@@ -25,6 +25,9 @@ public class Premium {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(name = "premium_type", length = 15, nullable = false)
+    private String premiumType;
+
     @Column(name = "start_date", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime startDate;

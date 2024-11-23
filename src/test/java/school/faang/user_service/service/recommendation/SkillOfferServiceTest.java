@@ -77,8 +77,9 @@ class SkillOfferServiceTest {
 
     @Test
     void testSaveSkillOffersWithNonExistentSkill() {
+        long skillId = 1L;
         List<SkillOfferDto> skillOffers = List.of(
-                SkillOfferDto.builder().skillId(RECOMMENDATION_ID).build()
+                SkillOfferDto.builder().skillId(skillId).build()
         );
         when(skillRepository.findById(RECOMMENDATION_ID)).thenReturn(Optional.empty());
         when(recommendationRepository.findById(RECOMMENDATION_ID))

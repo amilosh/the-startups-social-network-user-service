@@ -40,7 +40,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core")
     implementation("redis.clients:jedis:4.3.2")
     runtimeOnly("org.postgresql:postgresql")
-
+    testImplementation("com.h2database:h2")
     /**
      * Amazon S3
      */
@@ -67,7 +67,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2")
 
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.13.0")
-    implementation ("net.coobird:thumbnailator:0.4.1")
+    implementation("net.coobird:thumbnailator:0.4.1")
 
     /**
      * Test containers
