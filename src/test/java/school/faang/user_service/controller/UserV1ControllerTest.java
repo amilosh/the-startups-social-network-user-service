@@ -1,11 +1,11 @@
 package school.faang.user_service.controller;
 
 import org.junit.jupiter.api.Test;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exceptions.DataValidationException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class UserControllerTest {
+public class UserV1ControllerTest {
     private SubscriptionController subscriptionController = new SubscriptionController(null);
 
     private long followerId = 1l;

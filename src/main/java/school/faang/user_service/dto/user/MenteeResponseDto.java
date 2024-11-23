@@ -8,7 +8,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record UserDto(
+public record MenteeResponseDto(
         Long id,
         @NotBlank String username,
         @NotBlank String email,

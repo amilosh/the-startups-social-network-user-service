@@ -10,7 +10,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.filter.recommendationRequestFilters.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;

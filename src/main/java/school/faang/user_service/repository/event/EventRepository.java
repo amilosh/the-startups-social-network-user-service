@@ -34,4 +34,5 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             int maxAttendees
     );
 
+    Iterable<Long> owner(User owner);
 }

@@ -4,18 +4,13 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
-import school.faang.user_service.dto.user.DeactivatedUserDto;
+import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.event.Event;
-import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 
 import java.util.List;
@@ -27,12 +22,9 @@ import java.util.stream.Stream;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final EventRepository eventRepository;
-    private final GoalService goalService;
-    private final MentorshipService mentorshipService;
-    private final UserMapper userMapper;
     private final PremiumRepository premiumRepository;
     private final List<UserFilter> filters;
+    private final UserMapper userMapper;
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
@@ -43,22 +35,12 @@ public class UserService {
         return userRepository.findAllById(ids);
     }
 
-    @Transactional
-    public DeactivatedUserDto deactivateUser(long userId) {
-        log.info("start to deactivate User by id {}", userId);
-        User user = getUserById(userId);
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
 
-        stopScheduledGoals(user);
-        stopScheduledEvents(user);
-        removeUserFromParticipatedEvents(user);
-        mentorshipService.stopMentorship(user);
-
-        user.setActive(false);
-
-        User savedUser = userRepository.save(user);
-
-        log.info("User successfully deactivated by id {}", userId);
-        return userMapper.toDeactivatedUserDto(savedUser);
+    public void updateAllUsers(List<User> users) {
+        userRepository.saveAll(users);
     }
 
     public User getUserById(long userId) {
@@ -66,61 +48,17 @@ public class UserService {
                 EntityNotFoundException("User do not found by " + userId));
     }
 
-    private void stopScheduledGoals(User user) {
-        List<Goal> goals = user.getGoals();
-        List<Goal> settingGoals = user.getSettingGoals();
-
-        goals.forEach(goal -> goal.removeExecutingUser(user));
-
-        goalService.removeGoalsWithoutExecutingUsers(goals);
-        goalService.removeGoalsWithoutExecutingUsers(settingGoals);
-
-        user.removeAllGoals();
-        log.info("all scheduled goals is stopped: \t goals {} \t settingGoals{}"
-                , user.getGoals(), user.getSettingGoals());
-    }
-
-    private void stopScheduledEvents(User user) {
-        List<Event> ownedEvents = user.getOwnedEvents();
-
-        for (Event event : ownedEvents) {
-            List<User> attendees = event.getAttendees();
-
-            attendees.forEach(attendee -> {
-                attendee.removeParticipatedEvent(event);
-                userRepository.save(attendee);
-            });
-
-            eventRepository.deleteById(event.getId());
-        }
-
-        user.removeAllOwnedEvents();
-        log.info("all scheduled events is stopped and delete");
-    }
-
-    private void removeUserFromParticipatedEvents(User user) {
-        List<Event> participatedEvents = user.getParticipatedEvents();
-
-        participatedEvents.forEach(participatedEvent -> {
-            participatedEvent.removeAttendeeFromEvent(user);
-            eventRepository.save(participatedEvent);
-        });
-
-        user.removeAllParticipatedEvents();
-        log.info("user {} unsubscribe from participated events", user.getId());
-    }
-
-
-    public List<UserDto> getPremiumUsers(UserFilterDto userFilterDto) {
+    public List<UserSubResponseDto> getPremiumUsers(UserFilterDto userFilterDto) {
         return filterUsers(premiumRepository.findPremiumUsers(), userFilterDto);
     }
 
-    private List<UserDto> filterUsers(Stream<User> users, UserFilterDto filterDto) {
+    private List<UserSubResponseDto> filterUsers(Stream<User> users, UserFilterDto filterDto) {
         List<User> filteredUsers = users
                 .filter(user -> filters.stream()
                         .filter(filter -> filter.isApplicable(filterDto))
                         .allMatch(filter -> filter.apply(user)))
                 .toList();
-        return userMapper.toDto(filteredUsers);
+        return userMapper.toUserSubResponseList(filteredUsers);
     }
+
 }
