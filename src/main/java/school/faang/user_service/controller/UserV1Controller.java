@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.UserFilterDto;
@@ -35,7 +36,7 @@ public class UserV1Controller {
     }
 
     @PostMapping("/premium")
-    public List<UserSubResponseDto> getPremiumUsers(UserFilterDto userFilterDto) {
+    public List<UserSubResponseDto> getPremiumUsers(@RequestBody UserFilterDto userFilterDto) {
         return userService.getPremiumUsers(userFilterDto);
     }
 }

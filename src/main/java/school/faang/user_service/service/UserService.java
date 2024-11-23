@@ -49,16 +49,15 @@ public class UserService {
     }
 
     public List<UserSubResponseDto> getPremiumUsers(UserFilterDto userFilterDto) {
-        return filterUsers(premiumRepository.findPremiumUsers(), userFilterDto);
+        return userMapper.toUserSubResponseList(
+                filterUsers(premiumRepository.findPremiumUsers(), userFilterDto));
     }
 
-    private List<UserSubResponseDto> filterUsers(Stream<User> users, UserFilterDto filterDto) {
-        List<User> filteredUsers = users
-                .filter(user -> filters.stream()
+    private List<User> filterUsers(Stream<User> users, UserFilterDto filterDto) {
+        return users.filter(user -> filters.stream()
                         .filter(filter -> filter.isApplicable(filterDto))
                         .allMatch(filter -> filter.apply(user)))
                 .toList();
-        return userMapper.toUserSubResponseList(filteredUsers);
     }
 
 }
