@@ -1,5 +1,8 @@
 package school.faang.user_service.controller.user;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -17,28 +20,49 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/users")
+@Tag(name = "User Controller", description = "Controller for managing users")
+@ApiResponse(responseCode = "200", description = "User retrieved successfully")
+@ApiResponse(responseCode = "204", description = "User deactivated successfully")
+@ApiResponse(responseCode = "400", description = "Invalid input data")
+@ApiResponse(responseCode = "500", description = "Internal server error")
 public class UserController {
 
     private final UserService userService;
 
+    @Operation(
+            summary = "Deactivate a user",
+            description = "Deactivate a user by their ID"
+    )
     @PutMapping("/{userId}/deactivate")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deactivateUser(@PathVariable @NotNull(message = "User ID should not be null") Long userId) {
         userService.deactivateUser(userId);
     }
 
+    @Operation(
+            summary = "Get users by filters",
+            description = "Retrieve a list of users based on filter criteria"
+    )
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<UserDto> getUsers(@Valid @ModelAttribute UserFilterDto filterDto) {
         return userService.getUser(filterDto).toList();
     }
 
+    @Operation(
+            summary = "Get user by ID",
+            description = "Retrieve a user by their ID"
+    )
     @GetMapping("/{userId}")
     @ResponseStatus(HttpStatus.OK)
     public UserDto getUser(@PathVariable @NotNull(message = "User ID should not be null") Long userId) {
         return userService.getUser(userId);
     }
 
+    @Operation(
+            summary = "Get users by a list of IDs",
+            description = "Retrieve a list of users by their IDs"
+    )
     @GetMapping("{ids}")
     @ResponseStatus(HttpStatus.OK)
     public List<UserDto> getUsersByIds(

@@ -20,10 +20,10 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/mentorship-request")
-@Tag(name = "Mentorship Request", description = "Controller for managing mentorship requests")
-@ApiResponse(description = "Successful method execution", responseCode = "200")
-@ApiResponse(description = "Client error", responseCode = "400")
-@ApiResponse(description = "Server error", responseCode = "500")
+@Tag(name = "Mentorship Request Controller", description = "Controller for managing mentorship requests")
+@ApiResponse(responseCode = "201", description = "Mentorship request created successfully")
+@ApiResponse(responseCode = "400", description = "Invalid request body")
+@ApiResponse(responseCode = "500", description = "Server error")
 public class MentorshipRequestController {
 
     private final MentorshipRequestService mentorshipRequestService;
@@ -40,7 +40,10 @@ public class MentorshipRequestController {
 
     @Operation(
             summary = "Get all mentorship requests",
-            description = "Retrieve all mentorship requests using filters"
+            description = "Retrieve all mentorship requests using filters",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Mentorship requests retrieved successfully")
+            }
     )
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
@@ -50,7 +53,10 @@ public class MentorshipRequestController {
 
     @Operation(
             summary = "Accept mentorship request",
-            description = "Allow a user to accept a mentorship request from another user"
+            description = "Allow a user to accept a mentorship request from another user",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Mentorship request accepted successfully")
+            }
     )
     @PutMapping("/accept/{mentorshipRequestId}")
     @ResponseStatus(HttpStatus.OK)
@@ -61,7 +67,10 @@ public class MentorshipRequestController {
 
     @Operation(
             summary = "Reject mentorship request",
-            description = "Allow a user to reject a mentorship request"
+            description = "Allow a user to reject a mentorship request",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Mentorship request rejected successfully")
+            }
     )
     @PutMapping("/reject/{mentorshipRequestId}")
     @ResponseStatus(HttpStatus.OK)
