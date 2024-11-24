@@ -2,7 +2,6 @@ package school.faang.user_service.controller.subscription;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.subscription.SubscriptionRequestDto;
 import school.faang.user_service.dto.subscription.SubscriptionUserDto;
@@ -14,12 +13,13 @@ import java.util.List;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/subscriptions")
+@RequestMapping("/api/v1/users/subscriptions")
 @RequiredArgsConstructor
 public class SubscriptionController {
     private final SubscriptionService subscriptionService;
 
     @PostMapping("/follow")
+    @ResponseStatus(HttpStatus.CREATED)
     public SubscriptionRequestDto followUser(Long followerId, Long followeeId) {
         if (Objects.equals(followerId, followeeId)) {
             throw new DataValidationException("You cannot follow yourself");
@@ -35,7 +35,7 @@ public class SubscriptionController {
         return subscriptionService.unfollowUser(followerId, followeeId);
     }
 
-    @GetMapping
+    @PostMapping
     public List<SubscriptionUserDto> getFollowers(Long followeeId, SubscriptionUserFilterDto filter) {
         return subscriptionService.getFollowers(followeeId, filter);
     }
