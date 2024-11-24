@@ -3,9 +3,9 @@ package school.faang.user_service.validator.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.exception.partiсipation.EventNotFoundException;
-import school.faang.user_service.exception.partiсipation.ParticipationException;
-import school.faang.user_service.exception.partiсipation.UserNotFoundException;
+import school.faang.user_service.exception.participation.EventNotFoundException;
+import school.faang.user_service.exception.participation.ParticipationException;
+import school.faang.user_service.exception.participation.UserNotFoundException;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
