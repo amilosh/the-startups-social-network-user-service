@@ -5,11 +5,11 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.entity.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
-import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.recommendation.SkillRequestRepository;
+import school.faang.user_service.repository.skill.SkillRepository;
+import school.faang.user_service.repository.skill.SkillRequestRepository;
 import school.faang.user_service.validator.SkillValidator;
 
 import java.util.List;
@@ -81,7 +81,7 @@ public class SkillService {
         skillRepository.assignSkillToUser(skillId, receiverId);
     }
 
-    public int countExisting(List<Long> ids) {
+    public int countExisting(List<Long> ids){
         return skillRepository.countExisting(ids);
     }
 }

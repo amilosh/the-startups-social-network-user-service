@@ -1,9 +1,9 @@
-package school.faang.user_service.repository.recommendation;
+package school.faang.user_service.repository;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import school.faang.user_service.entity.recommendation.SkillOffer;
+import school.faang.user_service.entity.SkillOffer;
 
 import java.util.List;
 

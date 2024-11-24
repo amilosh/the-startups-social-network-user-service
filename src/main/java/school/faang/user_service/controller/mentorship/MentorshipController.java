@@ -9,9 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.UserDto;
+import org.springframework.web.bind.annotation.*;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.service.MentorshipService;
 
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.List;
 @Tag(name = "Контроллер для управления менторами и менти")
 public class MentorshipController {
     private final MentorshipService mentorshipService;
-    
+
     @GetMapping("/{Id}/mentees/")
     @Operation(
             summary = "Получить менти",

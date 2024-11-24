@@ -6,10 +6,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.skill.SkillDto;
-import school.faang.user_service.entity.recommendation.SkillOffer;
+import school.faang.user_service.entity.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.recommendation.SkillOfferRepository;
+import school.faang.user_service.repository.skill.SkillRepository;
+import school.faang.user_service.repository.SkillOfferRepository;
 
 import java.util.Arrays;
 

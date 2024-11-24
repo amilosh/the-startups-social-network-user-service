@@ -5,6 +5,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -12,22 +13,18 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.user.PersonMapper;
-import school.faang.user_service.mapper.user.UserMapperImpl;
+import school.faang.user_service.mapper.PersonMapper;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.validator.UserServiceValidator;
 
-<<<<<<< HEAD
 import java.io.IOException;
-=======
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
->>>>>>> 850a035afcc9bbdca60d8b6eafa7e135a817997c
+
 import java.util.List;
-import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -42,7 +39,7 @@ public class UserServiceTest {
     private UserRepository userRepository;
 
     @Spy
-    private UserMapperImpl userMapper;
+    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     @Spy
     private PersonMapper personMapper;

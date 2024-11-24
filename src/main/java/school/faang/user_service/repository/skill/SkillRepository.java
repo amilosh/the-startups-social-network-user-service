@@ -1,4 +1,4 @@
-package school.faang.user_service.repository;
+package school.faang.user_service.repository.skill;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
