@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 
@@ -52,7 +53,7 @@ public class InvitationDtoValidatorTest {
     void testValidate_UserInvitesSelf_ThrowsException() {
         validGoalInvitationDto.setInvitedUserId(1L);
 
-        assertThrows(NullPointerException.class, () ->
+        assertThrows(DataValidationException.class, () ->
                 invitationDtoValidator.validate(validGoalInvitationDto)
         );
     }
