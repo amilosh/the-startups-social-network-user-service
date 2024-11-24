@@ -15,9 +15,11 @@ public class UrlUtils {
     public static final String ACCEPT = "/accept";
     public static final String REJECT = "/reject";
     public static final String USERS = "/users";
-
     public static final String SKILLS = "/skills";
     public static final String RECOMMENDATION = "/recommendation";
     public static final String RECEIVER = "/receiver";
     public static final String AUTHOR = "/author";
+    public static final String AVATAR = "/avatar";
+    public static final String LARGE = "/large";
+    public static final String SMALL = "/small";
 }
