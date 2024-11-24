@@ -25,16 +25,16 @@ import java.util.List;
 @RequestMapping("api/v1/events")
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "Event Controller", description = "Контроллер для управления событиями")
-@ApiResponse(description = "Успешная обработка метода", responseCode = "200")
-@ApiResponse(description = "Ошибка клиента", responseCode = "400")
-@ApiResponse(description = "Ошибка сервера", responseCode = "500")
+@Tag(name = "Event Controller", description = "Controller for Event Operations")
+@ApiResponse(description = "Success", responseCode = "200")
+@ApiResponse(description = "Client Error", responseCode = "400")
+@ApiResponse(description = "Server Error", responseCode = "500")
 public class EventController {
 
     private final EventService eventService;
 
     @Operation(
-            summary = "Создание события с помощью eventDto"
+            summary = "Event Creation with eventDto"
     )
     @PostMapping()
     public EventDto create(@Valid @RequestBody EventDto event) {
@@ -43,7 +43,7 @@ public class EventController {
     }
 
     @Operation(
-            summary = "Получение события по id"
+            summary = "Retrieving events by id"
     )
     @GetMapping()
     public EventDto get(@RequestParam long eventId) {
@@ -51,14 +51,14 @@ public class EventController {
     }
 
     @Operation(
-            summary = "Получение листа отфильтрованных событий",
-            description = "Возможные фильтры: " +
-                    "временной промежуток, " +
-                    "локация, максимальное " +
-                    "количество участников, " +
-                    "имя владельца события, " +
-                    "навыки, необходимые для участия в событии, " +
-                    "название события"
+            summary = "Retrieving a list of events by filter",
+            description = "Possible filters: " +
+                    "time frame, " +
+                    "location, " +
+                    "maxAttendees, " +
+                    "Event Owner Name, " +
+                    "relatedSkills, " +
+                    "titlePattern"
     )
     @GetMapping("/filter")
     public List<EventDto> getByFilter(@Valid @ModelAttribute EventFilterDto filter) {
@@ -66,7 +66,7 @@ public class EventController {
     }
 
     @Operation(
-            summary = "Удаление события по id"
+            summary = "Event Deletion by id"
     )
     @DeleteMapping("/{eventId}")
     public void delete(@PathVariable long eventId) {
@@ -74,7 +74,7 @@ public class EventController {
     }
 
     @Operation(
-            summary = "Обновление события через EventDto"
+            summary = "Updating event with EventDto"
     )
     @PutMapping()
     public EventDto update(@Valid @RequestBody EventDto event) {
@@ -83,7 +83,7 @@ public class EventController {
     }
 
     @Operation(
-            summary = "Получение всех событий принадлежащих пользователю по его id"
+            summary = "Retrieving a list of Events by owner id"
     )
     @GetMapping("/owner/{ownerId}")
     public List<EventDto> getOwnedEvents(@PathVariable long ownerId) {
@@ -91,7 +91,7 @@ public class EventController {
     }
 
     @Operation(
-            summary = "Получение всех событий ы которых пользователь принимает участие по его id"
+            summary = "Retrieving a list of Events by participant id"
     )
     @GetMapping("/participant/{participantId}")
     public List<EventDto> getParticipatedEvents(@PathVariable long participantId) {
