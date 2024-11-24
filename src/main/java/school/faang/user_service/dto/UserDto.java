@@ -1,4 +1,4 @@
-package school.faang.user_service.dto.user;
+package school.faang.user_service.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
