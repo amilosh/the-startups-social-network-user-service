@@ -10,9 +10,11 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.exception.DataValidationException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
 @ExtendWith(MockitoExtension.class)
 public class ValidationControllerTest {
@@ -56,6 +58,16 @@ public class ValidationControllerTest {
     public void testValidateNumberListIds2() {
         List<Long> ids = List.of(1L, -1L);
         assertThrows(DataValidationException.class,
+                () -> validationController.validateListIdsCorrect(ids),
+                "Incorrect id");
+    }
+
+    @Test
+    public void testValidateListIdsWithNullValue() {
+        List<Long> ids = new ArrayList<>();
+        ids.add(1L);
+        ids.add(null);
+        assertThrowsExactly(DataValidationException.class,
                 () -> validationController.validateListIdsCorrect(ids),
                 "Incorrect id");
     }

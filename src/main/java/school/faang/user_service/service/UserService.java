@@ -19,7 +19,7 @@ public class UserService {
 
     public UserDto getUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(
-                () -> new DataValidationException("User is null"));
+                () -> new DataValidationException("User by ID is not found"));
         return userMapper.toDto(user);
     }
 
