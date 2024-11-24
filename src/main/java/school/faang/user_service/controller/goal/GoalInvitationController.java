@@ -75,7 +75,7 @@ public class GoalInvitationController {
     )
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<GoalInvitationDto> getInvitations(@Valid @RequestBody InvitationFilterDto filter) {
+    public List<GoalInvitationDto> getInvitations(@Valid @ModelAttribute InvitationFilterDto filter) {
         return goalInvitationService.getInvitationsByFilter(filter);
     }
 }
