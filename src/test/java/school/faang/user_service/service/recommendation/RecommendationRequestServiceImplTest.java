@@ -16,7 +16,7 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.entity.SkillRequest;
 import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.SkillService;

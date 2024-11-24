@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.event.EventDto;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.service.event.EventParticipationService;
 

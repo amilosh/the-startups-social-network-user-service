@@ -1,6 +1,7 @@
-package school.faang.user_service.dto.recommendation;
+package school.faang.user_service.dto.user;
 
 import lombok.Data;
+import school.faang.user_service.dto.skill.SkillDto;
 
 @Data
 public class UserSkillGuaranteeDto {

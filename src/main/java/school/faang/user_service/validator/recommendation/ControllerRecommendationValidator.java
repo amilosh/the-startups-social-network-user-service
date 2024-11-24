@@ -3,7 +3,7 @@ package school.faang.user_service.validator.recommendation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.exeption.DataValidationException;
+import school.faang.user_service.exception.DataValidationException;
 
 @Slf4j
 @Component

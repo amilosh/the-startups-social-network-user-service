@@ -151,7 +151,7 @@ tasks.jacocoTestCoverageVerification {
             )
             enabled = true
             limit {
-                minimum = 0.7.toBigDecimal()
+               minimum = 0.7.toBigDecimal()
             }
         }
     }
