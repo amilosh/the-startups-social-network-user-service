@@ -17,7 +17,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    public UserDto getUser(long userId) {
+    public UserDto getUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new DataValidationException("User is null"));
         return userMapper.toDto(user);
