@@ -1,5 +1,6 @@
 package school.faang.user_service.service.user;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,6 +11,8 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
 import org.springframework.test.util.ReflectionTestUtils;
+import school.faang.user_service.dto.PaymentDto;
+import school.faang.user_service.dto.event.PremiumBoughtEvent;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.event.ProfileViewEvent;
 import school.faang.user_service.dto.user.UserDto;
@@ -19,12 +22,14 @@ import school.faang.user_service.entity.contact.ContactPreference;
 import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.publisher.MessagePublisher;
+import school.faang.user_service.publisher.PremiumBoughtEventPublisher;
+import school.faang.user_service.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.image.AvatarSize;
 import school.faang.user_service.service.image.BufferedImagesHolder;
 import school.faang.user_service.service.image.ImageProcessor;
 import school.faang.user_service.service.s3.S3Service;
+
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -57,11 +62,13 @@ public class UserServiceImplTest {
     private BufferedImagesHolder bufferedImagesHolder;
     private BufferedImage bufferedImage;
 
-    @InjectMocks
     private UserServiceImpl service;
 
     @Mock
     private UserRepository repository;
+
+    @Mock
+    private PremiumBoughtEventPublisher premiumBoughtEventPublisher;
 
     @Mock
     private S3Service s3Service;
@@ -74,10 +81,26 @@ public class UserServiceImplTest {
     private UserMapper mapper = Mappers.getMapper(UserMapper.class);
 
     @Mock
-    private MessagePublisher<ProfileViewEvent> profileViewEventPublisher;
+    private ProfileViewEventPublisher profileViewEventPublisher;
 
     @Mock
     private UserContext userContext;
+
+    @BeforeEach
+    public void setup() {
+        service = new UserServiceImpl(
+            repository,
+            null,
+            mapper,
+            imageProcessor,
+            s3Service,
+            null,
+            null,
+            profileViewEventPublisher,
+            userContext,
+            premiumBoughtEventPublisher
+        );
+    }
 
     @Test
     public void getUser_Success() {
@@ -240,6 +263,13 @@ public class UserServiceImplTest {
         when(repository.findById(anyLong())).thenReturn(Optional.of(user));
 
         assertThrows(EntityNotFoundException.class, () -> service.deleteUserAvatar(user.getId()));
+    }
+
+    @Test
+    public void testBuyPremium() {
+        // Act and Assert
+        service.buyPremium(new PaymentDto(1, 1.0, 1));
+        verify(premiumBoughtEventPublisher, times(1)).publish(any(PremiumBoughtEvent.class));
     }
 
     @Test
