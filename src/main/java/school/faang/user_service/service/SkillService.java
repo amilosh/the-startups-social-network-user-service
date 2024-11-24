@@ -84,4 +84,12 @@ public class SkillService {
     public boolean existsById(long id) {
         return skillRepository.existsById(id);
     }
+
+    public void assignSkillToUser(long skillId, long receiverId) {
+        skillRepository.assignSkillToUser(skillId, receiverId);
+    }
+
+    public int countExisting(List<Long> ids){
+        return skillRepository.countExisting(ids);
+    }
 }
