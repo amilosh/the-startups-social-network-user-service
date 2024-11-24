@@ -11,6 +11,7 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
+import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.skill.SkillRepository;
 import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.recommendation.RecommendationService;
@@ -28,6 +29,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 public class ServiceRecommendationValidatorTest {
@@ -52,6 +54,9 @@ public class ServiceRecommendationValidatorTest {
 
     @Mock
     private SkillOfferService skillOfferService;
+
+    @Mock
+    private RecommendationRepository recommendationRepository;
 
     @InjectMocks
     ServiceRecommendationValidator serviceRecommendationValidator;
@@ -168,5 +173,17 @@ public class ServiceRecommendationValidatorTest {
     @Test
     public void testPreparingBeforeDelete_Exist() {
         serviceRecommendationValidator.preparingBeforeDelete(recommendationDto);
+    }
+
+    @Test
+    public void testCheckingThePeriodOfFasting(){
+        when(recommendationRepository.findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(1L, 2L))
+                .thenReturn(Optional.empty());
+
+        serviceRecommendationValidator.checkingThePeriodOfFasting(1L, 2L);
+
+        verify(recommendationRepository).findFirstByAuthorIdAndReceiverIdOrderByCreatedAtDesc(1L, 2L);
+
+        verifyNoInteractions(recommendationMapper);
     }
 }
