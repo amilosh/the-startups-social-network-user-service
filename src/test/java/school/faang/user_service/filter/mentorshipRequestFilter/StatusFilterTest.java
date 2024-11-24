@@ -7,12 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class StatusSetUpFilterTest extends SetUpFilterTest {
+class StatusFilterTest extends SetUpFilterTest {
     private StatusFilter statusFilter;
 
     @BeforeEach
     void setUp() {
-        super.setUp(); // вызывает инициализацию из BaseFilterTest
+        super.setUp();
         statusFilter = new StatusFilter();
     }
 
