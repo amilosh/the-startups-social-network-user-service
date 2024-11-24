@@ -11,7 +11,7 @@ import school.faang.user_service.exeption.DataValidationException;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.service.skill.SkillService;
+import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.skill_offer.SkillOfferService;
 import school.faang.user_service.service.user_skill_guarantee.UserSkillGuaranteeService;
 

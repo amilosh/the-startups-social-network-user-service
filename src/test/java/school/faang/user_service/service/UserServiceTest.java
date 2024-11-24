@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.user.UserMapperImpl;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.Optional;
@@ -32,7 +32,7 @@ public class UserServiceTest {
     private UserRepository userRepository;
 
     @Spy
-    private UserMapperImpl userMapper;
+    private UserMapper userMapper;
 
     private long userId;
 
