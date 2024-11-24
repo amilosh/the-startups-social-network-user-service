@@ -51,7 +51,7 @@ public class UserController {
         return userService.getUsersByIds(ids);
     }
 
-    @PutMapping("/{userId}/avatar")
+    @PostMapping("/{userId}/avatar")
     public String addAvatar(@PathVariable long userId, @RequestParam("file") MultipartFile file) {
         return userService.addAvatar(userId, file);
     }
