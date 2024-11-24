@@ -31,7 +31,7 @@ public class PremiumService {
         long userId = userContext.getUserId();
 
         if (premiumRepository.existsByUserId(userId)) {
-            throw new IllegalStateException(String.format("user %s already buy premium period %s", userId, premiumPeriod));
+            throw new IllegalStateException(String.format("user %s already buy premium", userId));
         }
 
         PaymentRequest paymentRequest = new PaymentRequest(
@@ -53,6 +53,7 @@ public class PremiumService {
             newPremium.setUser(userService.getUserById(userId));
             newPremium.setStartDate(LocalDateTime.now());
             newPremium.setEndDate(LocalDateTime.now().plusDays(premiumPeriod.getDays()));
+            newPremium.setPremiumPeriod(premiumPeriod);
             newPremium.setActive(true);
 
             return premiumMapper.toDto(premiumRepository.save(newPremium));
