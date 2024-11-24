@@ -45,7 +45,7 @@ public class EventControllerTest {
 
 
     @Spy
-    private EventMapper eventMapper = Mappers.getMapper(EventMapperImpl.class);
+    private EventMapperImpl eventMapper ;
 
 
     EventDto eventDto;
