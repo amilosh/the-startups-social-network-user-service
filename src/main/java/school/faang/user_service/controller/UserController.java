@@ -31,7 +31,7 @@ public class UserController {
         return userService.getUsersByIds(ids);
     }
 
-    @PutMapping
+    @PutMapping("/deactivate")
     public UserDto deactivateUser() {
         return userService.deactivateUser();
     }
