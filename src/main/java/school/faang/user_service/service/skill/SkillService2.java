@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class SkillService {
+public class SkillService2 {
     private final SkillRepository skillRepository;
 
     public void assignSkillToUser(long skillId, long receiverId) {

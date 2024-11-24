@@ -11,7 +11,7 @@ import school.faang.user_service.exeption.DataValidationException;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
-import school.faang.user_service.service.skill.SkillService;
+import school.faang.user_service.service.skill.SkillService2;
 import school.faang.user_service.service.skill_offer.SkillOfferService;
 import school.faang.user_service.service.user_skill_guarantee.UserSkillGuaranteeService;
 
@@ -25,7 +25,7 @@ import static java.lang.Math.abs;
 @Component
 @RequiredArgsConstructor
 public class ServiceRecommendationValidator {
-    private final SkillService skillService;
+    private final SkillService2 skillService2;
     private final SkillOfferService skillOfferService;
     private final RecommendationMapper recommendationMapper;
     private final RecommendationRepository recommendationRepository;
@@ -48,7 +48,7 @@ public class ServiceRecommendationValidator {
 
     public void checkingTheSkillsOfRecommendation(List<SkillOfferDto> skills) {
         skills.forEach(skillOfferDto -> {
-            int skillsAvailableInDB = skillService.countExisting(skillOfferDto.getSkillsId());
+            int skillsAvailableInDB = skillService2.countExisting(skillOfferDto.getSkillsId());
             if (skillsAvailableInDB != skillOfferDto.getSkillsId().size()) {
                 throw new DataValidationException("These skills do not meet the conditions");
             }
@@ -64,9 +64,9 @@ public class ServiceRecommendationValidator {
         for (SkillOfferDto skillOfferDto : recommendationDto.getSkillOffers()) {
             for (Long skillId : skillOfferDto.getSkillsId()) {
                 skillOfferService.create(skillId, recommendationDto.getId());
-                Optional<Skill> skill = skillService.findUserSkill(skillId, receiverId);
+                Optional<Skill> skill = skillService2.findUserSkill(skillId, receiverId);
                 if (skill.isEmpty()) {
-                    skillService.assignSkillToUser(skillId, receiverId);
+                    skillService2.assignSkillToUser(skillId, receiverId);
                 } else {
                     guaranteeExist = userSkillGuaranteeService.existsByUserIdAndSkillId(authorId, skillId);
                     if (guaranteeExist) {

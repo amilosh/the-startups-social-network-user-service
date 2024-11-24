@@ -13,7 +13,7 @@ import school.faang.user_service.exeption.DataValidationException;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.service.recommendation.RecommendationService;
-import school.faang.user_service.service.skill.SkillService;
+import school.faang.user_service.service.skill.SkillService2;
 import school.faang.user_service.service.skill_offer.SkillOfferService;
 import school.faang.user_service.service.user_skill_guarantee.UserSkillGuaranteeService;
 import school.faang.user_service.validator.recommendation.ServiceRecommendationValidator;
@@ -46,7 +46,7 @@ public class ServiceRecommendationValidatorTest {
     private RecommendationMapper recommendationMapper;
 
     @Mock
-    private SkillService skillService;
+    private SkillService2 skillService2;
 
     @Mock
     private SkillOfferDto skillOfferDto;
@@ -96,8 +96,8 @@ public class ServiceRecommendationValidatorTest {
                 new SkillOfferDto(8L, List.of(3L, 4L, 5L))
         );
 
-        when(skillService.countExisting(List.of(1L, 2L))).thenReturn(2);
-        when(skillService.countExisting(List.of(3L, 4L, 5L))).thenReturn(3);
+        when(skillService2.countExisting(List.of(1L, 2L))).thenReturn(2);
+        when(skillService2.countExisting(List.of(3L, 4L, 5L))).thenReturn(3);
 
         serviceRecommendationValidator.checkingTheSkillsOfRecommendation(skills);
     }
@@ -109,11 +109,11 @@ public class ServiceRecommendationValidatorTest {
         SkillOfferDto skillOfferDto = new SkillOfferDto(1L, List.of(skillId));
         recommendationDto.setSkillOffers(List.of(skillOfferDto));
 
-        when(skillService.findUserSkill(skillId, receiverId)).thenReturn(Optional.empty());
+        when(skillService2.findUserSkill(skillId, receiverId)).thenReturn(Optional.empty());
 
         serviceRecommendationValidator.checkingTheUserSkills(recommendationDto);
 
-        verify(skillService).assignSkillToUser(skillId, receiverId);
+        verify(skillService2).assignSkillToUser(skillId, receiverId);
 
         verify(userSkillGuaranteeService, never()).createGuarantee(anyLong(), anyLong());
     }
@@ -126,7 +126,7 @@ public class ServiceRecommendationValidatorTest {
         recommendationDto.setSkillOffers(List.of(skillOfferDto));
 
 
-        when(skillService.findUserSkill(skillId, receiverId)).thenReturn(Optional.of(mock(Skill.class)));
+        when(skillService2.findUserSkill(skillId, receiverId)).thenReturn(Optional.of(mock(Skill.class)));
         when(userSkillGuaranteeService.existsByUserIdAndSkillId(authorId, skillId)).thenReturn(false);
 
         serviceRecommendationValidator.checkingTheUserSkills(recommendationDto);
@@ -134,7 +134,7 @@ public class ServiceRecommendationValidatorTest {
 
         verify(userSkillGuaranteeService).createGuarantee(authorId, skillId);
 
-        verify(skillService, never()).assignSkillToUser(skillId, receiverId);
+        verify(skillService2, never()).assignSkillToUser(skillId, receiverId);
     }
 
     @Test
@@ -145,12 +145,12 @@ public class ServiceRecommendationValidatorTest {
         recommendationDto.setSkillOffers(List.of(skillOfferDto));
         skillOfferDto.setSkillsId(List.of(skillId));
 
-        when(skillService.findUserSkill(skillId, receiverId)).thenReturn(Optional.of(mock(Skill.class)));
+        when(skillService2.findUserSkill(skillId, receiverId)).thenReturn(Optional.of(mock(Skill.class)));
         when(userSkillGuaranteeService.existsByUserIdAndSkillId(authorId, skillId)).thenReturn(true);
 
         serviceRecommendationValidator.checkingTheUserSkills(recommendationDto);
 
-        verify(skillService, never()).assignSkillToUser(skillId, receiverId);
+        verify(skillService2, never()).assignSkillToUser(skillId, receiverId);
 
         verify(userSkillGuaranteeService, never()).createGuarantee(authorId, skillId);
     }

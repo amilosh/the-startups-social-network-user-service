@@ -7,7 +7,7 @@ import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.SkillMapper;
+import school.faang.user_service.mapper.skill.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.validator.SkillValidator;
@@ -29,15 +29,15 @@ public class SkillService {
     public SkillDto create(SkillDto skillDto) {
         skillValidator.validateExistTitle(skillDto.getTitle());
 
-        Skill skill = skillRepository.save(skillMapper.dtoToEntity(skillDto));
-        return skillMapper.entityToDto(skill);
+        Skill skill = skillRepository.save(skillMapper.toEntity(skillDto));
+        return skillMapper.toDto(skill);
     }
 
     public List<SkillDto> getUserSkills(long userId) {
         List<Skill> skills = skillRepository.findAllByUserId(userId);
 
         return skills.stream()
-                .map(skillMapper::entityToDto)
+                .map(skillMapper::toDto)
                 .toList();
     }
 
@@ -45,7 +45,7 @@ public class SkillService {
         List<Skill> skills = skillRepository.findSkillsOfferedToUser(userId);
 
         return skills.stream()
-                .collect(Collectors.groupingBy(skillMapper::entityToDto, Collectors.counting()))
+                .collect(Collectors.groupingBy(skillMapper::toDto, Collectors.counting()))
                 .entrySet().stream()
                 .map(entry -> new SkillCandidateDto(entry.getKey(), entry.getValue()))
                 .toList();
@@ -57,7 +57,7 @@ public class SkillService {
 
         skillRepository.assignSkillToUser(skillId, userId);
         Optional<Skill> skill = skillRepository.findUserSkill(skillId, userId);
-        return skill.map(skillMapper::entityToDto)
+        return skill.map(skillMapper::toDto)
                 .orElseThrow(() -> new DataValidationException("Скилл не найден"));
     }
 

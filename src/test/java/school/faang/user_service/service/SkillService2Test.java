@@ -8,7 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.SkillMapperImpl;
+import school.faang.user_service.mapper.skill.SkillMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.validator.SkillValidator;
 
@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class SkillServiceTest {
+public class SkillService2Test {
     private final static int SKILL_ID = 1;
     private final static int USER_ID = 1;
 
@@ -56,7 +56,7 @@ public class SkillServiceTest {
 
         skillService.create(skillDto);
 
-        verify(skillRepository, times(1)).save(skillMapper.dtoToEntity(skillDto));
+        verify(skillRepository, times(1)).save(skillMapper.toEntity(skillDto));
     }
 
     @Test
@@ -95,7 +95,7 @@ public class SkillServiceTest {
         doNothing().when(skillValidator).validateUserSkillExist(SKILL_ID, USER_ID);
         doNothing().when(skillValidator).validateSkillOfferCount(SKILL_ID, USER_ID);
         when(skillRepository.findUserSkill(SKILL_ID, USER_ID)).thenReturn(Optional.of(new Skill()));
-        when(skillMapper.entityToDto(skill)).thenReturn(new SkillDto());
+        when(skillMapper.toDto(skill)).thenReturn(new SkillDto());
 
         skillService.acquireSkillFromOffers(SKILL_ID, USER_ID);
 
