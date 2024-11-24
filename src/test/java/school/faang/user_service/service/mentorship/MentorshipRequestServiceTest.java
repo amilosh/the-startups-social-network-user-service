@@ -5,14 +5,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.MentorshipRequestDto;
-import school.faang.user_service.dto.MentorshipRequestFilterDto;
-import school.faang.user_service.dto.RejectionDto;
+import school.faang.user_service.dto.mentorshipRequest.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorshipRequest.MentorshipRequestFilterDto;
+import school.faang.user_service.dto.mentorshipRequest.RejectionDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.filter.MentorshipRequestFilter;
-import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.mapper.MentorshipRequestMapperImpl;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.service.MentorshipRequestService;
 import school.faang.user_service.service.UserService;
@@ -24,6 +25,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,8 +38,8 @@ public class MentorshipRequestServiceTest {
     @Mock
     private MentorshipRequestRepository mentorshipRequestRepository;
 
-    @Mock
-    private MentorshipRequestMapper mentorshipRequestMapper;
+    @Spy
+    private MentorshipRequestMapperImpl mentorshipRequestMapper;
 
     @Mock
     private List<MentorshipRequestFilter> mentorshipRequestFilters;
@@ -62,11 +64,7 @@ public class MentorshipRequestServiceTest {
                 .thenReturn(Optional.of(new MentorshipRequest()));
 
         mentorshipRequestService.createRequestMentorship(dto);
-        verify(mentorshipRequestRepository).create(
-                dto.getRequesterUserId(),
-                dto.getReceiverUserId(),
-                dto.getDescription()
-        );
+        verify(mentorshipRequestRepository).save(any());
     }
 
 
@@ -80,22 +78,9 @@ public class MentorshipRequestServiceTest {
                 .thenReturn(expected);
 
         MentorshipRequest result = mentorshipRequestService
-                .findLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId());
+                .getLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId()).get();
 
         assertEquals(expected.get(), result);
-    }
-
-    @Test
-    public void testNotFoundLastRequest() {
-        MentorshipRequestDto dto = prepareMentorshipRequestDto(1L, 2L, "description");
-        Optional<MentorshipRequest> expected = Optional.empty();
-
-        when(mentorshipRequestRepository
-                .findLatestRequest(dto.getRequesterUserId(), dto.getReceiverUserId()))
-                .thenReturn(expected);
-
-        assertThrows(EntityNotFoundException.class,
-                () -> mentorshipRequestService.findLatestRequest(1L, 2L));
     }
 
     @Test

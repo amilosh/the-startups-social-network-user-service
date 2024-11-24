@@ -1,16 +1,15 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.validator.MentorshipServiceValidator;
 
 import java.util.List;
-import java.util.stream.Collectors;
-
 
 @RequiredArgsConstructor
 @Service
@@ -23,11 +22,11 @@ public class MentorshipService {
 
         User user = getUser(userId);
         List<User> mentees = user.getMentees();
-
         MentorshipServiceValidator.testEmptyValue(mentees);
+
         return mentees.stream()
                 .map(userMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<UserDto> getMentors(long userId) {
@@ -39,7 +38,7 @@ public class MentorshipService {
         MentorshipServiceValidator.testEmptyValue(mentors);
         return mentors.stream()
                 .map(userMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public void deleteMentee(long menteeId, long mentorId) {
@@ -65,6 +64,6 @@ public class MentorshipService {
 
     private User getUser(long userId) {
         return userRepository.findById(userId).orElseThrow(
-                () -> new IllegalArgumentException("Такого пользователя не существует"));
+                () -> new EntityNotFoundException("Такого пользователя не существует"));
     }
 }

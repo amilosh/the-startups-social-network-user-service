@@ -3,6 +3,7 @@ package school.faang.user_service.dto.user;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -19,7 +20,7 @@ public class UserDto {
     @Schema(description = "Опыт пользователя", example = "123")
     private Integer experience;
     @Schema(description = "Время создания", example = "2023-03-15T10:30:45.123")
-    private String createdAt;
+    private LocalDateTime createdAt;
     @Schema(description = "Подписки", example = "[101, 102, 103, 104, 105]")
     private List<Long> followersIds;
     @Schema(description = "Подписчики", example = "[101, 102, 103, 104, 105]")
@@ -32,5 +33,4 @@ public class UserDto {
     private List<Long> goalsIds;
     @Schema(description = "Навыки", example = "[101, 102, 103, 104, 105]")
     private List<Long> skillsIds;
-
 }

@@ -15,6 +15,7 @@ import school.faang.user_service.repository.recommendation.RecommendationReposit
 import school.faang.user_service.repository.skill.SkillRepository;
 import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.recommendation.RecommendationService;
+import school.faang.user_service.service.SkillService;
 import school.faang.user_service.service.skill_offer.SkillOfferService;
 import school.faang.user_service.service.user_skill_guarantee.UserSkillGuaranteeService;
 import school.faang.user_service.validator.recommendation.ServiceRecommendationValidator;
