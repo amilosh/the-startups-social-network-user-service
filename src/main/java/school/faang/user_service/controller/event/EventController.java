@@ -4,10 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -16,96 +13,100 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.service.event.EventService;
 
 import java.util.List;
 
-@Validated
+@RequestMapping("api/v1/events")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/events")
-@Tag(name = "Event Controller", description = "Controller for managing events")
-@ApiResponse(responseCode = "200", description = "Event retrieved successfully")
-@ApiResponse(responseCode = "201", description = "Event created successfully")
-@ApiResponse(responseCode = "204", description = "Event deleted successfully")
-@ApiResponse(responseCode = "400", description = "Invalid request body")
-@ApiResponse(responseCode = "404", description = "Event not found")
-@ApiResponse(responseCode = "500", description = "Server error")
+@Tag(name = "Event Controller", description = "Controller for Event Operations")
+@ApiResponse(description = "Success", responseCode = "200")
+@ApiResponse(description = "Client Error", responseCode = "400")
+@ApiResponse(description = "Server Error", responseCode = "500")
 public class EventController {
 
     private final EventService eventService;
 
     @Operation(
-            summary = "Create an event",
-            description = "Create a new event with the provided details"
+            summary = "Event Creation with eventDto"
     )
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping()
     public EventDto create(@Valid @RequestBody EventDto event) {
+        validateByTitleOwnerIdStartDate(event);
         return eventService.create(event);
     }
 
     @Operation(
-            summary = "Get an event by ID",
-            description = "Retrieve details of an event using its ID"
+            summary = "Retrieving events by id"
     )
-    @GetMapping("/{eventId}")
-    @ResponseStatus(HttpStatus.OK)
-    public EventDto get(@PathVariable @NotNull(message = "Event ID should not be null") Long eventId) {
+    @GetMapping()
+    public EventDto get(@RequestParam long eventId) {
         return eventService.get(eventId);
     }
 
     @Operation(
-            summary = "Get events by filter",
-            description = "Retrieve a list of events based on the specified filter criteria"
+            summary = "Retrieving a list of events by filter",
+            description = "Possible filters: " +
+                    "time frame, " +
+                    "location, " +
+                    "maxAttendees, " +
+                    "Event Owner Name, " +
+                    "relatedSkills, " +
+                    "titlePattern"
     )
-    @GetMapping
-    @ResponseStatus(HttpStatus.OK)
+    @GetMapping("/filter")
     public List<EventDto> getByFilter(@Valid @ModelAttribute EventFilterDto filter) {
         return eventService.getByFilter(filter);
     }
 
     @Operation(
-            summary = "Delete an event",
-            description = "Delete an event using its ID"
+            summary = "Event Deletion by id"
     )
     @DeleteMapping("/{eventId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable @NotNull(message = "Event ID should not be null") Long eventId) {
+    public void delete(@PathVariable long eventId) {
         eventService.delete(eventId);
     }
 
     @Operation(
-            summary = "Update an event",
-            description = "Update an existing event with new details"
+            summary = "Updating event with EventDto"
     )
-    @PutMapping
-    @ResponseStatus(HttpStatus.OK)
+    @PutMapping()
     public EventDto update(@Valid @RequestBody EventDto event) {
+        validateByTitleOwnerIdStartDate(event);
         return eventService.update(event);
     }
 
     @Operation(
-            summary = "Get user's owned events",
-            description = "Retrieve a list of events owned by a specific user"
+            summary = "Retrieving a list of Events by owner id"
     )
-    @GetMapping("/users/{userId}/owned-events")
-    @ResponseStatus(HttpStatus.OK)
-    public List<EventDto> getOwnedEvents(@PathVariable @NotNull(message = "User ID should not be null") Long userId) {
-        return eventService.getOwnedEvents(userId);
+    @GetMapping("/owner/{ownerId}")
+    public List<EventDto> getOwnedEvents(@PathVariable long ownerId) {
+        return eventService.getOwnedEvents(ownerId);
     }
 
     @Operation(
-            summary = "Get user's participated events",
-            description = "Retrieve a list of events the user has participated in"
+            summary = "Retrieving a list of Events by participant id"
     )
-    @GetMapping("/users/{userId}/participated-events")
-    @ResponseStatus(HttpStatus.OK)
-    public List<EventDto> getParticipatedEvents(@PathVariable @NotNull(message = "User ID should not be null") Long userId) {
-        return eventService.getParticipatedEvents(userId);
+    @GetMapping("/participant/{participantId}")
+    public List<EventDto> getParticipatedEvents(@PathVariable long participantId) {
+        return eventService.getParticipatedEvents(participantId);
+    }
+
+    private void validateByTitleOwnerIdStartDate(EventDto event) {
+        if (event.getTitle() == null || event.getTitle().trim().isEmpty()) {
+            throw new DataValidationException("Event name is required!");
+        }
+        if (event.getOwnerId() == null) {
+            throw new DataValidationException("Event owner id is required");
+        }
+        if (event.getStartDate() == null) {
+            throw new DataValidationException("Event start date is required");
+        }
     }
 }
