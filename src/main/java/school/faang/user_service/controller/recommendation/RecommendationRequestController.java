@@ -1,34 +1,45 @@
 package school.faang.user_service.controller.recommendation;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.RejectionDto;
+import school.faang.user_service.dto.RequestFilterDto;
 import school.faang.user_service.service.RecommendationRequestService;
 
+import java.util.List;
+
 @Component
+@RequiredArgsConstructor
 public class RecommendationRequestController {
     private final RecommendationRequestService recommendationRequestService;
 
     public RecommendationRequestDto requestRecommendation(
-            RecommendationRequestDto recRequest) {
-        if (validateRequest(recRequest)) {
-            long createdRequestId = recommendationRequestService.create(recRequest);
-            recRequest.setId(createdRequestId);
-        }
-        return recRequest;
+            RecommendationRequestDto recRequestDto) {
+        validateRequest(recRequestDto);
+        return recommendationRequestService.create(recRequestDto);
     }
 
-    private boolean validateRequest(RecommendationRequestDto recommendationRequest) {
-        String message = recommendationRequest.getMessage();
-        if (message == null || message.isEmpty()) {
-            return false;
-        }
-        return true;
+    public List<RecommendationRequestDto> getRecommendationRequests(RequestFilterDto filter) {
+        return recommendationRequestService.getRequests(filter);
     }
 
-    @Autowired
-    public RecommendationRequestController(
-            RecommendationRequestService recommendationRequestService) {
-        this.recommendationRequestService = recommendationRequestService;
+    public RecommendationRequestDto getRecommendationRequest(Long requestId) {
+        return recommendationRequestService.getRequest(requestId);
+    }
+
+    public RecommendationRequestDto rejectRequest(long id, RejectionDto rejectionDto) {
+        if (rejectionDto.getReason() == null || rejectionDto.getReason().isBlank()) {
+            throw new IllegalArgumentException("Rejection reason not found");
+        }
+
+        return recommendationRequestService.rejectRequest(id, rejectionDto);
+    }
+
+    public void validateRequest(RecommendationRequestDto recRequest) {
+        String message = recRequest.getMessage();
+        if (message == null || message.isBlank()) {
+            throw new IllegalArgumentException("Request message must not be empty");
+        }
     }
 }
