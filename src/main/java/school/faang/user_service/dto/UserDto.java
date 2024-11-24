@@ -2,6 +2,7 @@ package school.faang.user_service.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
