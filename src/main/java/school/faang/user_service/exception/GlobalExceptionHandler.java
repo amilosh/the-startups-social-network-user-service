@@ -10,7 +10,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import school.faang.user_service.exception.skill.SkillDuplicateException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,12 +20,11 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(SkillDuplicateException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<String> handleSkillDuplicateException(SkillDuplicateException ex) {
-        return ResponseEntity
-            .status(HttpStatus.CONFLICT)
-            .body(ex.getMessage());
+        log.error("SkillDuplicateException: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
@@ -35,14 +33,6 @@ public class GlobalExceptionHandler {
             errors.put(error.getField(), error.getDefaultMessage())
         );
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<String> handleAllOtherExceptions(Exception ex) {
-        return ResponseEntity
-            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body("Ошибка сервера: " + ex.getMessage());
     }
 
     @ExceptionHandler(SkillNotFoundException.class)
@@ -97,12 +87,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidRequestFilterException.class)
     public ResponseEntity<String> handleInvalidRequestFilterException(InvalidRequestFilterException ex) {
         log.error("InvalidRequestFilterException: {}", ex.getMessage(), ex);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-    @ExceptionHandler(SkillDuplicateException.class)
-    public ResponseEntity<String> handleSkillDuplicateException(SkillDuplicateException ex) {
-        log.error("SkillDuplicateException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 

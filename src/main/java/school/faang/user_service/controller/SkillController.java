@@ -2,18 +2,21 @@ package school.faang.user_service.controller;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.skill.SkillAcquireDto;
-import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
-import school.faang.user_service.service.skill.SkillService;
+import school.faang.user_service.service.SkillService;
 
 import java.util.List;
 
@@ -25,23 +28,23 @@ import java.util.List;
 public class SkillController {
     private final SkillService skillService;
 
-    @PostMapping("/create")
-    public SkillDto create(@Valid @RequestBody SkillDto skillDto) throws Exception {
-        return skillService.create(skillDto);
+    @PostMapping
+    public ResponseEntity<SkillDto> create(@Valid @RequestBody SkillDto skillDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(skillService.create(skillDto));
     }
 
-    @GetMapping("/user/{userId}")
-    public List<SkillDto> getUserSkills(@PathVariable @Min(1) Long userId) throws Exception {
-        return skillService.getUserSkills(userId);
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<List<SkillDto>> getUserSkills(@PathVariable @Positive Long userId) {
+        return ResponseEntity.status(HttpStatus.OK).body(skillService.getUserSkills(userId));
     }
 
-    @PostMapping("/offered-skills")
-    public SkillCandidateDto getOfferedSkills(@Valid @RequestBody SkillCandidateDto skillCandidateDto) throws Exception {
-        return skillService.getOfferedSkills(skillCandidateDto);
+    @GetMapping("/offered-skills")
+    public ResponseEntity<List<SkillDto>> getOfferedSkills(@RequestParam("userId") Long userId) {
+        return ResponseEntity.ok(skillService.getOfferedSkills(userId));
     }
 
     @PostMapping("/acquire-skill-from-offers")
-    public SkillDto acquireSkillFromOffers(@Valid @RequestBody SkillAcquireDto skillAcquireDto) throws Exception {
-        return skillService.acquireSkillFromOffers(skillAcquireDto);
+    public SkillDto acquireSkillFromOffers(@PathVariable @Positive Long skillId, @PathVariable @Positive Long userId) {
+        return skillService.acquireSkillFromOffers(skillId, userId);
     }
 }
