@@ -25,8 +25,6 @@ public class DataSyncService {
     private final JedisPool jedisPool;
     private final EntityManager entityManager;
 
-    private static final int PREMIUM_SCORE = 100;
-
     @Scheduled(cron = "0 0/10 * * * ?")
     @Transactional
     public void syncData() {
@@ -45,7 +43,7 @@ public class DataSyncService {
                             int premiumScore = 0;
 
                             if (user.getPremium() != null && user.getPremium().isActive()) {
-                                premiumScore += PREMIUM_SCORE;
+                                premiumScore += user.getPremium().getPremiumPeriod().getSearchScore();
                             }
                             userDocument.setSearchScore(jedisGetOrDefault(jedis, user.getId(), 0) + premiumScore);
                             return userDocument;

@@ -13,7 +13,7 @@ import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.client.Currency;
 import school.faang.user_service.dto.client.PaymentResponse;
 import school.faang.user_service.dto.client.PaymentStatus;
-import school.faang.user_service.entity.PremiumPeriod;
+import school.faang.user_service.entity.premium.PremiumPeriod;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.PremiumMapperImpl;
 import school.faang.user_service.repository.premium.PremiumRepository;

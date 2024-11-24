@@ -10,7 +10,7 @@ import school.faang.user_service.dto.PremiumDto;
 import school.faang.user_service.dto.client.PaymentRequest;
 import school.faang.user_service.dto.client.PaymentResponse;
 import school.faang.user_service.dto.client.PaymentStatus;
-import school.faang.user_service.entity.PremiumPeriod;
+import school.faang.user_service.entity.premium.PremiumPeriod;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.mapper.PremiumMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
