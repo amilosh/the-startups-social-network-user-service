@@ -2,7 +2,7 @@ package school.faang.user_service.service.skill_offer;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.repository.recommendation.SkillOfferRepository;
+import school.faang.user_service.repository.SkillOfferRepository;
 
 @Service
 @RequiredArgsConstructor

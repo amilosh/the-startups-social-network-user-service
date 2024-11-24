@@ -9,7 +9,7 @@ import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapperImpl;
-import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.skill.SkillRepository;
 import school.faang.user_service.validator.SkillValidator;
 
 import java.util.List;

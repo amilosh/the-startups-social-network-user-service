@@ -8,8 +8,8 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
-import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.recommendation.SkillRequestRepository;
+import school.faang.user_service.repository.skill.SkillRepository;
+import school.faang.user_service.repository.skill.SkillRequestRepository;
 import school.faang.user_service.validator.SkillValidator;
 
 import java.util.List;
@@ -75,5 +75,13 @@ public class SkillService {
 
     public boolean existsById(long id) {
         return skillRepository.existsById(id);
+    }
+
+    public void assignSkillToUser(long skillId, long receiverId) {
+        skillRepository.assignSkillToUser(skillId, receiverId);
+    }
+
+    public int countExisting(List<Long> ids) {
+        return skillRepository.countExisting(ids);
     }
 }

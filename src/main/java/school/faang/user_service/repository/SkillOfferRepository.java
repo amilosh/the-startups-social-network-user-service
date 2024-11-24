@@ -1,4 +1,4 @@
-package school.faang.user_service.repository.recommendation;
+package school.faang.user_service.repository;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
