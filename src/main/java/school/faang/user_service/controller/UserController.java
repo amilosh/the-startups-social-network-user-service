@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.service.UserService;
 
 import java.util.List;
@@ -23,12 +23,12 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{userId}")
-    public UserDto getUser(@Positive @PathVariable long userId) {
+    public UserSubResponseDto getUser(@Positive @PathVariable long userId) {
         return userService.getUserDtoById(userId);
     }
 
     @PostMapping("/get")
-    public List<UserDto> getUsersByIds(@NotEmpty @RequestBody List<@Positive Long> ids) {
+    public List<UserSubResponseDto> getUsersByIds(@NotEmpty @RequestBody List<@Positive Long> ids) {
         return userService.getAllUsersDtoByIds(ids);
     }
 }
