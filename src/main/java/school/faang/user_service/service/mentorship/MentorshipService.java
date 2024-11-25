@@ -58,20 +58,8 @@ public class MentorshipService {
         }
     }
 
-    private User validateId(long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("UserId " + userId + " is not found"));
-    }
-
-    private boolean removeFromListWithResult(List<User> users, User userForDelete) {
-        return users.removeIf(user -> Objects.equals(user.getId(), userForDelete.getId()));
-    }
-
-    private void saveChangesOfUserInDB(User user) {
-        userRepository.save(user);
-    }
-
     public void stopMentorship(User mentor) {
-        if(mentor == null) {
+        if (mentor == null) {
             throw new IllegalArgumentException("Mentor can't be empty");
         }
 
@@ -87,5 +75,17 @@ public class MentorshipService {
                 log.info("Mentorship between mentor ID {} and mentee ID {} stopped", mentor.getId(), mentee.getId());
             });
         }
+    }
+
+    private User validateId(long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("UserId " + userId + " is not found"));
+    }
+
+    private boolean removeFromListWithResult(List<User> users, User userForDelete) {
+        return users.removeIf(user -> Objects.equals(user.getId(), userForDelete.getId()));
+    }
+
+    private void saveChangesOfUserInDB(User user) {
+        userRepository.save(user);
     }
 }

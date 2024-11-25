@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 
@@ -26,7 +27,7 @@ public class InvitationDtoValidator {
     private void validateUserIsNotInvitingSelf(GoalInvitationDto goalInvitationDto) {
         log.info("Check users for matching, inviter: {}, invited: {}", goalInvitationDto.getInvitedUserId(), goalInvitationDto.getInviterId());
         if (goalInvitationDto.getInvitedUserId().equals(goalInvitationDto.getInviterId())) {
-            throw new NullPointerException("Invited user cannot be the same as the inviter.");
+            throw new DataValidationException("Inviter and invited user cannot be the same.");
         }
     }
 

@@ -1,66 +1,102 @@
 package school.faang.user_service.controller.recommendation;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.recommendation.RequestRecommendationDto;
 import school.faang.user_service.dto.recommendation.ResponseRecommendationDto;
-import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.exception.recommendation.ErrorMessage;
 import school.faang.user_service.service.recommendation.RecommendationService;
 
 import java.util.List;
 
 @Validated
 @RestController
-@RequestMapping("/recommendations")
+@RequestMapping("/api/v1/recommendations")
 @RequiredArgsConstructor
+@Tag(name = "Recommendation Controller", description = "Controller for managing recommendations")
+@ApiResponse(responseCode = "201", description = "Recommendation successfully created")
+@ApiResponse(responseCode = "204", description = "Recommendation successfully deleted")
+@ApiResponse(responseCode = "400", description = "Invalid input data")
+@ApiResponse(responseCode = "500", description = "Internal server error")
 public class RecommendationController {
+
     private final RecommendationService recommendationService;
 
-    @PostMapping("/give")
-    public ResponseRecommendationDto giveRecommendation(@RequestBody RequestRecommendationDto requestRecommendationDto) {
-        validateRecommendation(requestRecommendationDto);
+    @Operation(
+            summary = "Create a new recommendation",
+            description = "Create and save a new recommendation in the system."
+    )
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseRecommendationDto giveRecommendation(
+            @Valid @RequestBody RequestRecommendationDto requestRecommendationDto) {
         return recommendationService.create(requestRecommendationDto);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseRecommendationDto updateRecommendation(@PathVariable long id, @RequestBody RequestRecommendationDto updatedRequestRecommendationDto) {
-        validateRecommendation(updatedRequestRecommendationDto);
+    @Operation(
+            summary = "Update an existing recommendation",
+            description = "Update details of an existing recommendation by its ID.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Recommendation successfully updated")
+            }
+    )
+    @PutMapping("{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseRecommendationDto updateRecommendation(
+            @PathVariable @NotNull(message = "Recommendation ID should not be null") Long id,
+            @Valid @RequestBody RequestRecommendationDto updatedRequestRecommendationDto) {
         return recommendationService.update(id, updatedRequestRecommendationDto);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public void deleteRecommendation(@PathVariable Long id) {
+    @Operation(
+            summary = "Delete a recommendation",
+            description = "Delete a recommendation by its ID.",
+            responses = {
+                    @ApiResponse(responseCode = "404", description = "Recommendation not found")
+            }
+    )
+    @DeleteMapping("{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteRecommendation(
+            @PathVariable @NotNull(message = "Recommendation ID should not be null") Long id) {
         recommendationService.delete(id);
     }
 
-    @GetMapping("/user/{receiverId}")
-    public List<ResponseRecommendationDto> getAllUserRecommendations(@PathVariable long receiverId) {
+    @Operation(
+            summary = "Get all received recommendations",
+            description = "Retrieve all recommendations received by a specific user.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Recommendations retrieved successfully"),
+                    @ApiResponse(responseCode = "404", description = "User not found")
+            }
+    )
+    @GetMapping("/received/{receiverId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ResponseRecommendationDto> getAllUserRecommendations(
+            @PathVariable @NotNull(message = "Receiver ID should not be null") Long receiverId) {
         return recommendationService.getAllUserRecommendations(receiverId);
     }
 
-    @GetMapping("/user/{authorId}")
-    public List<ResponseRecommendationDto> getAllGivenRecommendations(@PathVariable long authorId) {
+    @Operation(
+            summary = "Get all given recommendations",
+            description = "Retrieve all recommendations created by a specific user.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Recommendations retrieved successfully"),
+                    @ApiResponse(responseCode = "404", description = "User not found")
+            }
+    )
+    @GetMapping("/given/{authorId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<ResponseRecommendationDto> getAllGivenRecommendations(
+            @PathVariable @NotNull(message = "Author ID should not be null") Long authorId) {
         return recommendationService.getAllGivenRecommendations(authorId);
     }
-
-    private void validateRecommendation(RequestRecommendationDto requestRecommendationDto) {
-        if (requestRecommendationDto.getContent() == null || requestRecommendationDto.getContent().isBlank()) {
-            throw new DataValidationException(ErrorMessage.RECOMMENDATION_CONTENT);
-        }
-        if (requestRecommendationDto.getAuthorId() == null) {
-            throw new DataValidationException(ErrorMessage.RECOMMENDATION_AUTHOR);
-        }
-        if (requestRecommendationDto.getReceiverId() == null) {
-            throw new DataValidationException(ErrorMessage.RECOMMENDATION_RECEIVER);
-        }
-    }
 }
+
+//TODO добавить фильтрДто с двумя полями, объединить два метода запроса в один
