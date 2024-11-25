@@ -3,11 +3,12 @@ package school.faang.user_service.service.avatar;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import school.faang.user_service.exception.DiceBearException;
+import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.properties.DiceBearProperties;
 
 import java.util.Optional;
@@ -28,31 +29,29 @@ public class DiceBearService {
         log.info("Requesting random avatar for user ID: {} with style: {}, format: {}",
                 userId, diceBearProperties.getStyle(), diceBearProperties.getFormat());
 
-        byte[] avatarData = diceBearClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .pathSegment(
-                                diceBearProperties.getVersion(),
-                                diceBearProperties.getStyle(),
-                                diceBearProperties.getFormat())
-                        .queryParam("seed", userId)
-                        .build())
-                .retrieve()
-                .bodyToMono(byte[].class)
-                .blockOptional()
-                .orElseThrow(() -> new DiceBearException("Failed to retrieve avatar"));
+        try {
+            Optional<byte[]> avatarData = diceBearClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .pathSegment(
+                                    diceBearProperties.getVersion(),
+                                    diceBearProperties.getStyle(),
+                                    diceBearProperties.getFormat())
+                            .queryParam("seed", userId)
+                            .build())
+                    .retrieve()
+                    .bodyToMono(byte[].class)
+                    .blockOptional();
 
-        if (avatarData == null || avatarData.length == 0) {
-            log.warn("Received empty avatar content for user ID: {}", userId);
-            return Optional.empty();
+            if (avatarData.isEmpty() || avatarData.get().length == 0) {
+                log.warn("Received empty avatar content for user ID: {}", userId);
+                return Optional.empty();
+            }
+
+            log.info("Successfully retrieved avatar for user ID: {}. Data length: {}", userId, avatarData.get().length);
+            return avatarData;
+        } catch (WebClientResponseException e) {
+            log.error("Error retrieving avatar from DiceBear API, status: {}, user ID: {}", e.getStatusCode(), userId, e);
+            throw new DiceBearException(ErrorMessage.DICE_BEAR_UNEXPECTED_ERROR, e);
         }
-
-        log.info("Successfully retrieved avatar for user ID: {}. Data length: {}", userId, avatarData.length);
-        return Optional.of(avatarData);
-    }
-
-    @Recover
-    public Optional<byte[]> recover(DiceBearException e, Long userId) {
-        log.error("Failed to retrieve avatar after retries for user ID: {}", userId, e);
-        return Optional.empty();
     }
 }

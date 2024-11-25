@@ -9,7 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
+import school.faang.user_service.exception.DiceBearException;
 import school.faang.user_service.properties.DiceBearProperties;
 
 import java.util.Optional;
@@ -80,18 +80,8 @@ class DiceBearServiceTest {
     void getRandomDiceBearAvatarServerErrorTest() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(500));
 
-        assertThrows(WebClientResponseException.class, () -> {
+        assertThrows(DiceBearException.class, () -> {
             diceBearService.getRandomAvatar(USER_ID);
         });
-    }
-
-    @Test
-    void recoverMethodTest() {
-        mockWebServer.enqueue(new MockResponse().setResponseCode(500));
-        mockWebServer.enqueue(new MockResponse().setResponseCode(500));
-
-        Optional<byte[]> result = diceBearService.getRandomAvatar(USER_ID);
-
-        assertTrue(result.isEmpty());
     }
 }
