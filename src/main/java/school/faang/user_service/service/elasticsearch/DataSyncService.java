@@ -4,6 +4,7 @@ import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,9 @@ public class DataSyncService {
     private final UserMapper userMapper;
     private final JedisPool jedisPool;
     private final EntityManager entityManager;
+
+    @Value("${spring.data.redis.elastic-search-key}")
+    private String elasticsearchRedisKey;
 
     @Scheduled(cron = "${spring.task.scheduling.cron-elastic-search-data-sync}")
     @Transactional
@@ -57,7 +61,7 @@ public class DataSyncService {
     }
 
     private int jedisGetOrDefault(Jedis jedis, long key, int defaultValue) {
-        String value = jedis.get(String.valueOf(key));
+        String value = jedis.hget(elasticsearchRedisKey, String.valueOf(key));
         return value != null ? Integer.parseInt(value) : defaultValue;
     }
 }

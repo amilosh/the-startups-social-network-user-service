@@ -24,6 +24,7 @@ spring:
     redis:
       port: 6379
       host: localhost
+      elastic-search-key: elasticSearchScore
       channels:
         mentorship-channel:
           name: mentorship_channel
