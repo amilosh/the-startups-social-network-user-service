@@ -40,9 +40,6 @@ public class RecommendationRequestService {
                     recRequestDto.getMessage()
             );
 
-            System.out.println("createdId " + createdRequestId);
-            System.out.println("createdId " + createdRequestId);
-            System.out.println("createdId " + createdRequestId);
             recRequestDto.setId(createdRequestId);
             saveSkillsInDb(recRequestDto);
         }
@@ -82,7 +79,7 @@ public class RecommendationRequestService {
         recRequestDto.getSkillsId().forEach(skillId -> skillRequestRepository.create(recRequestDto.getId(), skillId));
     }
 
-    public boolean sixMonthHavePassed(RecommendationRequestDto recommendationRequest) {
+    private boolean sixMonthHavePassed(RecommendationRequestDto recommendationRequest) {
         Optional<RecommendationRequest> latestRequest = recommendationRequestRepository.findLatestPendingRequest(
                 recommendationRequest.getRequesterId(), recommendationRequest.getReceiverId());
 
@@ -96,7 +93,7 @@ public class RecommendationRequestService {
         return lastRequestDate != null && lastRequestDate.isBefore(sixMonthsAgo);
     }
 
-    public void usersExistInDb(RecommendationRequestDto recRequestDto) {
+    private void usersExistInDb(RecommendationRequestDto recRequestDto) {
         boolean usersExist = recommendationRequestRepository.checkTheUsersExistInDb(
                 recRequestDto.getRequesterId(), recRequestDto.getReceiverId());
         if (!usersExist) {
@@ -104,12 +101,12 @@ public class RecommendationRequestService {
         }
     }
 
-    public boolean skillsExistInDb(RecommendationRequestDto recommendationRequest) {
+    private boolean skillsExistInDb(RecommendationRequestDto recommendationRequest) {
         return skillRepository.countExisting(recommendationRequest
                 .getSkillsId()) == recommendationRequest.getSkillsId().size();
     }
 
-    public boolean eligibleForRecommendation(RecommendationRequestDto recRequest) {
+    private boolean eligibleForRecommendation(RecommendationRequestDto recRequest) {
         usersExistInDb(recRequest);
         return sixMonthHavePassed(recRequest)
                 && skillsExistInDb(recRequest);

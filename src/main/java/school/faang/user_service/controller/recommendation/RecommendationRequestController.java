@@ -36,7 +36,7 @@ public class RecommendationRequestController {
         return recommendationRequestService.rejectRequest(id, rejectionDto);
     }
 
-    public void validateRequest(RecommendationRequestDto recRequest) {
+    private void validateRequest(RecommendationRequestDto recRequest) {
         String message = recRequest.getMessage();
         if (message == null || message.isBlank()) {
             throw new IllegalArgumentException("Request message must not be empty");

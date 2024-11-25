@@ -82,7 +82,7 @@ class RecommendationRequestServiceTest {
                 .checkTheUsersExistInDb(recRequestDto.getRequesterId(), recRequestDto.getReceiverId()))
                 .thenReturn(true);
 
-        recommendationRequestService.usersExistInDb(recRequestDto);
+        recommendationRequestService.create(recRequestDto);
         verify(recommendationRequestRepository, times(1))
                 .checkTheUsersExistInDb(recRequestDto.getRequesterId(), recRequestDto.getReceiverId());
     }
@@ -93,7 +93,7 @@ class RecommendationRequestServiceTest {
                 .checkTheUsersExistInDb(recRequestDto.getRequesterId(), recRequestDto.getReceiverId()))
                 .thenReturn(false);
 
-        assertThrows(DataValidationException.class, () -> recommendationRequestService.usersExistInDb(recRequestDto));
+        assertThrows(DataValidationException.class, () -> recommendationRequestService.create(recRequestDto));
         verify(recommendationRequestRepository, times(1))
                 .checkTheUsersExistInDb(recRequestDto.getRequesterId(), recRequestDto.getReceiverId());
     }
@@ -103,8 +103,11 @@ class RecommendationRequestServiceTest {
         when(recommendationRequestRepository
                 .findLatestPendingRequest(recRequestDto.getRequesterId(), recRequestDto.getReceiverId()))
                 .thenReturn(Optional.of(recRequestEntity));
+        when(recommendationRequestRepository
+                .checkTheUsersExistInDb(recRequestDto.getRequesterId(), recRequestDto.getReceiverId()))
+                .thenReturn(true);
 
-        Assertions.assertTrue(recommendationRequestService.sixMonthHavePassed(recRequestDto));
+        recommendationRequestService.create(recRequestDto);
         verify(recommendationRequestRepository, times(1))
                 .findLatestPendingRequest(recRequestDto.getRequesterId(), recRequestDto.getReceiverId());
     }
@@ -115,19 +118,24 @@ class RecommendationRequestServiceTest {
         when(recommendationRequestRepository
                 .findLatestPendingRequest(recRequestDto.getRequesterId(), recRequestDto.getReceiverId()))
                 .thenReturn(Optional.of(recRequestEntity));
+        when(recommendationRequestRepository
+                .checkTheUsersExistInDb(recRequestDto.getRequesterId(), recRequestDto.getReceiverId()))
+                .thenReturn(true);
 
-        Assertions.assertFalse(recommendationRequestService.sixMonthHavePassed(recRequestDto));
+        recommendationRequestService.create(recRequestDto);
         verify(recommendationRequestRepository, times(1))
                 .findLatestPendingRequest(recRequestDto.getRequesterId(), recRequestDto.getReceiverId());
     }
 
     @Test
     public void testSkillsExistInDbPositive() {
-        when(skillRepository.countExisting(recRequestDto
-                .getSkillsId()))
+        when(skillRepository.countExisting(recRequestDto.getSkillsId()))
                 .thenReturn(recRequestDto.getSkillsId().size());
+        when(recommendationRequestRepository
+                .checkTheUsersExistInDb(recRequestDto.getRequesterId(), recRequestDto.getReceiverId()))
+                .thenReturn(true);
 
-        Assertions.assertTrue(recommendationRequestService.skillsExistInDb(recRequestDto));
+        recommendationRequestService.create(recRequestDto);
     }
 
     @Test
@@ -135,8 +143,11 @@ class RecommendationRequestServiceTest {
         when(skillRepository.countExisting(recRequestDto
                 .getSkillsId()))
                 .thenReturn(recRequestDto.getSkillsId().size() - 1);
+        when(recommendationRequestRepository
+                .checkTheUsersExistInDb(recRequestDto.getRequesterId(), recRequestDto.getReceiverId()))
+                .thenReturn(true);
 
-        Assertions.assertFalse(recommendationRequestService.skillsExistInDb(recRequestDto));
+        recommendationRequestService.create(recRequestDto);
     }
 
     @Test

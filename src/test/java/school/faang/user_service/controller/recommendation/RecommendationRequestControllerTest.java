@@ -56,18 +56,18 @@ class RecommendationRequestControllerTest {
 
     @Test
     public void testValidateRequestPositive() {
-        recommendationRequestController.validateRequest(recRequestDto);
+        recommendationRequestController.requestRecommendation(recRequestDto);
     }
 
     @Test
     public void testValidateRequestNegative() {
         recRequestDto.setMessage(null);
         assertThrows(IllegalArgumentException.class,
-                () -> recommendationRequestController.validateRequest(recRequestDto));
+                () -> recommendationRequestController.requestRecommendation(recRequestDto));
 
         recRequestDto.setMessage("   ");
         assertThrows(IllegalArgumentException.class,
-                () -> recommendationRequestController.validateRequest(recRequestDto));
+                () -> recommendationRequestController.requestRecommendation(recRequestDto));
     }
 
     @Test
