@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RecommendationRequestFilterDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
@@ -142,5 +143,19 @@ public class RecommendationRequestService {
         return recommendationRequestRepository.findById(id)
                 .map(recommendationRequestMapper::toDto)
                 .orElseThrow(() -> new IllegalArgumentException("Recommendation request not found"));
+    }
+
+    @Transactional
+    public RecommendationRequestDto rejectRequest(Long id, RejectionDto rejection) {
+        RecommendationRequest request = recommendationRequestRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Recommendation request not found"));
+
+        if (!request.getStatus().equals(RequestStatus.PENDING)) {
+            throw new IllegalArgumentException("Recommendation request is not pending");
+        }
+
+        request.setStatus(RequestStatus.valueOf("REJECTED"));
+        request.setRejectionReason(rejection.reason());
+        return recommendationRequestMapper.toDto(request);
     }
 }
