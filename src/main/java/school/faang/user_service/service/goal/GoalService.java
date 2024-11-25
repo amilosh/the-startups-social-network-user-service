@@ -1,7 +1,6 @@
 package school.faang.user_service.service.goal;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Data;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,7 +21,6 @@ import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor
-@Data
 @Component
 public class GoalService {
     private final GoalRepository goalRepository;
