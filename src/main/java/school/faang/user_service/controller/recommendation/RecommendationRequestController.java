@@ -16,12 +16,8 @@ import school.faang.user_service.utilities.UrlUtils;
 public class RecommendationRequestController {
     private final RecommendationRequestService recommendationRequestService;
 
-    @PostMapping("/request")
+    @PostMapping(UrlUtils.REQUEST)
     public RecommendationRequestDto requestRecommendation(@Valid @RequestBody RecommendationRequestDto recommendationRequest) {
-        if (recommendationRequest.getMessage() == null || recommendationRequest.getMessage().isEmpty()) {
-            throw new IllegalArgumentException("Recommendation request must contain a non-empty message.");
-        }
-
         return recommendationRequestService.create(recommendationRequest);
     }
 }
