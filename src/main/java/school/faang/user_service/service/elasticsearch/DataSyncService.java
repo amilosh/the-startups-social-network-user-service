@@ -25,7 +25,7 @@ public class DataSyncService {
     private final JedisPool jedisPool;
     private final EntityManager entityManager;
 
-    @Scheduled(cron = "0 0/10 * * * ?")
+    @Scheduled(cron = "${spring.task.scheduling.cron-elastic-search-data-sync}")
     @Transactional
     public void syncData() {
         log.info("Starting data synchronization from PostgreSQL to Elasticsearch...");

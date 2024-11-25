@@ -1,7 +1,10 @@
 package school.faang.user_service.service;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import school.faang.user_service.client.PaymentServiceClient;
@@ -27,6 +30,11 @@ public class PremiumService {
     private final PaymentServiceClient paymentServiceClient;
     private final PremiumMapper premiumMapper;
 
+    @Retryable(
+            retryFor = FeignException.class,
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 3000, multiplier = 2)
+    )
     public PremiumDto buyPremium(PremiumPeriod premiumPeriod) {
         long userId = userContext.getUserId();
 

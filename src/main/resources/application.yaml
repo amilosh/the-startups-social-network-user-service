@@ -29,6 +29,9 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event2
+  task:
+    scheduling:
+      cron-elastic-search-data-sync: 0 0/10 * * * ?
 
 server:
   port: 8080
