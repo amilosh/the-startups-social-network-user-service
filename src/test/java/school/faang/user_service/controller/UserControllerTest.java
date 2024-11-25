@@ -7,16 +7,25 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import school.faang.user_service.dto.ProcessResultDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.service.UserService;
 import school.faang.user_service.validator.UserValidator;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -34,10 +43,15 @@ class UserControllerTest {
     private UserController userController;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private String csvContent;
+    private MockMultipartFile file;
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
+        csvContent = "firstName,lastName,email,phone,city,state,country\n"
+                + "John,Doe,johndoe@example.com,123456789,New York,NY,USA";
+        file = new MockMultipartFile("file", "test.csv", "text/csv", csvContent.getBytes());
     }
 
     @Test
@@ -52,5 +66,29 @@ class UserControllerTest {
                 .andExpect(status().isOk());
 
         verify(userService, times(1)).findUserDtoById(userId);
+    }
+
+    @Test
+    void testUploadToCsvSuccess() throws Exception {
+        ProcessResultDto mockResult = new ProcessResultDto(1, List.of());
+        when(userService.processUsers(any(InputStream.class))).thenReturn(mockResult);
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/users/upload")
+                        .file(file))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.сountSuccessfullySavedUsers").value(1))
+                .andExpect(jsonPath("$.errors").isEmpty());
+    }
+
+    @Test
+    void testUploadToCsvFailure() throws Exception {
+        when(userService.processUsers(any(InputStream.class)))
+                .thenThrow(new IOException("Failed to read CSV file"));
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/users/upload")
+                        .file(file))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.сountSuccessfullySavedUsers").value(0))
+                .andExpect(jsonPath("$.errors[0]").value("Failed to read CSV file: Failed to read CSV file"));
     }
 }

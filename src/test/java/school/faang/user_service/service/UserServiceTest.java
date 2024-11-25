@@ -8,10 +8,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
+import org.springframework.dao.DataIntegrityViolationException;
 import school.faang.user_service.domain.Address;
 import school.faang.user_service.domain.ContactInfo;
+import school.faang.user_service.domain.Education;
 import school.faang.user_service.domain.Person;
+import school.faang.user_service.dto.ProcessResultDto;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
@@ -21,6 +24,9 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,11 +34,12 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -43,7 +50,6 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
 
     @Mock
     private UserMapper userMapper;
@@ -62,21 +68,22 @@ class UserServiceTest {
     @Mock
     private PersonToUserMapper personToUserMapper;
 
+
     @InjectMocks
     private UserService userService;
 
     private final long userId = 1L;
     private User user;
     private User user1;
-    private Person person1;
-    private Person person2;
-    private Person person3;
+    private User mockUser;
+    private Person mockPerson;
     private Country country1;
-    private Country country2;
     private List<Event> events;
     private UserDto dto;
-    private List<Person> persons;
-    private List<Person> personsDublicatEmail;
+    private String csvContent;
+    private InputStream inputStream;
+    private List<Person> people;
+
 
     @BeforeEach
     public void setUp() {
@@ -87,56 +94,22 @@ class UserServiceTest {
         user.setMentees(new ArrayList<>());
         user.setSetGoals(new ArrayList<>());
         events = new ArrayList<>();
-
         user1 = new User();
 
         dto = UserDto.builder()
                 .id(userId)
                 .build();
 
-         person1 = Person.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .contactInfo(ContactInfo.builder()
-                        .email("email1@example.com")
-                        .address(Address.builder()
-                                .country("Country1")
-                                .build())
-                        .build())
-                .build();
-
-        person2 = Person.builder()
-                .firstName("Jane")
-                .lastName("Dav")
-                .contactInfo(ContactInfo.builder()
-                        .email("email2@example.com")
-                        .address(Address.builder()
-                                .country("Country2")
-                                .build())
-                        .build())
-                .build();
-
-        person3 = Person.builder()
-                .firstName("Jane")
-                .lastName("Dav")
-                .contactInfo(ContactInfo.builder()
-                        .email("email2@example.com")
-                        .address(Address.builder()
-                                .country("Country2")
-                                .build())
-                        .build())
-                .build();
-
-         country1 = Country.builder()
+        country1 = Country.builder()
                 .title("Country1")
                 .build();
 
-        country2 = Country.builder()
-                .title("Country2")
-                .build();
-
-         persons = List.of(person1, person2);
-        personsDublicatEmail =List.of(person2,person3);
+        csvContent = "firstName,lastName,yearOfBirth,group,studentID,email,phone,street,city,state,country,postalCode,faculty,yearOfStudy,major,GPA,status,admissionDate,graduationDate,degree,institution,completionYear,scholarship,employer\n"
+                + "John,Doe,1998,A,123456,johndoe@example.com,+1-123-456-7890,123 Main Street,New York,NY,USA,10001,Computer Science,3,Software Engineering,3.8,Active,2016-09-01,2020-05-30,High School Diploma,XYZ High School,2016,true,XYZ Technologies";
+        inputStream = new ByteArrayInputStream(csvContent.getBytes());
+        mockPerson = createMockPerson("John", "Doe", "john.doe@example.com");
+        mockUser = createMockUser("JohnDoe", "john.doe@example.com");
+//        people = List.of(mockPerson);
     }
 
     @Test
@@ -311,52 +284,60 @@ class UserServiceTest {
         User mentee = new User();
         mentee.setId(2L);
         return mentee;
-
     }
-
-//    @Test
-//    void testProcessUsersValidInputSavesUsers() {
-//        List<Person> persons = List.of(person1, person2);
-//
-//        when(personToUserMapper.personToUser(person1)).thenReturn(user);
-//        when(personToUserMapper.personToUser(person2)).thenReturn(user1);
-//        when(countryService.findOrCreateCountry("Country1")).thenReturn(country1);
-//        when(countryService.findOrCreateCountry("Country2")).thenReturn(country2);
-//
-//       userService.processUsers(persons);
-//
-//        verify(personToUserMapper, times(1)).personToUser(person1);
-//        verify(personToUserMapper,times(1)).personToUser(person2);
-//        verify(userRepository, times(1)).save(user);
-//
-//        verify(userRepository,times(1)).save(user1);
-//        verify(countryService,times(1)).findOrCreateCountry("Country1");
-//        verify(countryService,times(1)).findOrCreateCountry("Country2");
-//    }
 
     @Test
-    void testProcessUsersDuplicateEmailsThrowsException() {
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> userService.processUsers(personsDublicatEmail)
-        );
+    void testProcessUsersSuccess() throws IOException {
+        when(personToUserMapper.personToUser(mockPerson)).thenReturn(mockUser);
+        when(userRepository.save(mockUser)).thenReturn(mockUser);
 
-        assertEquals("Duplicate email found in CSV: email2@example.com", exception.getMessage());
+        ProcessResultDto result = userService.processUser(mockPerson);
+
+        assertEquals(1, result.getСountSuccessfullySavedUsers());
+        assertTrue(result.getErrors().isEmpty());
+        verify(userRepository, times(1)).save(mockUser);
     }
 
-//    @Test
-//    void testProcessUsersGeneratesPasswordsAndSetsCountry() {
-//        List<Person> persons = List.of(person1);
-//
-//        when(personToUserMapper.personToUser(person1)).thenReturn(user);
-//        when(countryService.findOrCreateCountry("Country1")).thenReturn(country1);
-//
-//        userService.processUsers(persons);
-//
-//        assertNotNull(user.getPassword());
-//        assertEquals(country1, user.getCountry());
-//        verify(userRepository).save(user);
-//    }
+    @Test
+    void testProcessUsersSaveError() throws IOException {
+        when(personToUserMapper.personToUser(mockPerson)).thenReturn(mockUser);
+        String mockConstraintMessage = "could not execute statement; SQL [n/a]; constraint [users_phone_key] ";
+        when(userRepository.save(mockUser)).thenThrow(new DataIntegrityViolationException(mockConstraintMessage));
+
+        ProcessResultDto result = userService.processUser(mockPerson);
+
+        assertEquals(0, result.getСountSuccessfullySavedUsers());
+        assertFalse(result.getErrors().isEmpty());
+        assertEquals(1, result.getErrors().size());
+        assertTrue(result.getErrors().get(0).contains("Failed to save user"));
+        assertTrue(result.getErrors().get(0).contains("User with this [users_phone_key] exists"));
+
+        verify(userRepository, times(1)).save(mockUser);
+    }
+
+
+    private Person createMockPerson(String firstName, String lastName, String email) {
+        Address address = new Address("123 Street", "New York", "NY", "Country1", "10001");
+        ContactInfo contactInfo = new ContactInfo(email, "123456789", address);
+        Education education = new Education("CS", 4, "SE", 3.8);
+
+        return Person.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .contactInfo(contactInfo)
+                .education(education)
+                .employer("TechCorp")
+                .build();
+    }
+
+    private User createMockUser(String username, String email) {
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword("randomPassword");
+        user.setPhone("123456789");
+        return user;
+    }
 }
 
 
