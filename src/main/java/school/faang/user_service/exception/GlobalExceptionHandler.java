@@ -36,15 +36,18 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        return ex.getBindingResult()
+    public ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .collect(Collectors.toMap(
-                        FieldError::getField,
-                        fieldError -> Objects.requireNonNullElse(fieldError.getDefaultMessage(), ""),
-                        (existing, replacement) -> existing
-                ));
+                .map(fieldError -> String.format("%s: %s", fieldError.getField(), fieldError.getDefaultMessage()))
+                .collect(Collectors.joining("; "));
+
+        return ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .error(MethodArgumentNotValidException.class.getName())
+                .message(errorMessage)
+                .build();
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
