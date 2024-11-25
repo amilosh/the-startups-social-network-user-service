@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,11 +25,10 @@ import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,7 +41,7 @@ public class UserService {
     private final List<UserFilter> userFilters;
     private final UserMapper userMapper;
     private final CountryService countryService;
-    private static final int THREAD_POOL_SIZE = 10;
+    private static final String FILE_TYPE = "text/csv";
 
     @Transactional(readOnly = true)
     public UserDto getUser(long userId) {
@@ -101,7 +101,7 @@ public class UserService {
 
     @Transactional
     public List<UserDto> parsePersonDataIntoUserDto(MultipartFile csvFile) {
-        if (csvFile.isEmpty() || !csvFile.getContentType().equals("text/csv")) {
+        if (csvFile.isEmpty() || !Objects.equals(csvFile.getContentType(), FILE_TYPE)) {
             throw new IllegalArgumentException("Invalid file type or there is no file." +
                     " Please upload a CSV file.");
         }
@@ -125,9 +125,8 @@ public class UserService {
     private List<UserDto> saveUsers(List<Person> persons) {
         log.info("Starting to save {} users", persons.size());
 
-        ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
         List<CompletableFuture<User>> futures = persons.stream()
-                .map(person -> CompletableFuture.supplyAsync(() -> convertToUser(person), executor))
+                .map(this::convertToUser)
                 .toList();
 
         List<User> users = futures.stream()
@@ -140,8 +139,6 @@ public class UserService {
                 })
                 .collect(Collectors.toList());
 
-        executor.shutdown();
-
         List<User> savedUsers = userRepository.saveAll(users);
         log.info("Successfully saved {} users to the database", savedUsers.size());
 
@@ -150,7 +147,8 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    private User convertToUser(Person person) {
+    @Async("taskExecutor")
+    protected CompletableFuture<User> convertToUser(Person person) {
         log.debug("Processing person: {}", person);
         User user = userMapper.toUser(person);
         user.setPassword(generatePassword());
@@ -158,7 +156,7 @@ public class UserService {
         Country country = countryService.getOrCreateCountry(person.getCountry());
         user.setCountry(country);
 
-        return user;
+        return CompletableFuture.completedFuture(user);
     }
 
     private String generatePassword() {
