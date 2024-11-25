@@ -10,13 +10,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.csv.CsvParserService;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.CountryService;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -24,6 +29,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 
 @Service
 @Slf4j
@@ -36,6 +43,8 @@ public class UserService {
     private final UserContext userContext;
     private final AvatarService avatarService;
     private final UserMapper userMapper;
+    private final CsvParserService csvParserService;
+    private final CountryService countryService;
 
     public Optional<User> findById(long userId) {
         return userRepository.findById(userId);
@@ -110,5 +119,28 @@ public class UserService {
         return users.stream()
                 .map(userMapper::toDto)
                 .toList();
+    }
+
+    public void uploadUsers(InputStream inputStream) throws IOException {
+        log.info("upload csv file starting");
+        List<Person> parsedPersons = csvParserService.parseCsv(inputStream, Person.class);
+        List<CompletableFuture<User>> futureUsers = parsedPersons.stream()
+                .map(person -> CompletableFuture.supplyAsync(() -> {
+                    User user = userMapper.toEntity(person);
+                    user.setPassword(generateRandomPassword(user));
+                    user.setCountry(countryService.getCountryOrCreateByName(user));
+                    return user;
+                }, Executors.newCachedThreadPool()))
+                .toList();
+
+        List<User> users = futureUsers.stream()
+                .map(CompletableFuture::join)
+                .toList();
+        userRepository.saveAll(users);
+        log.info("success saved all users form file");
+    }
+
+    public String generateRandomPassword(User user) {
+        return user.getEmail();
     }
 }
