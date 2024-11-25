@@ -35,10 +35,10 @@ public class UserService {
     private final static int BATCH_SIZE = 50;
     @PersistenceContext
     private final EntityManager entityManager;
-    private final UserRepository userRepository;
+    private final UserMapper userMapper;
     private final UserContext userContext;
     private final AvatarService avatarService;
-    private final UserMapper userMapper;
+    private final UserRepository userRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
     public Optional<User> findById(long userId) {
