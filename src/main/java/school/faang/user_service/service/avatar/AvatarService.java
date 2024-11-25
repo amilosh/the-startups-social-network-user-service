@@ -3,19 +3,13 @@ package school.faang.user_service.service.avatar;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exception.DiceBearException;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.MinioException;
-import school.faang.user_service.properties.DiceBearProperties;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.minio.MinioService;
 import school.faang.user_service.service.user.UserService;
@@ -23,7 +17,6 @@ import school.faang.user_service.service.user.UserService;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Optional;
 
 import static school.faang.user_service.exception.ErrorMessage.AVATAR_ALREADY_EXIST_ERROR;
 import static school.faang.user_service.exception.ErrorMessage.AVATAR_NOT_FOUND;
@@ -40,11 +33,10 @@ public class AvatarService {
     private static final int SMALL_AVATAR_CONSTRAINT = 170;
     private static final String DEFAULT_AVATAR_CONTENT_TYPE = "image/jpeg";
 
-    private final WebClient diceBearClient;
     private final MinioService minioService;
-    private final DiceBearProperties diceBearProperties;
-    private final UserRepository userRepository;
     private final UserService userService;
+    private final UserRepository userRepository;
+    private final DiceBearService diceBearService;
 
     @Transactional(readOnly = true)
     public byte[] getUserAvatar(Long userId) {
@@ -81,7 +73,7 @@ public class AvatarService {
 
         if (file == null) {
             log.info("No file provided for user ID: {}. Generating random avatar.", userId);
-            avatarData = getRandomDiceBearAvatar(userId)
+            avatarData = diceBearService.getRandomAvatar(userId)
                     .orElseThrow(() -> new DiceBearException(DICE_BEAR_GENERATING_ERROR));
             contentType = DEFAULT_AVATAR_CONTENT_TYPE;
         } else {
@@ -136,40 +128,5 @@ public class AvatarService {
 
             return outputStream.toByteArray();
         }
-    }
-
-    @Retryable(
-            retryFor = {WebClientResponseException.class},
-            backoff = @Backoff(delay = 1000, multiplier = 2)
-    )
-    public Optional<byte[]> getRandomDiceBearAvatar(Long userId) {
-        log.info("Requesting random avatar for user ID: {} with style: {}, format: {}",
-                userId, diceBearProperties.getStyle(), diceBearProperties.getFormat());
-
-        byte[] avatarData = diceBearClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .pathSegment(
-                                diceBearProperties.getVersion(),
-                                diceBearProperties.getStyle(),
-                                diceBearProperties.getFormat())
-                        .queryParam("seed", userId)
-                        .build())
-                .retrieve()
-                .bodyToMono(byte[].class)
-                .block();
-
-        if (avatarData == null || avatarData.length == 0) {
-            log.warn("Received empty avatar content for user ID: {}", userId);
-            return Optional.empty();
-        }
-
-        log.info("Successfully retrieved avatar for user ID: {}. Data length: {}", userId, avatarData.length);
-        return Optional.of(avatarData);
-    }
-
-    @Recover
-    public Optional<byte[]> recover(WebClientResponseException e, Long userId) {
-        log.error("Failed to retrieve avatar after retries for user ID: {}", userId, e);
-        return Optional.empty();
     }
 }

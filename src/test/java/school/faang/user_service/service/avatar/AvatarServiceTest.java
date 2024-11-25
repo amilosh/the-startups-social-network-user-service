@@ -1,6 +1,5 @@
 package school.faang.user_service.service.avatar;
 
-import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,16 +9,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
-import school.faang.user_service.exception.DiceBearException;
 import school.faang.user_service.exception.EntityNotFoundException;
-import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.exception.MinioException;
-import school.faang.user_service.properties.DiceBearProperties;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.minio.MinioService;
 import school.faang.user_service.service.user.UserService;
@@ -28,10 +21,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -41,6 +32,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -58,9 +50,6 @@ class AvatarServiceTest {
     private AvatarService avatarService;
 
     @Mock
-    private WebClient webClient;
-
-    @Mock
     private MinioService minioService;
 
     @Mock
@@ -69,73 +58,21 @@ class AvatarServiceTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private DiceBearService diceBearService;
+
     private MockWebServer mockWebServer;
-    private DiceBearProperties diceBearProperties;
 
     @BeforeEach
     void setUp() throws Exception {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
-
-        webClient = WebClient.builder()
-                .baseUrl(mockWebServer.url("/").toString())
-                .build();
-
-        diceBearProperties = new DiceBearProperties();
-        avatarService = new AvatarService(webClient, minioService, diceBearProperties, userRepository, userService);
+        avatarService = new AvatarService(minioService, userService, userRepository, diceBearService);
     }
 
     @AfterEach
     void shutdownMockServer() throws Exception {
         mockWebServer.shutdown();
-    }
-
-    @Test
-    void getDiceBearAvatarSuccessTest() {
-        byte[] avatarData = "random_avatar".getBytes();
-        mockWebServer.enqueue(new MockResponse()
-                .setBody(new String(avatarData))
-                .addHeader("Content-Type", "image/jpeg")
-                .setResponseCode(200));
-
-        Optional<byte[]> result = avatarService.getRandomDiceBearAvatar(USER_ID);
-
-        assertTrue(result.isPresent());
-        assertEquals(avatarData.length, result.get().length);
-    }
-
-    @Test
-    void getDiceBearAvatarEmptyContentTest() {
-        mockWebServer.enqueue(new MockResponse()
-                .setBody("")
-                .addHeader("Content-Type", "image/jpeg")
-                .setResponseCode(200));
-
-        DiceBearException exception = assertThrows(DiceBearException.class, () -> {
-            avatarService.getRandomDiceBearAvatar(USER_ID).orElseThrow(() ->
-                    new DiceBearException(ErrorMessage.DICE_BEAR_EMPTY_CONTENT));
-        });
-
-        assertEquals(ErrorMessage.DICE_BEAR_EMPTY_CONTENT, exception.getMessage());
-    }
-
-    @Test
-    void getDiceBearAvatarServerErrorTest() {
-        mockWebServer.enqueue(new MockResponse().setResponseCode(400));
-
-        assertThrows(WebClientResponseException.class, () -> {
-            avatarService.getRandomDiceBearAvatar(USER_ID).orElseThrow(() ->
-                    new DiceBearException(ErrorMessage.DICE_BEAR_RETRIEVAL_ERROR));
-        });
-    }
-
-    @Test
-    void getDiceBearAvatarServiceUnavailableTest() throws Exception {
-        mockWebServer.shutdown();
-
-        assertThrows(WebClientRequestException.class, () -> {
-            avatarService.getRandomDiceBearAvatar(USER_ID);
-        });
     }
 
     @Test
@@ -176,6 +113,8 @@ class AvatarServiceTest {
         user.setUserProfilePic(new UserProfilePic(null, null));
         when(userService.getUserEntity(USER_ID)).thenReturn(user);
 
+        doNothing().when(minioService).uploadFile(anyLong(), anyString(), any(byte[].class), eq("image/jpeg"));
+
         UserProfilePic result = avatarService.uploadUserAvatar(USER_ID, mockFile);
 
         assertNotNull(result);
@@ -194,6 +133,24 @@ class AvatarServiceTest {
         });
 
         assertTrue(exception.getMessage().contains("Avatar is already uploaded for user ID"));
+    }
+
+    @Test
+    void uploadUserAvatarWithoutFileTest() throws IOException {
+        Path imagePath = Paths.get("src/test/resources/files/test-image.jpeg");
+        byte[] fileData = Files.readAllBytes(imagePath);
+
+        when(diceBearService.getRandomAvatar(USER_ID)).thenReturn(Optional.of(fileData));
+        User user = new User();
+        user.setUserProfilePic(new UserProfilePic(null, null));
+        when(userService.getUserEntity(USER_ID)).thenReturn(user);
+
+        UserProfilePic result = avatarService.uploadUserAvatar(USER_ID, null);
+
+        assertNotNull(result);
+        verify(diceBearService).getRandomAvatar(USER_ID);
+        verify(minioService, times(2)).uploadFile(anyLong(), anyString(), any(byte[].class), eq("image/jpeg"));
+        verify(userRepository).updateProfilePic(eq(USER_ID), anyString(), anyString());
     }
 
     @Test
@@ -244,17 +201,21 @@ class AvatarServiceTest {
 
     @Test
     void uploadUserAvatarWithNoFileTest() throws IOException {
-        AvatarService spyAvatarService = spy(avatarService);
+        DiceBearService spyDiceBearService = spy(diceBearService);
+        avatarService = new AvatarService(minioService, userService, userRepository, spyDiceBearService);
         Path imagePath = Paths.get("src/test/resources/files/test-image.jpeg");
         byte[] fileData = Files.readAllBytes(imagePath);
-        doReturn(Optional.of(fileData)).when(spyAvatarService).getRandomDiceBearAvatar(USER_ID);
+
+        doReturn(Optional.of(fileData)).when(spyDiceBearService).getRandomAvatar(USER_ID);
 
         User user = new User();
         user.setId(USER_ID);
         user.setUserProfilePic(new UserProfilePic(null, null));
         when(userService.getUserEntity(USER_ID)).thenReturn(user);
 
-        UserProfilePic result = spyAvatarService.uploadUserAvatar(USER_ID, null);
+        doNothing().when(minioService).uploadFile(anyLong(), anyString(), any(byte[].class), eq("image/jpeg"));
+
+        UserProfilePic result = avatarService.uploadUserAvatar(USER_ID, null);
 
         assertNotNull(result);
         verify(minioService, times(2)).uploadFile(anyLong(), anyString(), any(byte[].class), eq("image/jpeg"));
