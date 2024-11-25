@@ -18,24 +18,28 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/mentorship-requests")
-public class MentorshipRequestController {
+public class MentorshipRequestController implements MentorshipRequestControllerOas {
     private final MentorshipRequestService mentorshipRequestService;
 
+    @Override
     @PostMapping
     public MentorshipRequestDto requestMentorship(@RequestBody @Valid MentorshipRequestDto mentorshipRequestDto) {
         return mentorshipRequestService.requestMentorship(mentorshipRequestDto);
     }
 
+    @Override
     @PostMapping("/filter")
     public List<MentorshipRequestDto> getRequests(@RequestBody RequestFilterDto requestFilterDto) {
         return mentorshipRequestService.getRequests(requestFilterDto);
     }
 
+    @Override
     @PatchMapping("/{requestId}/accept")
     public MentorshipRequestDto acceptRequest(@PathVariable long requestId) {
         return mentorshipRequestService.acceptRequest(requestId);
     }
 
+    @Override
     @PatchMapping("/{requestId}/reject")
     public MentorshipRequestDto rejectRequest(@PathVariable long requestId,
                                               @RequestBody @Valid RejectionDto rejectionDto) {

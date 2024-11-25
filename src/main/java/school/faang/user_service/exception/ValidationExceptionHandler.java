@@ -1,6 +1,7 @@
 package school.faang.user_service.exception;
 
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -27,7 +28,12 @@ public class ValidationExceptionHandler {
     }
 
     @ExceptionHandler(DataValidationException.class)
-    public ResponseEntity<String> handleEntityValidationException(DataValidationException ex) {
+    public ResponseEntity<String> handleDataValidationException(DataValidationException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 }

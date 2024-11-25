@@ -1,5 +1,6 @@
 package school.faang.user_service.validator.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.MentorshipRequest;
@@ -26,10 +27,10 @@ public class MentorshipRequestValidatorImpl implements MentorshipRequestValidato
             throw new DataValidationException("requester and receiver must be different");
         }
         if (!userService.existsById(requesterId)) {
-            throw new DataValidationException("requester doesn't exist");
+            throw new EntityNotFoundException("requester doesn't exist");
         }
         if (!userService.existsById(receiverId)) {
-            throw new DataValidationException("receiver doesn't exist");
+            throw new EntityNotFoundException("receiver doesn't exist");
         }
     }
 
@@ -53,7 +54,7 @@ public class MentorshipRequestValidatorImpl implements MentorshipRequestValidato
     @Override
     public MentorshipRequest getRequestByIdOrThrowException(Long requestId) {
         return mentorshipRequestRepository.findById(requestId)
-                .orElseThrow(() -> new DataValidationException("request doesn't exist"));
+                .orElseThrow(() -> new EntityNotFoundException("request doesn't exist"));
     }
 
     @Override
