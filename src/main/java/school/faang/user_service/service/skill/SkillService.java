@@ -36,7 +36,7 @@ public class SkillService {
         if (skillRepository.existsByTitle(skill.getTitle())) {
             throw new DataValidationException("Skill " + skill.getId() + " already exists");
         } else {
-            skill = skillRepository.save(skill);
+            skillRepository.save(skill);
             log.info("Skill {} successfully created", skill.getId());
         }
         return skillMapper.toDto(skill);
