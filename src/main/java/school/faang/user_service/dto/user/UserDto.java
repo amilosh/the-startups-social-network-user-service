@@ -1,14 +1,16 @@
 package school.faang.user_service.dto.user;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
-import lombok.Builder;
+import lombok.*;
+
+import java.util.List;
 
 @Data
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class UserDto {
-    private final Long id;
-    private final String username;
-    private final String email;
+    private Long id;
+    private String username;
+    private String email;
+    private List<Long> followersIds;
 }
