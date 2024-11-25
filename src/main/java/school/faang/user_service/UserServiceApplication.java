@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-@EnableRetry
+@EnableRetry(proxyTargetClass=true)
 @EnableFeignClients("school.faang.user_service.client")
 public class UserServiceApplication {
 

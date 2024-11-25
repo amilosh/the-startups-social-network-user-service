@@ -1,5 +1,6 @@
 package school.faang.user_service.service.event;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,7 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
 import java.util.ArrayList;

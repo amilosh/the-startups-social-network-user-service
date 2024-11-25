@@ -1,4 +1,4 @@
-package school.faang.user_service.service.elasticsearch;
+package school.faang.user_service.scheduled;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -10,7 +10,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.elasticsearch.UserElasticsearchRepository;
-import school.faang.user_service.scheduled.ElasticSearchDataSyncService;
 
 import java.util.ArrayList;
 import static org.mockito.ArgumentMatchers.any;
@@ -18,7 +17,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class DataSyncServiceTest {
+public class ElasticSearchDataSyncServiceTest {
 
     @InjectMocks
     private ElasticSearchDataSyncService dataSyncService;

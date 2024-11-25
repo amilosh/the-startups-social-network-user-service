@@ -17,6 +17,7 @@ import school.faang.user_service.dto.client.PaymentResponse;
 import school.faang.user_service.dto.client.PaymentStatus;
 import school.faang.user_service.entity.premium.PremiumPeriod;
 import school.faang.user_service.entity.premium.Premium;
+import school.faang.user_service.exception.ServiceConnectionFailedException;
 import school.faang.user_service.mapper.PremiumMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
 
@@ -34,7 +35,7 @@ public class PremiumService {
     private final PremiumMapper premiumMapper;
 
     @Retryable(
-            retryFor = FeignException.class,
+            retryFor = {FeignException.class},
             maxAttempts = 3,
             backoff = @Backoff(delay = 3000, multiplier = 2)
     )
@@ -69,11 +70,12 @@ public class PremiumService {
 
             return premiumMapper.toDto(premiumRepository.save(newPremium));
         }
+
         return null;
     }
 
     @Recover
-    public void recover(FeignException e) {
-        log.error("payment failed", e);
+    public PremiumDto recover(FeignException e) {
+        throw new ServiceConnectionFailedException("error connecting to payment service");
     }
 }

@@ -7,6 +7,7 @@ import lombok.Data;
 import school.faang.user_service.entity.RequestStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class MentorshipRequestDto {
@@ -29,4 +30,5 @@ public class MentorshipRequestDto {
     private String rejectionReason;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private List<Long> taskIds;
 }

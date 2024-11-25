@@ -8,4 +8,5 @@ public class MentorshipRequestFilterDto {
     private Long requesterUserId;
     private Long receiverUserId;
     private RequestStatus status;
+    private Long taskId;
 }

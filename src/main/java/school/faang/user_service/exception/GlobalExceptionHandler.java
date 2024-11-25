@@ -56,6 +56,13 @@ public class GlobalExceptionHandler {
         return bulidExceptionDto(HttpStatus.BAD_REQUEST, "Failed validation", errors);
     }
 
+    @ExceptionHandler(ServiceConnectionFailedException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ExceptionDto handlerPaymentFailedException(ServiceConnectionFailedException e) {
+        log.error("Service Connection Failed Exception", e);
+        return bulidExceptionDto(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+
     private ExceptionDto bulidExceptionDto(HttpStatus status, String description, List<String> errors) {
         return ExceptionDto.builder()
                 .statusCode(status.value())
