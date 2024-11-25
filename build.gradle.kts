@@ -48,8 +48,7 @@ dependencies {
      * Swagger
      */
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.3")
-    implementation("org.springdoc:springdoc-openapi-ui:1.6.15")
-    implementation("io.springfox:springfox-boot-starter:3.0.0")
+    implementation("org.springdoc:springdoc-openapi-ui:1.8.0")
 
     /**
      * Utils & Logging
@@ -152,7 +151,7 @@ tasks.jacocoTestCoverageVerification {
             )
             enabled = true
             limit {
-                minimum = 0.7.toBigDecimal()
+               minimum = 0.7.toBigDecimal()
             }
         }
     }
