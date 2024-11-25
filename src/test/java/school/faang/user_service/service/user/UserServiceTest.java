@@ -18,6 +18,7 @@ import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.mapper.csv.CsvParser;
 import school.faang.user_service.repository.UserRepository;
@@ -72,8 +73,21 @@ public class UserServiceTest {
     @Mock
     private CountryService countryService;
 
+    private User user;
+    private List<User> users;
+
     @BeforeEach
     void setUp() {
+        var firstUser = User.builder().id(1L).build();
+        var secondUser = User.builder().id(2L).build();
+        var thirdUser = User.builder()
+                .id(3L)
+                .mentors(List.of(secondUser))
+                .mentees(List.of(firstUser))
+                .build();
+        user = thirdUser;
+        users = List.of(thirdUser);
+
         usersRankDto = UpdateUsersRankDto.builder()
                 .halfUserRank(50.0)
                 .maximumUserRating(100.0)
@@ -176,21 +190,21 @@ public class UserServiceTest {
                 "text/csv",
                 resource.getInputStream()
         );
-        ArgumentCaptor<List<User>> listUsersArgumentCaptor = ArgumentCaptor.forClass((Class<List<User>>)(Class)ArrayList.class);
+        ArgumentCaptor<List<User>> listUsersArgumentCaptor = ArgumentCaptor.forClass((Class<List<User>>) (Class) ArrayList.class);
         ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
         when(csvParser.parseCsv(Mockito.any(InputStream.class), Mockito.any(Class.class)))
                 .thenReturn(List.of(Person.builder()
-                                .firstName("Test")
-                                .lastName("Test")
-                                .email("test@mail.ru")
-                                .phone("877777777")
-                                .city("City")
-                                .country("Country")
-                                .state("State")
-                                .faculty("Faculty")
-                                .yearOfStudy("Year")
-                                .major("major")
-                                .employer("employer")
+                        .firstName("Test")
+                        .lastName("Test")
+                        .email("test@mail.ru")
+                        .phone("877777777")
+                        .city("City")
+                        .country("Country")
+                        .state("State")
+                        .faculty("Faculty")
+                        .yearOfStudy("Year")
+                        .major("major")
+                        .employer("employer")
                         .build()));
         when(countryService.getCountryOrCreateByName(userArgumentCaptor.capture()))
                 .thenReturn(Country.builder().title("USA").build());
@@ -215,5 +229,46 @@ public class UserServiceTest {
 
         assertNotNull(password);
         assertEquals("test@mail.ru", password);
+    }
+
+    @Test
+    void testToGetUserDtoById_ShouldReturnCorrectDto() {
+        when(userRepository.findById(3L))
+                .thenReturn(Optional.of(user));
+
+        var userDto = userService.getUserDtoById(3L);
+
+        verify(userMapper, times(1)).toDto(user);
+        assertEquals(user.getId(), userDto.getId());
+        assertNotNull(userDto);
+    }
+
+    @Test
+    void testToGetUserDtoById_ShouldThrowException() {
+        when(userRepository.findById(user.getId()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(DataValidationException.class, () -> userService.getUserDtoById(user.getId()));
+    }
+
+    @Test
+    void testToGetUserDtosByIds_ShouldReturnCorrectDtos() {
+        var ids = List.of(3L);
+        when(userRepository.findAllByIds(ids))
+                .thenReturn(Optional.of(users));
+
+        var userDtos = userService.getUserDtosByIds(ids);
+
+        assertNotNull(userDtos);
+        assertEquals(users.size(), userDtos.size());
+    }
+
+    @Test
+    void testToGetUserDtosByIds_ShouldThrowException() {
+        var ids = List.of(1L, 2L, 3L);
+        when(userRepository.findAllByIds(ids))
+                .thenReturn(Optional.empty());
+
+        assertThrows(DataValidationException.class, () -> userService.getUserDtosByIds(ids));
     }
 }

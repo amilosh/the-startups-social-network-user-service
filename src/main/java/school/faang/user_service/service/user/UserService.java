@@ -15,10 +15,13 @@ import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.entity.UserSkillGuarantee;
+import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.mapper.csv.CsvParser;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.service.CountryService;
 
 import java.io.IOException;
@@ -45,6 +48,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final CsvParser csvParser;
     private final CountryService countryService;
+    private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
     public Optional<User> findById(long userId) {
         return userRepository.findById(userId);
@@ -142,5 +146,13 @@ public class UserService {
 
     public String generateRandomPassword(User user) {
         return user.getEmail();
+    }
+
+    public UserSkillGuarantee addGuaranty(long userId, SkillOffer skillOffer) {
+        UserSkillGuarantee guarantee = UserSkillGuarantee.builder().user(
+                        userRepository.findById(userId).get()
+                ).guarantor(skillOffer.getRecommendation().getAuthor())
+                .build();
+        return userSkillGuaranteeRepository.save(guarantee);
     }
 }

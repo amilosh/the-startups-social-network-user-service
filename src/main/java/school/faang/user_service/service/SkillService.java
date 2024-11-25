@@ -14,6 +14,7 @@ import school.faang.user_service.mapper.SkillCandidateMapper;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
+import school.faang.user_service.service.user.UserService;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public class SkillService {
         }
     }
 
-    public List<SkillDto> getUserSkills(long userId){
+    public List<SkillDto> getUserSkills(long userId) {
         List<Skill> skills = skillRepository.findAllByUserId(userId);
         return skillMapper.toDto(skills);
     }
