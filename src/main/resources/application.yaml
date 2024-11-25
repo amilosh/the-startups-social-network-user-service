@@ -5,9 +5,6 @@ app:
     thread-amount: 10
 
 spring:
-  servlet:
-    multipart:
-      max-file-size: 5MB
   mvc:
     servlet:
       path: /api/v1
