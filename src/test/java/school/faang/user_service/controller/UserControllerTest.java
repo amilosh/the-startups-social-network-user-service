@@ -56,6 +56,7 @@ public class UserControllerTest {
 
         mockMvc.perform(MockMvcRequestBuilders.post("/users")
                         .contentType("application/json")
+                        .characterEncoding("UTF-8")
                         .content(ids.toString()))
                 .andExpect(MockMvcResultMatchers.status().is(200))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.is(2)))
