@@ -1,4 +1,4 @@
-package school.faang.user_service.service.impl;
+package school.faang.user_service.service.mentorshiprequest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,16 +10,16 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestDto;
-import school.faang.user_service.dto.mentorshiprequest.RejectionDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.mentorshiprequest.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.filters.abstracts.MentorshipRequestFilter;
+import school.faang.user_service.filters.mentorshiprequest.MentorshipRequestFilter;
 import school.faang.user_service.mapper.MentorshipRequestMapperImpl;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import school.faang.user_service.validator.abstracts.MentorshipRequestValidator;
+import school.faang.user_service.validator.mentorshiprequest.MentorshipRequestValidator;
 
 import java.util.ArrayList;
 import java.util.List;

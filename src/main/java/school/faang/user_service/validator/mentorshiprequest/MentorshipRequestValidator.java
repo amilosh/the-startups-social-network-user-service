@@ -1,4 +1,4 @@
-package school.faang.user_service.validator.abstracts;
+package school.faang.user_service.validator.mentorshiprequest;
 
 import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;

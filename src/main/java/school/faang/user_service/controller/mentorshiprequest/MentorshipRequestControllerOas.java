@@ -1,4 +1,4 @@
-package school.faang.user_service.controller;
+package school.faang.user_service.controller.mentorshiprequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import school.faang.user_service.dto.mentorshiprequest.MentorshipRequestDto;
-import school.faang.user_service.dto.mentorshiprequest.RejectionDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.mentorshiprequest.RequestFilterDto;
 
 import java.util.List;

@@ -1,5 +1,6 @@
-package school.faang.user_service.validator.impl;
+package school.faang.user_service.validator.mentorshiprequest;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -9,7 +10,7 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import school.faang.user_service.service.abstracts.UserService;
+import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -45,7 +46,7 @@ class MentorshipRequestValidatorImplTest {
     public void testValidationWhenRequesterDoesntExist() {
         when(userService.existsById(REQUESTER_ID)).thenReturn(false);
 
-        DataValidationException thrown = assertThrows(DataValidationException.class,
+        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class,
                 () -> mentorshipRequestValidator.validateRequesterAndReceiver(REQUESTER_ID, RECEIVER_ID));
 
         verify(userService).existsById(REQUESTER_ID);
@@ -57,7 +58,7 @@ class MentorshipRequestValidatorImplTest {
         when(userService.existsById(REQUESTER_ID)).thenReturn(true);
         when(userService.existsById(RECEIVER_ID)).thenReturn(false);
 
-        DataValidationException thrown = assertThrows(DataValidationException.class,
+        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class,
                 () -> mentorshipRequestValidator.validateRequesterAndReceiver(REQUESTER_ID, RECEIVER_ID));
 
         verify(userService).existsById(RECEIVER_ID);
@@ -84,7 +85,7 @@ class MentorshipRequestValidatorImplTest {
     public void testGetDoesntExistRequest() {
         when(mentorshipRequestRepository.findById(REQUEST_ID)).thenReturn(Optional.empty());
 
-        DataValidationException thrown = assertThrows(DataValidationException.class,
+        EntityNotFoundException thrown = assertThrows(EntityNotFoundException.class,
                 () -> mentorshipRequestValidator.getRequestByIdOrThrowException(REQUEST_ID));
 
         verify(mentorshipRequestRepository).findById(REQUEST_ID);

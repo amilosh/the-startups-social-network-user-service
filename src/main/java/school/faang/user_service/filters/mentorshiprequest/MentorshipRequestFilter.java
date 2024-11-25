@@ -1,4 +1,4 @@
-package school.faang.user_service.filters.abstracts;
+package school.faang.user_service.filters.mentorshiprequest;
 
 import school.faang.user_service.dto.mentorshiprequest.RequestFilterDto;
 import school.faang.user_service.entity.MentorshipRequest;

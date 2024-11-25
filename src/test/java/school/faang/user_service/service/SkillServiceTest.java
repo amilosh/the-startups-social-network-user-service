@@ -10,16 +10,15 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.SkillDto;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillCandidateMapper;
 import school.faang.user_service.mapper.SkillMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
+import school.faang.user_service.service.user.UserService;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 

@@ -1,4 +1,4 @@
-package school.faang.user_service.validator.impl;
+package school.faang.user_service.validator.mentorshiprequest;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -7,8 +7,7 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import school.faang.user_service.service.abstracts.UserService;
-import school.faang.user_service.validator.abstracts.MentorshipRequestValidator;
+import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
