@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.user.Person;
@@ -15,13 +16,12 @@ import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.mapper.csv.CsvParserService;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.csv.CsvParserService;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.CountryService;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -121,9 +121,9 @@ public class UserService {
                 .toList();
     }
 
-    public void uploadUsers(InputStream inputStream) throws IOException {
-        log.info("upload csv file starting");
-        List<Person> parsedPersons = csvParserService.parseCsv(inputStream, Person.class);
+    public void uploadUsers(MultipartFile file) throws IOException {
+        log.info("upload csv file: {} starting", file.getOriginalFilename());
+        List<Person> parsedPersons = csvParserService.parseCsv(file.getInputStream(), Person.class);
         List<CompletableFuture<User>> futureUsers = parsedPersons.stream()
                 .map(person -> CompletableFuture.supplyAsync(() -> {
                     User user = userMapper.toEntity(person);

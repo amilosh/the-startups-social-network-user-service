@@ -53,6 +53,6 @@ public class UserController {
     @PostMapping("file/import")
     @ResponseStatus(HttpStatus.CREATED)
     public void importCSVFile(@RequestParam("file") MultipartFile csvFile) throws IOException {
-        userService.uploadUsers(csvFile.getInputStream());
+        userService.uploadUsers(csvFile);
     }
 }

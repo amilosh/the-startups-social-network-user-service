@@ -5,17 +5,31 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.mock.web.MockMultipartFile;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.mapper.csv.CsvParserService;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.CountryService;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -48,6 +62,15 @@ public class UserServiceTest {
     private UserContext userContext;
     @Mock
     private AvatarService avatarService;
+
+    @Mock
+    private CsvParserService csvParserService;
+
+    @Spy
+    private UserMapperImpl userMapper;
+
+    @Mock
+    private CountryService countryService;
 
     @BeforeEach
     void setUp() {
@@ -142,5 +165,55 @@ public class UserServiceTest {
         assertEquals("User not found", exception.getMessage());
         verify(avatarService, never()).generateRandomAvatar(anyString(), anyString());
         verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void testToUploadUsersByInputStream_ShouldSuccessSave() throws IOException {
+        ClassPathResource resource = new ClassPathResource("files/students.csv");
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                resource.getFilename(),
+                "text/csv",
+                resource.getInputStream()
+        );
+        ArgumentCaptor<List<User>> listUsersArgumentCaptor = ArgumentCaptor.forClass((Class<List<User>>)(Class)ArrayList.class);
+        ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
+        when(csvParserService.parseCsv(Mockito.any(InputStream.class), Mockito.any(Class.class)))
+                .thenReturn(List.of(Person.builder()
+                                .firstName("Test")
+                                .lastName("Test")
+                                .email("test@mail.ru")
+                                .phone("877777777")
+                                .city("City")
+                                .country("Country")
+                                .state("State")
+                                .faculty("Faculty")
+                                .yearOfStudy("Year")
+                                .major("major")
+                                .employer("employer")
+                        .build()));
+        when(countryService.getCountryOrCreateByName(userArgumentCaptor.capture()))
+                .thenReturn(Country.builder().title("USA").build());
+        when(userRepository.saveAll(listUsersArgumentCaptor.capture()))
+                .thenReturn(List.of(User.builder().build()));
+
+        userService.uploadUsers(file);
+
+        verify(csvParserService, times(1)).parseCsv(Mockito.any(InputStream.class), Mockito.any(Class.class));
+        assertNotNull(listUsersArgumentCaptor.getValue());
+        verify(userRepository, times(1)).saveAll(listUsersArgumentCaptor.getValue());
+        assertEquals(1, listUsersArgumentCaptor.getValue().size());
+    }
+
+    @Test
+    void testToGenerateRandomPassword_ShouldSuccessGenerate() {
+        User user = User.builder()
+                .email("test@mail.ru")
+                .build();
+
+        String password = userService.generateRandomPassword(user);
+
+        assertNotNull(password);
+        assertEquals("test@mail.ru", password);
     }
 }
