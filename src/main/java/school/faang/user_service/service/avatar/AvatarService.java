@@ -3,6 +3,9 @@ package school.faang.user_service.service.avatar;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,7 +14,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exception.DiceBearException;
 import school.faang.user_service.exception.EntityNotFoundException;
-import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.exception.MinioException;
 import school.faang.user_service.properties.DiceBearProperties;
 import school.faang.user_service.repository.UserRepository;
@@ -136,35 +138,38 @@ public class AvatarService {
         }
     }
 
-    Optional<byte[]> getRandomDiceBearAvatar(Long userId) {
+    @Retryable(
+            retryFor = {WebClientResponseException.class},
+            backoff = @Backoff(delay = 1000, multiplier = 2)
+    )
+    public Optional<byte[]> getRandomDiceBearAvatar(Long userId) {
         log.info("Requesting random avatar for user ID: {} with style: {}, format: {}",
                 userId, diceBearProperties.getStyle(), diceBearProperties.getFormat());
-        try {
-            byte[] avatarData = diceBearClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .pathSegment(
-                                    diceBearProperties.getVersion(),
-                                    diceBearProperties.getStyle(),
-                                    diceBearProperties.getFormat())
-                            .queryParam("seed", userId)
-                            .build())
-                    .retrieve()
-                    .bodyToMono(byte[].class)
-                    .block();
 
-            if (avatarData == null || avatarData.length == 0) {
-                log.warn("Received empty avatar content for user ID: {}", userId);
-                return Optional.empty();
-            }
+        byte[] avatarData = diceBearClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .pathSegment(
+                                diceBearProperties.getVersion(),
+                                diceBearProperties.getStyle(),
+                                diceBearProperties.getFormat())
+                        .queryParam("seed", userId)
+                        .build())
+                .retrieve()
+                .bodyToMono(byte[].class)
+                .block();
 
-            log.info("Successfully retrieved avatar for user ID: {}. Data length: {}", userId, avatarData.length);
-            return Optional.of(avatarData);
-        } catch (WebClientResponseException e) {
-            log.error("Error retrieving avatar from DiceBear API, status: {}, user ID: {}", e.getStatusCode(), userId, e);
-            throw new DiceBearException(String.format(ErrorMessage.DICE_BEAR_RETRIEVAL_ERROR, e.getStatusCode()), e);
-        } catch (Exception e) {
-            log.error("Unexpected error retrieving avatar from DiceBear API for user ID: {}", userId, e);
-            throw new DiceBearException(ErrorMessage.DICE_BEAR_UNEXPECTED_ERROR, e);
+        if (avatarData == null || avatarData.length == 0) {
+            log.warn("Received empty avatar content for user ID: {}", userId);
+            return Optional.empty();
         }
+
+        log.info("Successfully retrieved avatar for user ID: {}. Data length: {}", userId, avatarData.length);
+        return Optional.of(avatarData);
+    }
+
+    @Recover
+    public Optional<byte[]> recover(WebClientResponseException e, Long userId) {
+        log.error("Failed to retrieve avatar after retries for user ID: {}", userId, e);
+        return Optional.empty();
     }
 }

@@ -22,4 +22,11 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             WHERE ue.user_id = :userId
             """)
     List<Event> findParticipatedEventsByUserId(long userId);
+
+    @Query("""
+            SELECT e.id
+            FROM Event e
+            WHERE e.endDate < CURRENT_TIMESTAMP
+            """)
+    List<Long> findPastEventIds();
 }
