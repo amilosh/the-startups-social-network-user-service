@@ -40,3 +40,15 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+  name: PaymentService
+
+dicebear:
+  api:
+    url: https://api.dicebear.com/6.x/shapes/svg
+
+minio:
+  endpoint: http://localhost:9000
+  username: user
+  password: password
+  region: us-east-1
+  avatarBucket: avatars

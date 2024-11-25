@@ -64,10 +64,6 @@ public class RecommendationService {
         return recommendationDto;
     }
 
-    public boolean recommendationExists(long id) {
-        return recommendationRepository.findById(id).isPresent();
-    }
-
     public void delete(long id) {
         recommendationRepository.deleteById(id);
     }
