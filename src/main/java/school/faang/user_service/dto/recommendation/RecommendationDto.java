@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import school.faang.user_service.dto.skill.SkillOfferDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

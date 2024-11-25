@@ -9,12 +9,14 @@ import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapperImpl;
-import school.faang.user_service.repository.SkillRepository;
+import school.faang.user_service.repository.skill.SkillRepository;
 import school.faang.user_service.validator.SkillValidator;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -100,5 +102,32 @@ public class SkillServiceTest {
         skillService.acquireSkillFromOffers(SKILL_ID, USER_ID);
 
         verify(skillRepository, times(1)).assignSkillToUser(SKILL_ID, USER_ID);
+    }
+
+    @Test
+    void testAssignSkillToUser() {
+        long skillId = 1L;
+        long receiverId = 2L;
+
+        skillService.assignSkillToUser(skillId, receiverId);
+
+        verify(skillRepository).assignSkillToUser(skillId, receiverId);
+
+        verifyNoMoreInteractions(skillRepository);
+    }
+
+    @Test
+    void testCountExisting() {
+        List<Long> ids = Arrays.asList(1L, 2L, 3L);
+
+        when(skillRepository.countExisting(ids)).thenReturn(2);
+
+        int result = skillService.countExisting(ids);
+
+        assertEquals(2, result);
+
+        verify(skillRepository).countExisting(ids);
+
+        verifyNoMoreInteractions(skillRepository);
     }
 }

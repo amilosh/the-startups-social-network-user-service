@@ -1,7 +1,7 @@
 package school.faang.user_service.validator;
 
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorshipRequest.MentorshipRequestDto;
 
 import java.time.LocalDateTime;
 
@@ -24,7 +24,7 @@ public class MentorshipRequestValidator {
             throw new IllegalArgumentException("Requester user ID does not exist");
         }
 
-        if (LatestRequestCreatedAt.isAfter(LocalDateTime.now().minusMonths(3))) {
+        if (LatestRequestCreatedAt != null && LatestRequestCreatedAt.isAfter(LocalDateTime.now().minusMonths(3))) {
             throw new IllegalArgumentException("request for mentoring can be sent once every 3 months");
         }
     }

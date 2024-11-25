@@ -5,11 +5,11 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.entity.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.SkillMapper;
-import school.faang.user_service.repository.SkillRepository;
-import school.faang.user_service.repository.recommendation.SkillRequestRepository;
+import school.faang.user_service.repository.skill.SkillRepository;
+import school.faang.user_service.repository.skill.SkillRequestRepository;
 import school.faang.user_service.validator.SkillValidator;
 
 import java.util.List;
@@ -37,7 +37,7 @@ public class SkillService {
         List<Skill> skills = skillRepository.findAllByUserId(userId);
 
         return skills.stream()
-                .map(skill -> skillMapper.entityToDto(skill))
+                .map(skillMapper::entityToDto)
                 .toList();
     }
 
@@ -45,10 +45,10 @@ public class SkillService {
         List<Skill> skills = skillRepository.findSkillsOfferedToUser(userId);
 
         return skills.stream()
-                .collect(Collectors.groupingBy(skill -> skillMapper.entityToDto(skill), Collectors.counting()))
+                .collect(Collectors.groupingBy(skillMapper::entityToDto, Collectors.counting()))
                 .entrySet().stream()
                 .map(entry -> new SkillCandidateDto(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
@@ -57,7 +57,7 @@ public class SkillService {
 
         skillRepository.assignSkillToUser(skillId, userId);
         Optional<Skill> skill = skillRepository.findUserSkill(skillId, userId);
-        return skill.map(skill1 -> skillMapper.entityToDto(skill1))
+        return skill.map(skillMapper::entityToDto)
                 .orElseThrow(() -> new DataValidationException("Скилл не найден"));
     }
 
@@ -83,5 +83,13 @@ public class SkillService {
 
     public boolean existsById(long id) {
         return skillRepository.existsById(id);
+    }
+
+    public void assignSkillToUser(long skillId, long receiverId) {
+        skillRepository.assignSkillToUser(skillId, receiverId);
+    }
+
+    public int countExisting(List<Long> ids){
+        return skillRepository.countExisting(ids);
     }
 }

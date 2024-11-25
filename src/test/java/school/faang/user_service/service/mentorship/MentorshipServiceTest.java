@@ -1,6 +1,7 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.mentorship;
 
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
@@ -11,10 +12,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.MentorshipService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -77,7 +79,7 @@ class MentorshipServiceTest {
         Mockito.when(userRepository.findById(13L)).thenReturn(Optional.empty());
         Mockito.when(userRepository.existsById(13L)).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> mentorshipService.getMentees(13));
         Mockito.verify(userRepository).findById(13L);
     }
@@ -87,7 +89,7 @@ class MentorshipServiceTest {
         Mockito.when(userRepository.findById(12L)).thenReturn(Optional.empty());
         Mockito.when(userRepository.existsById(12L)).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> mentorshipService.getMentors(12));
         Mockito.verify(userRepository).findById(12L);
     }
@@ -184,7 +186,7 @@ class MentorshipServiceTest {
         Mockito.when(userRepository.existsById(6L)).thenReturn(true);
         Mockito.when(userRepository.existsById(17L)).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> mentorshipService.deleteMentee(17, 6));
         Mockito.verify(userRepository).findById(6L);
     }
@@ -195,7 +197,7 @@ class MentorshipServiceTest {
         Mockito.when(userRepository.existsById(6L)).thenReturn(true);
         Mockito.when(userRepository.existsById(17L)).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(EntityNotFoundException.class,
                 () -> mentorshipService.deleteMentor(6, 17));
         Mockito.verify(userRepository).findById(6L);
     }
