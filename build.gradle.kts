@@ -129,9 +129,9 @@ tasks.test {
     finalizedBy(tasks.jacocoTestCoverageVerification)
 }
 
-//tasks.build {
-//    dependsOn(tasks.jacocoTestCoverageVerification)
-//}
+tasks.build {
+    dependsOn(tasks.jacocoTestCoverageVerification)
+}
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
@@ -162,7 +162,7 @@ tasks.jacocoTestCoverageVerification {
             )
             enabled = true
             limit {
-                minimum = 0.0.toBigDecimal()
+                minimum = 0.7.toBigDecimal()
             }
         }
     }

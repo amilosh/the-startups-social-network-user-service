@@ -1,7 +1,6 @@
 package school.faang.user_service.entity.contact;
 
 import jakarta.persistence.*;
-//import org.springframework.data.relational.core.mapping.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

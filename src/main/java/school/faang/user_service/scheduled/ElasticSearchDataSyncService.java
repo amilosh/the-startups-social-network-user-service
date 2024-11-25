@@ -1,4 +1,4 @@
-package school.faang.user_service.service.elasticsearch;
+package school.faang.user_service.scheduled;
 
 import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
@@ -20,7 +20,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class DataSyncService {
+public class ElasticSearchDataSyncService {
     private final UserElasticsearchRepository userElasticsearchRepository;
     private final UserMapper userMapper;
     private final JedisPool jedisPool;

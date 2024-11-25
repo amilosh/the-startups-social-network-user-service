@@ -2,8 +2,10 @@ package school.faang.user_service.service;
 
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -23,6 +25,7 @@ import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PremiumService {
     private final PremiumRepository premiumRepository;
     private final UserService userService;
@@ -67,5 +70,10 @@ public class PremiumService {
             return premiumMapper.toDto(premiumRepository.save(newPremium));
         }
         return null;
+    }
+
+    @Recover
+    public void recover(FeignException e) {
+        log.error("payment failed", e);
     }
 }

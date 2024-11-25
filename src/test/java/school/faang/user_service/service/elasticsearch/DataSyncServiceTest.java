@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.elasticsearch.UserElasticsearchRepository;
+import school.faang.user_service.scheduled.ElasticSearchDataSyncService;
 
 import java.util.ArrayList;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,7 +21,7 @@ import static org.mockito.Mockito.when;
 public class DataSyncServiceTest {
 
     @InjectMocks
-    private DataSyncService dataSyncService;
+    private ElasticSearchDataSyncService dataSyncService;
 
     @Mock
     private UserElasticsearchRepository userElasticsearchRepository;
