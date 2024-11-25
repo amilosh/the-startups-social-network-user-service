@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
@@ -25,7 +24,6 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.CountryService;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -192,7 +190,7 @@ public class UserServiceTest {
         );
         ArgumentCaptor<List<User>> listUsersArgumentCaptor = ArgumentCaptor.forClass((Class<List<User>>) (Class) ArrayList.class);
         ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
-        when(csvParser.parseCsv(Mockito.any(InputStream.class), Mockito.any(Class.class)))
+        when(csvParser.parseCsv(file, Person.class))
                 .thenReturn(List.of(Person.builder()
                         .firstName("Test")
                         .lastName("Test")
@@ -213,7 +211,7 @@ public class UserServiceTest {
 
         userService.uploadUsers(file);
 
-        verify(csvParser, times(1)).parseCsv(Mockito.any(InputStream.class), Mockito.any(Class.class));
+        verify(csvParser, times(1)).parseCsv(file, Person.class);
         assertNotNull(listUsersArgumentCaptor.getValue());
         verify(userRepository, times(1)).saveAll(listUsersArgumentCaptor.getValue());
         assertEquals(1, listUsersArgumentCaptor.getValue().size());

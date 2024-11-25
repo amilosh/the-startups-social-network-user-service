@@ -5,6 +5,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +25,6 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.service.CountryService;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -125,9 +125,9 @@ public class UserService {
                 .toList();
     }
 
-    public void uploadUsers(MultipartFile file) throws IOException {
+    public void uploadUsers(MultipartFile file) {
         log.info("upload csv file: {} starting", file.getOriginalFilename());
-        List<Person> parsedPersons = csvParser.parseCsv(file.getInputStream(), Person.class);
+        List<Person> parsedPersons = csvParser.parseCsv(file, Person.class);
         List<CompletableFuture<User>> futureUsers = parsedPersons.stream()
                 .map(person -> CompletableFuture.supplyAsync(() -> {
                     User user = userMapper.toEntity(person);
@@ -140,7 +140,11 @@ public class UserService {
         List<User> users = futureUsers.stream()
                 .map(CompletableFuture::join)
                 .toList();
-        userRepository.saveAll(users);
+        try {
+            userRepository.saveAll(users);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException(e.getMostSpecificCause().getLocalizedMessage());
+        }
         log.info("success saved all users form file");
     }
 

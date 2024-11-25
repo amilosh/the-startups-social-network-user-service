@@ -19,7 +19,7 @@ public class CountryService {
     public Country getCountryOrCreateByName(User user) {
         String countryTitle = user.getCountry().getTitle();
         return countryRepository.findByTitleIgnoreCase(countryTitle)
-                .orElse(countryRepository.save(Country.builder()
+                .orElseGet(() -> countryRepository.save(Country.builder()
                         .title(countryTitle)
                         .residents(List.of(user))
                         .build()));
