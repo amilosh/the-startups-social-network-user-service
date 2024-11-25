@@ -17,7 +17,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
-import school.faang.user_service.mapper.csv.CsvParserService;
+import school.faang.user_service.mapper.csv.CsvParser;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.CountryService;
 
@@ -43,7 +43,7 @@ public class UserService {
     private final UserContext userContext;
     private final AvatarService avatarService;
     private final UserMapper userMapper;
-    private final CsvParserService csvParserService;
+    private final CsvParser csvParser;
     private final CountryService countryService;
 
     public Optional<User> findById(long userId) {
@@ -123,7 +123,7 @@ public class UserService {
 
     public void uploadUsers(MultipartFile file) throws IOException {
         log.info("upload csv file: {} starting", file.getOriginalFilename());
-        List<Person> parsedPersons = csvParserService.parseCsv(file.getInputStream(), Person.class);
+        List<Person> parsedPersons = csvParser.parseCsv(file.getInputStream(), Person.class);
         List<CompletableFuture<User>> futureUsers = parsedPersons.stream()
                 .map(person -> CompletableFuture.supplyAsync(() -> {
                     User user = userMapper.toEntity(person);

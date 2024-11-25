@@ -19,7 +19,7 @@ import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.UserMapperImpl;
-import school.faang.user_service.mapper.csv.CsvParserService;
+import school.faang.user_service.mapper.csv.CsvParser;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.CountryService;
 
@@ -64,7 +64,7 @@ public class UserServiceTest {
     private AvatarService avatarService;
 
     @Mock
-    private CsvParserService csvParserService;
+    private CsvParser csvParser;
 
     @Spy
     private UserMapperImpl userMapper;
@@ -178,7 +178,7 @@ public class UserServiceTest {
         );
         ArgumentCaptor<List<User>> listUsersArgumentCaptor = ArgumentCaptor.forClass((Class<List<User>>)(Class)ArrayList.class);
         ArgumentCaptor<User> userArgumentCaptor = ArgumentCaptor.forClass(User.class);
-        when(csvParserService.parseCsv(Mockito.any(InputStream.class), Mockito.any(Class.class)))
+        when(csvParser.parseCsv(Mockito.any(InputStream.class), Mockito.any(Class.class)))
                 .thenReturn(List.of(Person.builder()
                                 .firstName("Test")
                                 .lastName("Test")
@@ -199,7 +199,7 @@ public class UserServiceTest {
 
         userService.uploadUsers(file);
 
-        verify(csvParserService, times(1)).parseCsv(Mockito.any(InputStream.class), Mockito.any(Class.class));
+        verify(csvParser, times(1)).parseCsv(Mockito.any(InputStream.class), Mockito.any(Class.class));
         assertNotNull(listUsersArgumentCaptor.getValue());
         verify(userRepository, times(1)).saveAll(listUsersArgumentCaptor.getValue());
         assertEquals(1, listUsersArgumentCaptor.getValue().size());
