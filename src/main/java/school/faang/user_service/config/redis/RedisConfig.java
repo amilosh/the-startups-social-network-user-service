@@ -16,18 +16,11 @@ import school.faang.user_service.listener.RedisMessageSubscriber;
 @Component
 public class RedisConfig {
     @Bean
-    public MessageListenerAdapter messageListener() {
-        return new MessageListenerAdapter(new RedisMessageSubscriber());
-    }
-
-    @Bean
     public RedisMessageListenerContainer redisContainer(RedisConnectionFactory jedisConnectionFactory,
-                                                        MessageListenerAdapter messageListener,
-                                                        RedisMessageSubscriber redisMessageSubscriber,
-                                                        ChannelTopic topic) {
+                                                        RedisMessageSubscriber redisMessageSubscriber) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(jedisConnectionFactory);
-        container.addMessageListener(redisMessageSubscriber, topic);
+        container.addMessageListener(redisMessageSubscriber, new ChannelTopic("user_ban"));
         return container;
     }
 
