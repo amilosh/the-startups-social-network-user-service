@@ -3,7 +3,7 @@ package school.faang.user_service.service.goal;
 import lombok.RequiredArgsConstructor;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalRequestDto;
 import school.faang.user_service.dto.goal.GoalResponseDto;
@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @RequiredArgsConstructor
-@Component
+@Service
 public class GoalService {
     private final GoalRepository goalRepository;
     private final GoalValidator goalValidator;
