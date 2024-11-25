@@ -17,6 +17,7 @@ public class UserDto {
     private boolean active;
     @Schema(description = "Описание пользователя", example = "хобби")
     private String aboutMe;
+    private String country;
     @Schema(description = "Опыт пользователя", example = "123")
     private Integer experience;
     @Schema(description = "Время создания", example = "2023-03-15T10:30:45.123")
