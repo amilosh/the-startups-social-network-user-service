@@ -21,7 +21,9 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.MentorshipRequestMapper;
+import school.faang.user_service.mapper.MentorshipRequestedEventMapper;
 import school.faang.user_service.publisher.MentorshipAcceptedEventPublisher;
+import school.faang.user_service.publisher.MentorshipRequestedEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.service.mentorship.filter.ReceiverFilter;
@@ -58,6 +60,11 @@ class MentorshipRequestServiceTest {
 
     @Mock
     private MentorshipAcceptedEventPublisher publisher;
+    @Mock
+    private MentorshipRequestedEventMapper mentorshipRequestedEventMapper;
+
+    @Mock
+    private MentorshipRequestedEventPublisher mentorshipRequestedEventPublisher;
 
     private List<RequestFilter> filters;
     private MentorshipRequestServiceImpl mentorshipRequestService;
@@ -76,7 +83,9 @@ class MentorshipRequestServiceTest {
                 userRepository,
                 userContext,
                 requestMapper,
+                mentorshipRequestedEventMapper,
                 publisher,
+                mentorshipRequestedEventPublisher,
                 filters);
         mentorshipRequestService.setMinTimeRequestConstraint(3);
         requestCreationDto = MentorshipRequestCreationDto.builder()
