@@ -1,5 +1,6 @@
 package school.faang.user_service.service.recommendation;
 
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -137,4 +138,9 @@ public class RecommendationRequestService {
     }
 
 
+    public RecommendationRequestDto getRequest(Long id) {
+        return recommendationRequestRepository.findById(id)
+                .map(recommendationRequestMapper::toDto)
+                .orElseThrow(() -> new IllegalArgumentException("Recommendation request not found"));
+    }
 }

@@ -1,8 +1,10 @@
 package school.faang.user_service.controller.recommendation;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,5 +30,10 @@ public class RecommendationRequestController {
     @GetMapping(UrlUtils.REQUEST)
     public List<RecommendationRequestDto> getRecommendationRequests(@Valid @RequestBody RecommendationRequestFilterDto filter) {
         return recommendationRequestService.getRequests(filter);
+    }
+
+    @GetMapping(UrlUtils.REQUEST + UrlUtils.ID)
+    public RecommendationRequestDto getRecommendationRequest(@PathVariable("id") @Min(1) Long id) {
+        return recommendationRequestService.getRequest(id);
     }
 }
