@@ -1,22 +1,19 @@
 package school.faang.user_service.config.thread;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Configuration
 public class ThreadConfig {
-    private static final int THREAD_POOL_SIZE = 10;
+    @Value("${app.user-service.thread-amount}")
+    private int THREAD_POOL_SIZE;
 
     @Bean(name = "taskExecutor")
-    public Executor taskExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(THREAD_POOL_SIZE);
-        executor.setMaxPoolSize(THREAD_POOL_SIZE);
-        executor.setQueueCapacity(100);
-        executor.initialize();
-        return executor;
+    public ExecutorService taskExecutor() {
+        return Executors.newFixedThreadPool(THREAD_POOL_SIZE);
     }
 }
