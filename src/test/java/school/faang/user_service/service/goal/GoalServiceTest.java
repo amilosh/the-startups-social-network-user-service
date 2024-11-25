@@ -12,7 +12,6 @@ import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.goal.GoalMapper;
-import school.faang.user_service.mapper.goal.GoalRequestMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.goal.filter.GoalFilter;
 import school.faang.user_service.validator.goal.GoalValidator;
