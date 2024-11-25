@@ -18,6 +18,12 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query(nativeQuery = true, value = """
             SELECT e.* FROM event e
+            WHERE e.status IN ('CANCELED', 'COMPLETED')
+            """)
+    List<Event> findAllCompletedAndCanceledEvents();
+
+    @Query(nativeQuery = true, value = """
+            SELECT e.* FROM event e
             JOIN user_event ue ON ue.event_id = e.id
             WHERE ue.user_id = :userId
             """)
