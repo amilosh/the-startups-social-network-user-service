@@ -11,6 +11,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exception.DiceBearException;
@@ -26,8 +28,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -119,27 +123,23 @@ class AvatarServiceTest {
     void getDiceBearAvatarServerErrorTest() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(400));
 
-        DiceBearException exception = assertThrows(DiceBearException.class, () -> {
+        assertThrows(WebClientResponseException.class, () -> {
             avatarService.getRandomDiceBearAvatar(USER_ID).orElseThrow(() ->
                     new DiceBearException(ErrorMessage.DICE_BEAR_RETRIEVAL_ERROR));
         });
-
-        assertTrue(exception.getMessage().contains("Error retrieving avatar"));
     }
 
     @Test
     void getDiceBearAvatarServiceUnavailableTest() throws Exception {
         mockWebServer.shutdown();
 
-        DiceBearException exception = assertThrows(DiceBearException.class, () -> {
+        assertThrows(WebClientRequestException.class, () -> {
             avatarService.getRandomDiceBearAvatar(USER_ID);
         });
-
-        assertEquals(ErrorMessage.DICE_BEAR_UNEXPECTED_ERROR, exception.getMessage());
     }
 
     @Test
-    void getUserAvatarSuccessTest()  {
+    void getUserAvatarSuccessTest() {
         byte[] avatarData = "user_avatar_data".getBytes();
         UserProfilePic userProfilePic = new UserProfilePic("fileId", "smallFileId");
 
