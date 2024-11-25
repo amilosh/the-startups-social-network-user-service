@@ -3,7 +3,7 @@ package school.faang.user_service.validator.goal;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalRequestDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.DataValidationException;
@@ -22,7 +22,7 @@ public class GoalValidator {
     private final GoalRepository goalRepository;
     private final SkillRepository skillRepository;
 
-    public void validateCreationGoal(Long userId, GoalDto goal) {
+    public void validateCreationGoal(Long userId, GoalRequestDto goal) {
         if (goalRepository.countActiveGoalsPerUser(userId) == MAX_USER_GOALS_LIMIT) {
             log.warn("User {} reached the maximum quantity of active goals: {}", userId, MAX_USER_GOALS_LIMIT);
             throw new DataValidationException("Reached maximum quantity of goals");
@@ -30,7 +30,7 @@ public class GoalValidator {
         validateSkillsExist(goal.getSkillIds());
     }
 
-    public void validateUpdatingGoal(Long goalId, GoalDto goal) {
+    public void validateUpdatingGoal(Long goalId, GoalRequestDto goal) {
         if (goal.getStatus() == GoalStatus.COMPLETED) {
             log.warn("Attempt to update a completed goal: goalId {}", goalId);
             throw new IllegalArgumentException("Cannot update a completed goal");
