@@ -161,8 +161,8 @@ public class RecommendationService {
     private Recommendation processAndSaveRecommendation(Recommendation recommendation) {
         Recommendation finalRecommendation = recommendation;
         List<SkillOffer> skillOffers = recommendation.getSkillOffers().stream()
-                .map(skillDto -> {
-                    Skill skill = getSkill(skillDto.getSkill().getId());
+                .map(skillOfferDto -> {
+                    Skill skill = getSkill(skillOfferDto.getSkill().getId());
                     return SkillOffer.builder()
                             .recommendation(finalRecommendation)
                             .skill(skill)

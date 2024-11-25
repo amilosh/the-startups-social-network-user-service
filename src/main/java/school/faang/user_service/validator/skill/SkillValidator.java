@@ -1,9 +1,11 @@
 package school.faang.user_service.validator.skill;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.exception.DataValidationException;
 
 @Component
+@RequiredArgsConstructor
 public class SkillValidator {
     private static final int MIN_SKILL_OFFERS = 3;
 

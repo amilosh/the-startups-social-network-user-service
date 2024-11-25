@@ -5,13 +5,16 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import school.faang.user_service.dto.skill.SkillDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 public class EventFilterDto {
+
     @Schema(description = "Pattern for filtering event titles (supports partial matches)", example = "Spring")
     private String titlePattern;
     @Schema(description = "Start date and time for filtering events (ISO 8601 format)", example = "2024-11-21T10:00:00")
