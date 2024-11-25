@@ -2,6 +2,7 @@ app:
   user-service:
     goal-service:
       max-goals-amount: 3
+    thread-amount: 10
 
 spring:
   servlet:

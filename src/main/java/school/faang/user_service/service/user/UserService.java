@@ -18,7 +18,6 @@ import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.pojo.user.Person;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.validator.user.UserValidator;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,8 +40,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final List<UserFilter> userFilters;
     private final UserMapper userMapper;
-    private final UserValidator userValidator;
     private final CountryService countryService;
+    private static final int THREAD_POOL_SIZE = 10;
 
     @Transactional(readOnly = true)
     public UserDto getUser(long userId) {
@@ -94,7 +93,10 @@ public class UserService {
 
     @Transactional
     public List<UserDto> parsePersonDataIntoUserDto(MultipartFile csvFile) {
-        log.info("Starting to parse CSV file: {}", csvFile.getOriginalFilename());
+        if (csvFile.isEmpty() || !csvFile.getContentType().equals("text/csv")) {
+            throw new IllegalArgumentException("Invalid file type or there is no file." +
+                    " Please upload a CSV file.");
+        }
         try {
             InputStream inputStream = csvFile.getInputStream();
             CsvMapper csvMapper = new CsvMapper();
@@ -104,8 +106,6 @@ public class UserService {
             MappingIterator<Person> iterator = csvMapper.readerFor(Person.class).with(schema).readValues(inputStream);
             List<Person> persons = iterator.readAll();
             log.info("CSV file processed. Number of records: {}", persons.size());
-
-            userValidator.validateAllPersons(persons);
 
             return saveUsers(persons);
         } catch (IOException e) {
@@ -117,7 +117,7 @@ public class UserService {
     private List<UserDto> saveUsers(List<Person> persons) {
         log.info("Starting to save {} users", persons.size());
 
-        ExecutorService executor = Executors.newFixedThreadPool(10);
+        ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
         List<CompletableFuture<User>> futures = persons.stream()
                 .map(person -> CompletableFuture.supplyAsync(() -> convertToUser(person), executor))
                 .toList();
@@ -147,21 +147,14 @@ public class UserService {
         User user = userMapper.toUser(person);
         user.setPassword(generatePassword());
 
-        if (countryService.isCountryExistsByTitle(person.getCountry())) {
-            user.setCountry(countryService.getCountryByTitle(person.getCountry()));
-        } else {
-            Country country = countryService.addNewCountry(person.getCountry());
-            log.info("Added new country to DB: {}", person.getCountry());
-            user.setCountry(country);
-        }
+        Country country = countryService.getOrCreateCountry(person.getCountry());
+        user.setCountry(country);
 
         return user;
     }
 
     private String generatePassword() {
-        String password = UUID.randomUUID().toString().substring(0, 8);
-        log.debug("Generated password: {}", password); // Log generated password
-        return password;
+        return UUID.randomUUID().toString().substring(0, 8);
     }
 
     private List<UserDto> filter(Stream<User> usersStream, UserFilterDto filterDto) {

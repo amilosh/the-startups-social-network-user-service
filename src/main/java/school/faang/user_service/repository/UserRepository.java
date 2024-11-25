@@ -45,6 +45,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
             """)
     List<Long> findNotExistingUserIds(@Param("userIds") List<Long> userIds);
 
-    Optional<User> findByEmail(String email);
-    Optional<User> findByPhone(String phone);
 }

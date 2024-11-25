@@ -1,12 +1,38 @@
 package school.faang.user_service.pojo.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@JsonPropertyOrder({
+        "firstName",
+        "lastName",
+        "yearOfBirth",
+        "group",
+        "studentID",
+        "email",
+        "phone",
+        "street",
+        "city",
+        "state",
+        "country",
+        "postalCode",
+        "faculty",
+        "yearOfStudy",
+        "major",
+        "GPA",
+        "status",
+        "admissionDate",
+        "graduationDate",
+        "degree",
+        "institution",
+        "completionYear",
+        "scholarship",
+        "employer"
+})
 public class Person {
 
     @JsonProperty("firstName")
@@ -60,11 +86,9 @@ public class Person {
     @JsonProperty("status")
     private String status;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
     @JsonProperty("admissionDate")
     private String admissionDate;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
     @JsonProperty("graduationDate")
     private String graduationDate;
 
