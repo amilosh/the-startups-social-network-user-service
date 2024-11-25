@@ -2,9 +2,9 @@ package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.dto.UserFilterDto;
-import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.service.SubscriptionService;
 
 import java.util.List;
@@ -34,7 +34,7 @@ public class SubscriptionController {
         }
     }
 
-    public List<UserDto> getFollowers(long followeeId, UserFilterDto filter) {
+    public List<UserSubResponseDto> getFollowers(long followeeId, UserFilterDto filter) {
         if (followeeId < 0) {
             throw new DataValidationException("User ID cannot be negative");
         }
@@ -48,7 +48,7 @@ public class SubscriptionController {
         return subscriptionService.getFollowingCount(followeeId);
     }
 
-    public List<UserDto> getFollowing(long followerId, UserFilterDto filter) {
+    public List<UserSubResponseDto> getFollowing(long followerId, UserFilterDto filter) {
         if (followerId < 0) {
             throw new DataValidationException("User ID cannot be negative");
         }

@@ -1,10 +1,12 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
@@ -33,13 +35,14 @@ import static school.faang.user_service.logging.goal.GoalMessages.NO_SKILLS_FOUN
 import static school.faang.user_service.logging.goal.GoalMessages.NUMBER_OF_ACTIVE_GOALS_REACHED_FOR_A_USER_IN_GOAL_WITH_ID;
 import static school.faang.user_service.logging.goal.GoalMessages.SUCCESSFULLY_DELETED_GOAL_AND_ALL_ITS_CHILDREN;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@Validated
 public class GoalService {
     private static final int MAX_NUM_ACTIVE_GOALS = 3;
 
-    private final GoalRepository goalRepo;
+    private final GoalRepository goalRepository;
     private final GoalMapper goalMapper;
     private final UserService userService;
     private final SkillService skillService;
@@ -51,9 +54,21 @@ public class GoalService {
         establishAllRelations(transientGoal, createGoalDto);
         validateMaxActiveGoalsLimit(transientGoal);
 
-        Goal persistantGoal = goalRepo.save(transientGoal);
+        Goal persistantGoal = goalRepository.save(transientGoal);
         log.info("Successfully created goal with id: {}", persistantGoal.getId());
         return goalMapper.toResponseDto(persistantGoal);
+    }
+
+    public Goal getGoalById(long id) {
+        return goalRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Goal do not found"));
+    }
+
+    public void removeGoalsWithoutExecutingUsers(List<Goal> goals) {
+        goals.stream()
+                .filter(Goal::isEmptyExecutingUsers)
+                .forEach(goal -> goalRepository.deleteById(goal.getId()));
+        log.info("Goals without users is removed");
     }
 
     private Goal createInitialGoal(CreateGoalDto dto) {
@@ -61,6 +76,14 @@ public class GoalService {
         goal.setStatus(GoalStatus.ACTIVE);
         return goal;
     }
+
+
+    public List<Goal> mapListIdsToGoals(List<Long> goalsIds) {
+        return goalsIds.stream()
+                .map(id -> getGoalById(id))
+                .toList();
+    }
+
 
     private void establishAllRelations(Goal goal, CreateGoalDto dto) {
         log.debug("Establishing relations for goal with title: {}", goal.getTitle());
@@ -93,7 +116,7 @@ public class GoalService {
 
     private void deleteGoalWithChildren(Long goalId) {
         Deque<Goal> goalsToDelete = new ArrayDeque<>();
-        Goal rootGoal = goalRepo.findById(goalId)
+        Goal rootGoal = goalRepository.findById(goalId)
                 .orElseThrow(() -> {
                     log.warn(GOAL_NOT_FOUND, goalId);
                     return new ResourceNotFoundException("Goal", "id", goalId);
@@ -102,13 +125,13 @@ public class GoalService {
 
         while (!goalsToDelete.isEmpty()) {
             Goal currentGoal = goalsToDelete.peek();
-            List<Goal> children = goalRepo.findAllByParentId(currentGoal.getId());
+            List<Goal> children = goalRepository.findAllByParentId(currentGoal.getId());
 
             if (children.isEmpty()) {
                 Goal goalToDelete = goalsToDelete.pop();
                 log.debug("Deleting goal with id: {}", goalToDelete.getId());
                 removeGoalReferences(goalToDelete);
-                goalRepo.delete(goalToDelete);
+                goalRepository.delete(goalToDelete);
             } else {
                 goalsToDelete.addAll(children);
             }
@@ -124,7 +147,7 @@ public class GoalService {
     @Transactional
     public GoalResponseDto update(Long goalId, UpdateGoalDto updateGoalDto) {
         log.info("Updating goal with id: {}", goalId);
-        Goal persistanceGoal = goalRepo.findById(goalId)
+        Goal persistanceGoal = goalRepository.findById(goalId)
                 .orElseThrow(() -> {
                     log.warn(GOAL_NOT_FOUND, goalId);
                     return new ResourceNotFoundException("Goal", "id", goalId);
@@ -135,7 +158,7 @@ public class GoalService {
         updateRelations(persistanceGoal, updateGoalDto);
 
         validateMaxActiveGoalsLimit(persistanceGoal);
-        persistanceGoal = goalRepo.save(persistanceGoal);
+        persistanceGoal = goalRepository.save(persistanceGoal);
         log.info("Successfully updated goal with id: {}", persistanceGoal.getId());
         return goalMapper.toResponseDto(persistanceGoal);
     }
@@ -191,7 +214,7 @@ public class GoalService {
     private void setParentGoalIfProvided(Goal goal, Long parentId) {
         if (parentId != null) {
             log.debug("Setting parent goal for goal with id: {}", goal.getId());
-            Goal parentGoal = goalRepo.findById(parentId)
+            Goal parentGoal = goalRepository.findById(parentId)
                     .orElseThrow(() -> {
                         log.warn("Parent goal not found with id: {}", parentId);
                         return new ResourceNotFoundException("Goal", "id", parentId);
@@ -209,12 +232,12 @@ public class GoalService {
     }
 
     public Page<GoalResponseDto> findSubtasksByGoalId(Long goalId, Pageable pageable) {
-        Page<Goal> goals = goalRepo.findAllByParentId(goalId, pageable);
+        Page<Goal> goals = goalRepository.findAllByParentId(goalId, pageable);
         return goals.map(goalMapper::toResponseDto);
     }
 
     public Page<GoalResponseDto> findGoalsByFilters(GoalFilterDto filters, Pageable pageable) {
-        Page<Goal> goal = goalRepo.findAll(GoalSpecification.build(filters), pageable);
+        Page<Goal> goal = goalRepository.findAll(GoalSpecification.build(filters), pageable);
         return goal.map(goalMapper::toResponseDto);
     }
 

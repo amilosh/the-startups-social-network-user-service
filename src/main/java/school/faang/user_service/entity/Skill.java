@@ -68,6 +68,11 @@ public class Skill {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Override
+    public String toString() {
+        return String.format(("Skill(id=%d, title=%s)"), id, title);
+    }
+
     public void addGuarantee(UserSkillGuarantee guarantee) {
         guarantees.add(guarantee);
     }

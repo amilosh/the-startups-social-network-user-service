@@ -38,6 +38,7 @@ dependencies {
     implementation("org.liquibase:liquibase-core")
     implementation("redis.clients:jedis:4.3.2")
     runtimeOnly("org.postgresql:postgresql")
+    testImplementation("com.h2database:h2")
 
     /**
      * Amazon S3
@@ -123,7 +124,7 @@ tasks.jacocoTestReport {
     reports {
         xml.required.set(false)
         csv.required.set(false)
-        //html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+        html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
     }
 
     classDirectories.setFrom(
