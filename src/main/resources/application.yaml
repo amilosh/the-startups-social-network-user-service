@@ -52,3 +52,9 @@ minio:
   password: password
   region: us-east-1
   avatarBucket: avatars
+
+premium:
+  updater:
+    batch-size: 50
+    cron: 0 0 0 * * *
+    zone: Europe/Moscow
