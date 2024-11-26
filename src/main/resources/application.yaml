@@ -40,3 +40,7 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+redis:
+  topic:
+    user-ban: user_ban

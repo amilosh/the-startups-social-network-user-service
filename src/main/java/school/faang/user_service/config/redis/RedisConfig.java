@@ -14,20 +14,22 @@ import school.faang.user_service.listener.RedisMessageSubscriber;
 
 @Configuration
 public class RedisConfig {
-    @Bean
-    public RedisMessageListenerContainer redisContainer(RedisConnectionFactory jedisConnectionFactory,
-                                                        RedisMessageSubscriber redisMessageSubscriber) {
-        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-        container.setConnectionFactory(jedisConnectionFactory);
-        container.addMessageListener(redisMessageSubscriber, new ChannelTopic("user_ban"));
-        return container;
-    }
-
     @Value("${spring.data.redis.host}")
     private String host;
 
     @Value("${spring.data.redis.port}")
     private int port;
+
+    @Value("${redis.topic.user-ban}")
+    private String userBanTopic;
+    @Bean
+    public RedisMessageListenerContainer redisContainer(RedisConnectionFactory jedisConnectionFactory,
+                                                        RedisMessageSubscriber redisMessageSubscriber) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(jedisConnectionFactory);
+        container.addMessageListener(redisMessageSubscriber, new ChannelTopic(userBanTopic));
+        return container;
+    }
 
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
