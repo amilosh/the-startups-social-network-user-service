@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +24,7 @@ public class PremiumRemover {
     private int updaterBatchSize;
     private final PremiumRepository premiumRepository;
 
-    @Async
+    @Async("premiumRemoverThreadPool")
     @Transactional
     @Scheduled(cron = "${premium.updater.cron}", zone = "${premium.updater.zone}")
     public void removeExpiredPremiums() {
