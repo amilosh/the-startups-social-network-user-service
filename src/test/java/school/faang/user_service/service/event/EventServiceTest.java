@@ -31,7 +31,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -55,6 +57,8 @@ public class EventServiceTest {
     private List<EventFilter> eventFilters;
     @Mock
     private UserValidator userValidator;
+    @Mock
+    private EventCleanerService eventCleanerService;
 
     private EventDto eventDto;
     private Event event;
@@ -239,16 +243,12 @@ public class EventServiceTest {
         int batchSize = 2;
         ReflectionTestUtils.setField(eventService, "batchSize", batchSize);
         when(eventRepository.findAllCompletedAndCanceledEvents()).thenReturn(events);
+        doNothing().when(eventCleanerService).deleteSelectedListEventsAsync(anyList());
 
         eventService.deleteCompletedAndCanceledEvent();
 
         verify(eventRepository).findAllCompletedAndCanceledEvents();
-        verify(eventRepository).deleteById(1L);
-        verify(eventRepository).deleteById(2L);
-        verify(eventRepository).deleteById(3L);
-        verify(eventRepository).deleteById(4L);
-        verify(eventRepository).deleteById(5L);
-        verify(eventRepository, times(5)).deleteById(anyLong());
+        verify(eventCleanerService, times(3)).deleteSelectedListEventsAsync(anyList());
     }
 
     @Test
@@ -262,22 +262,5 @@ public class EventServiceTest {
 
         verify(eventRepository).findAllCompletedAndCanceledEvents();
         verify(eventRepository, never()).deleteById(anyLong());
-    }
-
-    @Test
-    @DisplayName("Test deleteSelectedListEventsAsync positive case")
-    void deleteSelectedListEventsAsync_ShouldCallDeleteByIdForEachEvent() {
-        List<Event> events = List.of(
-                Event.builder().id(1L).build(),
-                Event.builder().id(2L).build(),
-                Event.builder().id(3L).build()
-        );
-
-        eventService.deleteSelectedListEventsAsync(events);
-
-        verify(eventRepository).deleteById(1L);
-        verify(eventRepository).deleteById(2L);
-        verify(eventRepository).deleteById(3L);
-        verify(eventRepository, times(3)).deleteById(anyLong());
     }
 }

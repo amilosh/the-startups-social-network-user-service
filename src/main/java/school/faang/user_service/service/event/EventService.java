@@ -3,7 +3,6 @@ package school.faang.user_service.service.event;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.event.EventDto;
@@ -32,6 +31,7 @@ public class EventService {
     private final UserService userService;
     private final List<EventFilter> eventFilters;
     private final UserValidator userValidator;
+    private final EventCleanerService eventCleanerService;
 
     @Value("${batch.size.eventBatch}")
     private int batchSize;
@@ -107,13 +107,7 @@ public class EventService {
     public void deleteCompletedAndCanceledEvent() {
         List<Event> eventList = eventRepository.findAllCompletedAndCanceledEvents();
         List<List<Event>> eventBatches = splitIntoBatchesStream(eventList, batchSize);
-        eventBatches.forEach(this::deleteSelectedListEventsAsync);
-    }
-
-    @Async("cachedThreadPool")
-    @Transactional
-    public void deleteSelectedListEventsAsync(List<Event> eventList) {
-        eventList.forEach(event -> eventRepository.deleteById(event.getId()));
+        eventBatches.forEach(eventCleanerService::deleteSelectedListEventsAsync);
     }
 
     private List<List<Event>> splitIntoBatchesStream(List<Event> events, int batchSize) {
