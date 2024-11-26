@@ -7,15 +7,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.user.UserMapperImpl;
-import school.faang.user_service.pojo.person.Address;
-import school.faang.user_service.pojo.person.ContactInfo;
-import school.faang.user_service.pojo.person.Education;
-import school.faang.user_service.pojo.person.PersonFromFile;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
@@ -32,12 +29,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -175,63 +167,28 @@ class UserServiceTest {
 
     @Test
     public void testLoadingUsersViaFileSuccess() {
-        Country firstCountry = Country.builder().id(1L).title("Россия").build();
-        Country secondCountry = Country.builder().id(2L).title("Казахстан").build();
-        Education education = Education.builder().major("major").yearOfStudy(2024).faculty("faculty").build();
-        Address address = Address.builder().country("Россия").state("state").build();
-        ContactInfo contactInfo = ContactInfo.builder().address(address).build();
-        PersonFromFile firstPerson = PersonFromFile.builder().firstName("Рома").education(education).employer("employer")
-                .lastName("Нифонтов").contactInfo(contactInfo).build();
-        PersonFromFile secondPerson = PersonFromFile.builder().firstName("Юрий").education(education).employer("employer")
-                .lastName("Чусовитин").contactInfo(contactInfo).build();
-        PersonFromFile thirdPerson = PersonFromFile.builder().firstName("Иван").education(education).employer("employer")
-                .lastName("Бессонов").contactInfo(contactInfo).build();
-        List<PersonFromFile> persons = List.of(firstPerson, secondPerson, thirdPerson);
-
-        when(countryRepository.findByTitleIgnoreCase("Россия")).thenReturn(Optional.of(firstCountry));
+        String csvContent = String.join(System.lineSeparator(),
+                "firstName,lastName,yearOfBirth,country,yearOfStudy",
+                "John,Doe,1998,USA,2021",
+                "Michael,Johnson,1988,USA,2021"
+        );
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.csv",
+                "text/csv",
+                csvContent.getBytes()
+        );
+        when(countryRepository.findByTitleIgnoreCase("USA")).thenReturn(Optional.empty());
         when(passwordGenerator.generatePassword(15, true,
                 true,true,true)).thenReturn("ksdfklsklfkslklfds");
-
         try {
-            userService.loadingUsersViaFile(any());
+            userService.loadingUsersViaFile(file);
             Thread.sleep(500);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-
-        verify(countryRepository, times(3)).findAll();
-        verify(userRepository, times(3)).save(any(User.class));
+        verify(userRepository, times(2)).save(any(User.class));
+        verify(countryRepository, times(2)).save(any(Country.class));
     }
 
-    @Test
-    public void testLoadingUsersViaFileWithSaveCountry() {
-        Country firstCountry = Country.builder().id(1L).title("Россия").build();
-        Country secondCountry = Country.builder().id(2L).title("Казахстан").build();
-        Iterable<Country> manyCountries = List.of(firstCountry, secondCountry);
-        Education education = Education.builder().major("major").yearOfStudy(2024).faculty("faculty").build();
-        Address address = Address.builder().country("Британия").state("state").build();
-        ContactInfo contactInfo = ContactInfo.builder().address(address).build();
-        PersonFromFile firstPerson = PersonFromFile.builder().firstName("Рома").education(education).employer("employer")
-                .lastName("Нифонтов").contactInfo(contactInfo).build();
-        PersonFromFile secondPerson = PersonFromFile.builder().firstName("Юрий").education(education).employer("employer")
-                .lastName("Чусовитин").contactInfo(contactInfo).build();
-        PersonFromFile thirdPerson = PersonFromFile.builder().firstName("Иван").education(education).employer("employer")
-                .lastName("Бессонов").contactInfo(contactInfo).build();
-        List<PersonFromFile> persons = List.of(firstPerson, secondPerson, thirdPerson);
-
-        when(countryRepository.findByTitleIgnoreCase("Британия")).thenReturn(Optional.empty());
-        when(passwordGenerator.generatePassword(15, true,
-                true,true,true)).thenReturn("ksdfklsklfkslklfds");
-
-        try {
-            userService.loadingUsersViaFile(any());
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-
-        verify(countryRepository, times(3)).findAll();
-        verify(countryRepository, times(3)).save(any(Country.class));
-        verify(userRepository, times(3)).save(any(User.class));
-    }
 }

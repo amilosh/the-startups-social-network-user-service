@@ -29,12 +29,12 @@ public interface UserMapper {
 
     List<User> toListUser(List<UserDto> users);
 
-    @Mapping(target = "username", expression = "java(person.getFirstName() + ' ' + person.getLastName())")
+    @Mapping(target = "username", expression = "java(personFromFile.getFirstName() + ' ' + personFromFile.getLastName())")
     @Mapping(target = "aboutMe", source = ".", qualifiedByName = "about")
     @Mapping(target = "country", ignore = true)
-    @Mapping(target = "email", expression = "java(person.getContactInfo().getEmail())")
-    @Mapping(target = "phone", expression = "java(person.getContactInfo().getPhone())")
-    @Mapping(target = "city", expression = "java(person.getContactInfo().getAddress().getCity())")
+    @Mapping(target = "email", expression = "java(personFromFile.getContactInfo().getEmail())")
+    @Mapping(target = "phone", expression = "java(personFromFile.getContactInfo().getPhone())")
+    @Mapping(target = "city", expression = "java(personFromFile.getContactInfo().getAddress().getCity())")
     User toUser(PersonFromFile personFromFile);
 
     @Mapping(source = "promotion", target = "promotionTariff", qualifiedByName = "mapTariff")

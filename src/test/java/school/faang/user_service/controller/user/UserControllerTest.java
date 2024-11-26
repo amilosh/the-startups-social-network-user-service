@@ -24,8 +24,7 @@ public class UserControllerTest {
     private UserService userService;
     @Mock
     private UserValidator userValidator;
-    @Mock
-    private UserMapper userMapper;
+
     private MockMvc mockMvc;
 
     @BeforeEach
