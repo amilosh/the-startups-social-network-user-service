@@ -36,7 +36,7 @@ public class RecommendationRequestService {
     private final SkillRepository skillRepository;
     private final SkillRequestRepository skillRequestRepository;
 
-    @Value("${max-month-limit-recommendation-request}")
+    @Value("${application.constants.max-month-limit-recommendation-request}")
     private int maxMonthLimitRecommendationRequest;
 
     public RecommendationRequestDto create(RecommendationRequestDto recommendationRequest) {
