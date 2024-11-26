@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Builder
-public class Person {
+public class PersonFromFile {
 
     private String firstName;
     private String lastName;

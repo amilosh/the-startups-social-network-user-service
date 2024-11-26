@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.pojo.person.Education;
-import school.faang.user_service.pojo.person.Person;
+import school.faang.user_service.pojo.person.PersonFromFile;
 import school.faang.user_service.repository.UserRepository;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -22,7 +22,7 @@ public class UserValidatorTest {
     @Mock
     private UserRepository userRepository;
 
-    private Person person;
+    private PersonFromFile personFromFile;
 
     @BeforeEach
     public void setUp() {
@@ -31,7 +31,7 @@ public class UserValidatorTest {
                 .yearOfStudy(2024)
                 .faculty("faculty")
                 .build();
-        person = Person.builder()
+        personFromFile = PersonFromFile.builder()
                 .firstName("John")
                 .lastName("Doe")
                 .education(education)
@@ -40,32 +40,32 @@ public class UserValidatorTest {
 
     @Test
     public void testValidateUserForCreateWithEmptyUserName() {
-        person.setFirstName("");
-        assertThrows(DataValidationException.class, () -> validator.validateUserForCreate(person));
+        personFromFile.setFirstName("");
+        assertThrows(DataValidationException.class, () -> validator.validateUserForCreate(personFromFile));
     }
 
     @Test
     public void testValidateUserForCreateWithEmptyUserLastName() {
-        person.setLastName("");
-        assertThrows(DataValidationException.class, () -> validator.validateUserForCreate(person));
+        personFromFile.setLastName("");
+        assertThrows(DataValidationException.class, () -> validator.validateUserForCreate(personFromFile));
     }
 
     @Test
     public void testValidateUserForCreateWithEmptyFaculty() {
-        person.getEducation().setFaculty("");
-        assertThrows(DataValidationException.class, () -> validator.validateUserForCreate(person));
+        personFromFile.getEducation().setFaculty("");
+        assertThrows(DataValidationException.class, () -> validator.validateUserForCreate(personFromFile));
     }
 
     @Test
     public void testValidateUserForCreateWithEmptyYearOfStudy() {
-        person.getEducation().setYearOfStudy(null);
-        assertThrows(DataValidationException.class, () -> validator.validateUserForCreate(person));
+        personFromFile.getEducation().setYearOfStudy(null);
+        assertThrows(DataValidationException.class, () -> validator.validateUserForCreate(personFromFile));
     }
 
     @Test
     public void testValidateUserForCreateWithEmptyMajor() {
-        person.getEducation().setMajor("");
-        assertThrows(DataValidationException.class, () -> validator.validateUserForCreate(person));
+        personFromFile.getEducation().setMajor("");
+        assertThrows(DataValidationException.class, () -> validator.validateUserForCreate(personFromFile));
     }
 
 }

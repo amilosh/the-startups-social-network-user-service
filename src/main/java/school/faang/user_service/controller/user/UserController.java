@@ -1,8 +1,5 @@
 package school.faang.user_service.controller.user;
 
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,15 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.mapper.user.UserMapper;
-import school.faang.user_service.pojo.person.Person;
-import school.faang.user_service.pojo.person.PersonFlat;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.user.UserValidator;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -63,21 +54,7 @@ public class UserController {
 
     @PostMapping("/upload-file")
     public void loadingUsersViaFile(@RequestParam("file") MultipartFile file)  {
-        try (InputStream inputStream = file.getInputStream()) {
-            List<Person> persons = new ArrayList<>();
-            CsvSchema schema = CsvSchema.emptySchema().withHeader();
-            CsvMapper mapper = new CsvMapper();
-            MappingIterator<PersonFlat> iterator = mapper.readerFor(PersonFlat.class).with(schema).readValues(inputStream);
-            while (iterator.hasNext()) {
-                PersonFlat flat = iterator.next();
-                Person person = userMapper.convertFlatToNested(flat);
-                persons.add(person);
-            }
-            userService.loadingUsersViaFile(persons);
-        } catch (IOException error) {
-            log.error(Arrays.toString(error.getStackTrace()));
-            throw new RuntimeException(error);
-        }
+        userService.loadingUsersViaFile(file);
     }
 
 }

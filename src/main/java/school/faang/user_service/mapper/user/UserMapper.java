@@ -11,12 +11,10 @@ import school.faang.user_service.entity.promotion.UserPromotion;
 import school.faang.user_service.pojo.person.Address;
 import school.faang.user_service.pojo.person.ContactInfo;
 import school.faang.user_service.pojo.person.Education;
-import school.faang.user_service.pojo.person.Person;
+import school.faang.user_service.pojo.person.PersonFromFile;
 import school.faang.user_service.pojo.person.PersonFlat;
 import school.faang.user_service.pojo.person.PreviousEducation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +35,7 @@ public interface UserMapper {
     @Mapping(target = "email", expression = "java(person.getContactInfo().getEmail())")
     @Mapping(target = "phone", expression = "java(person.getContactInfo().getPhone())")
     @Mapping(target = "city", expression = "java(person.getContactInfo().getAddress().getCity())")
-    User toUser(Person person);
+    User toUser(PersonFromFile personFromFile);
 
     @Mapping(source = "promotion", target = "promotionTariff", qualifiedByName = "mapTariff")
     @Mapping(source = "promotion", target = "numberOfViews", qualifiedByName = "mapNumberOfViews")
@@ -46,7 +44,7 @@ public interface UserMapper {
     @Mapping(target = "contactInfo", source = ".", qualifiedByName = "toContactInfo" )
     @Mapping(target = "education", source = ".", qualifiedByName = "toEducation" )
     @Mapping(target = "previousEducation", source = ".", qualifiedByName = "toPreviousEducation" )
-    Person convertFlatToNested(PersonFlat personFlat);
+    PersonFromFile convertFlatToNested(PersonFlat personFlat);
 
     @Named("mapTariff")
     default String mapTariff(UserPromotion userPromotion) {
@@ -69,12 +67,12 @@ public interface UserMapper {
                 .filter(promotion -> promotion.getNumberOfViews() > 0);
     }
     @Named("about")
-    default String about(Person person) {
-        String state = person.getContactInfo().getAddress().getState();
-        String faculty = person.getEducation().getFaculty();
-        Integer yearOfStudy = person.getEducation().getYearOfStudy();
-        String major = person.getEducation().getMajor();
-        String employer = person.getEmployer();
+    default String about(PersonFromFile personFromFile) {
+        String state = personFromFile.getContactInfo().getAddress().getState();
+        String faculty = personFromFile.getEducation().getFaculty();
+        Integer yearOfStudy = personFromFile.getEducation().getYearOfStudy();
+        String major = personFromFile.getEducation().getMajor();
+        String employer = personFromFile.getEmployer();
         StringBuilder builder = new StringBuilder();
         if (state != null) {
             builder.append("state: ").append(state).append(", ");

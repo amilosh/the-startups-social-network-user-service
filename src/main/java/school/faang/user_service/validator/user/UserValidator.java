@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.DataValidationException;
-import school.faang.user_service.pojo.person.Person;
+import school.faang.user_service.pojo.person.PersonFromFile;
 import school.faang.user_service.repository.UserRepository;
 
 import java.util.List;
@@ -30,12 +30,12 @@ public class UserValidator {
         }
     }
 
-    public void validateUserForCreate(Person person) {
-        String username = person.getFirstName();
-        String lastName = person.getLastName();
-        String faculty = person.getEducation().getFaculty();
-        Integer yearOfStudy = person.getEducation().getYearOfStudy();
-        String major = person.getEducation().getMajor();
+    public void validateUserForCreate(PersonFromFile personFromFile) {
+        String username = personFromFile.getFirstName();
+        String lastName = personFromFile.getLastName();
+        String faculty = personFromFile.getEducation().getFaculty();
+        Integer yearOfStudy = personFromFile.getEducation().getYearOfStudy();
+        String major = personFromFile.getEducation().getMajor();
         log.info("Trying to convert Person to User: username {}, lastName {}," +
                 " faculty {}, yearOfStudy {}, major {} ", username, lastName, faculty, yearOfStudy, major);
         if (username.isEmpty()) {
