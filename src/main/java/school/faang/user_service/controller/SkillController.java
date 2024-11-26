@@ -38,12 +38,12 @@ public class SkillController {
         return ResponseEntity.status(HttpStatus.OK).body(skillService.getUserSkills(userId));
     }
 
-    @GetMapping("/offered-skills")
-    public ResponseEntity<List<SkillDto>> getOfferedSkills(@RequestParam("userId") Long userId) {
+    @GetMapping("/users/{userId}/offered-skills")
+    public ResponseEntity<List<SkillDto>> getOfferedSkills(@PathVariable("userId") Long userId) {
         return ResponseEntity.ok(skillService.getOfferedSkills(userId));
     }
 
-    @PostMapping("/acquire-skill-from-offers")
+    @PostMapping("{skillId}/users/{userId}/acquire-skill-from-offers")
     public SkillDto acquireSkillFromOffers(@PathVariable @Positive Long skillId, @PathVariable @Positive Long userId) {
         return skillService.acquireSkillFromOffers(skillId, userId);
     }

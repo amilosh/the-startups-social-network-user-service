@@ -104,4 +104,10 @@ public class GlobalExceptionHandler {
         log.error("ConstraintViolationException: {}", errorMessage, ex);
         return ResponseEntity.badRequest().body(errorMessage);
     }
+
+    @ExceptionHandler(SkillResourceNotFoundException.class)
+    public ResponseEntity<String> handleInvalidMentorshipRequestException(SkillResourceNotFoundException ex) {
+        log.error("SkillResourceNotFoundException: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 }

@@ -14,6 +14,7 @@ import school.faang.user_service.exception.SkillResourceNotFoundException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.validator.SkillValidator;
+import school.faang.user_service.validator.UserValidator;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +29,7 @@ public class SkillService {
     private final SkillValidator skillValidator;
     private final SkillOfferService skillOfferService;
     private final UserService userService;
+    private final UserValidator userValidator;
     private final UserSkillGuaranteeService userSkillGuaranteeService;
 
     public SkillDto create(SkillDto skillDto) {
@@ -79,9 +81,7 @@ public class SkillService {
         Skill skill = getSkillByIdOrThrow(skillId);
         User user = userService.findUserById(userId);
 
-        if (user.getSkills().contains(skill)) {
-            throw new SkillDuplicateException("User " + user.getUsername() + " already possesses the skill " + skill.getTitle());
-        }
+        userValidator.validateSkillMissing(user, skill);
 
         int skillOfferCount = skillOfferService.getCountSkillOffersForUser(skill.getId(), user.getId());
 
@@ -97,22 +97,10 @@ public class SkillService {
             .orElseThrow(() -> new SkillResourceNotFoundException("Skill not found in DB with id = " + id));
     }
 
-    /**
-     * Check if a skill with the given id exists in the database.
-     *
-     * @param skillId the id of the skill to check
-     * @return true if the skill exists, false otherwise
-     */
     public boolean checkIfSkillExistsById(Long skillId) {
         return skillRepository.existsById(skillId);
     }
 
-    /**
-     * Retrieve a skill by its ID.
-     *
-     * @param skillId the id of the skill to retrieve
-     * @return the skill associated with the given id
-     */
     public Skill getSkillById(Long skillId) {
         return skillRepository.getReferenceById(skillId);
     }

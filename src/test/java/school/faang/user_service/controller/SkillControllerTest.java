@@ -90,8 +90,7 @@ class SkillControllerTest {
         Long userId = 1L;
         when(skillService.getOfferedSkills(userId)).thenReturn(skillList);
 
-        mockMvc.perform(get("/skills/offered-skills")
-                .param("userId", String.valueOf(userId)))
+        mockMvc.perform(get("/skills/users/{userId}/offered-skills", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(skillList.get(0).getId()))
                 .andExpect(jsonPath("$[0].title").value(skillList.get(0).getTitle()))

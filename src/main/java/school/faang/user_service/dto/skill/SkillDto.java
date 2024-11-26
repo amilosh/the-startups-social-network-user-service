@@ -15,19 +15,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SkillDto {
-
     @Positive(message = "Id must be a positive integer")
     private Long id;
 
     @NotBlank(message = "title name cannot be blank")
     @Size(min = 1, max = 64, message = "title must be between 1 and 64 characters")
     private String title;
-
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
-    public SkillDto(Long id, String title) {
-        this.id = id;
-        this.title = title;
-    }
 }

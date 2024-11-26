@@ -17,7 +17,7 @@ public class SkillOfferService {
     }
 
     public Long getCountSkillOffersBySkill(Long skillId) {
-        return skillOfferRepository.countAllOffersOfSkill(skillId) ;
+        return skillOfferRepository.countBySkillId(skillId) ;
     }
 
     public void deleteAllByRecommendationId(long recommendationId) {

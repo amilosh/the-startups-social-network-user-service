@@ -20,6 +20,7 @@ import school.faang.user_service.exception.SkillResourceNotFoundException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.validator.SkillValidator;
+import school.faang.user_service.validator.UserValidator;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -45,6 +46,9 @@ class SkillServiceTest {
 
     @Mock
     private SkillValidator skillValidator;
+
+    @Mock
+    private UserValidator userValidator;
 
     @Mock
     private UserService userService;
@@ -83,7 +87,6 @@ class SkillServiceTest {
         skillDto = SkillDto.builder()
                 .id(1L)
                 .title("title")
-                .createdAt(LocalDateTime.now(ZoneId.of("UTC")))
                 .build();
 
         dto = RecommendationDto.builder()
@@ -265,16 +268,16 @@ class SkillServiceTest {
         Long skillId = 1L;
         Long userId = 1L;
         User user = mock(User.class);
-        List<Skill> skills = new ArrayList<>();
         Skill skill = new Skill();
         SkillDto skillDto = new SkillDto();
 
         skill.setId(skillId);
         skillDto.setId(skillId);
+
         when(skillRepository.getById(skillId)).thenReturn(skill);
         when(userService.findUserById(userId)).thenReturn(user);
-        when(user.getSkills()).thenReturn(skills);
         when(user.getId()).thenReturn(userId);
+        doNothing().when(userValidator).validateSkillMissing(user, skill);
         when(skillOfferService.getCountSkillOffersForUser(skillId, userId)).thenReturn(4);
         when(skillMapper.toDto(skill)).thenReturn(skillDto);
 
@@ -282,5 +285,6 @@ class SkillServiceTest {
 
         assertEquals(skillDto, result);
         verify(skillRepository).getById(skillId);
+        verify(userValidator).validateSkillMissing(user, skill);
     }
 }
