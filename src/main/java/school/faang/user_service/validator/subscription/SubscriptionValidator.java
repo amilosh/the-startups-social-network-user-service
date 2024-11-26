@@ -14,14 +14,14 @@ public class SubscriptionValidator {
 
     public void validateUserIsTryingToCallHimself(long followerId, long followeeId) {
         if (followerId == followeeId) {
-            log.error("User {} tries to perform an action on himself", followeeId);
+            log.warn("User {} tries to perform an action on himself", followeeId);
             throw new DataValidationException("User " + followeeId + " tries to perform an action on himself");
         }
     }
 
     public void validateUserAlreadyHasThisSubscription(long followerId, long followeeId) {
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            log.error("User {} already has such a subscription", followeeId);
+            log.warn("User {} already has such a subscription", followeeId);
             throw new DataValidationException("User " + followeeId + " already has such a subscription");
         }
     }

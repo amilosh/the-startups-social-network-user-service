@@ -18,14 +18,13 @@ import java.util.List;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/skills")
+@RequestMapping("/api/v1/skills")
 @Tag(name = "Skill Controller", description = "Controller for managing skills")
 @ApiResponse(responseCode = "201", description = "Skill created successfully")
 @ApiResponse(responseCode = "400", description = "Invalid request data")
 @ApiResponse(responseCode = "404", description = "Data not found")
 @ApiResponse(responseCode = "500", description = "Internal server error")
 public class SkillController {
-
     private final SkillService service;
 
     @Operation(

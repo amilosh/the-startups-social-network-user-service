@@ -11,7 +11,7 @@ public class SkillValidator {
 
     public void validateSkillByMinSkillOffer(int skillOffers, long skillId, long userId) {
         if (skillOffers < MIN_SKILL_OFFERS) {
-            log.error("User {} doesn't have enough skill offers to acquire skill with id: {}", userId, skillId);
+            log.warn("User {} doesn't have enough skill offers to acquire skill with id: {}", userId, skillId);
             throw new DataValidationException("User " + userId + " doesn't have enough skill offers to acquire skill with id: " + skillId);
         }
     }
