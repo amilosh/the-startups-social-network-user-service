@@ -18,7 +18,6 @@ import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Component
-@EnableScheduling
 @RequiredArgsConstructor
 public class PremiumRemover {
 
