@@ -38,19 +38,19 @@ public class UserValidator {
         String major = personFromFile.getEducation().getMajor();
         log.info("Trying to convert Person to User: username {}, lastName {}," +
                 " faculty {}, yearOfStudy {}, major {} ", username, lastName, faculty, yearOfStudy, major);
-        if (username.isEmpty()) {
+        if (username == null || username.isBlank()) {
             throw new DataValidationException("FirstName shouldn't be empty");
         }
-        if (lastName.isEmpty()) {
+        if (lastName == null || lastName.isBlank()) {
             throw new DataValidationException("LastName shouldn't be empty");
         }
-        if (faculty.isEmpty()) {
+        if (faculty == null || faculty.isBlank()) {
             throw new DataValidationException("Faculty shouldn't be empty");
         }
         if (yearOfStudy == null) {
             throw new DataValidationException("YearOfStudy shouldn't be empty");
         }
-        if (major.isEmpty()) {
+        if (major == null || major.isBlank()) {
             throw new DataValidationException("Major shouldn't be empty");
         }
     }
