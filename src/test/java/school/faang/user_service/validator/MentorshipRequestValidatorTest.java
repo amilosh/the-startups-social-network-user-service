@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorshipRequest.MentorshipRequestDto;
 
 import java.time.LocalDateTime;
 
