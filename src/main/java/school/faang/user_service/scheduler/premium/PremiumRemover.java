@@ -30,8 +30,12 @@ public class PremiumRemover {
     @Transactional
     @Scheduled(cron = "${premium.updater.cron}", zone = "${premium.updater.zone}")
     public void removeExpiredPremiums() {
-        log.info("update premium scheduler working");
+        log.info("updating premiums are working");
         List<Premium> premiums = premiumRepository.findAllByEndDateBefore(LocalDateTime.now());
+        if(premiums == null) {
+            log.info("premium users not found!");
+            return;
+        }
         List<CompletableFuture<Void>> deletedPremiumsFuture = ListUtils
                 .partition(premiums, updaterBatchSize).stream()
                 .map(this::deleteProcess)
