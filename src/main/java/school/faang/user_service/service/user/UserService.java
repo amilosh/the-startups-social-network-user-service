@@ -85,12 +85,12 @@ public class UserService {
         List<User> users = userRepository.findAllById(ids);
         return userMapper.toListDto(users);
     }
-
+    @Transactional
     public void loadingUsersViaFile(List<Person> persons){
         ExecutorService executors = Executors.newCachedThreadPool();
         for (int i = 0; i < persons.size(); i++) {
             int finalI = i;
-            executors.submit(() -> createNewUser(persons.get(finalI)));
+            executors.execute(() -> createNewUser(persons.get(finalI)));
         }
         executors.shutdown();
     }
@@ -103,7 +103,10 @@ public class UserService {
         String countryFromPerson = person.getContactInfo().getAddress().getCountry();
         Country country = getCountry(countryFromPerson);
         user.setCountry(country);
+        synchronized (userRepository) {
         userRepository.save(user);
+        log.info("User {} saved in database ", user.getUsername());
+        }
     }
 
     private String createRandomPassword() {
