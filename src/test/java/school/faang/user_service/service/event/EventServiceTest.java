@@ -4,21 +4,15 @@ import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
-import school.faang.user_service.dto.event.filters.EventFilter;
+import school.faang.user_service.dto.event.filters.*;
 import school.faang.user_service.dto.skill.SkillDto;
-import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.exception.DataValidationException;
-
-
 import school.faang.user_service.mapper.event.EventMapperImpl;
-
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
@@ -26,7 +20,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -114,10 +107,12 @@ public class EventServiceTest {
         eventList.add(secondEvent);
 
         eventFilterMock = Mockito.mock(EventFilter.class);
-        eventFilters = List.of(eventFilterMock);
+        EventOwnerIdFilter filterOwnerIdMock = Mockito.mock(EventOwnerIdFilter.class);
+        EventStartDateFromFilter filterStartDateFromMock = Mockito.mock(EventStartDateFromFilter.class);
+        EventStartDateToFilter filterStartDateToMock = Mockito.mock(EventStartDateToFilter.class);
+        EventTitleFilter filterTitleMock = Mockito.mock(EventTitleFilter.class);
+        eventFilters = List.of(filterOwnerIdMock, filterStartDateFromMock, filterStartDateToMock, filterTitleMock);
     }
-
-
 
 
     @Test
@@ -168,18 +163,10 @@ public class EventServiceTest {
     public void testGetEventsByFilter() {
         when(eventRepository.findAll()).thenReturn(eventList);
         Stream<Event> eventsStream = eventList.stream();
-        when(eventFilters.get(0).isApplicable(eventFilterDto)).thenReturn(true);
-        when(eventFilters.get(1).isApplicable(eventFilterDto)).thenReturn(true);
-        when(eventFilters.get(2).isApplicable(eventFilterDto)).thenReturn(true);
-        when(eventFilters.get(3).isApplicable(eventFilterDto)).thenReturn(true);
-        when(eventFilters.get(0).apply(any(), any())).thenReturn(eventsStream);
-        when(eventFilters.get(1).apply(any(), any())).thenReturn(eventsStream);
-        when(eventFilters.get(2).apply(any(), any())).thenReturn(eventsStream);
-        when(eventFilters.get(3).apply(any(), any())).thenReturn(eventsStream);
 
         List<EventDto> gotEventDtoList = eventService.getEventsByFilter(eventFilterDto);
         verify(eventRepository, times(1)).findAll();
-        assertEquals(eventMapper.toDtoList(List.of(event)), gotEventDtoList);
+        assertEquals(eventMapper.toDtoList(eventList), gotEventDtoList);
 
     }
 
