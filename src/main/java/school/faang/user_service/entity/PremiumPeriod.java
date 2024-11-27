@@ -3,16 +3,17 @@ package school.faang.user_service.entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.time.Year;
 
 @AllArgsConstructor
 @Getter
 public enum PremiumPeriod {
-    MONTH(30, 10),
-    THREE_MONTHS(90, 25),
-    YEAR(Year.now().length(), 80);
+    MONTH(BigDecimal.valueOf(10), 30),
+    THREE_MONTHS(BigDecimal.valueOf(25), 90),
+    YEAR(BigDecimal.valueOf(80), Year.now().length());
 
-    private final int price;
+    private final BigDecimal price;
     private final int days;
 
     public static PremiumPeriod fromDays(int days) {
