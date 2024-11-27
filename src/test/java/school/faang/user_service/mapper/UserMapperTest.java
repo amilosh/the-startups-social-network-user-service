@@ -74,4 +74,20 @@ class UserMapperTest {
         UserDto userDto = userMapper.toDto(null);
         assertNull(userDto);
     }
+
+    @Test
+    void testUserToUserDto_Followees() {
+        User user1 = createUser(USER_ID_1, TEST_USERNAME, TEST_EMAIL);
+        User user2 = createUser(USER_ID_2, TEST_USERNAME, TEST_EMAIL);
+
+        User mainUser = new User();
+        mainUser.setId(100L);
+        mainUser.setFollowees(List.of(user1, user2));
+
+        UserDto userDto = userMapper.toDto(mainUser);
+
+        assertNotNull(userDto);
+        assertEquals(mainUser.getFollowees().get(0).getId(), userDto.getFollowees().get(0));
+        assertEquals(mainUser.getFollowees().get(1).getId(), userDto.getFollowees().get(1));
+    }
 }

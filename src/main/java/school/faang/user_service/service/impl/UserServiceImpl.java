@@ -427,4 +427,10 @@ public class UserServiceImpl implements UserService {
                     viewerId, profileOwnerId);
         }
     }
+
+    @Override
+    public List<UserDto> getUsersByIdRange(long first, long last) {
+        List<User> usersRange = userRepository.getUsersByIdRange(first, last);
+        return userMapper.toListUserDto(usersRange);
+    }
 }

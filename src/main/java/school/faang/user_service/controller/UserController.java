@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -155,5 +158,37 @@ public class UserController {
         userService.publishProfileViewEvent(viewerId, userId);
 
         return userDto;
+    }
+
+    @Operation(
+            summary = "Get users by ID range",
+            description = "Returns a list of users whose IDs fall within the specified range (inclusive)."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of users"),
+            @ApiResponse(responseCode = "400", description = "Invalid input parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/range")
+    public List<UserDto> getUsersByIdRange(
+            @Parameter(
+                    description = "The starting ID of the range. Must be greater than 0.",
+                    example = "1",
+                    schema = @Schema(type = "integer", minimum = "1")
+            )
+            @RequestParam @Min(1) long first,
+
+            @Parameter(
+                    description = "The ending ID of the range. Must be greater than 0.",
+                    example = "100",
+                    schema = @Schema(type = "integer", minimum = "1")
+            )
+            @RequestParam @Min(1) long last) {
+
+        if (first > last) {
+            throw new IllegalArgumentException("First number in range must not be greater than the last one.");
+        }
+
+        return userService.getUsersByIdRange(first, last);
     }
 }

@@ -8,7 +8,7 @@ import school.faang.user_service.entity.event.EventStartEvent;
 
 import java.util.List;
 
-@Service
+//@Service
 public class EventStartEventPublisher {
 
     @Autowired

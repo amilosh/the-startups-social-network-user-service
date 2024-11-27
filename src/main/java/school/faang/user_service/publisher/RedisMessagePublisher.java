@@ -7,7 +7,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.config.redis.RedisConfig;
 
-@Service
+//@Service
 public class RedisMessagePublisher implements RedisConfig.MessagePublisher {
 
     private final RedisTemplate<String, Object> redisTemplate;

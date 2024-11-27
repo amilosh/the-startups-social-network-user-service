@@ -18,7 +18,10 @@ import java.util.stream.Collectors;
 public interface UserMapper {
     @Mapping(source = "contactPreference.preference", target = "preference")
     @Mapping(source = "user.telegramContact.telegramUserId", target = "telegramUserId")
+    @Mapping(target = "followees",
+            expression = "java(user.getFollowees() != null ? user.getFollowees().stream().map(User::getId).toList() : null)")
     UserDto toDto(User user);
+    @Mapping(target = "followees", ignore = true)
     User toEntity(UserDto userDto);
     List<UserDto> toListUserDto(List<User> users);
 

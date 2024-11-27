@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.model.dto.UserDto;
 import school.faang.user_service.model.entity.User;
@@ -38,4 +39,6 @@ public interface UserService {
     void updateTelegramUserId(String telegramUserName, String telegramUserId);
 
     void publishProfileViewEvent(long viewerId, long profileOwnerId);
+
+    List<UserDto> getUsersByIdRange(long first, long last);
 }

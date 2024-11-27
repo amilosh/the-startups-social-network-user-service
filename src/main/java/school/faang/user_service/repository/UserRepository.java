@@ -48,4 +48,7 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     @Query("SELECT MAX(u.id) FROM User u")
     Long findMaxUserId();
+
+    @Query("SELECT u FROM User u WHERE u.id BETWEEN :startId AND :endId")
+    List<User> getUsersByIdRange(long startId, long endId);
 }

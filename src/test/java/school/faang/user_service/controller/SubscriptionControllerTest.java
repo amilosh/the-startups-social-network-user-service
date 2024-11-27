@@ -39,7 +39,7 @@ class SubscriptionControllerTest {
     private SubscriptionController subscriptionController;
 
     private UserDto createTestUserDto(long id, String username, String email) {
-        return new UserDto(id, true, email, "@User", username, "79999999999", PreferredContact.EMAIL);
+        return new UserDto(id, true, email, "@User", username, "79999999999", PreferredContact.EMAIL, null);
     }
 
     private List<UserDto> createUserDtoList(UserDto... users) {
