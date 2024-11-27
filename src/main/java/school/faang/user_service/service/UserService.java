@@ -4,9 +4,11 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
@@ -14,6 +16,7 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 
 import java.util.List;
+import java.util.stream.Stream;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -28,7 +31,7 @@ public class UserService {
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с id:%d не найден".formatted(id)));
     }
 
     public List<User> getAllUsersByIds(List<Long> ids) {
@@ -60,4 +63,13 @@ public class UserService {
                 .toList();
     }
 
+    public UserSubResponseDto getUserDtoById(long userId) {
+        User user = getUserById(userId);
+        return userMapper.toUserSubResponseDto(user);
+    }
+
+    public List<UserSubResponseDto> getAllUsersDtoByIds(List<Long> ids) {
+        List<User> users = getAllUsersByIds(ids);
+        return userMapper.toUserSubResponseList(users);
+    }
 }
