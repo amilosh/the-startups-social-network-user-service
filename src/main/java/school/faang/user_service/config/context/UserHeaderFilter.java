@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -18,7 +19,7 @@ public class UserHeaderFilter implements Filter {
             throws ServletException, IOException {
         HttpServletRequest req = (HttpServletRequest) request;
         String userId = req.getHeader("x-user-id");
-        if (userId != null) {
+        if (userId != null && !userId.isEmpty() && !"null".equalsIgnoreCase(userId.trim())) {
             userContext.setUserId(Long.parseLong(userId));
         }
         try {

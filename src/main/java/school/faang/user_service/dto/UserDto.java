@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import school.faang.user_service.entity.contact.PreferredContact;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 public class UserDto {
@@ -16,7 +18,10 @@ public class UserDto {
     private String username;
     @Email
     private String email;
-    // Здесь не все поля у сущности юзер
+
+    private List<Long> followerIds;
+    private List<Long> followingsIds;
+
     private String phone;
     private String avatar;
     private String avatarSmall;
