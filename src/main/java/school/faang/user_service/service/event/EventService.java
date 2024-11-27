@@ -120,7 +120,7 @@ public class EventService {
         }
         log.info("Found {} past events to delete", pastEventIds.size());
 
-        List<List<Long>> batches = partitionList(pastEventIds, batchSize);
+        List<List<Long>> batches = createPartitionList(pastEventIds, batchSize);
         List<CompletableFuture<Void>> futures = batches.stream()
                 .map(asyncEventService::deleteBatchAsync)
                 .toList();
@@ -129,7 +129,7 @@ public class EventService {
         log.info("Successfully cleared all past events");
     }
 
-    private List<List<Long>> partitionList(List<Long> list, int size) {
+    private List<List<Long>> createPartitionList(List<Long> list, int size) {
         return IntStream.range(0, (list.size() + size - 1) / size)
                 .mapToObj(i -> list.subList(i * size, Math.min((i + 1) * size, list.size())))
                 .toList();
