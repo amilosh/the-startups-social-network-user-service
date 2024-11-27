@@ -27,7 +27,6 @@ import school.faang.user_service.validator.user.UserValidator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -97,7 +96,6 @@ public class UserService {
 
     @Transactional
     public void loadingUsersViaFile(MultipartFile file) {
-        ExecutorService executors = Executors.newCachedThreadPool();
         try (InputStream inputStream = file.getInputStream()) {
             List<PersonFromFile> persons = new ArrayList<>();
             CsvSchema schema = CsvSchema.emptySchema().withHeader();
@@ -108,13 +106,16 @@ public class UserService {
                 PersonFromFile personFromFile = userMapper.convertFlatToNested(flat);
                 persons.add(personFromFile);
             }
-            for (int i = 0; i < persons.size(); i++) {
+            int personsCount = persons.size();
+            int countOfThreads = getCountOfThreads(personsCount);
+            ExecutorService executors = Executors.newFixedThreadPool(countOfThreads);
+            for (int i = 0; i < personsCount; i++) {
                 int finalI = i;
                 executors.execute(() -> createNewUserFromPerson(persons.get(finalI)));
             }
             executors.shutdown();
         } catch (IOException error) {
-            log.error(Arrays.toString(error.getStackTrace()));
+            log.error("An error occurred while interacting with a file {}", file.getOriginalFilename(), error);
             throw new RuntimeException(error);
         }
     }
@@ -126,9 +127,18 @@ public class UserService {
         user.setPassword(password);
         Country country = getCountry(personFromFile);
         user.setCountry(country);
-        synchronized (userRepository) {
-            userRepository.save(user);
-            log.info("User {} saved in database ", user.getUsername());
+        userRepository.save(user);
+        log.info("User {} saved in database ", user.getUsername());
+    }
+
+    private int getCountOfThreads(int personsCount) {
+        if (personsCount < 10) {
+            return 3;
+        }
+        if (personsCount < 100) {
+            return 10;
+        } else {
+            return 50;
         }
     }
 
