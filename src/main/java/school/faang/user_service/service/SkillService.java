@@ -6,22 +6,30 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
+import school.faang.user_service.exception.SkillDuplicateException;
+import school.faang.user_service.exception.SkillResourceNotFoundException;
 import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.validator.SkillValidator;
+import school.faang.user_service.validator.UserValidator;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class SkillService {
+    public static final int OFFERS_AMOUNT = 3;
     private final SkillRepository skillRepository;
     private final SkillMapper skillMapper;
     private final SkillValidator skillValidator;
+    private final SkillOfferService skillOfferService;
     private final UserService userService;
+    private final UserValidator userValidator;
     private final UserSkillGuaranteeService userSkillGuaranteeService;
 
     public SkillDto create(SkillDto skillDto) {
@@ -63,17 +71,37 @@ public class SkillService {
                 });
     }
 
+    private boolean filterSkillsForGuarantee(Skill skill, List<Long> recommendedSkillsIds, Recommendation
+            recommendation) {
+        return recommendedSkillsIds.contains(skill.getId()) &&
+                !getSkillGuaranteeIds(skill).contains(recommendation.getAuthor().getId());
+    }
+
+    public SkillDto acquireSkillFromOffers(Long skillId, Long userId) {
+        Skill skill = getSkillByIdOrThrow(skillId);
+        User user = userService.findUserById(userId);
+
+        userValidator.validateSkillMissing(user, skill);
+
+        int skillOfferCount = skillOfferService.getCountSkillOffersForUser(skill.getId(), user.getId());
+
+        if (skillOfferCount >= OFFERS_AMOUNT) {
+            skillRepository.assignSkillToUser(skill.getId(), user.getId());
+        }
+
+        return skillMapper.toDto(skill);
+    }
+
+    public Skill getSkillByIdOrThrow(Long id) {
+        return Optional.ofNullable(skillRepository.getById(id))
+            .orElseThrow(() -> new SkillResourceNotFoundException("Skill not found in DB with id = " + id));
+    }
+
     public boolean checkIfSkillExistsById(Long skillId) {
         return skillRepository.existsById(skillId);
     }
 
     public Skill getSkillById(Long skillId) {
         return skillRepository.getReferenceById(skillId);
-    }
-
-    private boolean filterSkillsForGuarantee(Skill skill, List<Long> recommendedSkillsIds, Recommendation
-            recommendation) {
-        return recommendedSkillsIds.contains(skill.getId()) &&
-                !getSkillGuaranteeIds(skill).contains(recommendation.getAuthor().getId());
     }
 }

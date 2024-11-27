@@ -15,9 +15,9 @@ import school.faang.user_service.service.SkillService;
 
 import java.util.List;
 
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -63,7 +63,7 @@ class SkillControllerTest {
         mockMvc.perform(post("/skills")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(skillDto)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(skillDto.getId()))
                 .andExpect(jsonPath("$.title").value(skillDto.getTitle()));
 
@@ -87,10 +87,10 @@ class SkillControllerTest {
 
     @Test
     void testGetOfferedSkills() throws Exception {
-        long userId = 1L;
+        Long userId = 1L;
         when(skillService.getOfferedSkills(userId)).thenReturn(skillList);
 
-        mockMvc.perform(get("/skills/users/{userId}/offers", userId))
+        mockMvc.perform(get("/skills/users/{userId}/offered-skills", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(skillList.get(0).getId()))
                 .andExpect(jsonPath("$[0].title").value(skillList.get(0).getTitle()))
