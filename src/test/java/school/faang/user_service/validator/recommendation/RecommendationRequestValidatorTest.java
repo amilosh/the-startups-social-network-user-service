@@ -76,36 +76,6 @@ public class RecommendationRequestValidatorTest {
     }
 
     @Test
-    @DisplayName("Validate recommendation request DTO - success")
-    void testValidateRecommendationRequestDtoSuccess() {
-        assertDoesNotThrow(() -> recommendationRequestValidator.validateRecommendationRequestDto(recommendationRequestDto));
-    }
-
-    @Test
-    @DisplayName("Validate recommendation request DTO - message is blank")
-    void testValidateRecommendationRequestDtoMessageBlank() {
-        recommendationRequestDto.setMessage(" ");
-        assertThrows(DataValidationException.class,
-                () -> recommendationRequestValidator.validateRecommendationRequestDto(recommendationRequestDto));
-    }
-
-    @Test
-    @DisplayName("Validate recommendation request DTO - requesterId is null")
-    void testValidateRecommendationRequestDtoRequesterIdNull() {
-        recommendationRequestDto.setRequesterId(null);
-        assertThrows(DataValidationException.class,
-                () -> recommendationRequestValidator.validateRecommendationRequestDto(recommendationRequestDto));
-    }
-
-    @Test
-    @DisplayName("Validate recommendation request DTO - receiverId is null")
-    void testValidateRecommendationRequestDtoReceiverIdNull() {
-        recommendationRequestDto.setReceiverId(null);
-        assertThrows(DataValidationException.class,
-                () -> recommendationRequestValidator.validateRecommendationRequestDto(recommendationRequestDto));
-    }
-
-    @Test
     @DisplayName("Validate recommendation from DB - success")
     void testValidateRecommendationFromBdSuccess() {
         when(recommendationRequestRepository.findById(RECOMMENDATION_REQUEST_ID)).thenReturn(Optional.of(recommendationRequest));
@@ -174,7 +144,7 @@ public class RecommendationRequestValidatorTest {
                         .checkRequestsStatus(RECOMMENDATION_REQUEST_ID, RECOMMENDATION_REQUEST_STATUS_REJECTED)
         );
 
-        assertEquals("REQUEST WITH ID " + RECOMMENDATION_REQUEST_ID + " HAS THE STATUS "
+        assertEquals("RECOMMENDATION REQUEST WITH ID " + RECOMMENDATION_REQUEST_ID + " HAS THE STATUS "
                 + RECOMMENDATION_REQUEST_STATUS_REJECTED + ". OPERATION CANNOT BE PERFORMED", exception.getMessage());
     }
 

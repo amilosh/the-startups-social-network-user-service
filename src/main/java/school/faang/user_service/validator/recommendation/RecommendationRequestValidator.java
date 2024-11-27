@@ -10,7 +10,6 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.recommendation.ErrorMessage;
-import school.faang.user_service.exception.recommendation.RequestErrorMessage;
 import school.faang.user_service.exception.recommendation.RequestStatusException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
@@ -19,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static school.faang.user_service.exception.recommendation.RequestErrorMessage.REQUEST_STATUS;
+import static school.faang.user_service.exception.recommendation.ErrorMessage.REQUEST_STATUS;
 
 @Slf4j
 @Component
@@ -28,21 +27,6 @@ public class RecommendationRequestValidator {
     private static final int NUMBER_OF_MONTHS_AFTER_PREVIOUS_RECOMMENDATION = 6;
     private final SkillRepository skillRepository;
     private final RecommendationRequestRepository recommendationRequestRepository;
-
-    public void validateRecommendationRequestDto(RecommendationRequestDto recommendationRequestDto) {
-        if (recommendationRequestDto.getMessage() == null || recommendationRequestDto.getMessage().isBlank()) {
-            log.error("Validation failed: message is null or blank.");
-            throw new DataValidationException(RequestErrorMessage.RECOMMENDATION_REQUEST_MESSAGE);
-        }
-        if (recommendationRequestDto.getRequesterId() == null) {
-            log.error("Validation failed: requesterId is null.");
-            throw new DataValidationException(RequestErrorMessage.RECOMMENDATION_REQUEST_REQUESTER);
-        }
-        if (recommendationRequestDto.getReceiverId() == null) {
-            log.error("Validation failed: receiverId is null.");
-            throw new DataValidationException(RequestErrorMessage.RECOMMENDATION_REQUEST_RECEIVER);
-        }
-    }
 
     public RecommendationRequest validateRecommendationFromBd(Long id) {
         return recommendationRequestRepository.findById(id).orElseThrow(() -> {

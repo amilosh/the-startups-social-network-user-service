@@ -9,7 +9,6 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.event.EventParticipationRepository;
-import school.faang.user_service.service.participation.event.EventParticipationService;
 import school.faang.user_service.validator.event.EventValidator;
 
 import java.util.Arrays;

@@ -28,6 +28,7 @@ public class GoalInvitationService {
     private final GoalInvitationMapper goalInvitationMapper;
     private final List<InvitationFilter> filters;
     private final InvitationDtoValidator invitationDtoValidator;
+
     public GoalInvitationDto createInvitation(GoalInvitationDto goalInvitationDto) {
         invitationDtoValidator.validate(goalInvitationDto);
         GoalInvitation savedInvitation = goalInvitationRepository.save(goalInvitationMapper.toEntity(goalInvitationDto));
@@ -46,7 +47,6 @@ public class GoalInvitationService {
         userRepository.save(invited);
         goalInvitationRepository.save(goalInvitation);
         return goalInvitationMapper.toDto(goalInvitation);
-
     }
 
     public GoalInvitationDto rejectGoalInvitation(long id) {
@@ -57,13 +57,6 @@ public class GoalInvitationService {
         return goalInvitationMapper.toDto(invitation);
     }
 
-    private GoalInvitation findGoalInvitationById(long id) {
-        log.info("Find invitation with id: {}", id);
-        return goalInvitationRepository.findById(id).orElseThrow(() ->
-                new InvitationEntityNotFoundException("invitation to a goal with id: %s not found"));
-    }
-
-
     public List<GoalInvitationDto> getInvitationsByFilter(InvitationFilterDto filterDto) {
         List<GoalInvitation> invitations = goalInvitationRepository.findAll();
         if (invitations.isEmpty()) {
@@ -73,5 +66,11 @@ public class GoalInvitationService {
                 .filter(f -> f.isAcceptable(filterDto))
                 .forEach(f -> f.apply(invitations.stream(), filterDto));
         return invitations.stream().map(goalInvitationMapper::toDto).toList();
+    }
+
+    private GoalInvitation findGoalInvitationById(long id) {
+        log.info("Find invitation with id: {}", id);
+        return goalInvitationRepository.findById(id).orElseThrow(() ->
+                new InvitationEntityNotFoundException("invitation to a goal with id: %s not found"));
     }
 }
