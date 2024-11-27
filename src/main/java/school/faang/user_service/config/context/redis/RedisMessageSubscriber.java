@@ -19,7 +19,6 @@ public class RedisMessageSubscriber implements MessageListener {
         try {
             List<Long> idForBan = objectMapper.readValue(message.getBody(),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Long.class));
-
             userService.banUsers(idForBan);
         } catch (IOException e) {
             throw new RuntimeException(e);
