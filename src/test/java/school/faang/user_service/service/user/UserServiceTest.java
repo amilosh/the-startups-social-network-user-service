@@ -7,9 +7,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
@@ -20,7 +17,6 @@ import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
 import school.faang.user_service.service.s3.S3Service;
-import school.faang.user_service.utils.AvatarLibrary;
 import school.faang.user_service.validator.user.UserValidator;
 
 import java.io.ByteArrayInputStream;
@@ -28,7 +24,6 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -59,9 +54,6 @@ class UserServiceTest {
 
     @Mock
     private S3Service s3Service;
-
-    @Mock
-    private AvatarLibrary avatarLibrary;
 
     private final long userId = 1L;
     private User user;
@@ -128,9 +120,8 @@ class UserServiceTest {
 
         when(userValidator.validateUser(userId)).thenReturn(user);
 
-        String fileId = userService.addAvatar(userId, file);
+        userService.addAvatar(userId, file);
 
-        assertEquals("123", fileId);
         verify(s3Service, times(1)).uploadFile(file, user);
         verify(userRepository, times(1)).save(user);
     }
@@ -148,13 +139,9 @@ class UserServiceTest {
         when(s3Service.getFile(user.getUserProfilePic().getFileId()))
                 .thenReturn(new ByteArrayInputStream("imageData".getBytes()));
 
-        when(avatarLibrary.getPictureFromResponse(any(byte[].class)))
-                .thenReturn(new ResponseEntity<>("imageData".getBytes(), new HttpHeaders(), HttpStatus.OK));
+        byte[] fileBytes = userService.getAvatar(userId);
 
-        ResponseEntity<byte[]> response = userService.getAvatar(userId);
-
-        Assertions.assertNotNull(response);
-        Assertions.assertArrayEquals("imageData".getBytes(), response.getBody());
-        verify(avatarLibrary, times(1)).getPictureFromResponse(any(byte[].class));
+        Assertions.assertNotNull(fileBytes);
+        Assertions.assertArrayEquals("imageData".getBytes(), fileBytes);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.validator.s3.S3Validator;
 
 import java.io.InputStream;
 
@@ -20,11 +21,21 @@ import static org.apache.hc.core5.http.ContentType.IMAGE_SVG;
 @RequiredArgsConstructor
 public class S3Service {
     private final AmazonS3 amazonS3;
+    private final S3Validator s3Validator;
 
     @Value("${services.s3.bucketName}")
     private String bucketName;
 
+    @Value("${services.s3.avatarMaxSize}")
+    private Integer picMaxSize;
+
+    @Value("${services.s3.avatarContentType}")
+    private String contentType;
+
     public void uploadFile(MultipartFile file, User user) {
+        s3Validator.validateFileSize(file, picMaxSize);
+        s3Validator.validateContentType(file, contentType);
+
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
         metadata.setContentType(IMAGE_SVG.getMimeType());
@@ -49,8 +60,8 @@ public class S3Service {
         String key = user.getUserProfilePic().getFileId();
         if (key == null || key.isEmpty()) {
             key = String.format("%d%d", System.currentTimeMillis(), user.getId());
+            user.getUserProfilePic().setFileId(key);
         }
-        user.getUserProfilePic().setFileId(key);
 
         return key;
     }

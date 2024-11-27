@@ -78,5 +78,7 @@ services:
     endpoint: http://localhost:9000
     accesskey: user
     secretKey: password
-    bucketName: corpbucket
+    bucketName: userbucket
+    avatarMaxSize: 1024
+    avatarContentType: image/svg+xml
 

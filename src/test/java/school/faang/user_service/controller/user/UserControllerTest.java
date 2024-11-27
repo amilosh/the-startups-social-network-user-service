@@ -5,13 +5,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.service.user.UserService;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,7 +29,13 @@ public class UserControllerTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private UserContext userContext;
+
+    private final long userId = 1L;
+
     private MockMvc mockMvc;
+
 
     @BeforeEach
     public void setUp() {
@@ -38,47 +45,36 @@ public class UserControllerTest {
 
     @Test
     public void testAddAvatar() throws Exception {
-        long userId = 1L;
-        MockMultipartFile file = new MockMultipartFile("file", "avatar.png", "image/png", "image content".getBytes());
+        MockMultipartFile avatarFile = new MockMultipartFile(
+                "file",
+                "avatar.svg",
+                "image/svg+xml",
+                "test-avatar-data".getBytes()
+        );
+        userService.addAvatar(2L, avatarFile);
+        mockMvc.perform(multipart("/api/v1/users/avatar")
+                        .file(avatarFile))
+                .andExpect(status().isOk());
 
-        when(userService.addAvatar(userId, file)).thenReturn("Avatar uploaded successfully");
-
-        mockMvc.perform(multipart("/api/v1/users/1/avatar")
-                        .file(file)
-                        .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Avatar uploaded successfully"));
-
-        verify(userService, times(1)).addAvatar(userId, file);
+        verify(userService, times(1)).addAvatar(2L, avatarFile);
     }
 
     @Test
-    public void testGetAvatar_WithExistingProfilePic() throws Exception {
-        long userId = 1L;
-        byte[] mockImageData = "imageData".getBytes();
-        ResponseEntity<byte[]> responseEntity = ResponseEntity.ok(mockImageData);
+    public void testGetAvatar() throws Exception {
+        byte[] avatarBytes = "image".getBytes();
+        String contentType = "image/svg+xml";
 
-        when(userService.getAvatar(userId)).thenReturn(responseEntity);
+        when(userService.getAvatar(userId)).thenReturn(avatarBytes);
+        when(userContext.getUserId()).thenReturn(1L);
 
-        mockMvc.perform(get("/api/v1/users/1/avatar"))
+        MvcResult result = mockMvc.perform(get("/api/v1/users/avatar")
+                        .contentType(contentType))
                 .andExpect(status().isOk())
-                .andExpect(content().bytes(mockImageData));
+                .andExpect(content().contentType(contentType))
+                .andReturn();
 
-        verify(userService, times(1)).getAvatar(userId);
-    }
-
-    @Test
-    public void testGetAvatar_WithNoProfilePic() throws Exception {
-        long userId = 1L;
-        byte[] defaultImageData = "defaultImageData".getBytes();
-        ResponseEntity<byte[]> responseEntity = ResponseEntity.ok(defaultImageData);
-
-        when(userService.getAvatar(userId)).thenReturn(responseEntity);
-
-        mockMvc.perform(get("/api/v1/users/1/avatar"))
-                .andExpect(status().isOk())
-                .andExpect(content().bytes(defaultImageData));
-
+        byte[] actualAvatar = result.getResponse().getContentAsByteArray();
+        assertArrayEquals(avatarBytes, actualAvatar);
         verify(userService, times(1)).getAvatar(userId);
     }
 }

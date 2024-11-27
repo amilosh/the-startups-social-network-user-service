@@ -3,7 +3,6 @@ package school.faang.user_service.service.user;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -86,24 +85,21 @@ public class UserService {
         return userMapper.toListDto(users);
     }
 
-    public String addAvatar(long userId, MultipartFile file) {
+    public void addAvatar(long userId, MultipartFile file) {
         User user = userValidator.validateUser(userId);
         s3Service.uploadFile(file, user);
         userRepository.save(user);
-
-        return user.getUserProfilePic().getFileId();
     }
 
-    public ResponseEntity<byte[]> getAvatar(long userId) {
+    public byte[] getAvatar(long userId) {
         User user = userValidator.validateUser(userId);
         UserProfilePic profile = user.getUserProfilePic();
 
         if (profile == null || profile.getFileId() == null) {
-            byte[] fileBytes = restTemplate.getForObject(avatarLibrary.getServiceUri(), byte[].class);
-            return avatarLibrary.getPictureFromResponse(fileBytes);
+            return restTemplate.getForObject(avatarLibrary.getServiceUri(), byte[].class);
         } else {
             try {
-                return avatarLibrary.getPictureFromResponse(s3Service.getFile(profile.getFileId()).readAllBytes());
+                return s3Service.getFile(profile.getFileId()).readAllBytes();
             } catch (IOException e) {
                 log.error("Failed to read all bytes from the transferred file");
                 throw new RuntimeException(e);
