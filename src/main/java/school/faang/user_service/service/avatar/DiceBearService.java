@@ -23,6 +23,7 @@ public class DiceBearService {
 
     @Retryable(
             retryFor = {DiceBearException.class},
+            maxAttempts = 3,
             backoff = @Backoff(delay = 1000, multiplier = 2)
     )
     public Optional<byte[]> getRandomAvatar(Long userId) {
