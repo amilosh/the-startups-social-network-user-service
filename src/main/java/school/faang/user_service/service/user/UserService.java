@@ -87,6 +87,30 @@ public class UserService {
         return filteredUsers;
     }
 
+    @Transactional
+    public UserJiraDto saveOrUpdateUserJiraInfo(long userId, String jiraDomain, UserJiraCreateUpdateDto createUpdateDto) {
+        log.info("Request received to save or update user (ID {}) Jira account information for Jira domain {}", userId, jiraDomain);
+
+        User user = findUserById(userId);
+        UserJira userJira = userJiraMapper.toEntity(createUpdateDto);
+        userJira.setUser(user);
+        userJira.setJiraDomain(jiraDomain);
+        UserJira savedUserJira = userJiraService.saveOrUpdate(userJira);
+
+        log.info("Request to save or update user (ID {}) Jira account information for Jira domain {} processed successfully",
+                userId, jiraDomain
+        );
+        return userJiraMapper.toDto(savedUserJira);
+    }
+
+    @Transactional(readOnly = true)
+    public UserJiraDto getUserJiraInfo(long userId, String jiraDomain) {
+        log.info("Received request to get user (ID {}) Jira account information for Jira domain {}", userId, jiraDomain);
+        UserJira userJira = userJiraService.getByUserIdAndJiraDomain(userId, jiraDomain);
+        log.info("Found user (ID {}) Jira account information for Jira domain {}", userId, jiraDomain);
+        return userJiraMapper.toDto(userJira);
+    }
+
     private User findUserById(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(ErrorMessage.USER_NOT_FOUND, userId)));
@@ -104,30 +128,5 @@ public class UserService {
         return users.filter(user -> user.getPremium() == null
                 || user.getPremium().getEndDate() == null
                 || user.getPremium().getEndDate().isBefore(LocalDateTime.now()));
-    }
-
-    @Transactional
-    public UserJiraDto saveOrUpdateUserJiraInfo(long userId, String jiraDomain, UserJiraCreateUpdateDto createUpdateDto) {
-        log.info("Request received to save or update user (ID {}) Jira account information for Jira domain {}", userId, jiraDomain);
-
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(ErrorMessage.USER_NOT_FOUND, userId)));
-        UserJira userJira = userJiraMapper.toEntity(createUpdateDto);
-        userJira.setUser(user);
-        userJira.setJiraDomain(jiraDomain);
-        UserJira savedUserJira = userJiraService.saveOrUpdate(userJira);
-
-        log.info("Request to save or update user (ID {}) Jira account information for Jira domain {} processed successfully",
-                userId, jiraDomain
-        );
-        return userJiraMapper.toDto(savedUserJira);
-    }
-
-    @Transactional
-    public UserJiraDto getUserJiraInfo(long userId, String jiraDomain) {
-        log.info("Received request to get user (ID {}) Jira account information for Jira domain {}", userId, jiraDomain);
-        UserJira userJira = userJiraService.getByUserIdAndJiraDomain(userId, jiraDomain);
-        log.info("Found user (ID {}) Jira account information for Jira domain {}", userId, jiraDomain);
-        return userJiraMapper.toDto(userJira);
     }
 }

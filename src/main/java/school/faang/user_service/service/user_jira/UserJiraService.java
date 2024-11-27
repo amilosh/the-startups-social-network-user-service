@@ -17,7 +17,8 @@ public class UserJiraService {
 
     @Transactional
     public UserJira saveOrUpdate(UserJira userJira) {
-        Optional<UserJira> existingUserJiraOptional = userJiraRepository.findByUserIdAndJiraDomain(userJira.getUser().getId(), userJira.getJiraDomain());
+        Optional<UserJira> existingUserJiraOptional = userJiraRepository
+                .findByUserIdAndJiraDomain(userJira.getUser().getId(), userJira.getJiraDomain());
         if (existingUserJiraOptional.isPresent()) {
             UserJira existingUserJira = existingUserJiraOptional.get();
             existingUserJira.setJiraAccountId(userJira.getJiraAccountId());
