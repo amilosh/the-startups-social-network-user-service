@@ -43,7 +43,21 @@ public class EventParticipationServiceTest {
     @BeforeEach
     public void setUp() {
         userDto = new UserDto(1L, "User", "user@gmail.com");
-        eventDto = new EventDto(2L, "Event", LocalDateTime.now(), LocalDateTime.now(), null, "");
+
+        eventDto = EventDto.builder()
+                .id(2L)
+                .title("Event")
+                .startDate(LocalDateTime.now())
+                .endDate(LocalDateTime.now())
+                .location(null)
+                .description("")
+                .relatedSkills(null)
+                .location("")
+                .maxAttendees(1)
+                .type(null)
+                .status(null)
+                .build();
+
         user = new User();
         user.setId(userDto.id());
         user.setUsername(userDto.username());
@@ -53,40 +67,34 @@ public class EventParticipationServiceTest {
     @Test
     public void testRegisterParticipantAlreadyRegistered() {
         testConfig(false);
-        assertThrows(DataValidationException.class,
-                () -> eventParticipationService.registerParticipant(userDto, eventDto)
-        );
+        assertThrows(DataValidationException.class, () -> eventParticipationService.registerParticipant(userDto, eventDto));
     }
 
     @Test
     public void testRegisterParticipant() {
         testConfig(true);
         eventParticipationService.registerParticipant(userDto, eventDto);
-        Mockito.verify(eventParticipationRepository,
-                Mockito.times(1)).register(userDto.id(), eventDto.id());
+        Mockito.verify(eventParticipationRepository, Mockito.times(1)).register(userDto.id(), eventDto.id());
     }
 
     @Test
     public void testUnregistrationUnregisteredParticipant() {
         testConfig(true);
-        assertThrows(DataValidationException.class,
-                () -> eventParticipationService.unregisterParticipant(userDto, eventDto)
-        );
+        assertThrows(DataValidationException.class, () -> eventParticipationService.unregisterParticipant(userDto, eventDto));
     }
 
     @Test
     public void testUnregisterParticipant() {
         testConfig(false);
         eventParticipationService.unregisterParticipant(userDto, eventDto);
-        Mockito.verify(eventParticipationRepository,
-                Mockito.times(1)).unregister(userDto.id(), eventDto.id());
+        Mockito.verify(eventParticipationRepository, Mockito.times(1)).unregister(userDto.id(), eventDto.id());
     }
 
     @Test
     public void testGetParticipants() {
         when(eventParticipationRepository.findAllParticipantsByEventId(eventDto.id())).thenReturn(List.of(user));
         when(userMapper.toDtos(List.of(user))).thenReturn(List.of(userDto));
-        assertEquals(List.of(userDto), eventParticipationService.getParticipants(eventDto));
+        assertEquals(List.of(userDto), eventParticipationService.getParticipants(eventDto.id()));
     }
 
     @Test

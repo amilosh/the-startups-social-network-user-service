@@ -32,12 +32,12 @@ public class EventParticipationService {
         eventParticipationRepository.unregister(userDto.id(), eventDto.id());
     }
 
-    public List<UserDto> getParticipants(EventDto eventDto) {
-        return userMapper.toDtos(eventParticipationRepository.findAllParticipantsByEventId(eventDto.id()));
+    public List<UserDto> getParticipants(long eventId) {
+        return userMapper.toDtos(eventParticipationRepository.findAllParticipantsByEventId(eventId));
     }
 
-    public int getParticipantsCount(EventDto eventDto) {
-        return eventParticipationRepository.countParticipants(eventDto.id());
+    public int getParticipantsCount(long eventId) {
+        return eventParticipationRepository.countParticipants(eventId);
     }
 
     private boolean isParticipantRegistered(UserDto userDto, EventDto eventDto) {
