@@ -4,6 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.dto.user.DeactivatedUserDto;
 import school.faang.user_service.dto.user.MenteeResponseDto;
@@ -47,6 +48,7 @@ public interface UserMapper {
     @Mapping(target = "participatedEvents", ignore = true)
     @Mapping(target = "country", ignore = true)
     User deactivatedUserDtoToEntity(DeactivatedUserDto deactivatedUserDto);
+    UserDto toDto(User user);
 
     @Named("mapGoalsToListId")
     default List<Long> mapGoalsToListId(List<Goal> goals) {
@@ -57,7 +59,9 @@ public interface UserMapper {
                 .map(Goal::getId)
                 .toList();
     }
+    User toEntity(UserDto userDto);
 
+    List<UserDto> toDtos(List<User> users);
     @Named("mapSkillsToListId")
     default List<Long> mapSkillsToListId(List<Skill> skills) {
         if (skills == null) {
@@ -68,6 +72,7 @@ public interface UserMapper {
                 .toList();
     }
 
+    List<User> toEntities(List<UserDto> userDtos);
     @Named("mapMentorsToListId")
     default List<Long> mapMentorsToListId(List<User> mentors) {
         if (mentors == null) {
