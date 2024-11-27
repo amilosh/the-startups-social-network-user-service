@@ -19,8 +19,8 @@ import java.io.ByteArrayInputStream;
 @Service
 public class UserProfilePicService {
     private static final int MAX_AVATAR_SIZE_MEGABYTE = 5;
-    private static final int LARGE_PHOTO_WIDTH = 1080;
-    private static final int SMALL_PHOTO_WIDTH = 170;
+    private static final int LARGE_PHOTO_SIDE_SIZE = 1080;
+    private static final int SMALL_PHOTO_SIDE_SIZE = 170;
     private static final String FOLDER_NAME = "user_profile_avatar";
 
     private final UserService userService;
@@ -35,8 +35,8 @@ public class UserProfilePicService {
         validateThatFileIsImage(file);
 
         BufferedImage originalImage = imageUtils.convertMultiPartFileToBufferedImage(file);
-        BufferedImage largeImage = imageUtils.resizeImage(originalImage, LARGE_PHOTO_WIDTH);
-        BufferedImage smallImage = imageUtils.resizeImage(originalImage, SMALL_PHOTO_WIDTH);
+        BufferedImage largeImage = imageUtils.resizeImage(originalImage, LARGE_PHOTO_SIDE_SIZE);
+        BufferedImage smallImage = imageUtils.resizeImage(originalImage, SMALL_PHOTO_SIDE_SIZE);
 
         String fileId = s3Service.uploadImage(file, FOLDER_NAME,
                 "avatarPictureUser%s".formatted(user.getId()), largeImage);
