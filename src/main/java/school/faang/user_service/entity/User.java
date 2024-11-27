@@ -207,4 +207,23 @@ public class User {
             mentors.remove(mentor);
         }
     }
+
+    public void addUserProfilePic(String fileId, String smallFileId) {
+        UserProfilePic userProfilePic = new UserProfilePic();
+        userProfilePic.setSmallFileId(smallFileId);
+        userProfilePic.setFileId(fileId);
+        this.userProfilePic = userProfilePic;
+    }
+
+    public void deleteUserProfilePic() {
+        this.userProfilePic = null;
+    }
+
+    public String toStringProfilePicInfo() {
+        return "User {" +
+                "id=" + id +
+                ", updatedAt=" + updatedAt +
+                ", userProfilePic=" + userProfilePic +
+                '}';
+    }
 }
