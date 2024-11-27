@@ -25,6 +25,8 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+      topic:
+        user-ban: user_ban
 
 server:
   port: 8080
@@ -41,6 +43,3 @@ payment-service:
   host: localhost
   port: 9080
 
-redis:
-  topic:
-    user-ban: user_ban

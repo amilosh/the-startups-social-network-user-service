@@ -20,7 +20,7 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int port;
 
-    @Value("${redis.topic.user-ban}")
+    @Value("${spring.data.redis.topic.user-ban}")
     private String userBanTopic;
     @Bean
     public RedisMessageListenerContainer redisContainer(RedisConnectionFactory jedisConnectionFactory,
