@@ -87,6 +87,7 @@ public class UserServiceTest {
         assertEquals(user, userService.getUserById(user.getId()));
     }
 
+    @Test
     void testGetUserByIdNotFound() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -118,5 +119,4 @@ public class UserServiceTest {
 
         verify(premiumRepo, times(1)).findPremiumUsers();
     }
-
 }
