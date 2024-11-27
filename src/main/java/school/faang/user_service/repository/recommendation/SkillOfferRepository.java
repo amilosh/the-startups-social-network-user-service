@@ -36,9 +36,5 @@ public interface SkillOfferRepository extends CrudRepository<SkillOffer, Long> {
             """)
     List<SkillOffer> findAllByUserId(long userId);
 
-    @Query(nativeQuery = true, value = """
-            SELECT COUNT(so.id) FROM skill_offer so
-            WHERE so.skill_id = :skillId
-            """)
     Long countBySkillId(Long skillId);
 }
