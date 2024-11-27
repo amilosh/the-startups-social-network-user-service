@@ -1,6 +1,7 @@
 package school.faang.user_service.client.payment;
 
 import feign.FeignException;
+import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -20,5 +21,5 @@ public interface PaymentServiceClient {
                     multiplierExpression = "${app.retryable.payment_service.send_payment.multiplier}"
             )
     )
-    PaymentResponseDto sendPayment(@RequestBody PaymentRequestDto requestDto);
+    PaymentResponseDto sendPayment(@Valid @RequestBody PaymentRequestDto requestDto);
 }

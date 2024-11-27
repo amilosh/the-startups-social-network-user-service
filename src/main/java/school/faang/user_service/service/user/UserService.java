@@ -71,7 +71,7 @@ public class UserService {
 
         user.setActive(false);
         userRepository.save(user);
-        log.info("User with ID {} was deactivated ", userId);
+        log.info("User with ID {} has been scheduled for the deactivation", userId);
     }
 
     public Stream<UserDto> getUser(UserFilterDto filterDto) {

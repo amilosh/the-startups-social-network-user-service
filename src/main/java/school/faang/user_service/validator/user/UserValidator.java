@@ -54,5 +54,4 @@ public class UserValidator {
             throw new DataValidationException("Major shouldn't be empty");
         }
     }
-
 }

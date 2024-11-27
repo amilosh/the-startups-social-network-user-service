@@ -11,8 +11,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.ResponseRecommendationDto;
+import school.faang.user_service.dto.recommendation.SkillRequestDto;
+import school.faang.user_service.entity.Skill;
 import school.faang.user_service.service.recommendation.RecommendationRequestService;
-import school.faang.user_service.validator.recommendation.RecommendationRequestValidator;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,42 +30,58 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(MockitoExtension.class)
 public class RecommendationRequestControllerTest {
-
     private static final Long REQUESTER_ID = 1L;
     private static final Long RECEIVER_ID = 2L;
     private static final Long REQUEST_ID = 1L;
     private static final Long RESPONSE_ID = 1L;
+    private static final String MESSAGE = "Message";
     private static final String REJECTION_REASON = "Reason for rejection";
+    private static final String SKILL_TITLE = "Java";
+    private static final Long SKILL_ID = 1L;
 
     private MockMvc mockMvc;
 
     @Mock
     private RecommendationRequestService recommendationRequestService;
 
-    @Mock
-    private RecommendationRequestValidator recommendationRequestValidator;
-
     @InjectMocks
     private RecommendationRequestController recommendationRequestController;
 
     private RecommendationRequestDto requestDto;
     private RecommendationRequestDto responseDto;
-    private  List<RecommendationRequestDto> responseList;
+    private List<RecommendationRequestDto> responseList;
     private ResponseRecommendationDto responseRecommendationDto;
+    private Skill skill;
 
     @BeforeEach
     public void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(recommendationRequestController).build();
 
+        skill = Skill.builder()
+                .id(SKILL_ID)
+                .title(SKILL_TITLE)
+                .build();
+
+        SkillRequestDto skillRequestDto = SkillRequestDto.builder()
+                .skillId(skill.getId())
+                .skillTitle(skill.getTitle())
+                .build();
+
+        List<SkillRequestDto> skillRequestDtoList = List.of(skillRequestDto);
+
         requestDto = RecommendationRequestDto.builder()
                 .requesterId(REQUESTER_ID)
                 .receiverId(RECEIVER_ID)
+                .message(MESSAGE)
+                .skillRequests(skillRequestDtoList)
                 .build();
 
         responseDto = RecommendationRequestDto.builder()
                 .id(REQUEST_ID)
                 .requesterId(REQUESTER_ID)
                 .receiverId(RECEIVER_ID)
+                .message(MESSAGE)
+                .skillRequests(skillRequestDtoList)
                 .build();
 
         responseList = Collections.singletonList(responseDto);
@@ -80,15 +97,32 @@ public class RecommendationRequestControllerTest {
     public void testRequestRecommendation() throws Exception {
         when(recommendationRequestService.create(requestDto)).thenReturn(responseDto);
 
+        String validJsonRequest = """
+                    {
+                        "requesterId": %d,
+                        "receiverId": %d,
+                        "message": "%s",
+                        "skillRequests": [
+                            {
+                                "skillId": %s,
+                                "skillTitle": "%s"
+                            }
+                        ]
+                    }
+                """.formatted(REQUESTER_ID, RECEIVER_ID, MESSAGE, skill.getId(), SKILL_TITLE);
+
         mockMvc.perform(post("/api/v1/recommendation-requests")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"requesterId\": " + REQUESTER_ID + ", \"receiverId\": " + RECEIVER_ID + "}"))
-                .andExpect(status().isOk())
+                        .content(validJsonRequest))
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(REQUEST_ID))
                 .andExpect(jsonPath("$.requesterId").value(REQUESTER_ID))
-                .andExpect(jsonPath("$.receiverId").value(RECEIVER_ID));
+                .andExpect(jsonPath("$.receiverId").value(RECEIVER_ID))
+                .andExpect(jsonPath("$.message").value(MESSAGE))
+                .andExpect(jsonPath("$.skillRequests[0].skillId").value(skill.getId()))
+                .andExpect(jsonPath("$.skillRequests[0].skillTitle").value(SKILL_TITLE));
 
-        verify(recommendationRequestValidator).validateRecommendationRequestDto(requestDto);
+
         verify(recommendationRequestService).create(requestDto);
     }
 

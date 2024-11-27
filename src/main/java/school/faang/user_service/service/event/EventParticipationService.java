@@ -1,7 +1,7 @@
-package school.faang.user_service.service.participation.event;
+package school.faang.user_service.service.event;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.user.UserMapper;
@@ -11,7 +11,7 @@ import school.faang.user_service.validator.event.EventValidator;
 import java.util.List;
 
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class EventParticipationService {
 

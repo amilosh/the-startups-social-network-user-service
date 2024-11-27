@@ -1,11 +1,11 @@
 package school.faang.user_service.service.skill;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.skill.SkillCandidateDto;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
@@ -19,6 +19,7 @@ import school.faang.user_service.validator.skill.SkillValidator;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SkillService {
@@ -35,27 +36,33 @@ public class SkillService {
         if (skillRepository.existsByTitle(skill.getTitle())) {
             throw new DataValidationException("Skill " + skill.getId() + " already exists");
         } else {
-            skill = skillRepository.save(skill);
+            skillRepository.save(skill);
+            log.info("Skill {} successfully created", skill.getId());
         }
         return skillMapper.toDto(skill);
     }
 
     public List<SkillDto> getUserSkills(long userId) {
+        log.info("Getting user {} skills", userId);
+
         return skillRepository.findAllByUserId(userId).stream()
                 .map(skillMapper::toDto)
                 .toList();
     }
 
     public List<SkillCandidateDto> getOfferedSkills(long userId) {
+        log.info("Getting user {} offered skills", userId);
+
         return skillRepository.findSkillsOfferedToUser(userId).stream()
-                .map(skillCandidateMapper::toDto)
-                .toList();
+               .map(skillCandidateMapper::toDto)
+               .toList();
     }
 
     public SkillDto acquireSkillFromOffers(long skillId, long userId) {
         Optional<Skill> skill = skillRepository.findUserSkill(skillId, userId);
 
         if (skill.isEmpty()) {
+            log.info("Getting the acquired skill {} from offers by user {}", skillId, userId);
             List<SkillOffer> offers = skillOfferRepository.findAllOffersOfSkill(skillId, userId);
             skillValidator.validateSkillByMinSkillOffer(offers.size(), skillId, userId);
             skillRepository.assignSkillToUser(skillId, userId);
@@ -68,6 +75,8 @@ public class SkillService {
     }
 
     private void addUserSkillGuarantee(List<SkillOffer> offers) {
+        log.info("Adding a skill guarantee");
+
         List<UserSkillGuarantee> guarantees = offers.stream()
                 .map(offer -> UserSkillGuarantee.builder()
                         .user(offer.getRecommendation().getReceiver())

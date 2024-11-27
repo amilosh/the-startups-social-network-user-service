@@ -19,13 +19,6 @@ import java.util.Optional;
 public interface EventMapper {
     @Mapping(source = "ownerId", target = "owner.id")
     @Mapping(source = "relatedSkills", target = "relatedSkills")
-    @Mapping(target = "attendees", ignore = true)
-    @Mapping(target = "ratings", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "type", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "promotion", ignore = true)
     Event toEntity(EventDto eventDto);
 
     List<Event> toEntity(List<EventDto> eventsDto);
