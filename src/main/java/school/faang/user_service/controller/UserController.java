@@ -35,6 +35,9 @@ public class UserController {
     @PostMapping("/upload")
     public ResponseEntity<ProcessResultDto> uploadToCsv(@RequestParam("file") @CsvFile @FileNotEmpty MultipartFile file) {
         try {
+            String filename = file.getOriginalFilename();
+            long fileSize = file.getSize();
+            log.info("Received file: name = {},size = {} bytes ", filename, fileSize);
             ProcessResultDto result = userService.processUsers(file.getInputStream());
             log.info("file upload");
             return ResponseEntity.ok(result);

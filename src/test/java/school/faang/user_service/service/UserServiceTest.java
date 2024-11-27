@@ -20,12 +20,12 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.PersonToUserMapper;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.parser.CsvParser;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,8 +38,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -67,6 +65,8 @@ class UserServiceTest {
     private UserValidator userValidator;
     @Mock
     private PersonToUserMapper personToUserMapper;
+    @Mock
+    private  CsvParser parser;
 
 
     @InjectMocks
@@ -109,7 +109,7 @@ class UserServiceTest {
         inputStream = new ByteArrayInputStream(csvContent.getBytes());
         mockPerson = createMockPerson("John", "Doe", "john.doe@example.com");
         mockUser = createMockUser("JohnDoe", "john.doe@example.com");
-//        people = List.of(mockPerson);
+        people = List.of(mockPerson);
     }
 
     @Test
@@ -287,24 +287,25 @@ class UserServiceTest {
     }
 
     @Test
-    void testProcessUsersSuccess() throws IOException {
+    void processUsersSuccessfullyWhenAllValid() throws Exception {
+        when(parser.parseCsv(inputStream)).thenReturn(people);
         when(personToUserMapper.personToUser(mockPerson)).thenReturn(mockUser);
-        when(userRepository.save(mockUser)).thenReturn(mockUser);
 
-        ProcessResultDto result = userService.processUser(mockPerson);
+        ProcessResultDto result = userService.processUsers(inputStream);
 
         assertEquals(1, result.getСountSuccessfullySavedUsers());
         assertTrue(result.getErrors().isEmpty());
-        verify(userRepository, times(1)).save(mockUser);
+        verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
-    void testProcessUsersSaveError() throws IOException {
+    void processUsersWhenSavingFails() throws Exception {
+        when(parser.parseCsv(inputStream)).thenReturn(people);
         when(personToUserMapper.personToUser(mockPerson)).thenReturn(mockUser);
         String mockConstraintMessage = "could not execute statement; SQL [n/a]; constraint [users_phone_key] ";
         when(userRepository.save(mockUser)).thenThrow(new DataIntegrityViolationException(mockConstraintMessage));
 
-        ProcessResultDto result = userService.processUser(mockPerson);
+        ProcessResultDto result = userService.processUsers(inputStream);
 
         assertEquals(0, result.getСountSuccessfullySavedUsers());
         assertFalse(result.getErrors().isEmpty());
@@ -314,7 +315,6 @@ class UserServiceTest {
 
         verify(userRepository, times(1)).save(mockUser);
     }
-
 
     private Person createMockPerson(String firstName, String lastName, String email) {
         Address address = new Address("123 Street", "New York", "NY", "Country1", "10001");
