@@ -30,8 +30,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.retry:spring-retry:2.0.4")
-    implementation("org.springframework:spring-aspects")
+    implementation("org.springframework.retry:spring-retry:2.0.2")
+    implementation("org.aspectj:aspectjweaver:1.9.20")
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
