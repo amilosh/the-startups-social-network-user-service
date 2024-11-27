@@ -37,11 +37,6 @@ public class RedisConfig {
     }
 
     @Bean
-    ChannelTopic recommendationEventTopic() {
-        return new ChannelTopic(redisProperties.getChannels().get("recommendation-event-channel"));
-    }
-
-    @Bean
     public RedisTemplate<String, Object> redisTemplate() {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory());
