@@ -1,0 +1,2 @@
+ALTER TABLE users
+    ADD COLUMN ban boolean DEFAULT FALSE NOT NULL;
