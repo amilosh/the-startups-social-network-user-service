@@ -1,20 +1,30 @@
 package school.faang.user_service.dto;
 
-import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.Builder;
+import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.entity.event.EventType;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 public record EventDto(
         Long id,
         @NotBlank String title,
-        @NotNull @FutureOrPresent LocalDateTime startDate,
-        @NotNull @Future LocalDateTime endDate,
+        @NotNull @PastOrPresent LocalDateTime startDate,
+        @NotNull @PastOrPresent LocalDateTime endDate,
         @NotNull Long ownerId,
-        String description
+        @NotBlank String description,
+        List<SkillDto> relatedSkills,
+        @NotBlank String location,
+        int maxAttendees,
+        EventType type,
+        EventStatus status
 ) {
+    public String toLogString() {
+        return String.format(("EventDto(id=%d, title=%s)"), id, title);
+    }
 }

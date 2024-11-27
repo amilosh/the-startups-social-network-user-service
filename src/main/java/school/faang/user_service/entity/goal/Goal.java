@@ -27,7 +27,7 @@ public class Goal {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="parent_goal_id")
+    @JoinColumn(name = "parent_goal_id")
     private Goal parent;
 
     @Column(name = "title", length = 64, nullable = false, unique = true)
@@ -58,7 +58,7 @@ public class Goal {
     @JoinColumn(name = "mentor_id")
     private User mentor;
 
-    @OneToMany(mappedBy = "goal")
+    @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GoalInvitation> invitations;
 
     @ManyToMany
@@ -76,4 +76,27 @@ public class Goal {
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
     private List<Skill> skillsToAchieve;
+
+    public void updateUsers(List<User> newUsers) {
+        users.clear();
+        users.addAll(newUsers);
+    }
+
+    public void updateSkills(List<Skill> newSkills) {
+        skillsToAchieve.clear();
+        skillsToAchieve.addAll(newSkills);
+    }
+
+    public boolean isEmptyExecutingUsers() {
+        if(users == null){
+            return true;
+        }
+        return users.isEmpty();
+    }
+
+    public void removeExecutingUser(User user) {
+        if (user != null) {
+            users.remove(user);
+        }
+    }
 }

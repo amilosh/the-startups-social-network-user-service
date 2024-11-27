@@ -11,12 +11,15 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
+class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
@@ -26,12 +29,25 @@ public class UserServiceTest {
     private User user;
 
     @BeforeEach
+    void setUp() {
+        user = User.builder()
+                .id(1L)
+                .build();
     public void setUp() {
         user = new User();
         user.setId(1L);
     }
 
     @Test
+    void testGetUserByIdWithExistingUser() {
+        when(userRepository.findById(1L))
+                .thenReturn(Optional.of(user));
+
+        User result = userService.getUserById(1L);
+
+        assertNotNull(result);
+        assertEquals(user, result);
+        verify(userRepository).findById(1L);
     public void testUserNotFound() {
         when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
         assertThrows(EntityNotFoundException.class,
@@ -43,5 +59,10 @@ public class UserServiceTest {
     public void testGetUserById() {
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         assertEquals(user, userService.getUserById(user.getId()));
+    void testGetUserByIdNotFound() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> userService.getUserById(1L));
+        verify(userRepository).findById(1L);
     }
 }
