@@ -1,9 +1,9 @@
 package school.faang.user_service.validator.goal;
 
 import lombok.RequiredArgsConstructor;
-import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalRequestDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.DataValidationException;
@@ -12,7 +12,7 @@ import school.faang.user_service.repository.goal.GoalRepository;
 
 import java.util.List;
 
-@Data
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class GoalValidator {
@@ -22,22 +22,27 @@ public class GoalValidator {
     private final GoalRepository goalRepository;
     private final SkillRepository skillRepository;
 
-    public void validateCreationGoal(Long userId, GoalDto goal) {
+    public void validateCreationGoal(Long userId, GoalRequestDto goal) {
         if (goalRepository.countActiveGoalsPerUser(userId) == MAX_USER_GOALS_LIMIT) {
+            log.warn("User {} reached the maximum quantity of active goals: {}", userId, MAX_USER_GOALS_LIMIT);
             throw new DataValidationException("Reached maximum quantity of goals");
         }
-        List<Skill> skills = skillRepository.findAllById(goal.getSkillIds());
-        if (skills.size() != goal.getSkillIds().size()) {
-            throw new DataValidationException("Some skills do not exist in the database.");
-        }
+        validateSkillsExist(goal.getSkillIds());
     }
 
-    public void validateUpdatingGoal(Long goalId, GoalDto goal) {
+    public void validateUpdatingGoal(Long goalId, GoalRequestDto goal) {
         if (goal.getStatus() == GoalStatus.COMPLETED) {
+            log.warn("Attempt to update a completed goal: goalId {}", goalId);
             throw new IllegalArgumentException("Cannot update a completed goal");
         }
-        List<Skill> skills = skillRepository.findAllById(goal.getSkillIds());
-        if (skills.size() != goal.getSkillIds().size()) {
+        validateSkillsExist(goal.getSkillIds());
+    }
+
+    private void validateSkillsExist(List<Long> skillIds) {
+        List<Skill> skills = skillRepository.findAllById(skillIds);
+        if (skills.size() != skillIds.size()) {
+            log.error("Some skills do not exist in the database: expected {}, found {}",
+                    skillIds.size(), skills.size());
             throw new DataValidationException("Some skills do not exist in the database.");
         }
     }

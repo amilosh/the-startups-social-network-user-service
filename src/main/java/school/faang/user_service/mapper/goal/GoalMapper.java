@@ -4,7 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
-import school.faang.user_service.dto.goal.GoalDto;
+import school.faang.user_service.dto.goal.GoalRequestDto;
+import school.faang.user_service.dto.goal.GoalResponseDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.goal.Goal;
 
@@ -16,13 +17,13 @@ public interface GoalMapper {
 
     @Mapping(source = "parent.id", target = "parentId")
     @Mapping(source = "skillsToAchieve", target = "skillIds", qualifiedByName = "skillsToSkillIds")
-    GoalDto toDto(Goal goal);
+    GoalResponseDto toDto(Goal goal);
 
     @Mapping(source = "parentId", target = "parent.id")
     @Mapping(target = "skillsToAchieve", ignore = true)
-    Goal toEntity(GoalDto goalDto);
+    Goal toEntity(GoalRequestDto goalDto);
 
-    List<GoalDto> toDto(List<Goal> goals);
+    List<GoalResponseDto> toDto(List<Goal> goals);
 
     @Named("skillsToSkillIds")
     default List<Long> skillsToSkillIds(List<Skill> skills) {

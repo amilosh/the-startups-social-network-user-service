@@ -12,8 +12,7 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class GoalDto {
-    private Long id;
+public class GoalRequestDto {
 
     @NotNull(message = "The parent's ID should not be empty")
     private Long parentId;
@@ -30,5 +29,6 @@ public class GoalDto {
 
     private GoalStatus status;
 
+    @NotNull(message = "Skillids can't be null")
     private List<Long> skillIds;
 }
