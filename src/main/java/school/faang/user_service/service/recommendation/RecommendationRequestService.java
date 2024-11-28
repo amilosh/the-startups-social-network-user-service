@@ -1,6 +1,5 @@
 package school.faang.user_service.service.recommendation;
 
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +19,6 @@ import school.faang.user_service.service.recommendation.filter.RecommendationReq
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +43,7 @@ public class RecommendationRequestService {
 
         // Создаем RecommendationRequest
         RecommendationRequest entity = recommendationRequestMapper.toEntity(dto);
-        //скорее тут нужно определять статус. Именно на create он должен быть PENDING, в запросе его вообще не должно быть, и там его в ignored
+        // Скорее тут нужно определять статус. Именно на create он должен быть PENDING, в запросе его вообще не должно быть, и там его в ignored
         entity.setStatus(RequestStatus.valueOf("PENDING"));
         RecommendationRequest savedRequest = recommendationRequestRepository.save(entity);
 
@@ -71,7 +69,7 @@ public class RecommendationRequestService {
             SkillRequest skillRequest = new SkillRequest();
             skillRequest.setRequest(savedRequest);
             skillRequest.setSkill(skillRepository.getReferenceById(skillId));
-            // Видимо так произойдет связка по ключам в БД по СascadeType.ALL.
+            // Видимо так произойдет связка по ключам в БД по CascadeType.ALL.
             // В момент завершения метода с @Transactional всегда происходит commit на измененную entity и после INSERT RecommendationRequest еще будет UPDATE?
             savedRequest.addSkillRequest(skillRequest);
         });
@@ -97,20 +95,12 @@ public class RecommendationRequestService {
     }
 
     public List<RecommendationRequestDto> getRequests(RecommendationRequestFilterDto filter) {
-        Stream<RecommendationRequest> requests = recommendationRequestRepository.findAll().stream();
+        List<RecommendationRequest> allRequests = recommendationRequestRepository.findAll();
         return filters.stream()
                 .filter(f -> f.isApplicable(filter))
-                .flatMap(f -> f.apply(requests, filter))
+                .flatMap(f -> f.apply(allRequests.stream(), filter))
                 .map(recommendationRequestMapper::toDto)
                 .toList();
-
-
-        /*return requests
-                .filter(request -> filter.getRequesterId() == null || request.getRequester().getId().equals(filter.getRequesterId()))
-                .filter(request -> filter.getReceiverId() == null || request.getReceiver().getId().equals(filter.getReceiverId()))
-                .filter(request -> filter.getStatus() == null || request.getStatus().equals(filter.getStatus()))
-                .map(recommendationRequestMapper::toDto)
-                .toList();*/
     }
 
     private void checkUserById(Long userId, String errorMessage) {
