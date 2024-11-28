@@ -1,39 +1,23 @@
 package school.faang.user_service.exception;
 
+import io.minio.errors.MinioException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.stream.Collectors;
 
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(SkillDuplicateException.class)
-    public ResponseEntity<String> handleSkillDuplicateException(SkillDuplicateException ex) {
-        log.error("SkillDuplicateException: {}", ex.getMessage(), ex);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
-
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-            errors.put(error.getField(), error.getDefaultMessage())
-        );
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
 
     @ExceptionHandler(SkillNotFoundException.class)
     public ResponseEntity<String> handleSkillNotFoundException(SkillNotFoundException exception) {
@@ -90,6 +74,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
+    @ExceptionHandler(SkillDuplicateException.class)
+    public ResponseEntity<String> handleSkillDuplicateException(SkillDuplicateException ex) {
+        log.error("SkillDuplicateException: {}", ex.getMessage(), ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleAllExceptions(Exception exception) {
         log.error("Unhandled exception: {}", exception.getMessage(), exception);
@@ -105,9 +95,36 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(errorMessage);
     }
 
-    @ExceptionHandler(SkillResourceNotFoundException.class)
-    public ResponseEntity<String> handleInvalidMentorshipRequestException(SkillResourceNotFoundException ex) {
-        log.error("SkillResourceNotFoundException: {}", ex.getMessage(), ex);
+    @ExceptionHandler(FileSizeExceededException.class)
+    public ResponseEntity<String> handleFileSizeExceededException(FileSizeExceededException exception) {
+        log.error("FileSizeExceededException: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<String> handleIOException(IOException exception) {
+        log.error("IOException: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while file processing");
+    }
+
+    @ExceptionHandler({
+            MinioException.class,
+            NoSuchAlgorithmException.class,
+            InvalidKeyException.class
+    })
+    public ResponseEntity<String> handleMinioExceptions(Exception exception) {
+        log.error("Minio-related exception: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while uploading the file to Minio. Please try again later.");
+    }
+
+    @ExceptionHandler(MinioUploadException.class)
+    public ResponseEntity<String> handleMinioUploadException(MinioUploadException exception) {
+        log.error("MinioUploadException: {}", exception.getMessage(), exception);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload file to Minio. Please try again later.");
+    }
+
+    @ExceptionHandler(AvatarNotFoundException.class)
+    public ResponseEntity<String> handleAvatarNotFoundException(AvatarNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 }

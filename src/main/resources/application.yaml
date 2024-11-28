@@ -35,11 +35,21 @@ logging:
   level:
     root: info
 
+storage:
+  type: minio
+
 minio:
   url: http://localhost:9000
-  accessKey: LbtJkdBst2Fzh9PQWMbn
-  secretKey: ZQsUFl0ToSUn8U6xH6dAoBnpWruKS0kvkiAvsVXN
+  accessKey: user
+  secretKey: password
   bucketName: corpbucket
+  region: eu
+
+aws:
+  accessKey:
+  secretKey:
+  bucketName:
+  region:
 
 project-service:
   host: localhost
