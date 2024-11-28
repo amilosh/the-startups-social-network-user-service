@@ -26,14 +26,10 @@ import school.faang.user_service.util.CollectionUtils;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
+import java.util.stream.Stream;
 
-import static school.faang.user_service.logging.goal.GoalMessages.GOAL_COMPLETED_ERROR;
-import static school.faang.user_service.logging.goal.GoalMessages.GOAL_IS_ALREADY_COMPLETED_FOR_GOAL_WITH_ID;
-import static school.faang.user_service.logging.goal.GoalMessages.GOAL_NOT_FOUND;
-import static school.faang.user_service.logging.goal.GoalMessages.MAXIMUM_NUMBER_OF_GOALS_ERROR;
-import static school.faang.user_service.logging.goal.GoalMessages.NO_SKILLS_FOUND;
-import static school.faang.user_service.logging.goal.GoalMessages.NUMBER_OF_ACTIVE_GOALS_REACHED_FOR_A_USER_IN_GOAL_WITH_ID;
-import static school.faang.user_service.logging.goal.GoalMessages.SUCCESSFULLY_DELETED_GOAL_AND_ALL_ITS_CHILDREN;
+import static school.faang.user_service.logging.goal.GoalMessages.*;
+
 
 @Slf4j
 @Service
@@ -241,6 +237,11 @@ public class GoalService {
         return goal.map(goalMapper::toResponseDto);
     }
 
+    public Goal findGoalById(Long id) {
+        return goalRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Goal with id: %s not found".formatted(id)));
+    }
+
     private void validateMaxActiveGoalsLimit(Goal goal) {
         boolean isAnyUserHasMaxNumOfGoals = goal.getUsers().stream()
                 .anyMatch(user -> user.hasMaxNumOfGoals(MAX_NUM_ACTIVE_GOALS));
@@ -250,10 +251,18 @@ public class GoalService {
         }
     }
 
+    public Stream<Goal> findGoalsByUserId(long userId) {
+        return goalRepository.findGoalsByUserId(userId);
+    }
+
     private void validateGoalNotCompleted(Goal goal) {
         if (goal.getStatus() == GoalStatus.COMPLETED) {
             log.warn(GOAL_IS_ALREADY_COMPLETED_FOR_GOAL_WITH_ID, goal.getId());
             throw new DataValidationException(GOAL_COMPLETED_ERROR);
         }
+    }
+
+    public int countActiveGoalsPerUser(long userId) {
+        return goalRepository.countActiveGoalsPerUser(userId);
     }
 }

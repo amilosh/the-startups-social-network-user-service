@@ -41,6 +41,10 @@ public class UserService {
                 EntityNotFoundException("User do not found by " + userId));
     }
 
+    public void saveUser(User user) {
+        userRepository.save(user);
+    }
+
     public UserSubResponseDto getUserDtoById(long userId) {
         User user = getUserById(userId);
         return userMapper.toUserSubResponseDto(user);
