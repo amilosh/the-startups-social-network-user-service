@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -17,9 +18,9 @@ import school.faang.user_service.filter.event.EventFilter;
 import school.faang.user_service.filter.event.EventOwnerFilter;
 import school.faang.user_service.filter.event.EventTitleFilter;
 import school.faang.user_service.mapper.event.EventMapper;
-import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
+import school.faang.user_service.repository.skill.SkillRepository;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.event.EventOwnerValidator;
 import school.faang.user_service.validator.event.EventStartDateValidator;
@@ -207,6 +208,12 @@ public class EventServiceTest {
         verify(eventRepository, times(1)).findParticipatedEventsByUserId(anyLong());
         assertFalse(eventsDto.isEmpty());
         assertEquals(3, eventsDto.size());
+    }
+
+    @Test
+    void testRemovePastEvent() {
+        eventService.deletePastEvents();
+        verify(eventRepository).deleteAllPastEvents(any(LocalDateTime.class));
     }
 
     private void prepareFiltersAndEvent() {
