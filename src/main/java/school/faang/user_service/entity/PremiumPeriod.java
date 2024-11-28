@@ -2,6 +2,7 @@ package school.faang.user_service.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import school.faang.user_service.exception.PremiumPeriodNotFoundException;
 
 import java.math.BigDecimal;
 import java.time.Year;
@@ -21,8 +22,8 @@ public enum PremiumPeriod {
             case 30 -> MONTH;
             case 90 -> THREE_MONTHS;
             case 365, 366 -> YEAR;
-            default -> throw new IllegalArgumentException(
-                    "Unfortunately we don't have premium for that amount of days: " + days);
+            default -> throw new PremiumPeriodNotFoundException(
+                    "Unfortunately, we don't have premium for that amount of days: " + days);
         };
     }
 

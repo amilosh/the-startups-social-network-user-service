@@ -90,4 +90,16 @@ public class GlobalExceptionHandler {
         log.error("ConstraintViolationException: {}", errorMessage, ex);
         return ResponseEntity.badRequest().body(errorMessage);
     }
+
+    @ExceptionHandler(PaymentFailedException.class)
+    public ResponseEntity<String> handlePaymentFailedException(PaymentFailedException e) {
+        log.error("PaymentFailedException:", e);
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
+    @ExceptionHandler(PremiumPeriodNotFoundException.class)
+    public ResponseEntity<String> handlePremiumPeriodNotFoundException(PremiumPeriodNotFoundException e) {
+        log.error("PremiumPeriodNotFountException:", e);
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
 }
