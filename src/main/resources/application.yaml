@@ -29,6 +29,7 @@ spring:
         follower-event-channel: follower_channel
         user-service: ban_user_channel
         profile-view-channel: profile_view_event
+        recommendation-event-channel: recommendation_event_channel
   kafka:
     bootstrap-servers: "localhost:9092"
     pool-size: 3
