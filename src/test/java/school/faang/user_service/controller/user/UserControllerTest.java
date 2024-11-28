@@ -32,8 +32,6 @@ public class UserControllerTest {
     @Mock
     private UserContext userContext;
 
-    private final long userId = 1L;
-
     private MockMvc mockMvc;
 
 
@@ -51,12 +49,12 @@ public class UserControllerTest {
                 "image/svg+xml",
                 "test-avatar-data".getBytes()
         );
-        userService.addAvatar(2L, avatarFile);
+        when(userContext.getUserId()).thenReturn(1L);
         mockMvc.perform(multipart("/api/v1/users/avatar")
                         .file(avatarFile))
                 .andExpect(status().isOk());
 
-        verify(userService, times(1)).addAvatar(2L, avatarFile);
+        verify(userService, times(1)).addAvatar(1L, avatarFile);
     }
 
     @Test
@@ -64,6 +62,7 @@ public class UserControllerTest {
         byte[] avatarBytes = "image".getBytes();
         String contentType = "image/svg+xml";
 
+        long userId = 1L;
         when(userService.getAvatar(userId)).thenReturn(avatarBytes);
         when(userContext.getUserId()).thenReturn(1L);
 
