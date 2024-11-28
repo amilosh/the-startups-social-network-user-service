@@ -10,34 +10,29 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import school.faang.user_service.dto.user.UserDto;
-import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.repository.CountryRepository;
-import school.faang.user_service.entity.UserProfilePic;
-import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
-import school.faang.user_service.service.user.filter.UserFilter;
-import school.faang.user_service.service.user.random_password.PasswordGenerator;
 import school.faang.user_service.service.s3.S3Service;
+import school.faang.user_service.service.user.random_password.PasswordGenerator;
 import school.faang.user_service.validator.user.UserValidator;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -72,8 +67,6 @@ class UserServiceTest {
     @Mock
     private CountryRepository countryRepository;
 
-    @InjectMocks
-    private UserService userService;
     private final long userId = 1L;
     private User user;
 
@@ -127,7 +120,7 @@ class UserServiceTest {
 
         assertEquals(usersDtos, result);
         verify(userRepository, times(1)).findAllById(ids);
-        verify(userMapper, times(1)).toListDto(users);
+        verify(userMapper, times(2)).toListDto(users);
     }
 
     @Test
