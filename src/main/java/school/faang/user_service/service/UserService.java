@@ -115,12 +115,13 @@ public class UserService {
 
     @Transactional
     public List<UserDto> getAllUsers(UserFilterDto filterDto) {
-        Stream<User> usersStream = userRepository.findAll().stream();
-        Stream<User> filteredStream = applyFilters(usersStream, filterDto);
+        try (Stream<User> usersStream = userRepository.findAll().stream()) {
+            Stream<User> filteredStream = applyFilters(usersStream, filterDto);
 
-        return filteredStream
-                .map(userMapper::toDto)
-                .collect(Collectors.toList());
+            return filteredStream
+                    .map(userMapper::toDto)
+                    .collect(Collectors.toList());
+        }
     }
 
     private Stream<User> applyFilters(Stream<User> users, UserFilterDto filterDto) {

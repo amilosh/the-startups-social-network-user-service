@@ -12,12 +12,12 @@ public class UserEmailFilter implements Filter<User, UserFilterDto> {
 
     @Override
     public boolean isApplicable(UserFilterDto filter) {
-        return filter.getEmailPattern() != null && !filter.getEmailPattern().isEmpty();
+        return filter.getEmail() != null && !filter.getEmail().isEmpty();
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filter) {
-        String emailPattern = filter.getEmailPattern().toLowerCase();
+        String emailPattern = filter.getEmail().toLowerCase();
         return users.filter(user -> user.getEmail() != null &&
                 user.getEmail().toLowerCase().contains(emailPattern));
     }

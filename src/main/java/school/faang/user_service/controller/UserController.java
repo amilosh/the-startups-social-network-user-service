@@ -45,9 +45,7 @@ public class UserController {
     @Operation(summary = "Get all users", description = "Retrieve a list of users with optional filtering and pagination")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved list of users")
     public List<UserDto> getAllUsers(
-            @Valid
-            @Parameter(description = "All users filtration parameters", required = false)
-            @ModelAttribute UserFilterDto filter) {
+            @Valid UserFilterDto filter) {
         return userService.getAllUsers(filter);
     }
 
@@ -55,9 +53,7 @@ public class UserController {
     @Operation(summary = "Get premium users", description = "Retrieve a list of premium users with optional filtering and pagination")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved list premium users")
     public List<UserDto> getPremiumUsers(
-            @Valid
-            @Parameter(description = "Premium users filtration parameters", required = false)
-            @ModelAttribute UserFilterDto filter) {
+            @Valid UserFilterDto filter) {
         return userService.getPremiumUsers(filter);
     }
 }

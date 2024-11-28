@@ -12,12 +12,12 @@ public class UserCountryFilter implements Filter<User, UserFilterDto> {
 
     @Override
     public boolean isApplicable(UserFilterDto filter) {
-        return filter.getCountryPattern() != null && !filter.getCountryPattern().isEmpty();
+        return filter.getCountry() != null && !filter.getCountry().isEmpty();
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filter) {
-        String countryPattern = filter.getCountryPattern().toLowerCase();
+        String countryPattern = filter.getCountry().toLowerCase();
         return users.filter(user -> user.getCountry() != null &&
                 user.getCountry().getTitle() != null &&
                 user.getCountry().getTitle().toLowerCase().contains(countryPattern));

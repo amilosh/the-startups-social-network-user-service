@@ -12,12 +12,12 @@ public class UserCityFilter implements Filter<User, UserFilterDto> {
 
     @Override
     public boolean isApplicable(UserFilterDto filter) {
-        return filter.getCityPattern() != null && !filter.getCityPattern().isEmpty();
+        return filter.getCity() != null && !filter.getCity().isEmpty();
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filter) {
-        String cityPattern = filter.getCityPattern().toLowerCase();
+        String cityPattern = filter.getCity().toLowerCase();
         return users.filter(user -> user.getCity() != null &&
                 user.getCity().toLowerCase().contains(cityPattern));
     }

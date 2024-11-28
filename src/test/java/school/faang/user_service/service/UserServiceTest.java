@@ -426,8 +426,8 @@ class UserServiceTest {
         when(userMapper.toDto(regularUser)).thenReturn(firstUserDto);
 
         UserFilterDto filterDto = UserFilterDto.builder()
-                .namePattern("John")
-                .emailPattern("john@example.com")
+                .username("John")
+                .email("john@example.com")
                 .build();
 
         when(userNameFilter.isApplicable(eq(filterDto))).thenReturn(true);
@@ -497,7 +497,7 @@ class UserServiceTest {
         when(userMapper.toDto(premiumUser)).thenReturn(firstPremiumUserDto);
 
         UserFilterDto filterDto = UserFilterDto.builder()
-                .emailPattern("johndoe@example.com")
+                .email("johndoe@example.com")
                 .build();
 
         when(userEmailFilter.isApplicable(eq(filterDto))).thenReturn(true);

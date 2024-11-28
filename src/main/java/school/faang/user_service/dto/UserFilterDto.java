@@ -16,42 +16,25 @@ public class UserFilterDto {
     public static final int DEFAULT_PAGE_NUMBER = 0;
     public static final int DEFAULT_PAGE_SIZE = 10;
 
-    @Schema(description = "Filter by user name")
-    private String namePattern;
-
-    @Schema(description = "Filter by 'About Me' content")
-    private String aboutPattern;
+    @Schema(description = "Filter by username (case-insensitive partial match)")
+    private String username;
 
     @Schema(description = "Filter by email (exact match)", example = "user@example.com")
     @Pattern(regexp = ".+@.+\\..+", message = "Email must be valid")
-    private String emailPattern;
+    private String email;
 
-    @Schema(description = "Filter by contact information (case-insensitive partial match)")
-    @Pattern(regexp = ".*", message = "Contact cannot be empty")
-    private String contactPattern;
-
-    @Schema(description = "Filter by country (case-insensitive partial match)")
-    @Pattern(regexp = ".*", message = "Country cannot be empty")
-    private String countryPattern;
+    @Schema(description = "Filter by country (exact match, case-insensitive)")
+    private String country;
 
     @Schema(description = "Filter by city (case-insensitive partial match)")
-    @Pattern(regexp = ".*", message = "City cannot be empty")
-    private String cityPattern;
+    private String city;
 
-    @Schema(description = "Filter by phone number", example = "+1234567890")
-    @Pattern(regexp = "\\+?[0-9]*", message = "Phone number must be valid")
-    private String phonePattern;
-
-    @Schema(description = "Filter by skill (case-insensitive partial match)")
-    @Pattern(regexp = ".*", message = "Skill cannot be empty")
-    private String skillPattern;
-
-    @Schema(description = "Minimum years of experience", example = "0", minimum = "0")
+    @Schema(description = "Filter by minimum experience in years", example = "0", minimum = "0")
     @Min(value = 0, message = "Experience cannot be less than 0")
     private Integer experienceMin;
 
-    @Schema(description = "Maximum years of experience", example = "10", minimum = "0")
-    @Min(value = 0, message = "Maximum experience cannot be less than 0")
+    @Schema(description = "Filter by maximum experience in years", example = "10", minimum = "0")
+    @Min(value = 0, message = "Experience cannot be less than 0")
     private Integer experienceMax;
 
     @Schema(description = "Page number (zero-based)", example = "0", minimum = "0", defaultValue = "0")

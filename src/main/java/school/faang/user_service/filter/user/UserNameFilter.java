@@ -12,12 +12,12 @@ public class UserNameFilter implements Filter<User, UserFilterDto> {
 
     @Override
     public boolean isApplicable(UserFilterDto filter) {
-        return filter.getNamePattern() != null && !filter.getNamePattern().isEmpty();
+        return filter.getUsername() != null && !filter.getUsername().isEmpty();
     }
 
     @Override
     public Stream<User> apply(Stream<User> users, UserFilterDto filter) {
-        String namePattern = filter.getNamePattern().toLowerCase();
+        String namePattern = filter.getUsername().toLowerCase();
         return users.filter(user -> user.getUsername() != null &&
                 user.getUsername().toLowerCase().contains(namePattern));
     }
