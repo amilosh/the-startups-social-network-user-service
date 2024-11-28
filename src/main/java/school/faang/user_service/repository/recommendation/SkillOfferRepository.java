@@ -35,4 +35,6 @@ public interface SkillOfferRepository extends CrudRepository<SkillOffer, Long> {
             WHERE r.receiver.id = :userId
             """)
     List<SkillOffer> findAllByUserId(long userId);
+
+    Long countBySkillId(Long skillId);
 }

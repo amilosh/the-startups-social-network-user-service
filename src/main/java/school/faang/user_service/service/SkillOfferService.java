@@ -12,6 +12,14 @@ import java.util.List;
 public class SkillOfferService {
     private final SkillOfferRepository skillOfferRepository;
 
+    public int getCountSkillOffersForUser(Long skillId, Long userId) {
+        return skillOfferRepository.countAllOffersOfSkill(skillId, userId) ;
+    }
+
+    public Long getCountSkillOffersBySkill(Long skillId) {
+        return skillOfferRepository.countBySkillId(skillId) ;
+    }
+
     public void deleteAllByRecommendationId(long recommendationId) {
         skillOfferRepository.deleteAllByRecommendationId(recommendationId);
     }

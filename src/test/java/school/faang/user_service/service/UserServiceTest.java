@@ -145,6 +145,7 @@ class UserServiceTest {
         when(userRepository.existsById(userId)).thenReturn(false);
 
         assertFalse(userService.checkUserExistence(userId));
+
         verify(userRepository, times(1)).existsById(userId);
     }
 
@@ -299,7 +300,6 @@ class UserServiceTest {
         User mentee = new User();
         mentee.setId(2L);
         return mentee;
-
     }
 
     @Test
