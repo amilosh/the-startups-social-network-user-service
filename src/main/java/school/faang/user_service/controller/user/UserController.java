@@ -98,4 +98,10 @@ public class UserController {
 
         return new ResponseEntity<>(fileBytes, headers, HttpStatus.OK);
     }
+
+    @PostMapping("/upload-file")
+    public void loadingUsersViaFile(@RequestParam("file") MultipartFile file)  {
+        userService.loadingUsersViaFile(file);
+    }
+
 }

@@ -9,6 +9,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.service.user.UserService;
 
@@ -75,5 +76,15 @@ public class UserControllerTest {
         byte[] actualAvatar = result.getResponse().getContentAsByteArray();
         assertArrayEquals(avatarBytes, actualAvatar);
         verify(userService, times(1)).getAvatar(userId);
+    }
+
+    @Test
+    public void testDeletePost() throws Exception {
+        MockMultipartFile file = new MockMultipartFile("file",
+                "file.csv",
+                "text/plain", "hello".getBytes());
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/api/v1/users/upload-file").file(file))
+                .andExpect(status().isOk());
     }
 }

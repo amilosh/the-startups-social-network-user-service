@@ -10,8 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.dto.goal.GoalDto;
 import school.faang.user_service.dto.goal.GoalFilterDto;
+import school.faang.user_service.dto.goal.GoalRequestDto;
+import school.faang.user_service.dto.goal.GoalResponseDto;
 import school.faang.user_service.service.goal.GoalService;
 
 import java.util.List;
@@ -37,9 +38,9 @@ public class GoalController {
     )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public GoalDto createGoal(@Valid @RequestBody GoalDto goalDto) {
+    public GoalResponseDto createGoal(@Valid @RequestBody GoalRequestDto goalDto) {
         long userId = userContext.getUserId();
-        return goalService.createGoal(userId, goalDto);
+        return goalService.createGoal(userId,goalDto);
     }
 
     @Operation(
@@ -48,9 +49,9 @@ public class GoalController {
     )
     @PutMapping("/{goalId}")
     @ResponseStatus(HttpStatus.OK)
-    public GoalDto updateGoal(
+    public GoalResponseDto updateGoal(
             @PathVariable @NotNull(message = "Goal ID should not be null") Long goalId,
-            @Valid @RequestBody GoalDto goalDto) {
+            @Valid @RequestBody GoalRequestDto goalDto) {
         return goalService.updateGoal(goalId, goalDto);
     }
 
@@ -70,7 +71,7 @@ public class GoalController {
     )
     @GetMapping("/{goalId}/subtasks")
     @ResponseStatus(HttpStatus.OK)
-    public List<GoalDto> findSubtasksByGoalId(
+    public List<GoalResponseDto> findSubtasksByGoalId(
             @PathVariable @NotNull(message = "Goal ID should not be null") Long goalId,
             @Valid @ModelAttribute GoalFilterDto filters) {
         return goalService.findSubtasksByGoalId(goalId, filters);
@@ -82,7 +83,7 @@ public class GoalController {
     )
     @GetMapping("/users/{userId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<GoalDto> getGoalsByUser(
+    public List<GoalResponseDto> getGoalsByUser(
             @PathVariable @NotNull(message = "User ID should not be null") Long userId,
             @Valid @ModelAttribute GoalFilterDto filters) {
         return goalService.getGoalsByUser(userId, filters);

@@ -6,27 +6,38 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserFilterDto;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.mapper.user.UserMapperImpl;
+import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
+import school.faang.user_service.service.user.filter.UserFilter;
+import school.faang.user_service.service.user.random_password.PasswordGenerator;
 import school.faang.user_service.service.s3.S3Service;
 import school.faang.user_service.validator.user.UserValidator;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -46,8 +57,8 @@ class UserServiceTest {
     @Mock
     private MentorshipService mentorshipService;
 
-    @Mock
-    private UserMapper userMapper;
+    @Spy
+    private UserMapperImpl userMapper;
 
     @Mock
     private UserValidator userValidator;
@@ -55,6 +66,14 @@ class UserServiceTest {
     @Mock
     private S3Service s3Service;
 
+    @Mock
+    private PasswordGenerator passwordGenerator;
+
+    @Mock
+    private CountryRepository countryRepository;
+
+    @InjectMocks
+    private UserService userService;
     private final long userId = 1L;
     private User user;
 
@@ -143,5 +162,31 @@ class UserServiceTest {
 
         Assertions.assertNotNull(fileBytes);
         Assertions.assertArrayEquals("imageData".getBytes(), fileBytes);
+    }
+
+    @Test
+    public void testLoadingUsersViaFileSuccess() {
+        String csvContent = String.join(System.lineSeparator(),
+                "firstName,lastName,yearOfBirth,country,yearOfStudy",
+                "John,Doe,1998,USA,2021",
+                "Michael,Johnson,1988,USA,2021"
+        );
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.csv",
+                "text/csv",
+                csvContent.getBytes()
+        );
+        when(countryRepository.findByTitleIgnoreCase("USA")).thenReturn(Optional.empty());
+        when(passwordGenerator.generatePassword(15, true,
+                true,true,true)).thenReturn("ksdfklsklfkslklfds");
+        try {
+            userService.loadingUsersViaFile(file);
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        verify(userRepository, times(2)).save(any(User.class));
+        verify(countryRepository, times(2)).save(any(Country.class));
     }
 }
