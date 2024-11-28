@@ -50,10 +50,7 @@ public class SubscriptionService {
 
     @Transactional(readOnly = true)
     public List<Long> getFollowerIds(long followeeId) {
-        List<User> followers = subscriptionRepository.findByFolloweeId(followeeId);
-        List<Long> followerIds = followers.stream()
-                .map(User::getId)
-                .toList();
+        List<Long> followerIds = subscriptionRepository.findFollowerIdsByFolloweeId(followeeId);
 
         return followerIds;
     }

@@ -30,6 +30,13 @@ public interface SubscriptionRepository extends CrudRepository<User, Long> {
             """)
     List<User> findByFolloweeId(long followeeId);
 
+    @Query(nativeQuery = true, value = """
+            select u.id from users as u
+            join subscription as subs on u.id = subs.follower_id
+            where subs.followee_id = :followeeId
+            """)
+    List<Long> findFollowerIdsByFolloweeId(long followeeId);
+
     @Query(nativeQuery = true, value = "select count(id) from subscription where followee_id = :followeeId")
     int findFollowersAmountByFolloweeId(long followeeId);
 
