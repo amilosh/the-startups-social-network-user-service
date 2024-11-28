@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import school.faang.user_service.model.dto.AuthorRedisDto;
 import school.faang.user_service.model.dto.UserDto;
 import school.faang.user_service.model.filter_dto.UserFilterDto;
 
@@ -15,6 +16,8 @@ public interface SubscriptionService {
     long getFollowersCount(long followeeId);
 
     List<UserDto> getFollowing(long followerId, UserFilterDto filter);
+
+    List<AuthorRedisDto> getAllFollowing(long followerId);
 
     long getFollowingCount(long followerId);
 }

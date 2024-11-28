@@ -3,6 +3,8 @@ package school.faang.user_service.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.mapper.AuthorRedisMapper;
+import school.faang.user_service.model.dto.AuthorRedisDto;
 import school.faang.user_service.model.event.UserFollowerEvent;
 import school.faang.user_service.model.filter_dto.UserFilterDto;
 import school.faang.user_service.model.dto.UserDto;
@@ -28,6 +30,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final PaginationService paginationService;
     private final SubscriptionServiceValidator subscriptionServiceValidator;
     private final UserFollowerEventPublisher userFollowerEventPublisher;
+    private final AuthorRedisMapper authorRedisMapper;
 
     @Transactional
     @Override
@@ -69,6 +72,13 @@ public class SubscriptionServiceImpl implements SubscriptionService {
         List<User> filteredUsers = userFilterService.filterUsers(paginatedUsers, filter);
 
         return userMapper.toListUserDto(filteredUsers);
+    }
+
+    @Override
+    public List<AuthorRedisDto> getAllFollowing(long followerId) {
+        List<User> allFollowee = subscriptionRepository.findFolloweesByFollowerId(followerId);
+
+        return authorRedisMapper.toAuthorRedisDtos(allFollowee);
     }
 
     @Override
