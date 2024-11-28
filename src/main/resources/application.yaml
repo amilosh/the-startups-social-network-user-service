@@ -30,6 +30,7 @@ spring:
         user-service: ban_user_channel
         profile-view-channel: profile_view_event
         recommendation-received-channel: recommendation_received_channel
+        recommendation-event-channel: recommendation_event_channel
   kafka:
     bootstrap-servers: "localhost:9092"
     pool-size: 3
