@@ -7,13 +7,13 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
-@RequiredArgsConstructor
+//@AllArgsConstructor
+//@RequiredArgsConstructor
 public class SkillCandidateDto {
     private SkillDto skillDto;
     private long offersAmount;
 
-    public SkillCandidateDto(SkillDto skillDto) {
-        this.skillDto = skillDto;
-    }
+    //public SkillCandidateDto(SkillDto skillDto) {
+    //    this.skillDto = skillDto;
+    //}
 }
