@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Configuration
-public class SchedulerConfig {
+public class AsyncPremiumRemoverConfig {
 
     @Value("${premium.updater.thread-pool}")
     private int fixedThreadPool;
