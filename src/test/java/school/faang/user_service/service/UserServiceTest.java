@@ -1,6 +1,5 @@
 package school.faang.user_service.service;
 
-
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,14 +12,12 @@ import school.faang.user_service.repository.UserRepository;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
@@ -49,6 +46,11 @@ class UserServiceTest {
     }
 
     @Test
+    public void testGetUserById() {
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        assertEquals(user, userService.getUserById(user.getId()));
+    }
+
     void testGetUserByIdNotFound() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
