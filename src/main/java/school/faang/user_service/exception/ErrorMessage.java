@@ -18,8 +18,6 @@ public class ErrorMessage {
     public static final String AVATAR_ALREADY_EXIST_ERROR = "Avatar is already uploaded for user ID: %s";
     public static final String AVATAR_PROCESS_ERROR = "Failed to process avatar image";
 
-    public static final String DICE_BEAR_EMPTY_CONTENT = "Avatar content is empty.";
-    public static final String DICE_BEAR_RETRIEVAL_ERROR = "Error retrieving avatar: status %s";
     public static final String DICE_BEAR_UNEXPECTED_ERROR = "Unexpected error occurred while retrieving avatar.";
     public static final String DICE_BEAR_GENERATING_ERROR = "Unexpected error while generating avatar.";
 }
