@@ -1,13 +1,11 @@
 package school.faang.user_service.controller;
 
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.model.dto.AuthorRedisDto;
 import school.faang.user_service.model.dto.UserDto;
 import school.faang.user_service.model.filter_dto.UserFilterDto;
 import school.faang.user_service.publisher.PremiumBoughtEventPublisher;
@@ -18,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/subscribe")
 @RequiredArgsConstructor
+@Validated
 public class SubscriptionController {
 
     private final SubscriptionService subscriptionService;
@@ -59,5 +58,10 @@ public class SubscriptionController {
     @GetMapping("/following/count")
     public long getFollowingCount(@RequestParam(name = "followerId") long followerId) {
         return subscriptionService.getFollowingCount(followerId);
+    }
+
+    @GetMapping("/allfollowing/{followerId}")
+    public List<AuthorRedisDto> getAllFollowing(@Positive @PathVariable long followerId) {
+        return subscriptionService.getAllFollowing(followerId);
     }
 }
