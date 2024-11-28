@@ -71,7 +71,7 @@ class UserControllerTest {
     @Test
     void testUploadToCsvSuccess() throws Exception {
         ProcessResultDto mockResult = new ProcessResultDto(1, List.of());
-        when(userService.processUsers(any(InputStream.class))).thenReturn(mockResult);
+        when(userService.importUsersFromCsv(any(InputStream.class))).thenReturn(mockResult);
 
         mockMvc.perform(MockMvcRequestBuilders.multipart("/users/upload")
                         .file(file))
@@ -81,8 +81,8 @@ class UserControllerTest {
     }
 
     @Test
-    void testUploadToCsvFailure() throws Exception {
-        when(userService.processUsers(any(InputStream.class)))
+    void testUploadToCsvFailureBadRequest() throws Exception {
+        when(userService.importUsersFromCsv(any(InputStream.class)))
                 .thenThrow(new IOException("Failed to read CSV file"));
 
         mockMvc.perform(MockMvcRequestBuilders.multipart("/users/upload")
@@ -90,5 +90,17 @@ class UserControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.сountSuccessfullySavedUsers").value(0))
                 .andExpect(jsonPath("$.errors[0]").value("Failed to read CSV file: Failed to read CSV file"));
+    }
+
+    @Test
+    void testUploadToCsvFailureInternalServerError() throws Exception {
+        when(userService.importUsersFromCsv(any(InputStream.class)))
+                .thenThrow(new RuntimeException("Unexpected error"));
+
+        mockMvc.perform(MockMvcRequestBuilders.multipart("/users/upload")
+                        .file(file))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.сountSuccessfullySavedUsers").value(0))
+                .andExpect(jsonPath("$.errors[0]").value("Internal server error: Unexpected error"));
     }
 }

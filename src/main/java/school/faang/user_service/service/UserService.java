@@ -94,25 +94,64 @@ public class UserService {
         userRepository.save(user);
         return userMapper.toDto(user);
     }
-    public ProcessResultDto processUsers(InputStream inputStream) throws IOException {
-        List<Person> persons = parser.parseCsv(inputStream);
+
+    public ProcessResultDto importUsersFromCsv(InputStream inputStream) throws IOException {
+        List<Person> persons = parsePersons(inputStream);
         List<String> errors = new ArrayList<>();
         int successCount = 0;
+
         for (Person person : persons) {
-            try {
-                User user = createUserFromPerson(person);
-                userRepository.save(user);
-                successCount ++;
-            } catch (DataIntegrityViolationException e) {
-                String constraintName = extractConstraintName(e.getMessage());
-                String standardErrorMessage = "Failed to save user: " + person.getFirstName() + " " + person.getLastName() +
-                        ". User with this [" + constraintName + "] exists.";
-                log.error("Error saving user {}  {} reason: {}", person.getFirstName() + " " + person.getLastName(),
-                        e.getMessage(), e);
-                errors.add(standardErrorMessage);
+            if (processPerson(person, errors)) {
+                successCount++;
             }
         }
+
+        logProcessingSummary(persons.size(), successCount, errors.size());
         return new ProcessResultDto(successCount, errors);
+    }
+
+    private List<Person> parsePersons(InputStream inputStream) throws IOException {
+        return parser.parseCsv(inputStream);
+    }
+
+    private boolean processPerson(Person person, List<String> errors) {
+        try {
+            User user = createUserFromPerson(person);
+            userRepository.save(user);
+            return true;
+        } catch (DataIntegrityViolationException e) {
+            String errorMessage = handleDataIntegrityViolation(person, e);
+            errors.add(errorMessage);
+        } catch (Exception e) {
+            logUnexpectedError(person, e, errors);
+        }
+        return false;
+    }
+
+    private void logUnexpectedError(Person person, Exception e, List<String> errors) {
+        String errorMessage = String.format("Unexpected error for user '%s %s': %s",
+                person.getFirstName(), person.getLastName(), e.getMessage());
+        log.error(errorMessage, e);
+        errors.add(errorMessage);
+    }
+
+    private void logProcessingSummary(int total, int successCount, int errorCount) {
+        log.info("Processed {} users. {} succeeded, {} failed.", total, successCount, errorCount);
+    }
+
+    private String handleDataIntegrityViolation(Person person, DataIntegrityViolationException e) {
+        String constraintName = extractConstraintName(e.getMessage());
+        String errorMessage = String.format(
+                "Failed to save user '%s %s'. User with this [%s] already exists.",
+                person.getFirstName(),
+                person.getLastName(),
+                constraintName != null ? constraintName : "unknown constraint"
+        );
+
+        log.error("Data integrity violation while saving user '{} {}': {}",
+                person.getFirstName(), person.getLastName(), e.getMessage(), e);
+
+        return errorMessage;
     }
 
     private String extractConstraintName(String errorMessage) {

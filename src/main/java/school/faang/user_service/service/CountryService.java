@@ -13,7 +13,9 @@ public class CountryService {
     public Country findOrCreateCountry(String countryName) {
         return countryRepository.findByTitle(countryName)
                 .orElseGet(() -> {
-                    Country newCountry = new Country();
+                    Country newCountry = Country.builder()
+                            .title(countryName)
+                            .build();
                     newCountry.setTitle(countryName);
                     countryRepository.save(newCountry);
                     return newCountry;

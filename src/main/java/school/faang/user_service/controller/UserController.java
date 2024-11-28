@@ -18,9 +18,9 @@ import school.faang.user_service.dto.ProcessResultDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.service.UserService;
 import school.faang.user_service.validator.CsvFile;
-import school.faang.user_service.validator.FileNotEmpty;
 import school.faang.user_service.validator.UserValidator;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -32,18 +32,40 @@ public class UserController {
     private final UserService userService;
     private final UserValidator userValidator;
 
+//    @PostMapping("/upload")
+//    public ResponseEntity<ProcessResultDto> uploadToCsv(@RequestParam("file") @CsvFile MultipartFile file) {
+//        try {
+//            String filename = file.getOriginalFilename();
+//            long fileSize = file.getSize();
+//            log.info("Received file: name = {},size = {} bytes ", filename, fileSize);
+//            ProcessResultDto result = userService.processUsers(file.getInputStream());
+//            log.info("file upload");
+//            return ResponseEntity.ok(result);
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+//                    .body(new ProcessResultDto(0, List.of("Failed to read CSV file: " + e.getMessage())));
+//        }
+//    }
+
     @PostMapping("/upload")
-    public ResponseEntity<ProcessResultDto> uploadToCsv(@RequestParam("file") @CsvFile @FileNotEmpty MultipartFile file) {
+    public ResponseEntity<ProcessResultDto> uploadToCsv(@RequestParam("file") @CsvFile MultipartFile file) {
+        String filename = file.getOriginalFilename();
+        long fileSize = file.getSize();
+        log.info("Received file: name = {}, size = {} bytes", filename, fileSize);
+
         try {
-            String filename = file.getOriginalFilename();
-            long fileSize = file.getSize();
-            log.info("Received file: name = {},size = {} bytes ", filename, fileSize);
-            ProcessResultDto result = userService.processUsers(file.getInputStream());
-            log.info("file upload");
+            ProcessResultDto result = userService.importUsersFromCsv(file.getInputStream());
+            log.info("File '{}' uploaded successfully. Processed {} records with {} errors.",
+                    filename, result.getСountSuccessfullySavedUsers(), result.getErrors().size());
             return ResponseEntity.ok(result);
-        } catch (Exception e) {
+        } catch (IOException e) {
+            log.error("Failed to process file '{}': {}", filename, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ProcessResultDto(0, List.of("Failed to read CSV file: " + e.getMessage())));
+        } catch (Exception e) {
+            log.error("Unexpected error during file upload: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ProcessResultDto(0, List.of("Internal server error: " + e.getMessage())));
         }
     }
 

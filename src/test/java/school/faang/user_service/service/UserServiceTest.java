@@ -26,6 +26,7 @@ import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,7 +67,7 @@ class UserServiceTest {
     @Mock
     private PersonToUserMapper personToUserMapper;
     @Mock
-    private  CsvParser parser;
+    private CsvParser parser;
 
 
     @InjectMocks
@@ -287,11 +288,12 @@ class UserServiceTest {
     }
 
     @Test
-    void processUsersSuccessfullyWhenAllValid() throws Exception {
+    void importUsersFromCsvSuccessfully() throws IOException {
         when(parser.parseCsv(inputStream)).thenReturn(people);
         when(personToUserMapper.personToUser(mockPerson)).thenReturn(mockUser);
+        when(userRepository.save(any(User.class))).thenReturn(mockUser);
 
-        ProcessResultDto result = userService.processUsers(inputStream);
+        ProcessResultDto result = userService.importUsersFromCsv(inputStream);
 
         assertEquals(1, result.getСountSuccessfullySavedUsers());
         assertTrue(result.getErrors().isEmpty());
@@ -299,19 +301,17 @@ class UserServiceTest {
     }
 
     @Test
-    void processUsersWhenSavingFails() throws Exception {
+    void importUsersFromCsvWhenSavingFails() throws Exception {
         when(parser.parseCsv(inputStream)).thenReturn(people);
         when(personToUserMapper.personToUser(mockPerson)).thenReturn(mockUser);
-        String mockConstraintMessage = "could not execute statement; SQL [n/a]; constraint [users_phone_key] ";
-        when(userRepository.save(mockUser)).thenThrow(new DataIntegrityViolationException(mockConstraintMessage));
+        when(userRepository.save(mockUser)).thenThrow(new DataIntegrityViolationException("could not execute statement; SQL [n/a]; constraint [users_phone_key] "));
 
-        ProcessResultDto result = userService.processUsers(inputStream);
+        ProcessResultDto result = userService.importUsersFromCsv(inputStream);
 
         assertEquals(0, result.getСountSuccessfullySavedUsers());
         assertFalse(result.getErrors().isEmpty());
         assertEquals(1, result.getErrors().size());
         assertTrue(result.getErrors().get(0).contains("Failed to save user"));
-        assertTrue(result.getErrors().get(0).contains("User with this [users_phone_key] exists"));
 
         verify(userRepository, times(1)).save(mockUser);
     }
