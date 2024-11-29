@@ -6,6 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.naming.SizeLimitExceededException;
@@ -16,6 +20,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleExceptions(Exception ex) {
