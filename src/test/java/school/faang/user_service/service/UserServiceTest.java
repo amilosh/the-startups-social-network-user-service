@@ -20,7 +20,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -83,5 +83,18 @@ public class UserServiceTest {
 
         when(userRepository.findAllById(ids)).thenReturn(users);
         userService.getUsersByIds(ids);
+    }
+
+    @Test
+    public void testBanUser() {
+        Long userId = 1L;
+        User user = new User();
+        user.setBanned(false);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        userService.banUser(userId);
+
+        assertTrue(user.isBanned());
+        verify(userRepository, times(1)).save(user);
     }
 }
