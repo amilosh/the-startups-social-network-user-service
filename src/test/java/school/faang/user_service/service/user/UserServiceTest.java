@@ -16,21 +16,18 @@ import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
 import school.faang.user_service.dto.user_jira.UserJiraDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.entity.userJira.UserJira;
 import school.faang.user_service.entity.premium.Premium;
+import school.faang.user_service.entity.userJira.UserJira;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
-import school.faang.user_service.mapper.user.UserMapper;
-import school.faang.user_service.mapper.user_jira.UserJiraMapper;
-import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.filter.user.UserEmailFilter;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNameFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user.UserMapperImpl;
-import school.faang.user_service.service.user_jira.UserJiraService;
+import school.faang.user_service.mapper.user_jira.UserJiraMapper;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.user_jira.UserJiraService;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -77,16 +74,6 @@ class UserServiceTest {
 
     private List<UserFilter> userFilters;
 
-    @BeforeEach
-    void setUp() {
-        UserFilter userEmailFilter = mock(UserEmailFilter.class);
-        UserFilter userNameFilter = mock(UserNameFilter.class);
-        userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
-        userMapper = new UserMapperImpl();
-
-        userService = new UserService(userRepository, userFilters, userMapper, countryService);
-    }
-
     @Test
     void getUserTest() {
         long userId = 1L;
@@ -109,7 +96,7 @@ class UserServiceTest {
         userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
         userMapper = new UserMapperImpl();
 
-        userService = new UserService(userRepository, userFilters, userMapper, userJiraMapper, userJiraService);
+        userService = new UserService(userRepository, userFilters, userMapper, userJiraMapper, userJiraService, countryService);
     }
 
     @Test
