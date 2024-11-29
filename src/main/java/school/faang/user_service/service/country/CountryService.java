@@ -1,8 +1,10 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.country;
+
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.Country;
+import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.repository.CountryRepository;
 
 @Service
@@ -15,5 +17,10 @@ public class CountryService {
             return countryRepository.save(Country.builder().title(title).build());
         }
         return countryRepository.getByTitle(title);
+    }
+
+    public Country getCountryById(long countryId) {
+        return countryRepository.findById(countryId)
+                .orElseThrow(() -> new EntityNotFoundException("Такой страны нет"));
     }
 }
