@@ -29,7 +29,6 @@ public class RecommendationRequestService {
     private final RecommendationRequestMapper recommendationRequestMapper;
     private final SkillRepository skillRepository;
     private final List<RecommendationRequestFilter> filters;
-    private final SkillRequestRepository skillRequestRepository;
 
     @Transactional
     public RecommendationRequestDto create(RecommendationRequestDto dto) {

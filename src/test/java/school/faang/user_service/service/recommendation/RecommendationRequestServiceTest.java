@@ -1,17 +1,23 @@
 package school.faang.user_service.service.recommendation;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RecommendationRequestDto;
+import school.faang.user_service.dto.RecommendationRequestFilterDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
+import school.faang.user_service.entity.recommendation.SkillRequest;
+import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.mapper.RecommendationRequestMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
@@ -24,9 +30,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RecommendationRequestServiceTest {
@@ -41,10 +54,6 @@ class RecommendationRequestServiceTest {
     private RecommendationRequestMapperImpl recommendationRequestMapper;
     @Mock
     private SkillRepository skillRepository;
-    @Mock
-    private SkillRequestRepository skillRequestRepository;
-    @Mock
-    private List<RecommendationRequestFilter> filters = Collections.emptyList();
     @Captor
     private ArgumentCaptor<RecommendationRequest> recommendationRequestCaptor;
 
@@ -54,11 +63,26 @@ class RecommendationRequestServiceTest {
 //    }
 
     private RecommendationRequestDto createRecommendationRequestDto() {
-        RecommendationRequestDto dto = new RecommendationRequestDto();
-        dto.setRequesterId(1L);
-        dto.setReceiverId(2L);
-        dto.setSkills(List.of(1L, 2L));
+        RecommendationRequestDto dto = RecommendationRequestDto.builder()
+                        .requesterId(1L)
+                        .receiverId(2L)
+                        .message("Please recommend me")
+                        .skills(List.of(1L, 2L))
+                        .build();
         return dto;
+    }
+
+    private RecommendationRequest createRecommendationRequest() {
+        RecommendationRequest request = new RecommendationRequest();
+        request.setId(1L);
+        request.setRequester(User.builder().id(1L).build());
+        request.setReceiver(User.builder().id(2L).build());
+        request.setSkills(List.of(
+                        new SkillRequest(1L, request, Skill.builder().id(1L).build()),
+                        new SkillRequest(2L, request, Skill.builder().id(2L).build())
+                )
+        );
+        return request;
     }
 
     @Test
@@ -167,5 +191,64 @@ class RecommendationRequestServiceTest {
 
         assertEquals("One or more skills do not exist.", exception.getMessage());
         verify(skillRepository, times(1)).countExisting(dto.getSkills());
+    }
+
+    //***TEST FILTERS **************************************************************************************************
+    @Test
+    void shouldReturnFilteredRequests() {
+        RecommendationRequestFilter filterMock = mock(RecommendationRequestFilter.class);
+        List<RecommendationRequestFilter> filters = List.of(filterMock);
+
+        recommendationRequestService = new RecommendationRequestService(
+                recommendationRequestRepository,
+                userRepository,
+                recommendationRequestMapper,
+                skillRepository,
+                filters
+        );
+
+        RecommendationRequestFilterDto filterDto = new RecommendationRequestFilterDto();
+//        RecommendationRequest request = new RecommendationRequest();
+
+        RecommendationRequest request = createRecommendationRequest();
+        List<RecommendationRequest> requests = List.of(request);
+
+//        RecommendationRequestDto dto = new RecommendationRequestDto();
+        RecommendationRequestDto dto = createRecommendationRequestDto();
+
+        when(recommendationRequestRepository.findAll()).thenReturn(requests);
+        when(filters.get(0).isApplicable(filterDto)).thenReturn(true);
+        when(filters.get(0).apply(any(), eq(filterDto))).thenReturn(requests.stream());
+        when(recommendationRequestMapper.toDto(request)).thenReturn(dto);
+
+        List<RecommendationRequestDto> result = recommendationRequestService.getRequests(filterDto);
+
+        assertEquals(1, result.size());
+        assertEquals(dto, result.get(0));
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenNoRequestsMatchFilter() {
+        RecommendationRequestFilter filterMock = mock(RecommendationRequestFilter.class);
+        List<RecommendationRequestFilter> filters = List.of(filterMock);
+
+        recommendationRequestService = new RecommendationRequestService(
+                recommendationRequestRepository,
+                userRepository,
+                recommendationRequestMapper,
+                skillRepository,
+                filters
+        );
+
+        RecommendationRequestFilterDto filterDto = new RecommendationRequestFilterDto();
+        List<RecommendationRequest> requests = Collections.emptyList();
+
+        when(recommendationRequestRepository.findAll()).thenReturn(requests);
+        when(filters.get(0).isApplicable(filterDto)).thenReturn(true);
+        when(filters.get(0).apply(any(), eq(filterDto))).thenReturn(requests.stream());
+
+        List<RecommendationRequestDto> result = recommendationRequestService.getRequests(filterDto);
+
+        assertTrue(result.isEmpty());
     }
 }

@@ -53,7 +53,7 @@ public class RecommendationRequest {
     // Объект создает mapStruct, в его Impl сетяться только поля, которые не null в DTO.
     // skill в mapper в ignored
     // Потому, кажется, самое простое создавать List в методе addSkillRequest
-    private List<SkillRequest> skills = new ArrayList<>();
+    private List<SkillRequest> skills;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
@@ -70,5 +70,14 @@ public class RecommendationRequest {
             skills = new ArrayList<>();
         }
         skills.add(skillRequest);
+    }
+
+    @Override
+    public String toString() {
+        return "RecommendationRequest{" +
+                "id=" + id +
+                ", message='" + message + '\'' +
+                ", status=" + status +
+                '}';
     }
 }
