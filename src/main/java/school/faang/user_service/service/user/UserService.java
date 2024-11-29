@@ -6,12 +6,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
+import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
+import school.faang.user_service.dto.user_jira.UserJiraDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.userJira.UserJira;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.mapper.user_jira.UserJiraMapper;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.user_jira.UserJiraService;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -27,6 +32,9 @@ public class UserService {
     private final UserRepository userRepository;
     private final List<UserFilter> userFilters;
     private final UserMapper userMapper;
+    private final UserJiraMapper userJiraMapper;
+    private final UserJiraService userJiraService;
+
 
     @Transactional(readOnly = true)
     public UserDto getUser(long userId) {
@@ -77,6 +85,30 @@ public class UserService {
         List<UserDto> filteredUsers = filter(users, filterDto);
         log.info("Got {} filtered premium users, by filter {}", filteredUsers.size(), filterDto);
         return filteredUsers;
+    }
+
+    @Transactional
+    public UserJiraDto saveOrUpdateUserJiraInfo(long userId, String jiraDomain, UserJiraCreateUpdateDto createUpdateDto) {
+        log.info("Request received to save or update user (ID {}) Jira account information for Jira domain {}", userId, jiraDomain);
+
+        User user = findUserById(userId);
+        UserJira userJira = userJiraMapper.toEntity(createUpdateDto);
+        userJira.setUser(user);
+        userJira.setJiraDomain(jiraDomain);
+        UserJira savedUserJira = userJiraService.saveOrUpdate(userJira);
+
+        log.info("Request to save or update user (ID {}) Jira account information for Jira domain {} processed successfully",
+                userId, jiraDomain
+        );
+        return userJiraMapper.toDto(savedUserJira);
+    }
+
+    @Transactional(readOnly = true)
+    public UserJiraDto getUserJiraInfo(long userId, String jiraDomain) {
+        log.info("Received request to get user (ID {}) Jira account information for Jira domain {}", userId, jiraDomain);
+        UserJira userJira = userJiraService.getByUserIdAndJiraDomain(userId, jiraDomain);
+        log.info("Found user (ID {}) Jira account information for Jira domain {}", userId, jiraDomain);
+        return userJiraMapper.toDto(userJira);
     }
 
     public void banUser(Long userId) {
