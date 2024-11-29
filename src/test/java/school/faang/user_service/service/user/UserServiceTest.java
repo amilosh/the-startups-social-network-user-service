@@ -197,8 +197,8 @@ class UserServiceTest {
                 .email("second@email.com")
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com");
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com");
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", false);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", false);
 
         Stream<User> users = Stream.of(firstUser, secondUser);
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
@@ -240,8 +240,8 @@ class UserServiceTest {
                 .email("second@email.com")
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com");
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com");
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", false);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", false);
 
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
         List<User> usersList = List.of(firstUser, secondUser);
