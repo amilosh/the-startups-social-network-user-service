@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -74,7 +75,7 @@ class UserServiceTest {
         userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
         userMapper = new UserMapperImpl();
 
-        userService = new UserService(userRepository, userFilters, userMapper);
+        userService = new UserService(userRepository, userFilters, userMapper, userJiraMapper, userJiraService);
     }
 
     @Test
@@ -90,16 +91,6 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertEquals(user.getUsername(), result.getUsername());
-    }
-
-    @BeforeEach
-    void setUp() {
-        UserFilter userEmailFilter = mock(UserEmailFilter.class);
-        UserFilter userNameFilter = mock(UserNameFilter.class);
-        userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
-        userMapper = new UserMapperImpl();
-
-        userService = new UserService(userRepository, userFilters, userMapper, userJiraMapper, userJiraService);
     }
 
     @Test
