@@ -48,3 +48,10 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+myapp:
+  schedule:
+    cron: "0 0 0 * * MON"
+
+del:
+  batch-size: 100
