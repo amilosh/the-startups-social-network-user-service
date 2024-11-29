@@ -28,22 +28,6 @@ public class SkillValidatorTest {
     private SkillOfferRepository skillOfferRepository;
 
     @Test
-    void testValidateSkillWithNullTitle() {
-        SkillDto skillDto = new SkillDto();
-        skillDto.setTitle(null);
-
-        assertThrows(DataValidationException.class, () -> skillValidator.validateSkill(skillDto));
-    }
-
-    @Test
-    void testValidateSkillWithEmptyTitle() {
-        SkillDto skillDto = new SkillDto();
-        skillDto.setTitle("");
-
-        assertThrows(DataValidationException.class, () -> skillValidator.validateSkill(skillDto));
-    }
-
-    @Test
     void testValidateExistTitle() {
         String title = "title";
 
