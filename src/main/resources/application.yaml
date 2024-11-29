@@ -38,6 +38,11 @@ spring:
     multipart:
       max-file-size: 5MB
 
+clear-events:
+  batch-size: 100
+  scheduler:
+    cron: "0 0 0 * * ?"
+
 dicebear:
   base-url: https://api.dicebear.com
   version: 9.x

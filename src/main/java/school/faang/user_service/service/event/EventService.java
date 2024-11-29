@@ -3,6 +3,7 @@ package school.faang.user_service.service.event;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.event.EventDto;
@@ -18,17 +19,23 @@ import school.faang.user_service.filter.event.EventFilter;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class EventService {
+    private final AsyncEventService asyncEventService;
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final EventMapper eventMapper;
     private final List<EventFilter> eventFilters;
+
+    @Value("${clear-events.batch-size}")
+    private int batchSize;
 
     @Transactional
     public EventDto create(EventDto eventDto) {
@@ -102,6 +109,30 @@ public class EventService {
         Event updatedEvent = eventRepository.save(existingEvent);
         log.info("Событие с ID: {} успешно обновлено", updatedEvent.getId());
         return eventMapper.toDto(updatedEvent);
+    }
+
+    public void clearPastEvents() {
+        log.info("Starting to clear past events");
+        List<Long> pastEventIds = eventRepository.findPastEventIds();
+        if (pastEventIds.isEmpty()) {
+            log.info("No past events found to delete.");
+            return;
+        }
+        log.info("Found {} past events to delete", pastEventIds.size());
+
+        List<List<Long>> batches = createPartitionList(pastEventIds, batchSize);
+        List<CompletableFuture<Void>> futures = batches.stream()
+                .map(asyncEventService::deleteBatchAsync)
+                .toList();
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        log.info("Successfully cleared all past events");
+    }
+
+    private List<List<Long>> createPartitionList(List<Long> list, int size) {
+        return IntStream.range(0, (list.size() + size - 1) / size)
+                .mapToObj(i -> list.subList(i * size, Math.min((i + 1) * size, list.size())))
+                .toList();
     }
 
     private Event getExistingEvent(Long eventId) {

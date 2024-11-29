@@ -29,14 +29,20 @@ import school.faang.user_service.filter.event.EventTitleFilter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,6 +50,9 @@ public class EventServiceTest {
 
     @Mock
     private EventRepository eventRepository;
+
+    @Mock
+    private AsyncEventService asyncEventService;
 
     @Mock
     private UserRepository userRepository;
@@ -173,6 +182,7 @@ public class EventServiceTest {
         );
 
         ReflectionTestUtils.setField(eventService, "eventFilters", eventFilters);
+        ReflectionTestUtils.setField(eventService, "batchSize", 2);
     }
 
     @Test
@@ -350,5 +360,41 @@ public class EventServiceTest {
                 DataValidationException.class,
                 () -> eventService.updateEvent(updatedEventDto)
         );
+    }
+
+    @Test
+    public void clearPastEventsSuccessTest() {
+        List<Long> eventIds = List.of(1L, 2L, 3L, 4L);
+        when(eventRepository.findPastEventIds()).thenReturn(eventIds);
+        CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
+        doReturn(future).when(asyncEventService).deleteBatchAsync(anyList());
+
+        eventService.clearPastEvents();
+
+        verify(eventRepository).findPastEventIds();
+        verify(asyncEventService, times(2)).deleteBatchAsync(anyList());
+    }
+
+    @Test
+    public void clearPastEventsEmptyListTest() {
+        when(eventRepository.findPastEventIds()).thenReturn(Collections.emptyList());
+
+        eventService.clearPastEvents();
+
+        verify(eventRepository).findPastEventIds();
+        verifyNoInteractions(asyncEventService);
+    }
+
+    @Test
+    public void clearPastEventsAsyncFailureTest() {
+        List<Long> eventIds = List.of(1L, 2L, 3L, 4L);
+        when(eventRepository.findPastEventIds()).thenReturn(eventIds);
+        CompletableFuture<Void> failedFuture = CompletableFuture.failedFuture(new RuntimeException());
+        doReturn(failedFuture).when(asyncEventService).deleteBatchAsync(anyList());
+
+        assertThrows(RuntimeException.class, eventService::clearPastEvents);
+
+        verify(eventRepository).findPastEventIds();
+        verify(asyncEventService, times(2)).deleteBatchAsync(anyList());
     }
 }
