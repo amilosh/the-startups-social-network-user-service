@@ -1,7 +1,9 @@
 package school.faang.user_service.dto;
 
 import lombok.Data;
+import org.mapstruct.factory.Mappers;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalMapper;
 import school.faang.user_service.entity.goal.GoalStatus;
 
 import java.util.ArrayList;
@@ -16,17 +18,4 @@ public class GoalDto {
     private GoalStatus status;
     private List<Long> skillsIds = new ArrayList<>();
     private List<Long> goalIdList = getSkillsIds();
-
-    public GoalDto() {
-
-    }
-
-    public GoalDto(Goal savedGoal) {
-        this.title = savedGoal.getTitle();
-        this.description = savedGoal.getDescription();
-        this.id = savedGoal.getId();
-        this.parentId = getParentId();
-        this.status = getStatus();
-        this.skillsIds = getSkillsIds();
-    }
 }
