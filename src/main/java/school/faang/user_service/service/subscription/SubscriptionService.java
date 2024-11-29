@@ -52,7 +52,6 @@ public class SubscriptionService {
         return subscriptionRequestDto;
     }
 
-    @Transactional
     public List<SubscriptionUserDto> getFollowers(Long followeeId, SubscriptionUserFilterDto filter) {
 
         if (!subscriptionRepository.existsById(followeeId)) {
@@ -60,6 +59,7 @@ public class SubscriptionService {
         }
 
         return subscriptionRepository.findByFolloweeId(followeeId)
+                .filter(user -> filterUser(filter, user))
                 .map(userMapper::toDto)
                 .toList();
     }
