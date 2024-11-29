@@ -4,12 +4,16 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.repository.premium.PremiumRepository;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -17,6 +21,8 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PremiumRepository premiumRepository;
+    private final List<UserFilter> filters;
     private final UserMapper userMapper;
 
     public User getUserById(Long id) {
@@ -43,6 +49,18 @@ public class UserService {
 
     public void saveUser(User user) {
         userRepository.save(user);
+    }
+
+    public List<UserSubResponseDto> getPremiumUsers(UserFilterDto userFilterDto) {
+        return userMapper.toUserSubResponseList(
+                filterUsers(premiumRepository.findPremiumUsers(), userFilterDto));
+    }
+
+    private List<User> filterUsers(Stream<User> users, UserFilterDto filterDto) {
+        return users.filter(user -> filters.stream()
+                        .filter(filter -> filter.isApplicable(filterDto))
+                        .allMatch(filter -> filter.apply(user)))
+                .toList();
     }
 
     public UserSubResponseDto getUserDtoById(long userId) {
