@@ -32,21 +32,6 @@ public class UserController {
     private final UserService userService;
     private final UserValidator userValidator;
 
-//    @PostMapping("/upload")
-//    public ResponseEntity<ProcessResultDto> uploadToCsv(@RequestParam("file") @CsvFile MultipartFile file) {
-//        try {
-//            String filename = file.getOriginalFilename();
-//            long fileSize = file.getSize();
-//            log.info("Received file: name = {},size = {} bytes ", filename, fileSize);
-//            ProcessResultDto result = userService.processUsers(file.getInputStream());
-//            log.info("file upload");
-//            return ResponseEntity.ok(result);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//                    .body(new ProcessResultDto(0, List.of("Failed to read CSV file: " + e.getMessage())));
-//        }
-//    }
-
     @PostMapping("/upload")
     public ResponseEntity<ProcessResultDto> uploadToCsv(@RequestParam("file") @CsvFile MultipartFile file) {
         String filename = file.getOriginalFilename();
