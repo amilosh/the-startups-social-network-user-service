@@ -47,6 +47,10 @@ public class UserService {
                 EntityNotFoundException("User do not found by " + userId));
     }
 
+    public void saveUser(User user) {
+        userRepository.save(user);
+    }
+
     public List<UserSubResponseDto> getPremiumUsers(UserFilterDto userFilterDto) {
         return userMapper.toUserSubResponseList(
                 filterUsers(premiumRepository.findPremiumUsers(), userFilterDto));
