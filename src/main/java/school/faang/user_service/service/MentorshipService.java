@@ -28,7 +28,7 @@ public class MentorshipService {
     }
 
     @Transactional
-    public void deleteMentee(long menteeId, long mentorId) {
+    public void deleteMentee( long mentorId,long menteeId) {
         User mentor = userService.findUserById(mentorId);
         boolean isRemoved = mentor.getMentees().removeIf(mentee -> mentee.getId().equals(menteeId));
         if (isRemoved) {

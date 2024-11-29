@@ -339,6 +339,3 @@ class UserServiceTest {
         return user;
     }
 }
-
-
-
