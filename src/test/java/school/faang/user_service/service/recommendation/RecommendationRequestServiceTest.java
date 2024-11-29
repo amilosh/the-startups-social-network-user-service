@@ -1,6 +1,5 @@
 package school.faang.user_service.service.recommendation;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -12,17 +11,16 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RecommendationRequestFilterDto;
+import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.entity.recommendation.SkillRequest;
-import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.mapper.RecommendationRequestMapperImpl;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
-import school.faang.user_service.repository.recommendation.SkillRequestRepository;
 import school.faang.user_service.service.recommendation.filter.RecommendationRequestFilter;
 
 import java.time.LocalDateTime;
@@ -274,5 +272,57 @@ class RecommendationRequestServiceTest {
         });
 
         assertEquals("Recommendation request not found", exception.getMessage());
+    }
+
+    //***TEST REJECT ***************************************************************************************************
+    @Test
+    void shouldRejectRecommendationRequestSuccessfully() {
+        RecommendationRequest request = createRecommendationRequest();
+        request.setStatus(RequestStatus.PENDING);
+        RejectionDto rejectionDto = new RejectionDto("Not eligible");
+
+        when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(request));
+
+        RecommendationRequestDto result = recommendationRequestService.rejectRequest(1L, rejectionDto);
+
+        assertNotNull(result);
+        assertEquals(RequestStatus.REJECTED.toString(), result.getStatus());
+        assertEquals("Not eligible", request.getRejectionReason());
+
+        verify(recommendationRequestRepository, times(1)).findById(1L);
+        verify(recommendationRequestRepository, times(1)).save(recommendationRequestCaptor.capture());
+        RecommendationRequest savedRequest = recommendationRequestCaptor.getValue();
+        assertEquals(RequestStatus.REJECTED, savedRequest.getStatus());
+        assertEquals("Not eligible", savedRequest.getRejectionReason());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenRecommendationRequestNotFoundForRejection() {
+        RejectionDto rejectionDto = new RejectionDto("Invalid");
+
+        when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            recommendationRequestService.rejectRequest(1L, rejectionDto);
+        });
+
+        assertEquals("Recommendation request not found", exception.getMessage());
+        verify(recommendationRequestRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenRecommendationRequestIsNotPendingForRejection() {
+        RecommendationRequest request = createRecommendationRequest();
+        request.setStatus(RequestStatus.ACCEPTED);
+        RejectionDto rejectionDto = new RejectionDto("Already processed");
+
+        when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(request));
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            recommendationRequestService.rejectRequest(1L, rejectionDto);
+        });
+
+        assertEquals("Recommendation request is not pending", exception.getMessage());
+        verify(recommendationRequestRepository, times(1)).findById(1L);
     }
 }

@@ -145,6 +145,9 @@ public class RecommendationRequestService {
 
         request.setStatus(RequestStatus.valueOf("REJECTED"));
         request.setRejectionReason(rejection.reason());
+
+        recommendationRequestRepository.save(request);
+
         return recommendationRequestMapper.toDto(request);
     }
 }
