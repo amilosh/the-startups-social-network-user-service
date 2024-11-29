@@ -13,6 +13,7 @@ import school.faang.user_service.repository.SkillOfferRepository;
 
 import java.util.Arrays;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +36,17 @@ public class SkillValidatorTest {
 
         assertThrows(DataValidationException.class, () -> skillValidator.validateExistTitle(title));
     }
+
+    @Test
+    void testValidateNotExistTitle() {
+        String title = "title";
+
+        when(skillRepository.existsByTitle(title)).thenReturn(false);
+
+        assertDoesNotThrow(() -> skillValidator.validateExistTitle(title));
+    }
+
+
 
     @Test
     void testValidateSkillOfferCount() {
