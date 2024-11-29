@@ -111,6 +111,13 @@ public class UserService {
         return userJiraMapper.toDto(userJira);
     }
 
+    public void banUser(Long userId) {
+        User user = findUserById(userId);
+        user.setBanned(true);
+        log.info("User {} is banned", userId);
+        userRepository.save(user);
+    }
+
     private User findUserById(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(ErrorMessage.USER_NOT_FOUND, userId)));
