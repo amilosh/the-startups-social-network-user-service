@@ -52,14 +52,25 @@ public class SubscriptionService {
         return subscriptionRequestDto;
     }
 
-    public List<SubscriptionUserDto> getFollowers(Long followeeId, SubscriptionUserFilterDto filter) {
+    @Transactional
+    public List<SubscriptionUserDto> getFollowers(Long followeeId) {
+        if (!subscriptionRepository.existsById(followeeId)) {
+            throw new NoSuchElementException("Cannot find followee by id " + followeeId);
+        }
+
+        return subscriptionRepository.findByFolloweeId(followeeId)
+                .map(userMapper::toDto)
+                .toList();
+    }
+
+    public List<SubscriptionUserDto> getFilteredFollowers(Long followeeId, SubscriptionUserFilterDto filter) {
 
         if (!subscriptionRepository.existsById(followeeId)) {
             throw new NoSuchElementException("Cannot find followee by id " + followeeId);
         }
 
         return subscriptionRepository.findByFolloweeId(followeeId)
-                .filter(user -> filterUser(filter, user))
+                .filter(followee -> filterUser(filter, followee))
                 .map(userMapper::toDto)
                 .toList();
     }
