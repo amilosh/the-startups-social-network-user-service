@@ -24,8 +24,8 @@ public class SubscriptionController {
     @PostMapping("/follow")
     @ResponseStatus(HttpStatus.CREATED)
     public SubscriptionRequestDto followUser(
-            @PathVariable @NotNull Long followerId,
-            @PathVariable @NotNull Long followeeId) {
+            @PathVariable  Long followerId,
+            @PathVariable  Long followeeId) {
         if (Objects.equals(followerId, followeeId)) {
             throw new DataValidationException("You cannot follow yourself");
         }
@@ -34,8 +34,8 @@ public class SubscriptionController {
 
     @DeleteMapping("/unfollow")
     public SubscriptionRequestDto unfollowUser(
-            @PathVariable @NotNull Long followerId,
-            @PathVariable @NotNull Long followeeId) {
+            @PathVariable  Long followerId,
+            @PathVariable  Long followeeId) {
         if (Objects.equals(followerId, followeeId)) {
             throw new DataValidationException("You cannot unfollow yourself");
         }
@@ -53,7 +53,7 @@ public class SubscriptionController {
     }
 
     @GetMapping("/followers-count")
-    public Integer getFollowersCount(@PathVariable @NotNull Long followerId) {
+    public Integer getFollowersCount(@PathVariable Long followerId) {
         return subscriptionService.getFollowersCount(followerId);
     }
 
@@ -65,7 +65,7 @@ public class SubscriptionController {
     }
 
     @GetMapping("following-count")
-    public Integer getFollowingCount(@PathVariable @NotNull Long followerId) {
+    public Integer getFollowingCount(@PathVariable Long followerId) {
         return subscriptionService.getFollowingCount(followerId);
     }
 }
