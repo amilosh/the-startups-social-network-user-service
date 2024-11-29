@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,9 @@ public class MentorshipService {
     private final MentorshipRepository mentorshipRepository;
     private final GoalRepository goalRepository;
 
+    @Transactional
     public void deleteMentee(long menteeId, long mentorId) {
+        log.info("Trying to delete mentee {} for mentor {}", menteeId, mentorId);
         List<User> mentees = userRepository.findById(mentorId)
                 .map(User::getMentees)
                 .orElseThrow(() -> new EntityNotFoundException("Mentor not found"));
@@ -34,8 +37,9 @@ public class MentorshipService {
         }
     }
 
-
+    @Transactional
     public void deleteMentor(long menteeId, long mentorId) {
+        log.info("Trying to delete mentor {} for mentee {}", mentorId, menteeId);
         List<User> mentors = userRepository.findById(menteeId)
                 .map(User::getMentors)
                 .orElseThrow(() -> new EntityNotFoundException("Mentee not found"));
@@ -46,16 +50,20 @@ public class MentorshipService {
         }
     }
 
-    public List<MenteeResponseDto> getMentees (long userId){
+    @Transactional
+    public List<MenteeResponseDto> getMentees (long mentorId){
+        log.info("Trying to get mentees of user: {}", mentorId);
         return userMapper.toMenteeResponseList(
-                userRepository.findById(userId)
+                userRepository.findById(mentorId)
                         .map(User::getMentees)
                         .orElseThrow(() -> new EntityNotFoundException("Mentor not found")));
     }
 
-    public List<MenteeResponseDto> getMentors(long userId) {
+    @Transactional
+    public List<MenteeResponseDto> getMentors(long menteeId) {
+        log.info("Trying to get mentors of user: {}", menteeId);
         return userMapper.toMenteeResponseList(
-                userRepository.findById(userId)
+                userRepository.findById(menteeId)
                         .map(User::getMentors)
                         .orElseThrow(() -> new EntityNotFoundException("Mentee not found")));
     }
