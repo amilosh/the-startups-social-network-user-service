@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import school.faang.user_service.entity.contact.Contact;
@@ -102,12 +103,12 @@ public class User {
     private List<GoalInvitation> receivedGoalInvitations;
 
     @OneToMany(mappedBy = "mentor")
-    private List<Goal> setGoals;
+    private List<Goal> settingGoals;
 
     @ManyToMany(mappedBy = "users")
     private List<Goal> goals;
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Skill> skills;
 
     @ManyToMany
@@ -124,6 +125,7 @@ public class User {
     @OneToMany(mappedBy = "receiver")
     private List<Recommendation> recommendationsReceived;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "user")
     private List<Contact> contacts;
 
@@ -142,4 +144,67 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private Premium premium;
+
+
+    public void removeOwnedEvent(Event event){
+        ownedEvents.remove(event);
+    }
+
+    public String toLogString(){
+        return String.format("User %s with id %d", username, id);
+    }
+
+    public void addSkill(Skill skill) {
+        skills.add(skill);
+    }
+
+    public void removeGivenRecommendation(Recommendation recommendationGiven) {
+        recommendationsGiven.remove(recommendationGiven);
+    }
+
+    public void removeReceivedRecommendation(Recommendation recommendationReceived) {
+        recommendationsReceived.remove(recommendationReceived);
+    }
+
+    public void removeSkill(Skill skill) {
+        skills.remove(skill);
+    }
+
+    public void addGoal(Goal goal) {
+        goals.add(goal);
+    }
+
+    public void removeGoal(Goal goal) {
+        goals.remove(goal);
+    }
+
+    public boolean hasMaxNumOfGoals(int maxNumOfGoals) {
+        return goals.size() > maxNumOfGoals;
+    }
+
+
+    public void removeParticipatedEvent(Event event) {
+        if (event != null && participatedEvents != null) {
+            participatedEvents.remove(event);
+        }
+    }
+
+    public void removeAllGoals() {
+        settingGoals.clear();
+        goals.clear();
+    }
+
+    public void removeAllParticipatedEvents(){
+        participatedEvents.clear();
+    }
+
+    public void removeAllOwnedEvents() {
+        ownedEvents.clear();
+    }
+
+    public void removeMentor(User mentor) {
+        if (mentor != null && mentors != null) {
+            mentors.remove(mentor);
+        }
+    }
 }

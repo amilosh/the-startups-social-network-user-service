@@ -1,34 +1,36 @@
 package school.faang.user_service.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.MenteeResponseDto;
 import school.faang.user_service.service.MentorshipService;
 import school.faang.user_service.validator.UserValidator;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/v1/mentorships")
+@Validated
 @RequiredArgsConstructor
-public class MentorshipController {
+public class MentorshipV1Controller {
     private final MentorshipService mentorshipService;
     private final UserValidator userValidator;
 
-    @GetMapping("/{userId}/mentees")
-    public List<UserDto> getMentees(@PathVariable long userId) {
-        userValidator.validateUserId(userId);
-        return mentorshipService.getMentees(userId);
+    @GetMapping("/{mentorId}/mentees")
+    public List<MenteeResponseDto> getMentees(@PathVariable long mentorId) {
+        userValidator.validateUserId(mentorId);
+        return mentorshipService.getMentees(mentorId);
     }
 
-    @GetMapping("/{userId}/mentors")
-    public List<UserDto> getMentors(@PathVariable long userId) {
-        userValidator.validateUserId(userId);
-        return mentorshipService.getMentors(userId);
+    @GetMapping("/{menteeId}/mentors")
+    public List<MenteeResponseDto> getMentors(@PathVariable long menteeId) {
+        userValidator.validateUserId(menteeId);
+        return mentorshipService.getMentors(menteeId);
     }
 
     @DeleteMapping("/{mentorId}/mentees/{menteeId}")
