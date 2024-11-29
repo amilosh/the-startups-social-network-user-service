@@ -1,5 +1,6 @@
 package school.faang.user_service.service.subscription;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.subscription.SubscriptionRequestDto;
@@ -51,7 +52,18 @@ public class SubscriptionService {
         return subscriptionRequestDto;
     }
 
-    public List<SubscriptionUserDto> getFollowers(Long followeeId, SubscriptionUserFilterDto filter) {
+    @Transactional
+    public List<SubscriptionUserDto> getFollowers(Long followeeId) {
+        if (!subscriptionRepository.existsById(followeeId)) {
+            throw new NoSuchElementException("Cannot find followee by id " + followeeId);
+        }
+
+        return subscriptionRepository.findByFolloweeId(followeeId)
+                .map(userMapper::toDto)
+                .toList();
+    }
+
+    public List<SubscriptionUserDto> getFilteredFollowers(Long followeeId, SubscriptionUserFilterDto filter) {
 
         if (!subscriptionRepository.existsById(followeeId)) {
             throw new NoSuchElementException("Cannot find followee by id " + followeeId);
