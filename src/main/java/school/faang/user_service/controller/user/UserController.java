@@ -134,13 +134,13 @@ public class UserController {
     public ResponseEntity<UserJiraDto> saveOrUpdateUserJiraInfo(
             @PathVariable @Min(1) long userId,
             @PathVariable @NotBlank @Length(min = 1, max = 64) String jiraDomain,
-            @Valid @RequestBody UserJiraCreateUpdateDto createUpdateDto)
-    {
+            @Valid @RequestBody UserJiraCreateUpdateDto createUpdateDto) {
         UserJiraDto responseDto = userService.saveOrUpdateUserJiraInfo(userId, jiraDomain, createUpdateDto);
         return responseDto.getCreatedAt().equals(responseDto.getUpdatedAt())
                 ? ResponseEntity.status(HttpStatus.CREATED).body(responseDto)
                 : ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }
+
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully parsed file data"),
             @ApiResponse(responseCode = "400", description = "Invalid input data")
@@ -149,8 +149,6 @@ public class UserController {
     public List<UserDto> parsePersonDataIntoUserDto(@RequestParam("file") MultipartFile csvFile) {
         return userService.parsePersonDataIntoUserDto(csvFile);
     }
-
-}
 
     @Operation(
             summary = "Get information of user Jira account by given domain",
@@ -164,8 +162,7 @@ public class UserController {
     @GetMapping("/{userId}/jira/{jiraDomain}")
     public ResponseEntity<UserJiraDto> getUserJiraInfo(
             @PathVariable @Min(1) long userId,
-            @PathVariable @NotBlank @Length(min = 1, max = 64) String jiraDomain)
-    {
+            @PathVariable @NotBlank @Length(min = 1, max = 64) String jiraDomain) {
         UserJiraDto responseDto = userService.getUserJiraInfo(userId, jiraDomain);
         return ResponseEntity.ok(responseDto);
     }
