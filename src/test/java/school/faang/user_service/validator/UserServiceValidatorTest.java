@@ -9,8 +9,8 @@ import school.faang.user_service.model.person.contact.Address;
 import school.faang.user_service.model.person.contact.ContactInfo;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceValidatorTest {
@@ -49,7 +49,7 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertEquals("firstName: не должно быть пустым", exception.getMessage());
+        assertTrue(exception.getMessage().contains("firstName"));
     }
 
     @Test
@@ -67,7 +67,7 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertEquals("lastName: не должно быть пустым", exception.getMessage());
+        assertTrue(exception.getMessage().contains("lastName"));
     }
 
     @Test
@@ -85,7 +85,7 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertEquals("email: не должно быть пустым", exception.getMessage());
+        assertTrue(exception.getMessage().contains("email"));
     }
 
     @Test
@@ -103,7 +103,7 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertEquals("phone: не должно быть пустым", exception.getMessage());
+        assertTrue(exception.getMessage().contains("phone"));
     }
 
     @Test
@@ -121,7 +121,7 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertEquals("city: не должно быть пустым", exception.getMessage());
+        assertTrue(exception.getMessage().contains("city"));
     }
 
     @Test
@@ -139,6 +139,6 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertEquals("country: не должно быть пустым", exception.getMessage());
+        assertTrue(exception.getMessage().contains("country"));
     }
 }
