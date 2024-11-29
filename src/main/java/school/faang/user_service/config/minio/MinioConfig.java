@@ -52,9 +52,9 @@ public class MinioConfig {
                 log.info("Bucket already exists: {}", bucketName);
             }
         } catch (MinioException e) {
-            log.info("Error creating bucket: {}", e.getMessage());
+            log.error("Error creating bucket: {}", e.getMessage());
         } catch (Exception e) {
-            log.info("Error: {}", e.getMessage());
+            log.error("Error: {}", e.getMessage());
         }
     }
 
@@ -68,9 +68,9 @@ public class MinioConfig {
             );
             log.info("Public policy applied to bucket: {}", bucketName);
         } catch (MinioException e) {
-            log.info("Error applying public policy: {}", e.getMessage());
+            log.error("Error applying public policy: {}", e.getMessage());
         } catch (Exception e) {
-            log.info("Error: {}", e.getMessage());
+            log.error("Error: {}", e.getMessage());
         }
     }
 }
