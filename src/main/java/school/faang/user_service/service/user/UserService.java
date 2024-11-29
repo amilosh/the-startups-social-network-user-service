@@ -7,21 +7,25 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.user.UserMapper;
-import school.faang.user_service.pojo.person.PersonFromFile;
 import school.faang.user_service.pojo.person.PersonFlat;
+import school.faang.user_service.pojo.person.PersonFromFile;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
+import school.faang.user_service.service.s3.S3Service;
 import school.faang.user_service.service.user.filter.UserFilter;
 import school.faang.user_service.service.user.random_password.PasswordGenerator;
+import school.faang.user_service.utils.AvatarLibrary;
 import school.faang.user_service.validator.user.UserValidator;
 
 import java.io.IOException;
@@ -37,7 +41,6 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
-
     private final UserRepository userRepository;
     private final GoalRepository goalRepository;
     private final CountryRepository countryRepository;
@@ -46,6 +49,9 @@ public class UserService {
     private final UserMapper userMapper;
     private final List<UserFilter> userFilters;
     private final UserValidator userValidator;
+    private final S3Service s3Service;
+    private final AvatarLibrary avatarLibrary;
+    private final RestTemplate restTemplate;
     private final PasswordGenerator passwordGenerator;
 
     @Transactional
@@ -92,6 +98,27 @@ public class UserService {
     public List<UserDto> getUsersByIds(List<Long> ids) {
         List<User> users = userRepository.findAllById(ids);
         return userMapper.toListDto(users);
+    }
+
+    public void addAvatar(long userId, MultipartFile file) {
+        User user = userValidator.validateUser(userId);
+        s3Service.uploadFile(file, user);
+        userRepository.save(user);
+    }
+
+    public byte[] getAvatar(long userId) {
+        User user = userValidator.validateUser(userId);
+        UserProfilePic profile = user.getUserProfilePic();
+
+        if (profile == null || profile.getFileId() == null) {
+            return restTemplate.getForObject(avatarLibrary.getServiceUri(), byte[].class);
+        }
+        try {
+            return s3Service.getFile(profile.getFileId()).readAllBytes();
+        } catch (IOException e) {
+            log.error("Failed to read all bytes from the transferred file");
+            throw new RuntimeException(e);
+        }
     }
 
     @Transactional
