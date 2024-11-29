@@ -1,5 +1,6 @@
 package school.faang.user_service.service.subscription;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.subscription.SubscriptionRequestDto;
@@ -51,6 +52,7 @@ public class SubscriptionService {
         return subscriptionRequestDto;
     }
 
+    @Transactional
     public List<SubscriptionUserDto> getFollowers(Long followeeId, SubscriptionUserFilterDto filter) {
 
         if (!subscriptionRepository.existsById(followeeId)) {
@@ -58,7 +60,6 @@ public class SubscriptionService {
         }
 
         return subscriptionRepository.findByFolloweeId(followeeId)
-                .filter(followee -> filterUser(filter, followee))
                 .map(userMapper::toDto)
                 .toList();
     }

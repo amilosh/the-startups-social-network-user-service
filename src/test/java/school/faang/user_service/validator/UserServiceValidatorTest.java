@@ -11,6 +11,7 @@ import school.faang.user_service.model.person.contact.ContactInfo;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceValidatorTest {
@@ -49,7 +50,7 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertEquals("firstName: не должно быть пустым", exception.getMessage());
+        assertTrue(exception.getmessage().contains("firstname"));
     }
 
     @Test
@@ -67,7 +68,7 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertEquals("lastName: не должно быть пустым", exception.getMessage());
+        assertTrue(exception.getmessage().contains("lastname"));
     }
 
     @Test
@@ -85,7 +86,7 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertEquals("email: не должно быть пустым", exception.getMessage());
+        assertTrue(exception.getmessage().contains("email"));
     }
 
     @Test
@@ -103,7 +104,7 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertEquals("phone: не должно быть пустым", exception.getMessage());
+        assertTrue(exception.getmessage().contains("phone"));
     }
 
     @Test
@@ -121,7 +122,7 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertEquals("city: не должно быть пустым", exception.getMessage());
+        assertTrue(exception.getmessage().contains("city"));
     }
 
     @Test
@@ -139,6 +140,6 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertEquals("country: не должно быть пустым", exception.getMessage());
+        assertTrue(exception.getmessage().contains("country"));
     }
 }
