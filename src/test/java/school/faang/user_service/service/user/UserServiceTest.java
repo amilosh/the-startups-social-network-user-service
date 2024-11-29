@@ -3,6 +3,8 @@ package school.faang.user_service.service.user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -49,6 +51,9 @@ class UserServiceTest {
 
     private UserService userService;
     private List<UserFilter> userFilters;
+
+    @Captor
+    ArgumentCaptor<User> userCaptor;
 
     @BeforeEach
     void setUp() {
@@ -280,5 +285,18 @@ class UserServiceTest {
         List<UserDto> actualUsers = userService.getNotPremiumUsers(filterDto);
 
         assertEquals(new ArrayList<>(), actualUsers);
+    }
+
+    @Test
+    public void banUserTest() {
+        User user = new User();
+        user.setId(1L);
+        user.setBanned(false);
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        userService.banUser(user.getId());
+
+        verify(userRepository, times(1)).save(userCaptor.capture());
+        assertEquals(true, userCaptor.getValue().getBanned());
     }
 }

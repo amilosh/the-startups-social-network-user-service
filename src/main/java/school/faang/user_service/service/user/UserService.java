@@ -79,6 +79,12 @@ public class UserService {
         return filteredUsers;
     }
 
+    public void banUser(Long userId) {
+        User user = findUserById(userId);
+        user.setBanned(true);
+        userRepository.save(user);
+    }
+
     private User findUserById(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(ErrorMessage.USER_NOT_FOUND, userId)));
