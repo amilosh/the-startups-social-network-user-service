@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
@@ -281,4 +282,28 @@ class UserServiceTest {
 
         assertEquals(new ArrayList<>(), actualUsers);
     }
+
+    @Test
+    public void handleUserBanMessageTest() {
+        String message = "1";
+        User user = new User();
+        user.setId(1L);
+        user.setBanned(false);
+        when(userRepository.findById(Long.valueOf(message))).thenReturn(Optional.of(user));
+        userService.handleUserBanMessage(message);
+        verify(userRepository, times(1)).findById(Long.valueOf(message));
+        verify(userRepository, times(1)).save(Mockito.any());
+        assertTrue(user.isBanned());
+    }
+
+    @Test
+    public void handleUserBanMessageThrowsTest() {
+        String message = "1";
+        when(userRepository.findById(Long.valueOf(message))).thenThrow(IllegalArgumentException.class);
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.handleUserBanMessage(message)
+        );
+    }
+
 }
