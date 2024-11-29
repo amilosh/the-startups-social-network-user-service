@@ -82,6 +82,7 @@ public class UserService {
     public void banUser(Long userId) {
         User user = findUserById(userId);
         user.setBanned(true);
+        log.info("User {} is banned", userId);
         userRepository.save(user);
     }
 
