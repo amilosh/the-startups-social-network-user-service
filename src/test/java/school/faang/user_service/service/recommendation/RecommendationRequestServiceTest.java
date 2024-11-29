@@ -251,4 +251,28 @@ class RecommendationRequestServiceTest {
 
         assertTrue(result.isEmpty());
     }
+
+    //***TEST GET by id ************************************************************************************************
+    @Test
+    void shouldReturnRecommendationRequestSuccessfully() {
+        RecommendationRequest request = createRecommendationRequest();
+
+        when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(request));
+
+        RecommendationRequestDto result = recommendationRequestService.getRequest(1L);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenRecommendationRequestNotFound() {
+        when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            recommendationRequestService.getRequest(1L);
+        });
+
+        assertEquals("Recommendation request not found", exception.getMessage());
+    }
 }
