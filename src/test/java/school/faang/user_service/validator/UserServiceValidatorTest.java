@@ -9,7 +9,6 @@ import school.faang.user_service.model.person.contact.Address;
 import school.faang.user_service.model.person.contact.ContactInfo;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -50,7 +49,7 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertTrue(exception.getmessage().contains("firstname"));
+        assertTrue(exception.getMessage().contains("firstName"));
     }
 
     @Test
@@ -68,7 +67,7 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertTrue(exception.getmessage().contains("lastname"));
+        assertTrue(exception.getMessage().contains("lastName"));
     }
 
     @Test
@@ -86,7 +85,7 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertTrue(exception.getmessage().contains("email"));
+        assertTrue(exception.getMessage().contains("email"));
     }
 
     @Test
@@ -104,7 +103,7 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertTrue(exception.getmessage().contains("phone"));
+        assertTrue(exception.getMessage().contains("phone"));
     }
 
     @Test
@@ -122,7 +121,7 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertTrue(exception.getmessage().contains("city"));
+        assertTrue(exception.getMessage().contains("city"));
     }
 
     @Test
@@ -140,6 +139,6 @@ class UserServiceValidatorTest {
                         .build())
                 .build()
         ));
-        assertTrue(exception.getmessage().contains("country"));
+        assertTrue(exception.getMessage().contains("country"));
     }
 }
