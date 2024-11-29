@@ -112,13 +112,12 @@ public class UserService {
 
         if (profile == null || profile.getFileId() == null) {
             return restTemplate.getForObject(avatarLibrary.getServiceUri(), byte[].class);
-        } else {
-            try {
-                return s3Service.getFile(profile.getFileId()).readAllBytes();
-            } catch (IOException e) {
-                log.error("Failed to read all bytes from the transferred file");
-                throw new RuntimeException(e);
-            }
+        }
+        try {
+            return s3Service.getFile(profile.getFileId()).readAllBytes();
+        } catch (IOException e) {
+            log.error("Failed to read all bytes from the transferred file");
+            throw new RuntimeException(e);
         }
     }
 
