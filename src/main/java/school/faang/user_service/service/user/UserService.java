@@ -79,6 +79,14 @@ public class UserService {
         return filteredUsers;
     }
 
+    public void handleUserBanMessage(String message) {
+        User user = userRepository.findById(Long.valueOf(message))
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + message));
+        user.setBanned(true);
+        userRepository.save(user);
+        log.info("Set status banned to true, for user with id : " + message);
+    }
+
     private User findUserById(long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(ErrorMessage.USER_NOT_FOUND, userId)));
