@@ -1,7 +1,10 @@
 package school.faang.user_service.exceptions;
 
-import lombok.Builder;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-@Builder
-public record ErrorResponse(String errorMessage) {
+@Data
+@AllArgsConstructor
+public class ErrorResponse {
+    private String message;
 }
