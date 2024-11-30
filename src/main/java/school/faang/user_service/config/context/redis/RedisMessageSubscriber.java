@@ -1,14 +1,16 @@
 package school.faang.user_service.config.context.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.json.student.DtoBanSchema;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import school.faang.user_service.service.user.UserService;
 
 import java.io.IOException;
-import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 public class RedisMessageSubscriber implements MessageListener {
     private final ObjectMapper objectMapper;
@@ -17,11 +19,9 @@ public class RedisMessageSubscriber implements MessageListener {
     @Override
     public void onMessage(Message message, byte[] pattern) {
         try {
-            List<Long> idsForBan = objectMapper.readValue(message.getBody(),
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, Long.class));
-            userService.banUsers(idsForBan);
+            userService.banUsers(objectMapper.readValue(message.getBody(), DtoBanSchema.class).getIds());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error("Failed to deserialize DtoBanSchema to JSON", e);
         }
     }
 }
