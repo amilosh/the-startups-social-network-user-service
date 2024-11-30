@@ -2,6 +2,7 @@ package school.faang.user_service.service.event;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class EventService {
 
     private final EventValidation eventValidation;
@@ -104,9 +106,11 @@ public class EventService {
         });
     }
 
-    public void deleteCompletedAndCanceledEvent() {
-        List<Event> eventList = eventRepository.findAllCompletedAndCanceledEvents();
+    public void deleteCompletedAndCanceledEvents() {
+        List<Event> eventList = eventRepository.findAllByStatuses(List.of(EventStatus.CANCELED, EventStatus.COMPLETED));
+        log.debug("Total 'completed' and 'canceled' events found in database: {}", eventList.size());
         List<List<Event>> eventBatches = splitIntoBatchesStream(eventList, batchSize);
+        log.debug("Batch count created to Async delete: {}", eventBatches.size());
         eventBatches.forEach(eventCleanerService::deleteSelectedListEventsAsync);
     }
 

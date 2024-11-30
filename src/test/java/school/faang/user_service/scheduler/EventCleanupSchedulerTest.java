@@ -13,10 +13,10 @@ import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(MockitoExtension.class)
-class SchedulerTest {
+class EventCleanupSchedulerTest {
 
     @InjectMocks
-    private Scheduler scheduler;
+    private EventCleanupScheduler eventCleanupScheduler;
 
     @Mock
     private EventService eventService;
@@ -24,9 +24,9 @@ class SchedulerTest {
     @Test
     @DisplayName("Test clear events")
     void testClearEvents() {
-        scheduler.clearEvents();
+        eventCleanupScheduler.clearEvents();
 
-        verify(eventService, times(1)).deleteCompletedAndCanceledEvent();
+        verify(eventService, times(1)).deleteCompletedAndCanceledEvents();
     }
 }
 

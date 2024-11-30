@@ -13,6 +13,7 @@ import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.filter.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
@@ -242,25 +243,25 @@ public class EventServiceTest {
         );
         int batchSize = 2;
         ReflectionTestUtils.setField(eventService, "batchSize", batchSize);
-        when(eventRepository.findAllCompletedAndCanceledEvents()).thenReturn(events);
+        when(eventRepository.findAllByStatuses(List.of(EventStatus.CANCELED, EventStatus.COMPLETED))).thenReturn(events);
         doNothing().when(eventCleanerService).deleteSelectedListEventsAsync(anyList());
 
-        eventService.deleteCompletedAndCanceledEvent();
+        eventService.deleteCompletedAndCanceledEvents();
 
-        verify(eventRepository).findAllCompletedAndCanceledEvents();
+        verify(eventRepository, times(1)).findAllByStatuses(List.of(EventStatus.CANCELED, EventStatus.COMPLETED));
         verify(eventCleanerService, times(3)).deleteSelectedListEventsAsync(anyList());
     }
 
     @Test
     @DisplayName("Test deleteCompletedAndCanceledEvent negative case")
-    void testDeleteCompletedAndCanceledEventEmptyList() {
-        when(eventRepository.findAllCompletedAndCanceledEvents()).thenReturn(Collections.emptyList());
+    void testDeleteCompletedAndCanceledEventsEmptyList() {
+        when(eventRepository.findAllByStatuses(List.of(EventStatus.CANCELED, EventStatus.COMPLETED))).thenReturn(new ArrayList<>());
         int batchSize = 2;
         ReflectionTestUtils.setField(eventService, "batchSize", batchSize);
 
-        eventService.deleteCompletedAndCanceledEvent();
+        eventService.deleteCompletedAndCanceledEvents();
 
-        verify(eventRepository).findAllCompletedAndCanceledEvents();
+        verify(eventRepository, times(1)).findAllByStatuses(List.of(EventStatus.CANCELED, EventStatus.COMPLETED));
         verify(eventRepository, never()).deleteById(anyLong());
     }
 }
