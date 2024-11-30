@@ -3,6 +3,10 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.client.PaymentServiceClient;
+import school.faang.user_service.client.payment.Currency;
+import school.faang.user_service.client.payment.PaymentRequest;
+import school.faang.user_service.client.payment.PaymentResponse;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.entity.PremiumPeriod;
 import school.faang.user_service.entity.premium.Premium;
@@ -22,16 +26,15 @@ public class PremiumService {
     private final UserService userService;
     private final PaymentValidator paymentValidator;
     private final PremiumMapper premiumMapper;
+    private final PaymentServiceClient paymentServiceClient;
 
     public PremiumDto buyPremium(long userId, PremiumPeriod premiumPeriod) {
         premiumValidator.validateUserIsNotPremium(userId);
-        paymentValidator.checkIfPaymentSuccess();
+        PaymentResponse response = paymentServiceClient.sentPayment(createPaymentRequest(premiumPeriod));
+        paymentValidator.checkIfPaymentSuccess(response);
         Premium premium = createPremium(userId, premiumPeriod);
-        return save(premium);
-    }
-
-    public PremiumDto save(Premium premium) {
-        return premiumMapper.toDto(premiumRepository.save(premium));
+        premiumRepository.save(premium);
+        return premiumMapper.toDto(premium);
     }
 
     private Premium createPremium(long userId, PremiumPeriod premiumPeriod) {
@@ -39,6 +42,14 @@ public class PremiumService {
                 .user(userService.findUserById(userId))
                 .startDate(LocalDateTime.now())
                 .endDate(LocalDateTime.now().plusDays(premiumPeriod.getDays()))
+                .build();
+    }
+
+    private PaymentRequest createPaymentRequest(PremiumPeriod premiumPeriod) {
+        return PaymentRequest.builder()
+                .paymentNumber((int) Math.round(Math.random() * Integer.MAX_VALUE))
+                .amount(premiumPeriod.getPrice())
+                .currency(Currency.USD)
                 .build();
     }
 }

@@ -1,4 +1,4 @@
-package school.faang.user_service.dto.premium;
+package school.faang.user_service.client.payment;
 
 import java.math.BigDecimal;
 
