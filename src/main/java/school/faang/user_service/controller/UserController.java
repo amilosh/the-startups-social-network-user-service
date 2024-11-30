@@ -29,6 +29,7 @@ import org.springframework.web.server.ResponseStatusException;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.model.dto.UserDto;
 import school.faang.user_service.model.dto.UserWithFollowersDto;
+import school.faang.user_service.model.dto.UserWithoutFollowersDto;
 import school.faang.user_service.model.filter_dto.user.UserFilterDto;
 import school.faang.user_service.service.UserService;
 
@@ -79,6 +80,13 @@ public class UserController {
     @GetMapping("/{userId}/with-followers")
     public UserWithFollowersDto getUserWithFollowers(@PathVariable @NotNull long userId) {
         return userService.getUserWithFollowers(userId);
+    }
+
+    @Parameter(name = "x-user-id", in = ParameterIn.HEADER, required = true,
+            description = "ID of the user making the request", schema = @Schema(type = "string"))
+    @GetMapping("/{userId}/without-followers")
+    public UserWithoutFollowersDto getUserWithoutFollowers(@PathVariable @NotNull long userId) {
+        return userService.getUserWithoutFollowers(userId);
     }
 
     @PostMapping()

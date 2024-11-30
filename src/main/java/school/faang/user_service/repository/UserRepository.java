@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import school.faang.user_service.model.dto.UserWithFollowersDto;
+import school.faang.user_service.model.dto.UserWithoutFollowersDto;
 import school.faang.user_service.model.entity.User;
 import school.faang.user_service.model.entity.UserProfilePic;
 import school.faang.user_service.model.entity.Goal;
@@ -72,4 +73,16 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
     WHERE u.id = :id
     """)
     List<Long> findFollowerIdsByUserId(@Param("id") Long id);
+
+    @Query("""
+    SELECT new school.faang.user_service.model.dto.UserWithoutFollowersDto(
+        u.id, 
+        u.username, 
+        u.userProfilePic.fileId, 
+        u.userProfilePic.smallFileId
+    ) 
+    FROM User u
+    WHERE u.id = :id
+    """)
+    Optional<UserWithoutFollowersDto> findUserWithoutFollowers(@Param("id") Long id);
 }

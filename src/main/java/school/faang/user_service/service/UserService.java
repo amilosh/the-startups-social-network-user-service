@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.model.dto.UserDto;
 import school.faang.user_service.model.dto.UserWithFollowersDto;
+import school.faang.user_service.model.dto.UserWithoutFollowersDto;
 import school.faang.user_service.model.entity.User;
 import school.faang.user_service.model.filter_dto.user.UserFilterDto;
 
@@ -41,4 +42,6 @@ public interface UserService {
     void publishProfileViewEvent(long viewerId, long profileOwnerId);
 
     UserWithFollowersDto getUserWithFollowers(Long userId);
+
+    UserWithoutFollowersDto getUserWithoutFollowers(Long userId);
 }

@@ -284,11 +284,11 @@ public class UserControllerTest {
 
         mockMvc.perform(get("/users/{userId}/with-followers", userId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(userId))
+                .andExpect(jsonPath("$.userId").value(userId))
                 .andExpect(jsonPath("$.username").value("testUsername"))
                 .andExpect(jsonPath("$.fileId").value("profilePicFileId"))
                 .andExpect(jsonPath("$.smallFileId").value("smallProfilePicFileId"))
-                .andExpect(jsonPath("$.createdAt").value("2024-01-01T00:00:00"))
+                .andExpect(jsonPath("$.postCreatedAt").value("2024-01-01T00:00:00"))
                 .andExpect(jsonPath("$.followerIds", hasSize(3)))
                 .andExpect(jsonPath("$.followerIds[0]").value(2L))
                 .andExpect(jsonPath("$.followerIds[1]").value(3L))

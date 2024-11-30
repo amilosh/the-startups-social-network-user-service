@@ -16,30 +16,30 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
-import school.faang.user_service.filter.user.UserFilter;
-import school.faang.user_service.model.dto.UserDto;
-import school.faang.user_service.model.dto.UserWithFollowersDto;
-import school.faang.user_service.model.event.ProfileViewEvent;
-import school.faang.user_service.model.entity.TelegramContact;
-import school.faang.user_service.model.filter_dto.user.UserFilterDto;
-import school.faang.user_service.model.entity.Country;
-import school.faang.user_service.model.entity.User;
-import school.faang.user_service.model.entity.UserProfilePic;
-import school.faang.user_service.model.entity.Event;
-import school.faang.user_service.model.entity.Goal;
-import school.faang.user_service.model.entity.Promotion;
 import school.faang.user_service.filter.user.UserCreatedAfterFilter;
 import school.faang.user_service.filter.user.UserCreatedBeforeFilter;
+import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNameFilter;
 import school.faang.user_service.filter.user.UserPhoneFilter;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.model.dto.UserDto;
+import school.faang.user_service.model.dto.UserWithFollowersDto;
+import school.faang.user_service.model.entity.Country;
+import school.faang.user_service.model.entity.Event;
+import school.faang.user_service.model.entity.Goal;
+import school.faang.user_service.model.entity.Promotion;
+import school.faang.user_service.model.entity.TelegramContact;
+import school.faang.user_service.model.entity.User;
+import school.faang.user_service.model.entity.UserProfilePic;
+import school.faang.user_service.model.event.ProfileViewEvent;
+import school.faang.user_service.model.filter_dto.user.UserFilterDto;
 import school.faang.user_service.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.publisher.SearchAppearanceEventPublisher;
+import school.faang.user_service.repository.EventRepository;
+import school.faang.user_service.repository.GoalRepository;
 import school.faang.user_service.repository.PromotionRepository;
 import school.faang.user_service.repository.TelegramContactRepository;
 import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.repository.EventRepository;
-import school.faang.user_service.repository.GoalRepository;
 import school.faang.user_service.validator.UserServiceValidator;
 
 import java.io.ByteArrayInputStream;
@@ -63,7 +63,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -570,18 +569,24 @@ public class UserServiceImplTest {
         );
 
         when(userRepository.findUserBasicInfo(userId)).thenReturn(Optional.of(
-                new UserWithFollowersDto(userId, "testUsername", "profilePicFileId", "smallProfilePicFileId", LocalDateTime.of(2024, 1, 1, 0, 0), null)
+                new UserWithFollowersDto(
+                        userId,
+                        "testUsername",
+                        "profilePicFileId",
+                        "smallProfilePicFileId",
+                        LocalDateTime.of(2024, 1, 1, 0, 0),
+                        null)
         ));
         when(userRepository.findFollowerIdsByUserId(userId)).thenReturn(List.of(2L, 3L, 4L));
 
         UserWithFollowersDto result = userService.getUserWithFollowers(userId);
 
         assertNotNull(result);
-        assertEquals(expectedUser.getId(), result.getId());
+        assertEquals(expectedUser.getUserId(), result.getUserId());
         assertEquals(expectedUser.getUsername(), result.getUsername());
         assertEquals(expectedUser.getFileId(), result.getFileId());
         assertEquals(expectedUser.getSmallFileId(), result.getSmallFileId());
-        assertEquals(expectedUser.getCreatedAt(), result.getCreatedAt());
+        assertEquals(expectedUser.getPostCreatedAt(), result.getPostCreatedAt());
         assertEquals(expectedUser.getFollowerIds(), result.getFollowerIds());
 
         verify(userRepository, times(1)).findUserBasicInfo(userId);
