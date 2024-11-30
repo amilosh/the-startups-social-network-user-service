@@ -19,5 +19,7 @@ public interface SubscriptionService {
 
     List<AuthorRedisDto> getAllFollowing(long followerId);
 
+    List<Long> getAllFollowingIds(long authorId);
+
     long getFollowingCount(long followerId);
 }
