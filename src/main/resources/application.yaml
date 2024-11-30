@@ -40,3 +40,8 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+scheduler:
+  clear-events-cron: "0 0 * * * *"
+  batch-size: 100
+  thread-pool-size: 10

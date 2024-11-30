@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import school.faang.user_service.dto.EventDto;
@@ -18,9 +19,12 @@ import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -28,6 +32,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @Validated
 public class EventService {
+
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final UserService userService;
@@ -35,6 +40,11 @@ public class EventService {
     private final SkillMapper skillMapper;
     private final List<EventFilter> eventFilters;
 
+    @Value("${scheduler.batch-size}")
+    private int batchSize;
+
+    @Value("${scheduler.thread-pool-size}")
+    private int threadPoolSize;
 
     public EventDto create(EventDto eventDto) {
         log.info("Creating event:{}", eventDto.toLogString());
@@ -151,6 +161,23 @@ public class EventService {
                 DataValidationException("Event do not found"));
     }
 
+    public void clearPastEvents() {
+        List<Event> pastEvents = eventRepository.findByEndDateBefore(LocalDateTime.now());
+
+        int totalBatches = (int) Math.ceil((double) pastEvents.size() / batchSize);
+        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
+
+        for (int i = 0; i < totalBatches; i++) {
+            int start = i * batchSize;
+            int end = Math.min(start + batchSize, pastEvents.size());
+            List<Event> batch = pastEvents.subList(start, end);
+            executorService.submit(() -> eventRepository.deleteAll(batch));
+        }
+
+        executorService.shutdown();
+        log.info("Scheduled task to clear past events completed.");
+    }
+
     private void validateUserHaveSkillsForEvent(@NotNull User userOwner, @NotNull EventDto eventDto) {
         Set<SkillDto> relatedSkills = eventDto.relatedSkills() != null ? new HashSet<>(eventDto.relatedSkills())
                 : new HashSet<>();
@@ -180,6 +207,4 @@ public class EventService {
                 event.getMaxAttendees()
         );
     }
-
-
 }
