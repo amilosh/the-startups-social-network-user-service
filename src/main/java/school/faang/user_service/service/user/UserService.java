@@ -85,7 +85,7 @@ public class UserService {
     public void banUsers(List<Long> idForBanUsers) {
         List<User> usersToBan = userRepository.findAllById(idForBanUsers);
         usersToBan.forEach(user -> {
-            user.setBan(true);
+            user.setBanned(true);
             userRepository.save(user);
         });
         log.info("All found users were banned");

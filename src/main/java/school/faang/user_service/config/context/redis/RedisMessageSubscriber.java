@@ -17,9 +17,9 @@ public class RedisMessageSubscriber implements MessageListener {
     @Override
     public void onMessage(Message message, byte[] pattern) {
         try {
-            List<Long> idForBan = objectMapper.readValue(message.getBody(),
+            List<Long> idsForBan = objectMapper.readValue(message.getBody(),
                     objectMapper.getTypeFactory().constructCollectionType(List.class, Long.class));
-            userService.banUsers(idForBan);
+            userService.banUsers(idsForBan);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
