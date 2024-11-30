@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.util.ImageUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -31,6 +32,9 @@ public class S3ServiceTest {
 
     @Mock
     private AmazonS3 s3Client;
+
+    @Mock
+    private ImageUtils imageUtils;
 
     @Value("${services.s3.bucketName}")
     private String bucket;
