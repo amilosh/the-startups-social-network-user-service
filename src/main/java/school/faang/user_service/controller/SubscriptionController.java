@@ -64,4 +64,9 @@ public class SubscriptionController {
     public List<AuthorRedisDto> getAllFollowing(@Positive @PathVariable long followerId) {
         return subscriptionService.getAllFollowing(followerId);
     }
+
+    @GetMapping("/allfollowingIds/{followerId}")
+    public List<Long> getAllFollowingIds(@Positive @PathVariable long followerId) {
+        return subscriptionService.getAllFollowingIds(followerId);
+    }
 }
