@@ -19,7 +19,7 @@ import school.faang.user_service.service.goal.GoalService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/goals")
+@RequestMapping("/goals")
 @RequiredArgsConstructor
 public class GoalController {
     private final GoalService goalService;

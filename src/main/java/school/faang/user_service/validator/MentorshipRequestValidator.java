@@ -1,11 +1,12 @@
 package school.faang.user_service.validator;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.MentorshipRequestDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestCreateDto;
+import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.InvalidMentorshipRequestException;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 
@@ -20,7 +21,7 @@ public class MentorshipRequestValidator {
     private final MentorshipRequestRepository repository;
     private final UserValidator userValidator;
 
-    public void validateMentorshipRequest(MentorshipRequestDto dto) {
+    public void validateMentorshipRequest(MentorshipRequestCreateDto dto) {
         validateSelfRequest(dto);
         validateOneRequestPerMonthLimit(dto);
         validateRequesterAndReceiverExists(dto);
@@ -43,7 +44,7 @@ public class MentorshipRequestValidator {
         log.info("UserId #{} has no UserId #{} as mentor.", requester.getId(), receiver.getId());
     }
 
-    private void validateOneRequestPerMonthLimit(MentorshipRequestDto dto) {
+    private void validateOneRequestPerMonthLimit(MentorshipRequestCreateDto dto) {
         repository.findLatestRequest(dto.getRequesterId(), dto.getReceiverId())
                 .filter(request -> !request.getCreatedAt().isBefore(getMonthLimitAgo()))
                 .ifPresent(request -> {
@@ -55,13 +56,13 @@ public class MentorshipRequestValidator {
                 dto.getRequesterId(), dto.getReceiverId(), SELF_REQUEST_MONTH_LIMIT);
     }
 
-    private void validateRequesterAndReceiverExists(MentorshipRequestDto dto) {
-        userValidator.isUserExists(dto.getRequesterId());
-        userValidator.isUserExists(dto.getReceiverId());
-        log.info("All users in request id #{} exist.", dto.getId());
+    private void validateRequesterAndReceiverExists(MentorshipRequestCreateDto dto) {
+        userValidator.validateUserById(dto.getRequesterId());
+        userValidator.validateUserById(dto.getReceiverId());
+        log.info("Users #{} and #{} exist.", dto.getRequesterId(), dto.getReceiverId());
     }
 
-    private void validateSelfRequest(MentorshipRequestDto dto) {
+    private void validateSelfRequest(MentorshipRequestCreateDto dto) {
         if (dto.getRequesterId().equals(dto.getReceiverId())) {
             log.warn("Self-mentorship requests are not allowed.");
             throw new InvalidMentorshipRequestException("Self-mentorship requests are not allowed.");

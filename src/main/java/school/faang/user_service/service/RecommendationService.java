@@ -1,5 +1,6 @@
 package school.faang.user_service.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -7,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
-import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.validator.RecommendationValidator;
@@ -80,8 +80,8 @@ public class RecommendationService {
 
     public Recommendation createRecommendationFromDto(RecommendationDto recommendationDto) {
         Recommendation recommendation = recommendationMapper.toEntity(recommendationDto);
-        recommendation.setAuthor(userService.findUser(recommendationDto.getAuthorId()));
-        recommendation.setReceiver(userService.findUser(recommendationDto.getReceiverId()));
+        recommendation.setAuthor(userService.findUserById(recommendationDto.getAuthorId()));
+        recommendation.setReceiver(userService.findUserById(recommendationDto.getReceiverId()));
         recommendation.setSkillOffers(skillOfferService.findAllByUserId(recommendationDto.getReceiverId()));
         return recommendation;
     }

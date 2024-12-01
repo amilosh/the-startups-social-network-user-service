@@ -28,10 +28,30 @@ spring:
 
 server:
   port: 8080
+  servlet:
+    context-path: /api/v1
 
 logging:
   level:
     root: info
+
+minio:
+  url: http://localhost:9000
+  accessKey: LbtJkdBst2Fzh9PQWMbn
+  secretKey: ZQsUFl0ToSUn8U6xH6dAoBnpWruKS0kvkiAvsVXN
+  bucketName: avatars
+  publicPolicy: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Principal": "*",
+          "Action": "s3:GetObject",
+          "Resource": "arn:aws:s3:::avatars/*"
+        }
+      ]
+    }
 
 project-service:
   host: localhost

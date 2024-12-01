@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS files (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    file_url VARCHAR(1024) NULL,
+    upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_id ON files(user_id);

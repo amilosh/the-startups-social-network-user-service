@@ -2,17 +2,19 @@ package school.faang.user_service.service.event;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.filter.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.UserService;
 import school.faang.user_service.validator.EventValidation;
+import school.faang.user_service.validator.UserValidator;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -25,6 +27,7 @@ public class EventService {
     private final EventMapper eventMapper;
     private final UserService userService;
     private final List<EventFilter> eventFilters;
+    private final UserValidator userValidator;
 
     public EventDto create(EventDto eventDto) {
         eventValidation.validateEvent(eventDto);
@@ -50,9 +53,9 @@ public class EventService {
         eventRepository.deleteById(evenId);
     }
 
-    public EventDto updateEvent(@NotNull EventDto eventDto) {
+    public EventDto updateEvent(EventDto eventDto) {
         Event event = findEventById(eventDto.getId());
-        List<Long> skillsId = userService.findUser(eventDto.getOwnerId()).getSkills().stream()
+        List<Long> skillsId = userService.findUserById(eventDto.getOwnerId()).getSkills().stream()
                 .map(Skill::getId)
                 .toList();
 
@@ -71,7 +74,7 @@ public class EventService {
         List<Event> participatedEvents = eventRepository.findParticipatedEventsByUserId(userId);
         return eventMapper.toDtoList(participatedEvents);
     }
-    
+
     private Event findEventById(long eventId) {
         return eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException("Event id not found"));
     }
@@ -80,4 +83,17 @@ public class EventService {
         return eventRepository.existsById(eventId);
     }
 
+    public List<Event> getEvents(long userId) {
+        userValidator.validateUserById(userId);
+        return eventRepository.findAllByUserId(userId);
+    }
+
+    @Transactional
+    public void cancelUserOwnedEvents(long userId) {
+        getEvents(userId).forEach(event -> {
+            if (event.getStatus() == EventStatus.PLANNED || event.getStatus() == EventStatus.IN_PROGRESS) {
+                event.setStatus(EventStatus.CANCELED);
+            }
+        });
+    }
 }
