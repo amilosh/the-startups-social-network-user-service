@@ -5,8 +5,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,12 +20,12 @@ public class UserFilterDto {
 
     @Schema(description = "Filter by username (case-insensitive partial match)")
     private String username;
+
     @Pattern(regexp = ".+", message = "About cannot be empty")
     private String about;
 
     @Pattern(regexp = "^[\\w-\\.]+@[\\w-]+\\.[a-zA-Z]{2,}$", message = "Email must be valid")
     @Schema(description = "Filter by email (exact match)", example = "user@example.com")
-    @Pattern(regexp = ".+@.+\\..+", message = "Email must be valid")
     private String email;
 
     @Pattern(regexp = ".+", message = "Contact cannot be empty")
@@ -49,24 +47,17 @@ public class UserFilterDto {
 
     @Schema(description = "Filter by minimum experience in years", example = "0", minimum = "0")
     @Min(value = 0, message = "Experience cannot be less than 0")
-    private int experienceMin;
     private Integer experienceMin;
 
-    @Min(value = 0, message = "Maximum experience cannot be 0")
-    private int experienceMax;
     @Schema(description = "Filter by maximum experience in years", example = "10", minimum = "0")
     @Min(value = 0, message = "Experience cannot be less than 0")
     private Integer experienceMax;
 
-    @Min(value = 0, message = "Page number cannot be 0")
-    private int page;
     @Schema(description = "Page number (zero-based)", example = "0", minimum = "0", defaultValue = "0")
     @Min(value = 0, message = "Page number cannot be less than 0")
     @Builder.Default
     private Integer page = DEFAULT_PAGE_NUMBER;
 
-    @Min(value = 1, message = "Page size cannot be 1")
-    private int pageSize;
     @Schema(description = "Number of items per page", example = "10", minimum = "1", defaultValue = "10")
     @Min(value = 1, message = "Page size cannot be less than 1")
     @Builder.Default
