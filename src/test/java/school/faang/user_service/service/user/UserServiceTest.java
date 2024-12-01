@@ -79,16 +79,6 @@ class UserServiceTest {
     @Captor
     ArgumentCaptor<User> userCaptor;
 
-    @BeforeEach
-    void setUp() {
-        UserFilter userEmailFilter = mock(UserEmailFilter.class);
-        UserFilter userNameFilter = mock(UserNameFilter.class);
-        userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
-        userMapper = new UserMapperImpl();
-
-        userService = new UserService(userRepository, userFilters, userMapper, userJiraMapper, userJiraService);
-    }
-
     @Test
     void getUserTest() {
         long userId = 1L;
