@@ -19,7 +19,6 @@ import school.faang.user_service.dto.ProcessResultDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.Country;
-import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filter.Filter;
@@ -46,7 +45,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -56,7 +54,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
-
 
     @Mock
     private UserRepository userRepository;
@@ -123,7 +120,6 @@ class UserServiceTest {
     private Country country1;
     private List<Event> events;
     private UserDto dto;
-    private String csvContent;
     private InputStream inputStream;
     private List<Person> people;
 
@@ -159,9 +155,12 @@ class UserServiceTest {
         userService = new UserService(
                 userRepository,
                 userMapper,
+                personToUserMapper,
                 userValidator,
                 mentorshipService,
+                countryService,
                 eventService,
+                parser,
                 userFilters
         );
 
