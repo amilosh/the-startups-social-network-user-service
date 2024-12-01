@@ -11,13 +11,13 @@ public class UserFilter implements Filter<UserDto, UserFilterDto> {
 
     @Override
     public boolean isApplicable(UserFilterDto filter) {
-        return filter.getNamePattern() != null || filter.getEmailPattern() != null;
+        return filter.getName() != null || filter.getEmail() != null;
     }
 
     @Override
     public Stream<UserDto> apply(Stream<UserDto> dataStream, UserFilterDto filter) {
         return dataStream
-                .filter(user -> filter.getNamePattern() == null || user.getUsername().contains(filter.getNamePattern()))
-                .filter(user -> filter.getEmailPattern() == null || user.getEmail().contains(filter.getEmailPattern()));
+                .filter(user -> filter.getName() == null || user.getUsername().contains(filter.getName()))
+                .filter(user -> filter.getEmail() == null || user.getEmail().contains(filter.getEmail()));
     }
 }

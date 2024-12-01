@@ -11,11 +11,11 @@ public class UserFilterName implements Filter<UserDto, UserFilterDto> {
 
     @Override
     public boolean isApplicable(UserFilterDto filter) {
-        return filter.getNamePattern() != null;
+        return filter.getName() != null;
     }
 
     @Override
     public Stream<UserDto> apply(Stream<UserDto> dataStream, UserFilterDto filter) {
-        return dataStream.filter(user -> user.getUsername().contains(filter.getNamePattern()));
+        return dataStream.filter(user -> user.getUsername().contains(filter.getName()));
     }
 }

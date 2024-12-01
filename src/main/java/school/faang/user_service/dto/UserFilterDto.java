@@ -9,28 +9,28 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserFilterDto {
     @Pattern(regexp = ".+", message = "Name cannot be empty")
-    private String namePattern;
+    private String name;
 
     @Pattern(regexp = ".+", message = "About cannot be empty")
-    private String aboutPattern;
+    private String about;
 
     @Pattern(regexp = "^[\\w-\\.]+@[\\w-]+\\.[a-zA-Z]{2,}$", message = "Email must be valid")
-    private String emailPattern;
+    private String email;
 
     @Pattern(regexp = ".+", message = "Contact cannot be empty")
-    private String contactPattern;
+    private String contact;
 
     @Pattern(regexp = ".+", message = "Country cannot be empty")
-    private String countryPattern;
+    private String country;
 
     @Pattern(regexp = ".+", message = "City cannot be empty")
-    private String cityPattern;
+    private String city;
 
     @Pattern(regexp = "^\\+?[0-9]{1,15}$", message = "Phone number must be valid")
-    private String phonePattern;
+    private String phone;
 
     @Pattern(regexp = ".+", message = "Skill cannot be empty")
-    private String skillPattern;
+    private String skill;
 
     @Min(value = 0, message = "Experience cannot be less than 0")
     private int experienceMin;

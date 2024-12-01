@@ -12,27 +12,18 @@ public class SubscriptionValidator {
     private final SubscriptionRepository subscriptionRepository;
 
     public void validateFollowUser(long followerId, long followeeId) {
-        if (followerId <= 0 || followeeId <= 0) {
-            throw new DataValidationException("User ID must be positive.");
-        }
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             throw new DataValidationException("Subscription already exists.");
         }
     }
 
     public void validateUnfollowUser(long followerId, long followeeId) {
-        if (followerId <= 0 || followeeId <= 0) {
-            throw new DataValidationException("User ID must be positive.");
-        }
         if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             throw new DataValidationException("Subscription does not exist.");
         }
     }
 
     public void validateUserExists(long userId) {
-        if (userId <= 0) {
-            throw new DataValidationException("User ID must be positive.");
-        }
         if (!subscriptionRepository.existsById(userId)) {
             throw new DataValidationException("User does not exist.");
         }
