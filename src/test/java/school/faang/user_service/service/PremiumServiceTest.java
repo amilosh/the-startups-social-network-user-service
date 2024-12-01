@@ -55,7 +55,7 @@ class PremiumServiceTest {
         when(premiumRepository.findAllByEndDateBefore(time))
                 .thenReturn(Arrays.asList(premium1, premium2, premium3));
 
-        premiumService.deleteAllPremium(time);
+        premiumService.deleteExpiredPremiums(time);
 
         verify(premiumRepository, times(1)).findAllByEndDateBefore(time);
         verify(premiumCleanerService, times(2)).deletePremium(captor.capture());
@@ -71,7 +71,7 @@ class PremiumServiceTest {
         LocalDateTime mockTime = LocalDateTime.now();
         when(premiumRepository.findAllByEndDateBefore(mockTime)).thenReturn(List.of());
 
-        premiumService.deleteAllPremium(mockTime);
+        premiumService.deleteExpiredPremiums(mockTime);
 
         verify(premiumCleanerService, never()).deletePremium(anyList());
     }

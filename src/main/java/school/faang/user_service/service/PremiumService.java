@@ -21,27 +21,20 @@ public class PremiumService {
     @Value("${del.batch-size}")
     private int batchSize;
 
-    public void deleteAllPremium(LocalDateTime time) {
+    public void deleteExpiredPremiums(LocalDateTime time) {
         log.info("Starting premium deletion process for premiums before: {}", time);
         List<Premium> premiumsToDelete = premiumRepository.findAllByEndDateBefore(time);
-        List<List<Premium>> partitionList = partitionList(premiumsToDelete, batchSize);
+        List<List<Premium>> partitions = splitPremiumsIntoBatches(premiumsToDelete, batchSize);
         log.info("Found {} premiums to delete, splitting into batches of size {}", premiumsToDelete.size(), batchSize);
-        partitionList.forEach(batch->{
-            try {
-                premiumCleanerService.deletePremium(batch);
-                log.info("Successfully deleted a batch of {} premiums.", batch.size());
-            } catch (Exception e){
-                log.error("Error occurred while deleting a batch of {} premiums: {}", batch.size(), e.getMessage(), e);
-            }
-        });
+        partitions.forEach(premiumCleanerService::deletePremium);
         log.info("Premium deletion process completed.");
     }
 
-    private List<List<Premium>> partitionList(List<Premium> premiumsForDelete, int size) {
-        List<List<Premium>> batchList = new ArrayList<>();
-        for (int i = 0; i < premiumsForDelete.size(); i += size) {
-            batchList.add(new ArrayList<>(premiumsForDelete.subList(i, Math.min(premiumsForDelete.size(), i + size))));
+    private List<List<Premium>> splitPremiumsIntoBatches(List<Premium> premiumsToDelete, int size) {
+        List<List<Premium>> batches = new ArrayList<>();
+        for (int i = 0; i < premiumsToDelete.size(); i += size) {
+            batches.add(new ArrayList<>(premiumsToDelete.subList(i, Math.min(premiumsToDelete.size(), i + size))));
         }
-        return batchList;
+        return batches;
     }
 }

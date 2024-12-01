@@ -11,7 +11,6 @@ import school.faang.user_service.service.PremiumService;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -32,22 +31,22 @@ class SchedulerPremiumRemoverTest {
     @Test
     void removePremiumServiceAndLogSuccess() {
         LocalDateTime mockTime = LocalDateTime.now();
-        doNothing().when(service).deleteAllPremium(any(LocalDateTime.class));
+        doNothing().when(service).deleteExpiredPremiums(any(LocalDateTime.class));
 
-        remover.removePremium();
+        remover.deleteExpiredPremiums();
 
-        verify(service, times(1)).deleteAllPremium(any(LocalDateTime.class));
+        verify(service, times(1)).deleteExpiredPremiums(any(LocalDateTime.class));
     }
 
     @Test
     void removePremiumWhenPremiumServiceFails() {
         LocalDateTime mockTime = LocalDateTime.now();
         doThrow(new RuntimeException("Service failure"))
-                .when(service).deleteAllPremium(any(LocalDateTime.class));
+                .when(service).deleteExpiredPremiums(any(LocalDateTime.class));
 
-        remover.removePremium();
+        remover.deleteExpiredPremiums();
 
-        verify(service, times(1)).deleteAllPremium(any(LocalDateTime.class));
+        verify(service, times(1)).deleteExpiredPremiums(any(LocalDateTime.class));
     }
 
 }
