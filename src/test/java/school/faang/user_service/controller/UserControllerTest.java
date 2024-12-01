@@ -12,6 +12,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 import school.faang.user_service.dto.ProcessResultDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
@@ -20,6 +21,7 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.UserService;
 import school.faang.user_service.validator.UserValidator;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -55,11 +57,11 @@ class UserControllerTest {
     private MockMultipartFile file;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
-        csvContent = "firstName,lastName,email,phone,city,state,country\n"
-                + "John,Doe,johndoe@example.com,123456789,New York,NY,USA";
-        file = new MockMultipartFile("file", "test.csv", "text/csv", csvContent.getBytes());
+        String testCsv = IOUtils.toString(ClassLoader.getSystemClassLoader()
+                .getSystemResourceAsStream("students2.csv"));
+        file = new MockMultipartFile("file", "test.csv", "text/csv", testCsv.getBytes());
     }
 
     @Test

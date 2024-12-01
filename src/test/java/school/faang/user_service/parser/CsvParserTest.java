@@ -1,6 +1,7 @@
 package school.faang.user_service.parser;
 
 import org.junit.jupiter.api.Test;
+import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 import school.faang.user_service.domain.Person;
 
 import java.io.ByteArrayInputStream;
@@ -14,13 +15,10 @@ class CsvParserTest {
 
     @Test
     void parseCsvValidCsvCorrectly() throws Exception {
-        String csvData = """
-                firstName,lastName,yearOfBirth,group,studentID,street,city,state,country,postalCode,email,phone,faculty,yearOfStudy,major,GPA,status,admissionDate,graduationDate,scholarship,employer
-                John,Doe,1990,Math,123,Main St,Anytown,CA,USA,90210,john.doe@example.com,555-1234,Science,2,Physics,3.8,active,2020-01-01,2024-01-01,true,Acme Corp
-                Jane,Smith,1992,CS,456,Second St,Othercity,NY,USA,10001,jane.smith@example.com,555-5678,Engineering,3,CS,3.9,active,2019-01-01,2023-01-01,false,Tech Inc
-                """;
+        String testCsv = IOUtils.toString(ClassLoader.getSystemClassLoader()
+                .getSystemResourceAsStream("students1.csv"));
 
-        InputStream inputStream = new ByteArrayInputStream(csvData.getBytes());
+        InputStream inputStream = new ByteArrayInputStream(testCsv.getBytes());
         csvParser = new CsvParser();
 
         List<Person> people = csvParser.parseCsv(inputStream);
