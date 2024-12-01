@@ -6,7 +6,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.RecommendationRequestDto;
@@ -204,14 +203,9 @@ class RecommendationRequestServiceTest {
                 skillRepository,
                 filters
         );
-
         RecommendationRequestFilterDto filterDto = new RecommendationRequestFilterDto();
-//        RecommendationRequest request = new RecommendationRequest();
-
         RecommendationRequest request = createRecommendationRequest();
         List<RecommendationRequest> requests = List.of(request);
-
-//        RecommendationRequestDto dto = new RecommendationRequestDto();
         RecommendationRequestDto dto = createRecommendationRequestDto();
 
         when(recommendationRequestRepository.findAll()).thenReturn(requests);
@@ -229,7 +223,6 @@ class RecommendationRequestServiceTest {
     void shouldReturnEmptyListWhenNoRequestsMatchFilter() {
         RecommendationRequestFilter filterMock = mock(RecommendationRequestFilter.class);
         List<RecommendationRequestFilter> filters = List.of(filterMock);
-
         recommendationRequestService = new RecommendationRequestService(
                 recommendationRequestRepository,
                 userRepository,
@@ -237,7 +230,6 @@ class RecommendationRequestServiceTest {
                 skillRepository,
                 filters
         );
-
         RecommendationRequestFilterDto filterDto = new RecommendationRequestFilterDto();
         List<RecommendationRequest> requests = Collections.emptyList();
 
