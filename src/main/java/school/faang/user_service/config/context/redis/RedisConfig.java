@@ -43,7 +43,7 @@ public class RedisConfig {
 
     @Bean
     public ChannelTopic topic() {
-        return new ChannelTopic(redisProperties.userBanTopic());
+        return new ChannelTopic(redisProperties.usersBanTopic());
     }
 
     @Bean
