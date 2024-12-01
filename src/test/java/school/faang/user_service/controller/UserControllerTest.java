@@ -78,28 +78,4 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.сountSuccessfullySavedUsers").value(1))
                 .andExpect(jsonPath("$.errors").isEmpty());
     }
-
-    @Test
-    void testUploadToCsvFailureBadRequest() throws Exception {
-        when(userService.importUsersFromCsv(any(InputStream.class)))
-                .thenThrow(new IOException("Failed to read CSV file"));
-
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/users/upload")
-                        .file(file))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.сountSuccessfullySavedUsers").value(0))
-                .andExpect(jsonPath("$.errors[0]").value("Failed to read CSV file: Failed to read CSV file"));
-    }
-
-    @Test
-    void testUploadToCsvFailureInternalServerError() throws Exception {
-        when(userService.importUsersFromCsv(any(InputStream.class)))
-                .thenThrow(new RuntimeException("Unexpected error"));
-
-        mockMvc.perform(MockMvcRequestBuilders.multipart("/users/upload")
-                        .file(file))
-                .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.сountSuccessfullySavedUsers").value(0))
-                .andExpect(jsonPath("$.errors[0]").value("Internal server error: Unexpected error"));
-    }
 }

@@ -10,6 +10,5 @@ import java.util.Optional;
 @Repository
 public interface CountryRepository extends CrudRepository<Country, Long> {
 
-    @Query(nativeQuery = true, value = "SELECT * FROM country WHERE title = ?1")
     Optional<Country> findByTitle (String title);
 }

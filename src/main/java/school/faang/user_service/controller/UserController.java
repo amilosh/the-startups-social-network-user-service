@@ -33,25 +33,14 @@ public class UserController {
     private final UserValidator userValidator;
 
     @PostMapping("/upload")
-    public ResponseEntity<ProcessResultDto> uploadToCsv(@RequestParam("file") @CsvFile MultipartFile file) {
+    public ResponseEntity<ProcessResultDto> uploadToCsv(@RequestParam("file") @CsvFile MultipartFile file) throws IOException{
         String filename = file.getOriginalFilename();
         long fileSize = file.getSize();
         log.info("Received file: name = {}, size = {} bytes", filename, fileSize);
-
-        try {
             ProcessResultDto result = userService.importUsersFromCsv(file.getInputStream());
             log.info("File '{}' uploaded successfully. Processed {} records with {} errors.",
                     filename, result.getСountSuccessfullySavedUsers(), result.getErrors().size());
             return ResponseEntity.ok(result);
-        } catch (IOException e) {
-            log.error("Failed to process file '{}': {}", filename, e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ProcessResultDto(0, List.of("Failed to read CSV file: " + e.getMessage())));
-        } catch (Exception e) {
-            log.error("Unexpected error during file upload: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ProcessResultDto(0, List.of("Internal server error: " + e.getMessage())));
-        }
     }
 
     @GetMapping("/{userId}")

@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 import school.faang.user_service.domain.Address;
 import school.faang.user_service.domain.ContactInfo;
 import school.faang.user_service.domain.Education;
@@ -87,7 +88,7 @@ class UserServiceTest {
 
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         user = new User();
         user.setId(userId);
         user.setActive(true);
@@ -105,9 +106,9 @@ class UserServiceTest {
                 .title("Country1")
                 .build();
 
-        csvContent = "firstName,lastName,yearOfBirth,group,studentID,email,phone,street,city,state,country,postalCode,faculty,yearOfStudy,major,GPA,status,admissionDate,graduationDate,degree,institution,completionYear,scholarship,employer\n"
-                + "John,Doe,1998,A,123456,johndoe@example.com,+1-123-456-7890,123 Main Street,New York,NY,USA,10001,Computer Science,3,Software Engineering,3.8,Active,2016-09-01,2020-05-30,High School Diploma,XYZ High School,2016,true,XYZ Technologies";
-        inputStream = new ByteArrayInputStream(csvContent.getBytes());
+        String testCsv = IOUtils.toString(ClassLoader.getSystemClassLoader()
+                .getSystemResourceAsStream("students.csv"));
+        inputStream = new ByteArrayInputStream(testCsv.getBytes());
         mockPerson = createMockPerson("John", "Doe", "john.doe@example.com");
         mockUser = createMockUser("JohnDoe", "john.doe@example.com");
         people = List.of(mockPerson);
