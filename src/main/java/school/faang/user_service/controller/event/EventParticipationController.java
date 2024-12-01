@@ -2,16 +2,15 @@ package school.faang.user_service.controller.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import school.faang.user_service.dto.UserDTO;
+import school.faang.user_service.dto.subscribe.UserDTO;
 import school.faang.user_service.service.event.EventParticipationService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping
 @RequiredArgsConstructor
 @Slf4j
 public class EventParticipationController {
@@ -20,7 +19,7 @@ public class EventParticipationController {
     @PutMapping(value = "/events/{eventId}/users/{userId}/register")
     public void register(@PathVariable Long eventId, @PathVariable Long userId) {
         log.info("New request to register user with id: {} for event with id: {}", userId, eventId);
-        service.register(eventId, userId);
+                service.register(eventId, userId);
         log.info("User with id: {} was registered for event with id: {}", userId, eventId);
     }
 

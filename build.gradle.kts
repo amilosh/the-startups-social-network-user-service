@@ -5,6 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.0"
     id("org.jsonschema2pojo") version "1.2.1"
     kotlin("jvm")
+    checkstyle
 }
 
 group = "faang.school"
@@ -37,6 +38,7 @@ dependencies {
      */
     implementation("org.liquibase:liquibase-core")
     implementation("redis.clients:jedis:4.3.2")
+    implementation ("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql")
 
     /**
@@ -150,4 +152,29 @@ tasks.jacocoTestCoverageVerification {
 }
 kotlin {
     jvmToolchain(17)
+}
+checkstyle {
+    toolVersion = "10.0"
+    configFile = file("config/checkstyle/checkstyle.xml")
+}
+
+tasks.checkstyleMain {
+    source = sourceSets.main.get().allJava
+    reports {
+        xml.required.set(true)
+        html.required.set(false)
+    }
+}
+
+tasks.checkstyleTest {
+    source = sourceSets.test.get().allJava
+    reports {
+        xml.required.set(true)
+        html.required.set(false)
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.checkstyleMain)
+    dependsOn(tasks.checkstyleTest)
 }

@@ -7,10 +7,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.UserDTO;
+import school.faang.user_service.dto.subscribe.UserDTO;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.exception.ParticipantRegistrationException;
+import school.faang.user_service.exceptions.ParticipantRegistrationException;
 import school.faang.user_service.mapper.UserDTOMapperImpl;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 
@@ -58,6 +58,7 @@ class EventParticipationServiceTest {
 
         // then
         verify(repository, never()).register(EVENT_ID, USER_ID);
+
         assertEquals("User already registered", exception.getMessage());
     }
 
@@ -112,6 +113,7 @@ class EventParticipationServiceTest {
 
         // when
         int actualCount = service.countParticipants(EVENT_ID);
+
 
         // then
         verify(repository).countParticipants(Mockito.anyLong());

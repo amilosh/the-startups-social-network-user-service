@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
@@ -15,10 +16,10 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalInvitation;
-import school.faang.user_service.exception.DuplicateObjectException;
-import school.faang.user_service.exception.GoalInvitationStatusException;
-import school.faang.user_service.exception.GoalInvitationValidationException;
-import school.faang.user_service.exception.ValueExceededException;
+import school.faang.user_service.exceptions.DuplicateObjectException;
+import school.faang.user_service.exceptions.GoalInvitationStatusException;
+import school.faang.user_service.exceptions.GoalInvitationValidationException;
+import school.faang.user_service.exceptions.ValueExceededException;
 import school.faang.user_service.mapper.goal.GoalInvitationMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
@@ -42,7 +43,8 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application-test.yaml")
-public class GoalInvitationServiceTest {
+@ActiveProfiles("test")
+class GoalInvitationServiceTest {
 
     @Autowired
     private GoalInvitationService goalInvitationService;
