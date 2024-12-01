@@ -49,6 +49,13 @@ public class SubscriptionService {
     }
 
     @Transactional(readOnly = true)
+    public List<Long> getFollowerIds(long followeeId) {
+        List<Long> followerIds = subscriptionRepository.findFollowerIdsByFolloweeId(followeeId);
+
+        return followerIds;
+    }
+
+    @Transactional(readOnly = true)
     public int getFollowersCount(long followeeId) {
         return subscriptionRepository.findFollowersAmountByFolloweeId(followeeId);
     }

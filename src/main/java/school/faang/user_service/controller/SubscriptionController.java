@@ -47,6 +47,12 @@ public class SubscriptionController {
         return userMapper.toUserResponseShortDtos(followers);
     }
 
+    @GetMapping("/{followeeId}/followerIds")
+    public List<Long> getFollowerIds(@PathVariable long followeeId) {
+        List<Long> followers = subscriptionService.getFollowerIds(followeeId);
+        return followers;
+    }
+
     @GetMapping("/{followeeId}/followers/count")
     public UserAmountDto getFollowersCount(@PathVariable long followeeId) {
         UserAmountDto userAmountDto = new UserAmountDto();
