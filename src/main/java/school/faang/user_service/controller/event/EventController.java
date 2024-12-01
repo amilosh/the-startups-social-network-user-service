@@ -52,7 +52,7 @@ public class EventController {
         return eventService.updateEvent(event);
     }
 
-    @GetMapping("{userId}")
+    @GetMapping("/by-user/{userId}")
     public ResponseEntity<List<EventDto>> getOwnedEvents(@RequestBody @NotNull @PathVariable Long userId) {
         return eventService.getOwnedEvents(userId);
     }
