@@ -22,8 +22,8 @@ public class RedisConfig {
 
     @Bean
     public JedisConnectionFactory jedisConnectionFactory() {
-        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(redisProperties.getHost()
-                , redisProperties.getPort());
+        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(redisProperties.host()
+                , redisProperties.port());
         return new JedisConnectionFactory(redisStandaloneConfiguration);
     }
 
@@ -43,7 +43,7 @@ public class RedisConfig {
 
     @Bean
     public ChannelTopic topic() {
-        return new ChannelTopic(redisProperties.getUserBanTopic());
+        return new ChannelTopic(redisProperties.userBanTopic());
     }
 
     @Bean
