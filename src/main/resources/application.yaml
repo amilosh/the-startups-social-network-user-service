@@ -47,8 +47,10 @@ payment-service:
   url: http://${payment-service.host}:${payment-service.port}${payment-service.base-path}
 
 app:
-  goal:
-    max-active-per-user: 3
+  event:
+    batch:
+      size: 10
+    cron: "0 0 0 * * *"
   promotion:
     user_promotion_views_decrement_cron: '*/10 * * * * *'
     event__promotion_views_decrement_cron: '*/10 * * * * *'
