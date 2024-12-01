@@ -19,8 +19,11 @@ import java.io.InputStream;
 public class ImageUtils {
 
     public InputStream bufferedImageToInputStream(BufferedImage image, MultipartFile file) {
+        log.debug("Trying to get BufferedImage InputStream");
+
         String fileName = file.getOriginalFilename();
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
+
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             ImageIO.write(image, extension, outputStream);
@@ -31,21 +34,21 @@ public class ImageUtils {
     }
 
     public BufferedImage resizeImage(BufferedImage bufferedImage, int maxSideSize) {
+        log.debug("Trying to resize image");
         try {
             return Thumbnails.of(bufferedImage)
                     .size(maxSideSize, maxSideSize)
                     .asBufferedImage();
         } catch (IOException ex) {
-            log.error(ex.getMessage());
             throw new ImageProcessingException("An error occurred when converting MultiPartFile to BufferedImage");
         }
     }
 
     public BufferedImage convertMultiPartFileToBufferedImage(MultipartFile file) {
+        log.debug("Trying to convert multipart file to buffered image");
         try {
             return ImageIO.read(file.getInputStream());
         } catch (IOException ex) {
-            log.error(ex.getMessage());
             throw new ImageProcessingException("An error occurred when converting MultiPartFile to BufferedImage");
         }
     }

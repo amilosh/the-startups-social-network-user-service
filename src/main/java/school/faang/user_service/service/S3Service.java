@@ -25,21 +25,26 @@ public class S3Service {
     private String bucketName;
 
     public String uploadImage(MultipartFile originalFile, String folderName, String fileName, BufferedImage img) {
+        log.debug("Trying to upload image to S3");
+
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(originalFile.getContentType());
         String key = String.format("%s/%s", folderName, fileName);
-        PutObjectRequest request =
-                new PutObjectRequest(bucketName, key, imageUtils.bufferedImageToInputStream(img, originalFile), objectMetadata);
+
+        PutObjectRequest request = new PutObjectRequest(bucketName, key,
+                imageUtils.bufferedImageToInputStream(img, originalFile), objectMetadata);
         s3Client.putObject(request);
 
         return key;
     }
 
     public InputStreamResource getFile(String key) {
+        log.debug("Trying to get image from S3");
         return new InputStreamResource(s3Client.getObject(bucketName, key).getObjectContent());
     }
 
     public void deleteFiles(String... keys) {
+        log.debug("Trying to delete files from S3");
         DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName)
                 .withKeys(keys);
         s3Client.deleteObjects(deleteObjectsRequest);

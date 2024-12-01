@@ -208,13 +208,6 @@ public class User {
         }
     }
 
-    public void addUserProfilePic(String fileId, String smallFileId) {
-        UserProfilePic userProfilePic = new UserProfilePic();
-        userProfilePic.setSmallFileId(smallFileId);
-        userProfilePic.setFileId(fileId);
-        this.userProfilePic = userProfilePic;
-    }
-
     public void deleteUserProfilePic() {
         this.userProfilePic = null;
     }

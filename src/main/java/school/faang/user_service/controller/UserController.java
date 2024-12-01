@@ -3,13 +3,24 @@ package school.faang.user_service.controller;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.dto.UserProfilePicDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.service.UserService;
 
@@ -30,5 +41,25 @@ public class UserController {
     @PostMapping("/get")
     public List<UserSubResponseDto> getUsersByIds(@NotEmpty @RequestBody List<@Positive Long> ids) {
         return userService.getAllUsersDtoByIds(ids);
+    }
+
+    @PutMapping("/{userId}/avatar")
+    public UserProfilePicDto updateAvatar(@PathVariable("userId") @Positive long userId,
+                                          @RequestPart MultipartFile file) {
+        return userService.updateUserProfilePicture(userId, file);
+    }
+
+    @GetMapping("/{userId}/avatar")
+    public ResponseEntity<InputStreamResource> getAvatar(@PathVariable("userId") @Positive long userId) {
+        InputStreamResource file = userService.getUserAvatar(userId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        return new ResponseEntity<>(file, headers, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{userId}/avatar")
+    public void deleteAvatar(@PathVariable("userId") @Positive long userId) {
+        userService.deleteUserAvatar(userId);
     }
 }

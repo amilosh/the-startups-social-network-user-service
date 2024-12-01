@@ -32,10 +32,8 @@ import static org.mockito.Mockito.when;
 public class UserProfilePicServiceTest {
 
     @InjectMocks
-    private UserProfilePicService userProfilePicService;
-
-    @Mock
     private UserService userService;
+
     @Mock
     private S3Service s3Service;
     @Mock
@@ -69,7 +67,7 @@ public class UserProfilePicServiceTest {
         when(imageUtils.resizeImage(any(), anyInt())).thenReturn(bufferedImage);
         when(imageUtils.convertMultiPartFileToBufferedImage(multipartFile)).thenReturn(bufferedImage);
 
-        userProfilePicService.updateUserProfilePicture(user.getId(), multipartFile);
+        userService.updateUserProfilePicture(user.getId(), multipartFile);
 
         verify(imageUtils, times(1)).convertMultiPartFileToBufferedImage(multipartFile);
         verify(imageUtils, times(2)).resizeImage(any(), anyInt());
@@ -85,7 +83,7 @@ public class UserProfilePicServiceTest {
                 "text/plain", new byte[10000]);
 
         assertThrows(DataValidationException.class, () ->
-                userProfilePicService.updateUserProfilePicture(user.getId(), file));
+                userService.updateUserProfilePicture(user.getId(), file));
 
         verify(userService).getUserById(any());
     }
@@ -95,7 +93,7 @@ public class UserProfilePicServiceTest {
         when(userService.getUserById(anyLong())).thenReturn(user);
         when(s3Service.getFile(any())).thenReturn(new InputStreamResource(new ByteArrayInputStream(new byte[0])));
 
-        userProfilePicService.getUserAvatar(1L);
+        userService.getUserAvatar(1L);
 
         verify(userService).getUserById(anyLong());
         verify(s3Service).getFile(any());
@@ -108,7 +106,7 @@ public class UserProfilePicServiceTest {
         when(userService.getUserById(anyLong())).thenReturn(user);
         when(userService.updateUser(user)).thenReturn(user);
 
-        userProfilePicService.deleteUserAvatar(user.getId());
+        userService.deleteUserAvatar(user.getId());
 
         verify(userService).getUserById(anyLong());
         verify(userService).updateUser(user);
