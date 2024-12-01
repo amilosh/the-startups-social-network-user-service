@@ -1,8 +1,5 @@
 package school.faang.user_service.service.user;
 
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -124,6 +121,13 @@ public class UserService {
         UserJira userJira = userJiraService.getByUserIdAndJiraDomain(userId, jiraDomain);
         log.info("Found user (ID {}) Jira account information for Jira domain {}", userId, jiraDomain);
         return userJiraMapper.toDto(userJira);
+    }
+
+    public void banUser(Long userId) {
+        User user = findUserById(userId);
+        user.setBanned(true);
+        log.info("User {} is banned", userId);
+        userRepository.save(user);
     }
 
     private User findUserById(long userId) {

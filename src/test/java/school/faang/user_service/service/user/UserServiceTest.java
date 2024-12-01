@@ -3,6 +3,8 @@ package school.faang.user_service.service.user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -73,6 +75,19 @@ class UserServiceTest {
     private UserService userService;
 
     private List<UserFilter> userFilters;
+
+    @Captor
+    ArgumentCaptor<User> userCaptor;
+
+    @BeforeEach
+    void setUp() {
+        UserFilter userEmailFilter = mock(UserEmailFilter.class);
+        UserFilter userNameFilter = mock(UserNameFilter.class);
+        userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
+        userMapper = new UserMapperImpl();
+
+        userService = new UserService(userRepository, userFilters, userMapper, userJiraMapper, userJiraService);
+    }
 
     @Test
     void getUserTest() {
@@ -348,6 +363,19 @@ class UserServiceTest {
         List<UserDto> actualUsers = userService.getNotPremiumUsers(filterDto);
 
         assertEquals(new ArrayList<>(), actualUsers);
+    }
+
+    @Test
+    public void banUserTest() {
+        User user = new User();
+        user.setId(1L);
+        user.setBanned(false);
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        userService.banUser(user.getId());
+
+        verify(userRepository, times(1)).save(userCaptor.capture());
+        assertEquals(true, userCaptor.getValue().getBanned());
     }
 
     @Test
