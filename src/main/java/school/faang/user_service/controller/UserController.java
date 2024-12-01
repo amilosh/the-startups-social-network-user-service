@@ -1,5 +1,9 @@
 package school.faang.user_service.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.ProcessResultDto;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.service.UserService;
 import school.faang.user_service.validator.CsvFile;
 import school.faang.user_service.validator.UserValidator;
@@ -53,5 +58,21 @@ public class UserController {
     public ResponseEntity<UserDto> deactivateProfile(@PathVariable @Positive long userId) {
         userValidator.validateUserById(userId);
         return ResponseEntity.ok(userService.deactivateProfile(userId));
+    }
+
+    @GetMapping
+    @Operation(summary = "Get all users", description = "Retrieve a list of users with optional filtering and pagination")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved list of users")
+    public List<UserDto> getAllUsers(
+            @Valid UserFilterDto filter) {
+        return userService.getAllUsers(filter);
+    }
+
+    @GetMapping("/premium")
+    @Operation(summary = "Get premium users", description = "Retrieve a list of premium users with optional filtering and pagination")
+    @ApiResponse(responseCode = "200", description = "Successfully retrieved list premium users")
+    public List<UserDto> getPremiumUsers(
+            @Valid UserFilterDto filter) {
+        return userService.getPremiumUsers(filter);
     }
 }
