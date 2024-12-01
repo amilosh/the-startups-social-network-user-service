@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import school.faang.user_service.config.scheduler.SchedulerConfig;
 import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.dto.EventFilterDto;
 import school.faang.user_service.dto.SkillDto;
@@ -60,6 +61,9 @@ class EventServiceTest {
     @Mock
     private SkillMapper skillMapper;
 
+    @Mock
+    private SchedulerConfig schedulerConfig;
+
     @InjectMocks
     private EventService eventService;
 
@@ -79,7 +83,7 @@ class EventServiceTest {
     @BeforeEach
     public void setUp() {
         mockFilter = mock(EventFilter.class);
-        eventService = new EventService(eventRepository, userRepository, userService, eventMapper, skillMapper, List.of(mockFilter));
+        eventService = new EventService(eventRepository, userRepository, userService, eventMapper, skillMapper, List.of(mockFilter), schedulerConfig);
 
         skillDto1 = SkillDto.builder().id(1L).title("Java").build();
         skillDto2 = SkillDto.builder().id(2L).title("Spring").build();
@@ -117,8 +121,9 @@ class EventServiceTest {
                 .relatedSkills(skillsDtos)
                 .build();
 
-        ReflectionTestUtils.setField(eventService, "batchSize", 10);
-        ReflectionTestUtils.setField(eventService, "threadPoolSize", 5);
+        ReflectionTestUtils.setField(eventService, "schedulerConfig", schedulerConfig);
+        when(schedulerConfig.getBatchSize()).thenReturn(10);
+        when(schedulerConfig.getThreadPoolSize()).thenReturn(5);
     }
 
     @Test

@@ -3,9 +3,9 @@ package school.faang.user_service.service;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+import school.faang.user_service.config.scheduler.SchedulerConfig;
 import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.dto.EventFilterDto;
 import school.faang.user_service.dto.SkillDto;
@@ -39,12 +39,7 @@ public class EventService {
     private final EventMapper eventMapper;
     private final SkillMapper skillMapper;
     private final List<EventFilter> eventFilters;
-
-    @Value("${scheduler.batch-size}")
-    private int batchSize;
-
-    @Value("${scheduler.thread-pool-size}")
-    private int threadPoolSize;
+    private final SchedulerConfig schedulerConfig;
 
     public EventDto create(EventDto eventDto) {
         log.info("Creating event:{}", eventDto.toLogString());
@@ -162,10 +157,17 @@ public class EventService {
     }
 
     public void clearPastEvents() {
+        int batchSize = schedulerConfig.getBatchSize();
+        int threadPoolSize = schedulerConfig.getThreadPoolSize();
+        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
+
         List<Event> pastEvents = eventRepository.findByEndDateBefore(LocalDateTime.now());
+        if (pastEvents.isEmpty()) {
+            log.info("No past events found to clear.");
+            return;
+        }
 
         int totalBatches = (int) Math.ceil((double) pastEvents.size() / batchSize);
-        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
 
         for (int i = 0; i < totalBatches; i++) {
             int start = i * batchSize;
