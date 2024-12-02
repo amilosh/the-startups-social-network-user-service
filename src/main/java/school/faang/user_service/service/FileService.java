@@ -41,7 +41,6 @@ public class FileService {
     }
 
     private File saveFile(Long userId, String fileUrl) {
-        System.out.println(userId);
         File file = File
                 .builder()
                 .userId(userId)

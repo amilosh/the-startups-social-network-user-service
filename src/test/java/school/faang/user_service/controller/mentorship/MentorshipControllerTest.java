@@ -51,8 +51,7 @@ public class MentorshipControllerTest {
     Long mentor2Id = 6L;
     Long mentor3Id = 7L;
     private UserDto userDto;
-    private UserDto userDto1
-            ;
+    private UserDto userDto1;
     private UserDto userDto2;
     private List<UserDto> userDtos;
 
@@ -168,7 +167,7 @@ public class MentorshipControllerTest {
                 .when(mentorshipService)
                 .deleteMentor(userId, deleteUserId);
 
-        mockMvc.perform(delete("/mentorship//mentees/{menteeId}/mentors/{mentorId}", userId, deleteUserId)
+        mockMvc.perform(delete("/mentorship/mentees/{menteeId}/mentors/{mentorId}", userId, deleteUserId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
