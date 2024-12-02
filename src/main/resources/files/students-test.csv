@@ -1,0 +1,2 @@
+firstName,lastName,yearOfBirth,group,studentID,email,phone,street,city,state,country,postalCode,faculty,yearOfStudy,major,GPA,status,admissionDate,graduationDate,degree,institution,completionYear,scholarship,employer
+firstName,lastName,,,,email,phone,,city,,country,,,,,,,,,,,,,

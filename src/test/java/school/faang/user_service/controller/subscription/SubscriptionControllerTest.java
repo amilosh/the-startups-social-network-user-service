@@ -108,16 +108,16 @@ class SubscriptionControllerTest {
 
         List<SubscriptionUserDto> expectedSubscriptionUserDtosList = List.of();
 
-        Mockito.when(subscriptionService.getFollowers(followeeId, subscriptionUserFilterDto))
+        Mockito.when(subscriptionService.getFilteredFollowers(followeeId, subscriptionUserFilterDto))
                 .thenReturn(expectedSubscriptionUserDtosList);
 
-        List<SubscriptionUserDto> actualSubscriptionUserDtosList = subscriptionController.getFollowers(followeeId, subscriptionUserFilterDto);
+        List<SubscriptionUserDto> actualSubscriptionUserDtosList = subscriptionController.getFilteredFollowers(followeeId, subscriptionUserFilterDto);
 
         assertEquals(expectedSubscriptionUserDtosList, actualSubscriptionUserDtosList);
 
 
         Mockito.verify(subscriptionService, Mockito.times(1))
-                .getFollowers(followeeId, subscriptionUserFilterDto);
+                .getFilteredFollowers(followeeId, subscriptionUserFilterDto);
     }
 
     @Test
