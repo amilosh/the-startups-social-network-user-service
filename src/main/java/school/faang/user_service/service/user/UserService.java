@@ -5,11 +5,14 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
@@ -17,8 +20,10 @@ import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.csv.CsvParser;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
+import school.faang.user_service.service.CountryService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -27,6 +32,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 
 @Service
 @Slf4j
@@ -38,8 +45,10 @@ public class UserService {
     private final UserMapper userMapper;
     private final UserContext userContext;
     private final AvatarService avatarService;
-    private final UserRepository userRepository;
+    private final CsvParser csvParser;
+    private final CountryService countryService;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+    private final UserRepository userRepository;
 
     public Optional<User> findById(long userId) {
         return userRepository.findById(userId);
@@ -126,5 +135,32 @@ public class UserService {
                 ).guarantor(skillOffer.getRecommendation().getAuthor())
                 .build();
         return userSkillGuaranteeRepository.save(guarantee);
+    }
+
+    public void uploadUsers(MultipartFile file) {
+        log.info("upload csv file: {} starting", file.getOriginalFilename());
+        List<Person> parsedPersons = csvParser.parseCsv(file, Person.class);
+        List<CompletableFuture<User>> futureUsers = parsedPersons.stream()
+                .map(person -> CompletableFuture.supplyAsync(() -> {
+                    User user = userMapper.toEntity(person);
+                    user.setPassword(generateRandomPassword(user));
+                    user.setCountry(countryService.getCountryOrCreateByName(user));
+                    return user;
+                }, Executors.newCachedThreadPool()))
+                .toList();
+
+        List<User> users = futureUsers.stream()
+                .map(CompletableFuture::join)
+                .toList();
+        try {
+            userRepository.saveAll(users);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalArgumentException(e.getMostSpecificCause().getLocalizedMessage());
+        }
+        log.info("success saved all users form file");
+    }
+
+    public String generateRandomPassword(User user) {
+        return user.getEmail();
     }
 }

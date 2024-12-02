@@ -1,0 +1,2 @@
+ALTER TABLE users
+    ALTER COLUMN rank_score DROP NOT NULL;

@@ -5,6 +5,8 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.user.Person;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 
 import java.util.List;
@@ -23,5 +25,21 @@ public interface UserMapper {
     @Named("mapToId")
     default List<Long> map(List<User> users) {
         return users.stream().map(User::getId).toList();
+    }
+
+    default User toEntity(Person person) {
+        return User.builder()
+                .username(String.format(person.getFirstName() + person.getLastName()))
+                .email(person.getEmail())
+                .phone(person.getPhone())
+                .city(person.getCity())
+                .country(Country.builder().title(person.getCountry()).build())
+                .aboutMe(
+                        String.format("state: " + person.getState() +
+                                "faculty: " + person.getFaculty() +
+                                "year of study: " + person.getYearOfStudy() +
+                                "major: " + person.getMajor() +
+                                "employer: " + person.getEmployer()))
+                .build();
     }
 }

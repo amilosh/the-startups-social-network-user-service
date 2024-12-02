@@ -24,8 +24,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -123,7 +121,7 @@ public class SkillServiceTest {
                 .thenReturn(Optional.of(Skill.builder().guarantees(new ArrayList<>()).build()));
         when(skillOfferRepository.findAllOffersOfSkill(anyLong(), anyLong()))
                 .thenReturn(List.of(new SkillOffer(), new SkillOffer(), new SkillOffer()
-                , new SkillOffer()));
+                        , new SkillOffer()));
         skillService.acquireSkillFromOffers(anyLong(), anyLong());
         verify(skillRepository).assignSkillToUser(anyLong(), anyLong());
     }

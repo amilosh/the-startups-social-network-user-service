@@ -41,7 +41,7 @@ public class SkillService {
         }
     }
 
-    public List<SkillDto> getUserSkills(long userId){
+    public List<SkillDto> getUserSkills(long userId) {
         List<Skill> skills = skillRepository.findAllByUserId(userId);
         return skillMapper.toDto(skills);
     }

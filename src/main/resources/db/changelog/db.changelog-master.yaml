@@ -17,3 +17,5 @@ databaseChangeLog:
       file: db/changelog/changeset/user_V008__update_user_premium_add_premium_type.sql
   - include:
       file: db/changelog/changeset/user_V009__update_users_add_rank_score.sql
+  - include:
+      file: db/changelog/changeset/user_V010__update_users_drop_not_null_rank_score.sql
