@@ -24,6 +24,7 @@ import school.faang.user_service.mapper.csv.CsvParser;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.service.CountryService;
+import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -42,12 +43,13 @@ public class UserService {
     private final static int BATCH_SIZE = 50;
     @PersistenceContext
     private final EntityManager entityManager;
-    private final UserRepository userRepository;
+    private final UserMapper userMapper;
     private final UserContext userContext;
     private final AvatarService avatarService;
-    private final UserMapper userMapper;
     private final CsvParser csvParser;
     private final CountryService countryService;
+    private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
+    private final UserRepository userRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
     public Optional<User> findById(long userId) {
@@ -123,6 +125,18 @@ public class UserService {
         return users.stream()
                 .map(userMapper::toDto)
                 .toList();
+    }
+
+    public boolean existsById(Long userId) {
+        return userRepository.existsById(userId);
+    }
+
+    public UserSkillGuarantee addGuaranty(long userId, SkillOffer skillOffer) {
+        UserSkillGuarantee guarantee = UserSkillGuarantee.builder().user(
+                        userRepository.findById(userId).get()
+                ).guarantor(skillOffer.getRecommendation().getAuthor())
+                .build();
+        return userSkillGuaranteeRepository.save(guarantee);
     }
 
     public void uploadUsers(MultipartFile file) {

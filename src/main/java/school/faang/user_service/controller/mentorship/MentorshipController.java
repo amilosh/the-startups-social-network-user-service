@@ -1,6 +1,6 @@
 package school.faang.user_service.controller.mentorship;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +24,15 @@ public class MentorshipController {
     private final MentorshipService mentorshipService;
 
     @GetMapping("/mentees/{userId}")
-    public List<UserDto> getMentees(@RequestBody @NotNull @PathVariable Long userId, @RequestBody(required = false) UserFilterDto filters) {
-        return mentorshipService.getMentees(userId, filters);
+    public ResponseEntity<List<UserDto>> getMentees(@PathVariable @Valid Long userId, @RequestBody(required = false) UserFilterDto filters) {
+        List<UserDto> mentees = mentorshipService.getMentees(userId, filters);
+        return ResponseEntity.ok(mentees);
     }
 
     @GetMapping("/mentors/{userId}")
-    public List<UserDto> getMentors(@RequestBody @NotNull @PathVariable Long userId, @RequestBody(required = false) UserFilterDto filters) {
-        return mentorshipService.getMentors(userId, filters);
+    public ResponseEntity<List<UserDto>> getMentors(@RequestBody @Valid @PathVariable Long userId, @RequestBody(required = false) UserFilterDto filters) {
+        List<UserDto> mentors = mentorshipService.getMentors(userId, filters);
+        return ResponseEntity.ok(mentors);
     }
 
     @DeleteMapping("/mentee/{menteeId}/{mentorId}")
