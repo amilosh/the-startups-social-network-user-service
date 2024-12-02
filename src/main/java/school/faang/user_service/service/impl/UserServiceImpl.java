@@ -17,7 +17,6 @@ import school.faang.user_service.model.dto.EducationDto;
 import school.faang.user_service.model.dto.PersonDto;
 import school.faang.user_service.model.dto.UserDto;
 import school.faang.user_service.model.dto.UserWithFollowersDto;
-import school.faang.user_service.model.dto.UserWithoutFollowersDto;
 import school.faang.user_service.model.entity.Country;
 import school.faang.user_service.model.entity.Event;
 import school.faang.user_service.model.entity.Goal;
@@ -442,12 +441,5 @@ public class UserServiceImpl implements UserService {
         userWithFollowersDto.setFollowerIds(followerIds);
 
         return userWithFollowersDto;
-    }
-
-    @Override
-    public UserWithoutFollowersDto getUserWithoutFollowers(Long userId) {
-        validator.validateUser(userContext.getUserId(), userId);
-        return userRepository.findUserWithoutFollowers(userId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("User with id = %d not found", userId)));
     }
 }

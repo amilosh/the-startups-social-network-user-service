@@ -14,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,13 +24,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.model.dto.UserDto;
 import school.faang.user_service.model.dto.UserWithFollowersDto;
-import school.faang.user_service.model.dto.UserWithoutFollowersDto;
 import school.faang.user_service.model.filter_dto.user.UserFilterDto;
 import school.faang.user_service.service.UserService;
 
@@ -80,13 +79,6 @@ public class UserController {
     @GetMapping("/{userId}/with-followers")
     public UserWithFollowersDto getUserWithFollowers(@PathVariable @NotNull long userId) {
         return userService.getUserWithFollowers(userId);
-    }
-
-    @Parameter(name = "x-user-id", in = ParameterIn.HEADER, required = true,
-            description = "ID of the user making the request", schema = @Schema(type = "string"))
-    @GetMapping("/{userId}/without-followers")
-    public UserWithoutFollowersDto getUserWithoutFollowers(@PathVariable @NotNull long userId) {
-        return userService.getUserWithoutFollowers(userId);
     }
 
     @PostMapping()
