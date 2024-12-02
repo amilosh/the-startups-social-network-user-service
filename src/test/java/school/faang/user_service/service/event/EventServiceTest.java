@@ -118,7 +118,7 @@ public class EventServiceTest {
     @Test
     public void testWithNoRequiredSkills() {
         List<Long> skillId = List.of(1L, 3L, 6L);
-        List<SkillDto> relatedSkills = List.of(new SkillDto(1L), new SkillDto(3L), new SkillDto(6L));
+        List<SkillDto> relatedSkills = List.of(new SkillDto(1L, ""), new SkillDto(3L, ""), new SkillDto(6L, ""));
         when(eventDto.getRelatedSkills()).thenReturn(relatedSkills);
         when(skillRepository.findAllByUserId(eventDto.getOwnerId()))
                 .thenReturn(new ArrayList<>());
