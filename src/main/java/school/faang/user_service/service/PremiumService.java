@@ -3,6 +3,7 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.client.PaymentServiceClient;
 import school.faang.user_service.client.payment.Currency;
 import school.faang.user_service.client.payment.PaymentRequest;
@@ -14,6 +15,7 @@ import school.faang.user_service.mapper.PremiumMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.validator.PaymentValidator;
 import school.faang.user_service.validator.PremiumValidator;
+import school.faang.user_service.validator.UserValidator;
 
 import java.time.LocalDateTime;
 
@@ -27,8 +29,11 @@ public class PremiumService {
     private final PaymentValidator paymentValidator;
     private final PremiumMapper premiumMapper;
     private final PaymentServiceClient paymentServiceClient;
+    private final UserValidator userValidator;
 
+    @Transactional
     public PremiumDto buyPremium(long userId, PremiumPeriod premiumPeriod) {
+        userValidator.validateUserById(userId);
         premiumValidator.validateUserIsNotPremium(userId);
         PaymentResponse response = paymentServiceClient.sentPayment(createPaymentRequest(premiumPeriod));
         paymentValidator.checkIfPaymentSuccess(response);
@@ -38,6 +43,7 @@ public class PremiumService {
     }
 
     private Premium createPremium(long userId, PremiumPeriod premiumPeriod) {
+        userValidator.validateUserById(userId);
         return Premium.builder()
                 .user(userService.findUserById(userId))
                 .startDate(LocalDateTime.now())

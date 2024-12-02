@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import school.faang.user_service.dto.UserDto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -19,8 +19,8 @@ public class PremiumDto {
     private UserDto userDto;
 
     @NotNull(message = "Start date can not be null")
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     @NotNull(message = "End date can not be null")
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 }
