@@ -3,22 +3,30 @@ package school.faang.user_service.service.user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
+import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
+import school.faang.user_service.dto.user_jira.UserJiraDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.userJira.UserJira;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.mapper.user_jira.UserJiraMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.filter.user.UserEmailFilter;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNameFilter;
 import school.faang.user_service.mapper.user.UserMapperImpl;
+import school.faang.user_service.service.user_jira.UserJiraService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -27,6 +35,7 @@ import java.util.List;
 import java.util.stream.Stream;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -46,10 +55,19 @@ class UserServiceTest {
     private UserRepository userRepository;
 
     @Spy
-    UserMapper userMapper;
+    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+
+    @Spy
+    private UserJiraMapper userJiraMapper = Mappers.getMapper(UserJiraMapper.class);
+
+    @Mock
+    private UserJiraService userJiraService;
 
     private UserService userService;
     private List<UserFilter> userFilters;
+
+    @Captor
+    ArgumentCaptor<User> userCaptor;
 
     @BeforeEach
     void setUp() {
@@ -58,7 +76,7 @@ class UserServiceTest {
         userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
         userMapper = new UserMapperImpl();
 
-        userService = new UserService(userRepository, userFilters, userMapper);
+        userService = new UserService(userRepository, userFilters, userMapper, userJiraMapper, userJiraService);
     }
 
     @Test
@@ -182,6 +200,50 @@ class UserServiceTest {
     }
 
     @Test
+    void saveOrUpdateUserJiraInfoTest() {
+        long userId = 1L;
+        User user = new User();
+        user.setId(userId);
+        String jiraDomain = "itmad1x";
+        String jiraEmail = "mad1x@example.com";
+        String jiraAccountId = "oiu1293oi5yuh1i2u5yh1i92u5h1";
+        String jiraToken = "921804vk019248v10928v40129v8412908v412980v4218-90v41204";
+        UserJiraCreateUpdateDto createUpdateDto = UserJiraCreateUpdateDto.builder()
+                .jiraEmail(jiraEmail)
+                .jiraAccountId(jiraAccountId)
+                .jiraToken(jiraToken)
+                .build();
+        UserJira userJira = userJiraMapper.toEntity(createUpdateDto);
+        userJira.setJiraDomain(jiraDomain);
+        userJira.setUser(user);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userJiraService.saveOrUpdate(userJira)).thenReturn(userJira);
+
+        UserJiraDto responseDto = assertDoesNotThrow(() -> userService.saveOrUpdateUserJiraInfo(userId, jiraDomain, createUpdateDto));
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(userJiraService, times(1)).saveOrUpdate(userJira);
+
+        assertEquals(userId, responseDto.getUserId());
+        assertEquals(jiraDomain, responseDto.getJiraDomain());
+        assertEquals(jiraEmail, responseDto.getJiraEmail());
+        assertEquals(jiraAccountId, responseDto.getJiraAccountId());
+        assertEquals(jiraToken, responseDto.getJiraToken());
+    }
+
+    @Test
+    void getUserJiraInfoTest() {
+        long userId = 1L;
+        String jiraDomain = "itmad1x";
+        when(userJiraService.getByUserIdAndJiraDomain(userId, jiraDomain)).thenReturn(new UserJira());
+
+        assertDoesNotThrow(() -> userService.getUserJiraInfo(userId, jiraDomain));
+
+        verify(userJiraService, times(1)).getByUserIdAndJiraDomain(userId, jiraDomain);
+    }
+
+    @Test
     void getPremiumUsersTest() {
         long firstUserId = 1L;
         long secondUserId = 2L;
@@ -284,25 +346,38 @@ class UserServiceTest {
     }
 
     @Test
-    public void handleUserBanMessageTest() {
-        String message = "1";
+    public void banUserTest() {
         User user = new User();
         user.setId(1L);
         user.setBanned(false);
-        when(userRepository.findById(Long.valueOf(message))).thenReturn(Optional.of(user));
-        userService.handleUserBanMessage(message);
-        verify(userRepository, times(1)).findById(Long.valueOf(message));
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        userService.banUser(user.getId());
+
+        verify(userRepository, times(1)).save(userCaptor.capture());
+        assertEquals(true, userCaptor.getValue().isBanned());
+    }
+
+    @Test
+    public void handleUserBanMessageTest() {
+        Long userId = 1L;
+        User user = new User();
+        user.setId(1L);
+        user.setBanned(false);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        userService.handleUserBanMessage(userId);
+        verify(userRepository, times(1)).findById(userId);
         verify(userRepository, times(1)).save(Mockito.any());
         assertTrue(user.isBanned());
     }
 
     @Test
     public void handleUserBanMessageThrowsTest() {
-        String message = "1";
-        when(userRepository.findById(Long.valueOf(message))).thenThrow(IllegalArgumentException.class);
+        Long userId = 1L;
+        when(userRepository.findById(userId)).thenThrow(IllegalArgumentException.class);
         assertThrows(
                 IllegalArgumentException.class,
-                () -> userService.handleUserBanMessage(message)
+                () -> userService.handleUserBanMessage(userId)
         );
     }
 
