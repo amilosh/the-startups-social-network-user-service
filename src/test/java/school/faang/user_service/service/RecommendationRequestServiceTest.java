@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import school.faang.user_service.dto.RecommendationRequestDto;
 import school.faang.user_service.dto.RejectionDto;
@@ -35,7 +36,8 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application-test.yaml")
-public class RecommendationRequestServiceTest {
+@ActiveProfiles("test")
+class RecommendationRequestServiceTest {
     @Autowired
     private RecommendationRequestService recommendationRequestService;
 
@@ -57,11 +59,11 @@ public class RecommendationRequestServiceTest {
     @MockBean
     private SkillRequestRepository skillRequestRepository;
 
-    @Value("${max-month-limit-recommendation-request}")
+    @Value("${application.constants.max-month-limit-recommendation-request}")
     private int maxMonthLimitRecommendationRequest;
 
     @Test
-    public void testCreateRecommendationRequestRequesterNotFound() {
+    void testCreateRecommendationRequestRequesterNotFound() {
         RecommendationRequestDto dto = createRecommendationRequestDto(1L, 2L);
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(EntityNotFoundException.class, () -> recommendationRequestService.create(dto));
@@ -71,7 +73,7 @@ public class RecommendationRequestServiceTest {
     }
 
     @Test
-    public void testCreateRecommendationRequestReceiverNotFound() {
+    void testCreateRecommendationRequestReceiverNotFound() {
         RecommendationRequestDto dto = createRecommendationRequestDto(1L, 2L);
         User requester = createUser(1L);
         when(userRepository.findById(1L)).thenReturn(Optional.of(requester));
@@ -84,7 +86,7 @@ public class RecommendationRequestServiceTest {
     }
 
     @Test
-    public void testCreateRecRequestWhenSkillsNotFound() {
+    void testCreateRecRequestWhenSkillsNotFound() {
         RecommendationRequestDto dto = createRecommendationRequestDto(1L, 2L);
         dto.setCreatedAt(LocalDateTime.of(2024, 3, 30, 12, 22));
         dto.setSkillIds(List.of(1L, 2L, 3L));
@@ -108,7 +110,7 @@ public class RecommendationRequestServiceTest {
     }
 
     @Test
-    public void testCreateRecommendationRequestMessageIsEmpty() {
+    void testCreateRecommendationRequestMessageIsEmpty() {
         User requester = createUser(1L);
         User receiver = createUser(2L);
         LocalDateTime now = LocalDateTime.now();
@@ -132,7 +134,7 @@ public class RecommendationRequestServiceTest {
     }
 
     @Test
-    public void testCreateRecRequestSendingRequestNotAllowed() {
+    void testCreateRecRequestSendingRequestNotAllowed() {
         RecommendationRequestDto dto = createRecommendationRequestDto(1L, 2L);
         dto.setCreatedAt(LocalDateTime.of(2024, 6, 30, 12, 22));
         User requester = createUser(dto.getRequesterId());
@@ -154,8 +156,8 @@ public class RecommendationRequestServiceTest {
         verifyNoMoreInteractions(userRepository, recommendationRequestRepository);
     }
 
-        @Test
-    public void testCreateRecommendationRequestSuccessfully() {
+    @Test
+    void testCreateRecommendationRequestSuccessfully() {
         RecommendationRequestDto dto = createRecommendationRequestDto(1L, 2L);
         User requester = createUser(dto.getRequesterId());
         User receiver = createUser(dto.getReceiverId());
@@ -193,7 +195,7 @@ public class RecommendationRequestServiceTest {
     }
 
     @Test
-    public void testGetRecommendationRequestsMessageNotNull() {
+    void testGetRecommendationRequestsMessageNotNull() {
         RequestFilterDto filter = new RequestFilterDto();
         filter.setMessagePattern("Please, accept my request!");
         List<RecommendationRequest> recommendationRequests = getRecommendationRequests();
@@ -208,7 +210,7 @@ public class RecommendationRequestServiceTest {
     }
 
     @Test
-    public void testGetRecommendationRequestsAllNull() {
+    void testGetRecommendationRequestsAllNull() {
         RequestFilterDto filter = new RequestFilterDto();
         List<RecommendationRequest> requests = getRecommendationRequests();
 
@@ -225,7 +227,7 @@ public class RecommendationRequestServiceTest {
     }
 
     @Test
-    public void testGetRecommendationRequestsSumValuesNull() {
+    void testGetRecommendationRequestsSumValuesNull() {
         RequestFilterDto filter = new RequestFilterDto();
         filter.setRequesterId(1L);
         filter.setCreatedAt(LocalDateTime.of(2024, 3, 30, 12, 22));
@@ -244,7 +246,7 @@ public class RecommendationRequestServiceTest {
     }
 
     @Test
-    public void testGetRecommendationRequestNull() {
+    void testGetRecommendationRequestNull() {
         when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.empty());
         assertThrows(EntityNotFoundException.class, () -> recommendationRequestService.getRequest(1L));
 
@@ -253,7 +255,7 @@ public class RecommendationRequestServiceTest {
     }
 
     @Test
-    public void testGetRecommendationRequestSuccessfully() {
+    void testGetRecommendationRequestSuccessfully() {
         RecommendationRequest request = new RecommendationRequest();
         request.setId(1L);
         when(recommendationRequestRepository.findById(1L)).thenReturn(Optional.of(request));
@@ -268,7 +270,7 @@ public class RecommendationRequestServiceTest {
     }
 
     @Test
-    public void testRejectRecommendationRequestEntityNotFound() {
+    void testRejectRecommendationRequestEntityNotFound() {
         RejectionDto dto = new RejectionDto();
         dto.setId(1L);
         dto.setRequesterId(1L);
@@ -284,7 +286,7 @@ public class RecommendationRequestServiceTest {
     }
 
     @Test
-    public void testRejectRecommendationRequestWithoutPendingStatus() {
+    void testRejectRecommendationRequestWithoutPendingStatus() {
         User requester = createUser(1L);
         User receiver = createUser(2L);
         RejectionDto rejectionDto = new RejectionDto();
@@ -305,7 +307,7 @@ public class RecommendationRequestServiceTest {
     }
 
     @Test
-    public void testRejectRecommendationRequestSuccessfully() {
+    void testRejectRecommendationRequestSuccessfully() {
         User requester = createUser(1L);
         User receiver = createUser(2L);
         RejectionDto rejectionDto = new RejectionDto();

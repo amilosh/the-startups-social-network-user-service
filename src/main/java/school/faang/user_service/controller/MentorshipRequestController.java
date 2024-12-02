@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import school.faang.user_service.dto.MentorshipRequestDto;
 import school.faang.user_service.dto.RejectionDto;
 import school.faang.user_service.dto.RequestFilterDto;
-import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.service.MentorshipRequestService;
 
 import java.util.List;

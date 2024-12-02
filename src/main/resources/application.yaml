@@ -41,11 +41,11 @@ payment-service:
   host: localhost
   port: 9080
 
-max-month-limit-recommendation-request: 6
 
 application:
   constants:
     max-active-goals-count: 3
+    max-month-limit-recommendation-request: 6
   skill:
     minOffersRequired: 3
 

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
@@ -42,7 +43,8 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @TestPropertySource(locations = "classpath:application-test.yaml")
-public class GoalInvitationServiceTest {
+@ActiveProfiles("test")
+class GoalInvitationServiceTest {
 
     @Autowired
     private GoalInvitationService goalInvitationService;
