@@ -136,4 +136,15 @@ public class UserService {
     private void removeOwnedEvents(User user) {
         user.getOwnedEvents().removeIf(event -> event.getStatus() == EventStatus.CANCELED);
     }
+
+    @Transactional
+    public void banUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+        if (user.getBanned()) {
+            throw new IllegalArgumentException("User is already banned");
+        }
+        user.setBanned(true);
+        userRepository.save(user);
+    }
 }

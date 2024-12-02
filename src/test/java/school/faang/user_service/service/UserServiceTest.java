@@ -637,4 +637,18 @@ class UserServiceTest {
         assertThrows(EntityNotFoundException.class, () -> userService.findUserById(1L));
         verify(userRepository, times(1)).findById(1L);
     }
+
+    @Test
+    void testBanUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setBanned(false);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        userService.banUser(1L);
+
+        assertTrue(user.getBanned());
+        verify(userRepository, times(1)).save(user);
+    }
 }
