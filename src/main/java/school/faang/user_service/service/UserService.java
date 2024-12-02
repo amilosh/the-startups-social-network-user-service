@@ -11,6 +11,7 @@ import school.faang.user_service.dto.user.UserDto;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.events.BanUserEvent;
 import school.faang.user_service.mapper.CreateUserMapper;
 import school.faang.user_service.mapper.PersonMapper;
 import school.faang.user_service.mapper.UserMapper;
@@ -35,16 +36,14 @@ public class UserService {
     private final UserMapper userMapper;
     private final PersonMapper personMapper;
     private final UserServiceValidator validator;
-
     private final CsvMapper csvMapper;
-
     private final CountryService countryService;
-
     private final CreateUserMapper createUserMapper;
-
     private final S3Service s3Service;
+    private final UserServiceValidator userServiceValidator;
 
     private final AvatarService avatarService;
+
     public List<UserDto> uploadCsvUsers(MultipartFile file) {
         List<Person> persons = fromCsv(file);
 
@@ -119,17 +118,33 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
+    public UserDto banUser(BanUserEvent banUserEvent) {
+        userServiceValidator.validateBanUserEvent(banUserEvent);
+
+        User user = getUserById(banUserEvent.getUserId());
+        long messageCount = user.getMessages() + banUserEvent.getCommentCount();
+        user.setMessages(messageCount);
+
+        if (messageCount > 5) {
+            user.setBanned(true);
+        }
+        userRepository.save(user);
+
+        return userMapper.toDto(user);
+    }
+
     public String getAvatarUrl(long userId) {
         User user = getUserById(userId);
         String ulrOrKey = user.getUserProfilePic().getFileId();
 
-        if(isValidURL(ulrOrKey)){
+        if (isValidURL(ulrOrKey)) {
             return ulrOrKey;
         }
 
         return s3Service.generatePresignedUrl(ulrOrKey);
 
     }
+
     private static boolean isValidURL(String urlString) {
         try {
             new URL(urlString);

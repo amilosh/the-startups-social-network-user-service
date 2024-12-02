@@ -4,6 +4,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.events.BanUserEvent;
 import school.faang.user_service.model.person.Person;
 import school.faang.user_service.model.person.contact.Address;
 import school.faang.user_service.model.person.contact.ContactInfo;
@@ -16,6 +17,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class UserServiceValidatorTest {
 
     private UserServiceValidator validator = new UserServiceValidator();
+
+    private BanUserEvent banUserEvent = new BanUserEvent();
+    @Test
+    void testExceptionDoesNotThrown(){
+        banUserEvent.setUserId(2L);
+        assertDoesNotThrow(()->validator.validateBanUserEvent(banUserEvent));
+    }
+
+    @Test
+    void testExceptionThrown(){
+        banUserEvent.setUserId(-1);
+        assertThrows(IllegalArgumentException.class,
+                ()->validator.validateBanUserEvent(banUserEvent));
+    }
 
     @Test
     void validatePersonSuccess() {

@@ -19,6 +19,7 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.events.BanUserEvent;
 import school.faang.user_service.mapper.CreateUserMapperImpl;
 import school.faang.user_service.mapper.PersonMapper;
 import school.faang.user_service.mapper.UserMapper;
@@ -58,7 +59,7 @@ public class UserServiceTest {
     @Spy
     private CreateUserMapperImpl createUserMapper;
 
-    @Mock
+    @Spy
     private UserServiceValidator validator;
 
     @Mock
@@ -83,6 +84,8 @@ public class UserServiceTest {
 
     private UserProfilePic userProfilePic;
 
+    private BanUserEvent banUserEvent;
+
     @BeforeEach
     void setUp() {
         createUserDto = new CreateUserDto();
@@ -95,6 +98,10 @@ public class UserServiceTest {
         userDto.setId(1L);
 
         userProfilePic = new UserProfilePic();
+
+        banUserEvent = new BanUserEvent();
+        banUserEvent.setUserId(1);
+        banUserEvent.setCommentCount(3);
     }
 
     @Test
@@ -198,8 +205,8 @@ public class UserServiceTest {
 
         User savedUser = userCaptor.getValue();
 
-        assertEquals(savedUser.getEmail(),createUserDto.getEmail());
-        assertEquals(savedUser.getPhone(),createUserDto.getPhone());
+        assertEquals(savedUser.getEmail(), createUserDto.getEmail());
+        assertEquals(savedUser.getPhone(), createUserDto.getPhone());
 
         verify(countryService).getCountryById(1L);
         verify(avatarService).generateAvatar(any(User.class));
@@ -239,5 +246,39 @@ public class UserServiceTest {
         String result = userService.getAvatarUrl(1L);
 
         assertEquals(presignedUrl, result);
+    }
+
+    @Test
+    void testInvalidUserIdForBanUser() {
+        banUserEvent.setUserId(-23);
+        assertThrows(IllegalArgumentException.class,
+                () -> userService.banUser(banUserEvent));
+    }
+
+    @Test
+    void testCorrectWorkForBanUser() {
+        user.setMessages(0);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        userService.banUser(banUserEvent);
+
+        verify(userRepository).save(userCaptor.capture());
+        User resultUser = userCaptor.getValue();
+
+        assertEquals(resultUser.getMessages(), banUserEvent.getCommentCount());
+
+    }
+
+    @Test
+    void testCorrectWorkForBanUserWithBanSetting() {
+        user.setMessages(3);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        userService.banUser(banUserEvent);
+
+        verify(userRepository).save(userCaptor.capture());
+        User resultUser = userCaptor.getValue();
+
+        assertEquals(resultUser.getMessages(), 6);
+        assertTrue(resultUser.isBanned());
+
     }
 }
