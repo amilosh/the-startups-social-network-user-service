@@ -19,9 +19,10 @@ import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.CreateUserMapperImpl;
 import school.faang.user_service.mapper.PersonMapper;
-import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.country.CountryService;
 import school.faang.user_service.service.s3.S3Service;
@@ -38,8 +39,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -239,5 +239,28 @@ public class UserServiceTest {
         String result = userService.getAvatarUrl(1L);
 
         assertEquals(presignedUrl, result);
+    }
+
+    @Test
+    void testBanUser_Success() {
+        Long userId = 1L;
+        User user = new User();
+        user.setBanned(false);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        userService.banUser(userId);
+
+        assertTrue(user.isBanned());
+        verify(userRepository, times(1)).save(user);
+    }
+
+    @Test
+    void testBanUser_UserNotFound() {
+        Long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(DataValidationException.class, () -> userService.banUser(userId));
+
+        verify(userRepository, times(0)).save(any());
     }
 }
