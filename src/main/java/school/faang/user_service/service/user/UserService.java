@@ -24,7 +24,6 @@ import school.faang.user_service.mapper.csv.CsvParser;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.service.CountryService;
-import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -50,7 +49,6 @@ public class UserService {
     private final CountryService countryService;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final UserRepository userRepository;
-    private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
 
     public Optional<User> findById(long userId) {
         return userRepository.findById(userId);
@@ -164,13 +162,5 @@ public class UserService {
 
     public String generateRandomPassword(User user) {
         return user.getEmail();
-    }
-
-    public UserSkillGuarantee addGuaranty(long userId, SkillOffer skillOffer) {
-        UserSkillGuarantee guarantee = UserSkillGuarantee.builder().user(
-                        userRepository.findById(userId).get()
-                ).guarantor(skillOffer.getRecommendation().getAuthor())
-                .build();
-        return userSkillGuaranteeRepository.save(guarantee);
     }
 }

@@ -5,16 +5,28 @@ import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.mock.web.MockMultipartFile;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.user.Person;
 import school.faang.user_service.dto.user.UpdateUsersRankDto;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.mapper.UserMapperImpl;
+import school.faang.user_service.mapper.csv.CsvParser;
 import school.faang.user_service.repository.UserRepository;
+import school.faang.user_service.service.CountryService;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,14 +67,8 @@ public class UserServiceTest {
     @Mock
     private CsvParser csvParser;
 
-    @Spy
-    private UserMapperImpl userMapper;
-
     @Mock
     private CountryService countryService;
-
-    private User user;
-    private List<User> users;
 
     @BeforeEach
     void setUp() {
@@ -170,18 +176,6 @@ public class UserServiceTest {
     }
 
     @Test
-    void testToGetUserDtoById_ShouldReturnCorrectDto() {
-        when(userRepository.findById(3L))
-                .thenReturn(Optional.of(user));
-
-        var userDto = userService.getUserDtoById(3L);
-
-        verify(userMapper, times(1)).toDto(user);
-        assertEquals(user.getId(), userDto.getId());
-        assertNotNull(userDto);
-    }
-
-    @Test
     void testToGetUserDtoById_ShouldThrowException() {
         when(userRepository.findById(user.getId()))
                 .thenReturn(Optional.empty());
@@ -270,34 +264,5 @@ public class UserServiceTest {
         verify(userMapper, times(1)).toDto(user);
         assertEquals(user.getId(), userDto.getId());
         assertNotNull(userDto);
-    }
-
-    @Test
-    void testToGetUserDtoById_ShouldThrowException() {
-        when(userRepository.findById(user.getId()))
-                .thenReturn(Optional.empty());
-
-        assertThrows(DataValidationException.class, () -> userService.getUserDtoById(user.getId()));
-    }
-
-    @Test
-    void testToGetUserDtosByIds_ShouldReturnCorrectDtos() {
-        var ids = List.of(3L);
-        when(userRepository.findAllByIds(ids))
-                .thenReturn(Optional.of(users));
-
-        var userDtos = userService.getUserDtosByIds(ids);
-
-        assertNotNull(userDtos);
-        assertEquals(users.size(), userDtos.size());
-    }
-
-    @Test
-    void testToGetUserDtosByIds_ShouldThrowException() {
-        var ids = List.of(1L, 2L, 3L);
-        when(userRepository.findAllByIds(ids))
-                .thenReturn(Optional.empty());
-
-        assertThrows(DataValidationException.class, () -> userService.getUserDtosByIds(ids));
     }
 }
