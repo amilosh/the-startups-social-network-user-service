@@ -7,32 +7,38 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mapstruct.factory.Mappers;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
 import school.faang.user_service.dto.user_jira.UserJiraDto;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.userJira.UserJira;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
-import school.faang.user_service.mapper.user.UserMapper;
-import school.faang.user_service.mapper.user_jira.UserJiraMapper;
-import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.filter.user.UserEmailFilter;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNameFilter;
+import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user.UserMapperImpl;
+import school.faang.user_service.mapper.user_jira.UserJiraMapper;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.user_jira.UserJiraService;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -62,21 +68,16 @@ class UserServiceTest {
     @Mock
     private UserJiraService userJiraService;
 
+    @Mock
+    private CountryService countryService;
+
+    @Mock
     private UserService userService;
+
     private List<UserFilter> userFilters;
 
     @Captor
     ArgumentCaptor<User> userCaptor;
-
-    @BeforeEach
-    void setUp() {
-        UserFilter userEmailFilter = mock(UserEmailFilter.class);
-        UserFilter userNameFilter = mock(UserNameFilter.class);
-        userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
-        userMapper = new UserMapperImpl();
-
-        userService = new UserService(userRepository, userFilters, userMapper, userJiraMapper, userJiraService);
-    }
 
     @Test
     void getUserTest() {
@@ -91,6 +92,16 @@ class UserServiceTest {
 
         assertNotNull(result);
         assertEquals(user.getUsername(), result.getUsername());
+    }
+
+    @BeforeEach
+    void setUp() {
+        UserFilter userEmailFilter = mock(UserEmailFilter.class);
+        UserFilter userNameFilter = mock(UserNameFilter.class);
+        userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
+        userMapper = new UserMapperImpl();
+
+        userService = new UserService(userRepository, userFilters, userMapper, userJiraMapper, userJiraService, countryService);
     }
 
     @Test
@@ -356,4 +367,52 @@ class UserServiceTest {
         verify(userRepository, times(1)).save(userCaptor.capture());
         assertEquals(true, userCaptor.getValue().getBanned());
     }
+
+    @Test
+    void parsePersonDataIntoUserDto() throws IOException {
+        String csvData = """
+            firstName,lastName,yearOfBirth,group,studentID,email,phone,street,city,state,country,postalCode,faculty,yearOfStudy,major,GPA,status,admissionDate,graduationDate,degree,institution,completionYear,scholarship,employer
+            John,Doe,1998,A,123456,johndoe@example.com,+1-123-456-7890,123 Main Street,New York,NY,USA,10001,Computer Science,3,Software Engineering,3.8,Active,2016-09-01,2020-05-30,High School Diploma,XYZ High School,2016,true,XYZ Technologies
+            """;
+
+        MultipartFile csvFile = mock(MultipartFile.class);
+        when(csvFile.getInputStream()).thenReturn(new ByteArrayInputStream(csvData.getBytes()));
+        when(csvFile.getContentType()).thenReturn("text/csv");
+        when(csvFile.isEmpty()).thenReturn(false);
+
+        User user1 = new User();
+        user1.setEmail("johndoe@example.com");
+        user1.setPhone("+1-123-456-7890");
+        List<User> savedUsers = List.of(user1);
+
+        Country country = new Country();
+        country.setTitle("USA");
+
+        when(userRepository.saveAll(Mockito.anyList())).thenReturn(savedUsers);
+        when(countryService.getOrCreateCountry("USA")).thenReturn(country);
+
+        List<UserDto> result = userService.parsePersonDataIntoUserDto(csvFile);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("johndoe@example.com", result.get(0).getEmail());
+
+        verify(countryService, times(1)).getOrCreateCountry("USA");
+        verify(userRepository, times(1)).saveAll(Mockito.anyList());
+    }
+
+    @Test
+    void parsePersonDataIntoUserDtoEmptyFile()  {
+        MockMultipartFile emptyFile = new MockMultipartFile("file", "file.csv",
+                "text/csv", new byte[0]);
+        assertThrows(IllegalArgumentException.class, () -> userService.parsePersonDataIntoUserDto(emptyFile));
+    }
+
+    @Test
+    void parsePersonDataIntoUserDtoInvalidFileType()  {
+        MockMultipartFile invalidTypeFile = new MockMultipartFile("file", "file.txt",
+                "text/plain", "Some content".getBytes());
+        assertThrows(IllegalArgumentException.class, () -> userService.parsePersonDataIntoUserDto(invalidTypeFile));
+    }
+
 }
