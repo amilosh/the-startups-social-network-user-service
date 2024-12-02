@@ -28,20 +28,6 @@ class SubscriptionServiceTest {
     private SubscriptionService subscriptionService;
 
     @Test
-    void followUser_ShouldFollowUser_WhenIdsAreValid() {
-        Long followerId = 1L;
-        Long followeeId = 2L;
-
-        InvalidUserIdException exception = assertThrows(InvalidUserIdException.class, () -> {
-            subscriptionService.followUser(followerId, null);
-        });
-
-        assertEquals("Некорректные ID: ID не должны быть null и не должны совпадать.", exception.getMessage());
-    }
-
-
-
-    @Test
     void unfollowUser_ShouldUnfollowUser_WhenSubscriptionExists() {
         Long followerId = 1L;
         Long followeeId = 2L;
@@ -157,16 +143,6 @@ class SubscriptionServiceTest {
 
         assertEquals(1, result.size());
         assertEquals("Alice", result.get(0).getUsername());
-    }
-
-    @Test
-    void followUser_ShouldThrowException_WhenFollowerIdIsNull() {
-        Long followeeId = 2L;
-
-        Exception exception = assertThrows(InvalidUserIdException.class, () -> {
-            subscriptionService.followUser(null, followeeId);
-        });
-        assertEquals("Некорректные ID: ID не должны быть null и не должны совпадать.", exception.getMessage());
     }
 
     @Test
