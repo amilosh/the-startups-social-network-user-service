@@ -1,19 +1,24 @@
 package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDto;
+import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.EventStatus;
+import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class UserService {
@@ -22,18 +27,21 @@ public class UserService {
     private final UserValidator userValidator;
     private final MentorshipService mentorshipService;
     private final EventService eventService;
+    private final List<Filter<User, UserFilterDto>> userFilters;
 
     @Autowired
     public UserService(UserRepository userRepository,
                        UserMapper userMapper,
                        UserValidator userValidator,
                        @Lazy MentorshipService mentorshipService,
-                       @Lazy EventService eventService) {
+                       @Lazy EventService eventService,
+                       List<Filter<User, UserFilterDto>> userFilters) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.userValidator = userValidator;
         this.mentorshipService = mentorshipService;
         this.eventService = eventService;
+        this.userFilters = userFilters;
     }
 
     public boolean checkUserExistence(long userId) {
@@ -92,6 +100,37 @@ public class UserService {
 
     private void removeGoals(User user) {
         user.getSetGoals().removeIf(goal -> goal.getUsers().isEmpty());
+    }
+
+    @Transactional
+    public List<UserDto> getPremiumUsers(UserFilterDto filterDto) {
+        try (Stream<User> premiumUsersStream = userRepository.findPremiumUsers()) {
+            Stream<User> filteredStream = applyFilters(premiumUsersStream, filterDto);
+
+            return filteredStream
+                    .map(userMapper::toDto)
+                    .collect(Collectors.toList());
+        }
+    }
+
+    @Transactional
+    public List<UserDto> getAllUsers(UserFilterDto filterDto) {
+        try (Stream<User> usersStream = userRepository.findAll().stream()) {
+            Stream<User> filteredStream = applyFilters(usersStream, filterDto);
+
+            return filteredStream
+                    .map(userMapper::toDto)
+                    .collect(Collectors.toList());
+        }
+    }
+
+    private Stream<User> applyFilters(Stream<User> users, UserFilterDto filterDto) {
+        for (Filter<User, UserFilterDto> filter : userFilters) {
+            if (filter.isApplicable(filterDto)) {
+                users = filter.apply(users, filterDto);
+            }
+        }
+        return users;
     }
 
     private void removeOwnedEvents(User user) {
