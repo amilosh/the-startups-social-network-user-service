@@ -14,6 +14,8 @@ import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
 import school.faang.user_service.dto.user_jira.UserJiraDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.userJira.UserJira;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
@@ -247,20 +249,25 @@ class UserServiceTest {
         long firstUserId = 1L;
         long secondUserId = 2L;
 
+        ContactPreference contactPreference = new ContactPreference();
+        contactPreference.setPreference(PreferredContact.EMAIL);
+
         User firstUser = User.builder()
                 .id(firstUserId)
                 .username("firstUser")
                 .email("first@email.com")
+                .contactPreference(contactPreference)
                 .build();
 
         User secondUser = User.builder()
                 .id(secondUserId)
                 .username("secondUser")
                 .email("second@email.com")
+                .contactPreference(contactPreference)
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com");
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com");
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 0);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 0);
 
         Stream<User> users = Stream.of(firstUser, secondUser);
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
@@ -289,21 +296,26 @@ class UserServiceTest {
         Premium expiredPremium = new Premium();
         expiredPremium.setEndDate(LocalDateTime.now().minusDays(1));
 
+        ContactPreference contactPreference = new ContactPreference();
+        contactPreference.setPreference(PreferredContact.EMAIL);
+
         User firstUser = User.builder()
                 .id(firstUserId)
                 .username("firstUser")
                 .email("first@email.com")
                 .premium(expiredPremium)
+                .contactPreference(contactPreference)
                 .build();
 
         User secondUser = User.builder()
                 .id(secondUserId)
                 .username("secondUser")
                 .email("second@email.com")
+                .contactPreference(contactPreference)
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com");
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com");
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 0);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 0);
 
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
         List<User> usersList = List.of(firstUser, secondUser);

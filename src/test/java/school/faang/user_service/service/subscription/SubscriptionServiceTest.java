@@ -9,6 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.filter.user.UserEmailFilter;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNameFilter;
@@ -118,16 +120,21 @@ public class SubscriptionServiceTest {
         userId = 10L;
         boolean isExists = true;
 
+        ContactPreference contactPreference = new ContactPreference();
+        contactPreference.setPreference(PreferredContact.EMAIL);
+
         firstUser = User.builder()
                 .id(followerId)
                 .username("firstUser")
                 .email("first@email.com")
+                .contactPreference(contactPreference)
                 .build();
 
         secondUser = User.builder()
                 .id(followeeId)
                 .username("secondUser")
                 .email("second@email.com")
+                .contactPreference(contactPreference)
                 .build();
 
         users = Stream.of(firstUser, secondUser);
@@ -137,8 +144,8 @@ public class SubscriptionServiceTest {
                 .emailPattern("first")
                 .build();
 
-        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com");
-        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com");
+        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 0);
+        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 0);
         expectedUsers = new ArrayList<>(List.of(firstUserDto, secondUserDto));
 
         when(userService.existsById(userId)).thenReturn(isExists);
@@ -187,16 +194,21 @@ public class SubscriptionServiceTest {
         userId = 10L;
         boolean isExists = true;
 
+        ContactPreference contactPreference = new ContactPreference();
+        contactPreference.setPreference(PreferredContact.EMAIL);
+
         firstUser = User.builder()
                 .id(followerId)
                 .username("firstUser")
                 .email("first@email.com")
+                .contactPreference(contactPreference)
                 .build();
 
         secondUser = User.builder()
                 .id(followeeId)
                 .username("secondUser")
                 .email("second@email.com")
+                .contactPreference(contactPreference)
                 .build();
 
         users = Stream.of(firstUser, secondUser);
@@ -206,8 +218,8 @@ public class SubscriptionServiceTest {
                 .emailPattern("first")
                 .build();
 
-        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com");
-        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com");
+        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 0);
+        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 0);
         expectedUsers = new ArrayList<>(List.of(firstUserDto, secondUserDto));
 
         when(userService.existsById(userId)).thenReturn(isExists);
