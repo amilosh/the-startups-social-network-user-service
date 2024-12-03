@@ -34,18 +34,18 @@ public class EventStartService {
 
             EventTimeToStart timeToStart = null;
             if (eventStart.isBefore(now.plusMinutes(1))) {
-                timeToStart = EventTimeToStart.STARTNOW;
+                timeToStart = EventTimeToStart.START_NOW;
                 event.setStatus(EventStatus.IN_PROGRESS);
                 eventRepository.save(event);
             } else if (eventStart.isAfter(now.plusMinutes(10)) && eventStart.isBefore(now.plusMinutes(11))) {
-                timeToStart = EventTimeToStart.START10MIN;
+                timeToStart = EventTimeToStart.START_THROUGH_10_MIN;
             } else if (eventStart.isAfter(now.plusMinutes(60)) && eventStart.isBefore(now.plusMinutes(61))) {
-                timeToStart = EventTimeToStart.START1HOUR;
+                timeToStart = EventTimeToStart.START_THROUGH_1_HOUR;
             } else if (eventStart.isAfter(now.plusHours(5)) &&
                     eventStart.isBefore(now.plusHours(5).plusMinutes(1))) {
-                timeToStart = EventTimeToStart.START5HOURS;
+                timeToStart = EventTimeToStart.START_THROUGH_5_HOURS;
             } else if (eventStart.isAfter(now.plusDays(1).minusMinutes(1))) {
-                timeToStart = EventTimeToStart.START1DAY;
+                timeToStart = EventTimeToStart.START_THROUGH_1_DAY;
             }
             if (timeToStart != null) {
                 publishEvent(event.getId(), timeToStart);

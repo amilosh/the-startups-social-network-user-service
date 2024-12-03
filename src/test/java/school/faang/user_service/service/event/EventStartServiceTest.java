@@ -68,7 +68,7 @@ public class EventStartServiceTest {
 
         verify(redisMessagePublisher, times(1)).publish(captorEventStartEvent.capture());
 
-        assertEquals(EventTimeToStart.STARTNOW, captorEventStartEvent.getValue().getTimeBeforeStart());
+        assertEquals(EventTimeToStart.START_NOW, captorEventStartEvent.getValue().getTimeBeforeStart());
     }
 
     @Test
@@ -82,7 +82,7 @@ public class EventStartServiceTest {
 
         verify(redisMessagePublisher, times(1)).publish(captorEventStartEvent.capture());
 
-        assertEquals(EventTimeToStart.START10MIN, captorEventStartEvent.getValue().getTimeBeforeStart());
+        assertEquals(EventTimeToStart.START_THROUGH_10_MIN, captorEventStartEvent.getValue().getTimeBeforeStart());
     }
 
     @Test
@@ -96,7 +96,7 @@ public class EventStartServiceTest {
 
         verify(redisMessagePublisher, times(1)).publish(captorEventStartEvent.capture());
 
-        assertEquals(EventTimeToStart.START1HOUR, captorEventStartEvent.getValue().getTimeBeforeStart());
+        assertEquals(EventTimeToStart.START_THROUGH_1_HOUR, captorEventStartEvent.getValue().getTimeBeforeStart());
     }
 
     @Test
@@ -110,7 +110,7 @@ public class EventStartServiceTest {
 
         verify(redisMessagePublisher, times(1)).publish(captorEventStartEvent.capture());
 
-        assertEquals(EventTimeToStart.START5HOURS, captorEventStartEvent.getValue().getTimeBeforeStart());
+        assertEquals(EventTimeToStart.START_THROUGH_5_HOURS, captorEventStartEvent.getValue().getTimeBeforeStart());
     }
 
     @Test
@@ -124,6 +124,6 @@ public class EventStartServiceTest {
 
         verify(redisMessagePublisher, times(1)).publish(captorEventStartEvent.capture());
 
-        assertEquals(EventTimeToStart.START1DAY, captorEventStartEvent.getValue().getTimeBeforeStart());
+        assertEquals(EventTimeToStart.START_THROUGH_1_DAY, captorEventStartEvent.getValue().getTimeBeforeStart());
     }
 }
