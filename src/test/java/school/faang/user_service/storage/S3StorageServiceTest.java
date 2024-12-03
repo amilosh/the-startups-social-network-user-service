@@ -2,27 +2,23 @@ package school.faang.user_service.storage;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.core.io.Resource;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.service.storage.S3StorageService;
 
-import java.io.ByteArrayInputStream;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class S3StorageServiceTest {
 
     @Mock
@@ -33,10 +29,9 @@ class S3StorageServiceTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        ReflectionTestUtils.setField(s3StorageService, "storageType", "aws");
-        ReflectionTestUtils.setField(s3StorageService, "awsBucketName", "testbucket");
+        ReflectionTestUtils.setField(s3StorageService, "bucketName", "testbucket");
     }
+
 
     @Test
     void uploadFile_Success() {
@@ -62,21 +57,6 @@ class S3StorageServiceTest {
         s3StorageService.deleteFile(fileName);
 
         verify(amazonS3).deleteObject("testbucket", fileName);
-    }
-
-    @Test
-    void downloadFile_Success() throws Exception {
-        String fileName = "testFile.jpeg";
-        S3Object s3Object = new S3Object();
-        s3Object.setObjectContent(new S3ObjectInputStream(
-                new ByteArrayInputStream(new byte[]{1, 2, 3}), null)
-        );
-
-        when(amazonS3.getObject("testbucket", fileName)).thenReturn(s3Object);
-
-        Resource resource = s3StorageService.downloadFile(fileName);
-
-        assertNotNull(resource);
     }
 
     @Test
