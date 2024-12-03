@@ -9,11 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -30,7 +28,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
-            errors.put(error.getField(), error.getDefaultMessage())
+                errors.put(error.getField(), error.getDefaultMessage())
         );
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
@@ -116,6 +114,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handlePremiumPeriodNotFoundException(PremiumPeriodNotFoundException e) {
         log.error("PremiumPeriodNotFountException:", e);
         return ResponseEntity.badRequest().body(e.getMessage());
+    }
 
     @ExceptionHandler(SkillResourceNotFoundException.class)
     public ResponseEntity<String> handleInvalidMentorshipRequestException(SkillResourceNotFoundException ex) {
