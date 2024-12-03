@@ -2,6 +2,8 @@ package school.faang.user_service.service.event;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.event.EventDto;
@@ -17,17 +19,24 @@ import school.faang.user_service.validator.EventValidation;
 import school.faang.user_service.validator.UserValidator;
 
 import java.util.List;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class EventService {
+
     private final EventValidation eventValidation;
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
     private final UserService userService;
     private final List<EventFilter> eventFilters;
     private final UserValidator userValidator;
+    private final EventCleanerService eventCleanerService;
+
+    @Value("${batch.size.eventBatch}")
+    private int batchSize;
 
     public EventDto create(EventDto eventDto) {
         eventValidation.validateEvent(eventDto);
@@ -95,5 +104,19 @@ public class EventService {
                 event.setStatus(EventStatus.CANCELED);
             }
         });
+    }
+
+    public void deleteCompletedAndCanceledEvents() {
+        List<Event> eventList = eventRepository.findAllByStatuses(List.of(EventStatus.CANCELED, EventStatus.COMPLETED));
+        log.debug("Total 'completed' and 'canceled' events found in database: {}", eventList.size());
+        List<List<Event>> eventBatches = splitIntoBatchesStream(eventList, batchSize);
+        log.debug("Batch count created to Async delete: {}", eventBatches.size());
+        eventBatches.forEach(eventCleanerService::deleteSelectedListEventsAsync);
+    }
+
+    private List<List<Event>> splitIntoBatchesStream(List<Event> events, int batchSize) {
+        return IntStream.range(0, (events.size() + batchSize - 1) / batchSize)
+                .mapToObj(i -> events.subList(i * batchSize, Math.min((i + 1) * batchSize, events.size())))
+                .toList();
     }
 }
