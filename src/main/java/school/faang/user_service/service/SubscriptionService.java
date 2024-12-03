@@ -28,18 +28,20 @@ public class SubscriptionService {
 
     @Transactional
     public void followUser(long followerId, long followeeId) {
-        log.info("Пользователь {} пытается подписаться на пользователя {}", followerId, followeeId);
+        log.info("Пользователь с ID {} пытается подписаться на пользователя с ID {}.", followerId, followeeId);
         validateUserIds(followerId, followeeId);
+        log.debug("Проверка валидности пользователей с ID {} и ID {} прошла успешно.", followerId, followeeId);
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
-            log.warn("Подписка между пользователями {} и {} уже существует.", followerId, followeeId);
+            log.warn("Подписка между пользователями с ID {} и ID {} уже существует.", followerId, followeeId);
             throw new IllegalArgumentException("Подписка уже существует.");
         }
         subscriptionRepository.followUser(followerId, followeeId);
-        log.info("Пользователь {} успешно подписался на пользователя {}.", followerId, followeeId);
+        log.info("Пользователь с ID {} успешно подписался на пользователя с ID {}.", followerId, followeeId);
         followerEventPublisher.publish(new FollowerEvent(followerId, followeeId, LocalDateTime.now()));
+        log.info("Событие подписки для пользователей {} и {} успешно опубликовано.", followerId, followeeId);
     }
 
-@Transactional
+    @Transactional
     public void unfollowUser(long followerId, long followeeId) {
         log.info("Пользователь {} пытается отписаться от пользователя {}", followerId, followeeId);
         validateUserIds(followerId, followeeId);
