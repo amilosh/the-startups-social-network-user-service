@@ -262,16 +262,18 @@ class UserServiceTest {
                 .id(firstUserId)
                 .username("firstUser")
                 .email("first@email.com")
+                .telegramChatId(1242142141241L)
                 .build();
 
         User secondUser = User.builder()
                 .id(secondUserId)
                 .username("secondUser")
                 .email("second@email.com")
+                .telegramChatId(90218421908421L)
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com");
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com");
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 90218421908421L);
 
         Stream<User> users = Stream.of(firstUser, secondUser);
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
@@ -305,16 +307,18 @@ class UserServiceTest {
                 .username("firstUser")
                 .email("first@email.com")
                 .premium(expiredPremium)
+                .telegramChatId(90182590L)
                 .build();
 
         User secondUser = User.builder()
                 .id(secondUserId)
                 .username("secondUser")
                 .email("second@email.com")
+                .telegramChatId(893248953L)
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com");
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com");
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L);
 
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
         List<User> usersList = List.of(firstUser, secondUser);
