@@ -39,7 +39,19 @@ minio:
   url: http://localhost:9000
   accessKey: LbtJkdBst2Fzh9PQWMbn
   secretKey: ZQsUFl0ToSUn8U6xH6dAoBnpWruKS0kvkiAvsVXN
-  bucketName: corpbucket
+  bucketName: avatars
+  publicPolicy: |
+    {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Principal": "*",
+          "Action": "s3:GetObject",
+          "Resource": "arn:aws:s3:::avatars/*"
+        }
+      ]
+    }
 
 project-service:
   host: localhost
@@ -48,6 +60,14 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+cron:
+  expressions:
+    clearEvents: "0 0 0 * * *"
+
+batch:
+  size:
+    eventBatch: 50
 
 myapp:
   schedule:
