@@ -2,15 +2,18 @@ package school.faang.user_service.service.event;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
+import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.filter.EventFilter;
 import school.faang.user_service.mapper.EventMapper;
 import school.faang.user_service.repository.event.EventRepository;
@@ -29,6 +32,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -52,6 +58,8 @@ public class EventServiceTest {
     private List<EventFilter> eventFilters;
     @Mock
     private UserValidator userValidator;
+    @Mock
+    private EventCleanerService eventCleanerService;
 
     private EventDto eventDto;
     private Event event;
@@ -221,5 +229,39 @@ public class EventServiceTest {
         assertEquals(expectedEvents, actualEvents);
         verify(userValidator).validateUserById(userId);
         verify(eventRepository).findAllByUserId(userId);
+    }
+
+    @Test
+    @DisplayName("Test deleteCompletedAndCanceledEvent positive case")
+    void testDeleteCompletedAndCanceledEvent_ShouldSplitIntoBatchesAndCallDeleteAsync() {
+        List<Event> events = List.of(
+                Event.builder().id(1L).build(),
+                Event.builder().id(2L).build(),
+                Event.builder().id(3L).build(),
+                Event.builder().id(4L).build(),
+                Event.builder().id(5L).build()
+        );
+        int batchSize = 2;
+        ReflectionTestUtils.setField(eventService, "batchSize", batchSize);
+        when(eventRepository.findAllByStatuses(List.of(EventStatus.CANCELED, EventStatus.COMPLETED))).thenReturn(events);
+        doNothing().when(eventCleanerService).deleteSelectedListEventsAsync(anyList());
+
+        eventService.deleteCompletedAndCanceledEvents();
+
+        verify(eventRepository, times(1)).findAllByStatuses(List.of(EventStatus.CANCELED, EventStatus.COMPLETED));
+        verify(eventCleanerService, times(3)).deleteSelectedListEventsAsync(anyList());
+    }
+
+    @Test
+    @DisplayName("Test deleteCompletedAndCanceledEvent negative case")
+    void testDeleteCompletedAndCanceledEventsEmptyList() {
+        when(eventRepository.findAllByStatuses(List.of(EventStatus.CANCELED, EventStatus.COMPLETED))).thenReturn(new ArrayList<>());
+        int batchSize = 2;
+        ReflectionTestUtils.setField(eventService, "batchSize", batchSize);
+
+        eventService.deleteCompletedAndCanceledEvents();
+
+        verify(eventRepository, times(1)).findAllByStatuses(List.of(EventStatus.CANCELED, EventStatus.COMPLETED));
+        verify(eventRepository, never()).deleteById(anyLong());
     }
 }
