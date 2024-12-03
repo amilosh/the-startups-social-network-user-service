@@ -37,18 +37,17 @@ logging:
 
 storage:
   type: minio
+  bucketName: corpbucket
 
 minio:
   url: http://localhost:9000
   accessKey: user
   secretKey: password
-  bucketName: corpbucket
   region: eu
 
 aws:
   accessKey:
   secretKey:
-  bucketName:
   region:
 
 project-service:

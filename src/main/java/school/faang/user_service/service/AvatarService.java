@@ -8,8 +8,10 @@ import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exception.AvatarNotFoundException;
-import school.faang.user_service.exception.FileSizeExceededException;
+import school.faang.user_service.exception.AvatarProcessingException;
+import school.faang.user_service.exception.InvalidFileFormatException;
 import school.faang.user_service.service.storage.StorageService;
+import school.faang.user_service.validator.AvatarValidator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,58 +26,98 @@ public class AvatarService {
 
     private final StorageService storageService;
     private final UserService userService;
+    private final AvatarValidator avatarValidator;
 
     @Transactional
-    public void uploadUserAvatar(Long userId, MultipartFile userAvatarPicture) throws Exception {
-        User user = userService.findUserById(userId);
+    public void uploadUserAvatar(Long userId, Long currentUserId, MultipartFile userAvatarPicture) {
+        avatarValidator.validateUserAuthorization(currentUserId, userId);
 
-        if (userAvatarPicture.getSize() > MAX_FILE_SIZE) {
-            throw new FileSizeExceededException("File size should not exceed " + MAX_FILE_SIZE / (1024 * 1024) + " Mb");
+        User user = userService.findUserById(userId);
+        avatarValidator.validateAvatarFile(userAvatarPicture);
+
+        UserProfilePic existingAvatar = user.getUserProfilePic();
+        if (existingAvatar != null) {
+            deleteAvatarFiles(existingAvatar);
         }
 
-        String largeImageFileName = "avatar_userId_" + userId + "_large." + IMAGE_FORMAT;
-        String smallImageFileName = "avatar_userId_" + userId + "_small." + IMAGE_FORMAT;
+        UserProfilePic userProfilePic = processAndUploadAvatar(userId, userAvatarPicture);
 
-        byte[] largeImageBytes = createThumbnail(userAvatarPicture, LARGE_IMAGE_MAX_SIZE);
-        byte[] smallImageBytes = createThumbnail(userAvatarPicture, SMALL_IMAGE_MAX_SIZE);
-
-        storageService.uploadFile(largeImageFileName, largeImageBytes, "image/" + IMAGE_FORMAT);
-        storageService.uploadFile(smallImageFileName, smallImageBytes, "image/" + IMAGE_FORMAT);
-
-        UserProfilePic userProfilePic = new UserProfilePic();
-        userProfilePic.setFileId(largeImageFileName);
-        userProfilePic.setSmallFileId(smallImageFileName);
         user.setUserProfilePic(userProfilePic);
-
         userService.saveUser(user);
     }
 
-    private byte[] createThumbnail(MultipartFile userAvatarPicture, int size) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        Thumbnails.of(userAvatarPicture.getInputStream())
-                .size(size, size)
-                .outputFormat(IMAGE_FORMAT)
-                .toOutputStream(outputStream);
-        return outputStream.toByteArray();
-    }
-
     @Transactional
-    public void deleteUserAvatar(Long userId) throws Exception {
+    public void deleteUserAvatar(Long userId, Long currentUserId) {
+        avatarValidator.validateUserAuthorization(currentUserId, userId);
+
         User user = userService.findUserById(userId);
 
         UserProfilePic userProfilePic = user.getUserProfilePic();
         if (userProfilePic != null) {
-            String largeImageFileName = userProfilePic.getFileId();
-            String smallImageFileName = userProfilePic.getSmallFileId();
-
-            storageService.deleteFile(largeImageFileName);
-            storageService.deleteFile(smallImageFileName);
+            deleteAvatarFiles(userProfilePic);
 
             user.setUserProfilePic(null);
             userService.saveUser(user);
         } else {
-            throw new AvatarNotFoundException("User does not have an avatar to delete");
+            throw new AvatarNotFoundException("User with ID " + userId + " does not have an avatar to delete");
         }
+    }
+
+    private byte[] createThumbnail(MultipartFile userAvatarPicture, int size, String imageFormat) {
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            Thumbnails.of(userAvatarPicture.getInputStream())
+                    .size(size, size)
+                    .outputFormat(imageFormat)
+                    .toOutputStream(outputStream);
+            return outputStream.toByteArray();
+        } catch (IOException error) {
+            throw new AvatarProcessingException("Error processing avatar image.", error);
+        }
+    }
+
+    private void deleteAvatarFiles(UserProfilePic avatar) {
+        String largeImageFileName = avatar.getFileId();
+        String smallImageFileName = avatar.getSmallFileId();
+
+        storageService.deleteFile(largeImageFileName);
+        storageService.deleteFile(smallImageFileName);
+    }
+
+    private UserProfilePic createUserProfilePic(String largeImageFileName, String smallImageFileName) {
+        UserProfilePic userProfilePic = new UserProfilePic();
+        userProfilePic.setFileId(largeImageFileName);
+        userProfilePic.setSmallFileId(smallImageFileName);
+        return userProfilePic;
+    }
+
+    private UserProfilePic processAndUploadAvatar(Long userId, MultipartFile userAvatarPicture) {
+        String contentType = userAvatarPicture.getContentType();
+        String imageFormat = getImageFormatFromContentType(contentType);
+
+        String largeImageFileName = "avatars/avatar_userId_" + userId + "_large." + imageFormat;
+        String smallImageFileName = "avatars/avatar_userId_" + userId + "_small." + imageFormat;
+
+        try {
+            byte[] largeImageBytes = createThumbnail(userAvatarPicture, LARGE_IMAGE_MAX_SIZE, imageFormat);
+            byte[] smallImageBytes = createThumbnail(userAvatarPicture, SMALL_IMAGE_MAX_SIZE, imageFormat);
+
+            storageService.uploadFile(largeImageFileName, largeImageBytes, "image/" + imageFormat);
+            storageService.uploadFile(smallImageFileName, smallImageBytes, "image/" + imageFormat);
+        } catch (Exception error) {
+            throw new AvatarProcessingException("Error processing avatar image.", error);
+        }
+
+        return createUserProfilePic(largeImageFileName, smallImageFileName);
+    }
+
+    private String getImageFormatFromContentType(String contentType) {
+        return switch (contentType) {
+            case "image/jpeg", "image/jpg" -> "jpeg";
+            case "image/png" -> "png";
+            case "image/gif" -> "gif";
+            default -> throw new InvalidFileFormatException("Unsupported image format");
+        };
     }
 
 }

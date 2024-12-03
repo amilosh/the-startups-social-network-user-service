@@ -15,7 +15,7 @@ import java.io.ByteArrayInputStream;
 public class MinioService {
     private final MinioClient minioClient;
 
-    @Value("${minio.bucketName}")
+    @Value("${storage.bucketName}")
     private String bucketName;
 
     @Value("${minio.url}")

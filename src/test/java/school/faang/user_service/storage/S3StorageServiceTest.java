@@ -84,7 +84,7 @@ class S3StorageServiceTest {
         String fileName = "testFile.jpeg";
         when(amazonS3.doesObjectExist("testbucket", fileName)).thenReturn(true);
 
-        boolean exists = s3StorageService.fileExists(fileName);
+        boolean exists = s3StorageService.ifFileExists(fileName);
 
         assertTrue(exists);
     }
@@ -94,7 +94,7 @@ class S3StorageServiceTest {
         String fileName = "testFile.jpeg";
         when(amazonS3.doesObjectExist("testbucket", fileName)).thenReturn(false);
 
-        boolean exists = s3StorageService.fileExists(fileName);
+        boolean exists = s3StorageService.ifFileExists(fileName);
 
         assertFalse(exists);
     }

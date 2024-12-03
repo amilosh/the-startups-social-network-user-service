@@ -39,6 +39,9 @@ public class AvatarControllerTest {
 
     @Test
     void uploadUserAvatar_Success() throws Exception {
+        Long userId = 1L;
+        Long currentUserId = 1L;
+
         MockMultipartFile mockFile = new MockMultipartFile(
                 "avatar",
                 "avatar.jpeg",
@@ -46,20 +49,25 @@ public class AvatarControllerTest {
                 new byte[]{1, 2, 3}
         );
 
-        mockMvc.perform(multipart("/users/{userId}/avatar", 1L)
-                        .file(mockFile))
+        mockMvc.perform(multipart("/users/{userId}/avatar", userId)
+                        .file(mockFile)
+                        .header("Current-User-Id", currentUserId))
                 .andExpect(status().isCreated())
                 .andExpect(content().string("Avatar uploaded successfully"));
 
-        verify(avatarService).uploadUserAvatar(eq(1L), any(MultipartFile.class));
+        verify(avatarService).uploadUserAvatar(eq(userId), eq(currentUserId), any(MultipartFile.class));
     }
 
     @Test
     void deleteUserAvatar_Success() throws Exception {
-        mockMvc.perform(delete("/users/{userId}/avatar", 1L))
+        Long userId = 1L;
+        Long currentUserId = 1L;
+
+        mockMvc.perform(delete("/users/{userId}/avatar", userId)
+                        .header("Current-User-Id", currentUserId))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Avatar deleted successfully"));
 
-        verify(avatarService).deleteUserAvatar(1L);
+        verify(avatarService).deleteUserAvatar(eq(userId), eq(currentUserId));
     }
 }
