@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.recommendation;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -17,9 +17,9 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
-import school.faang.user_service.exceptions.RecommendationRequestValidationException;
-import school.faang.user_service.exceptions.RejectRequestFailedException;
-import school.faang.user_service.mapper.RecommendationRequestMapper;
+import school.faang.user_service.exception.RecommendationRequestValidationException;
+import school.faang.user_service.exception.RejectRequestFailedException;
+import school.faang.user_service.mapper.recommendation.RecommendationRequestMapper;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
