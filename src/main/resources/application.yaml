@@ -57,3 +57,12 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+
+cron:
+  expressions:
+    clearEvents: "0 0 0 * * *"
+
+batch:
+  size:
+    eventBatch: 50

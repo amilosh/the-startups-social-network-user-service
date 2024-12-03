@@ -90,6 +90,11 @@ public class GlobalExceptionHandler {
         log.error("SkillDuplicateException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<String> handleAllExceptions(IOException exception) {
+        log.error("IOException exception: {}", exception.getMessage(), exception);
+        return ResponseEntity.badRequest().body(exception.getMessage());
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleAllExceptions(Exception exception) {
