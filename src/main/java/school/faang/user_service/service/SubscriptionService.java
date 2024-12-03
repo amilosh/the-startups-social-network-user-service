@@ -39,8 +39,8 @@ public class SubscriptionService {
         followerEventPublisher.publish(new FollowerEvent(followerId, followeeId, LocalDateTime.now()));
     }
 
-
-    public void unfollowUser(Long followerId, Long followeeId) {
+@Transactional
+    public void unfollowUser(long followerId, long followeeId) {
         log.info("Пользователь {} пытается отписаться от пользователя {}", followerId, followeeId);
         validateUserIds(followerId, followeeId);
         if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
