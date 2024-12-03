@@ -83,14 +83,13 @@ public class MentorshipControllerTest {
     @Test
     @DisplayName("Get mentees failure - User not found")
     void testGetMenteesFail() throws Exception {
-        when(mentorshipService.getMentees(userId))
-                .thenThrow(new EntityNotFoundException("User with ID " + userId + " not found"));
+        doThrow(new EntityNotFoundException("User with ID " + userId + " not found"))
+                .when(mentorshipService).getMentees(userId);
 
         mockMvc.perform(get("/mentorship/users/{userId}/mentees", userId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("User with ID " + userId + " not found"));
-
         verify(mentorshipService, times(1)).getMentees(userId);
     }
 
@@ -163,15 +162,16 @@ public class MentorshipControllerTest {
     @Test
     @DisplayName("Delete Mentor when mentor not found")
     void testDeleteMentorWhenMentorNotFound() throws Exception {
-        doThrow(new EntityNotFoundException("User with ID " + deleteUserId + " not found"))
-                .when(mentorshipService)
-                .deleteMentor(userId, deleteUserId);
+        String expectedErrorMessage = "User with ID " + deleteUserId + " not found";
+        doThrow(new EntityNotFoundException(expectedErrorMessage))
+                .when(mentorshipService).deleteMentor(userId, deleteUserId);
 
         mockMvc.perform(delete("/mentorship/mentees/{menteeId}/mentors/{mentorId}", userId, deleteUserId)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(expectedErrorMessage));
 
-        verify(mentorshipService).deleteMentor(userId, deleteUserId);
+        verify(mentorshipService, times(1)).deleteMentor(userId, deleteUserId);
     }
 
     private UserDto mockUserDto() {
