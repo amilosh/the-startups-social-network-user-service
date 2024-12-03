@@ -70,8 +70,10 @@ public class GoalService {
         goalRepository.save(updatedGoal);
         log.info("Goal updated successfully: {}", updatedGoal);
         if (goalDto.getStatus() == GoalStatus.COMPLETED) {
+            Goal comletedGoal = goalRepository.findById(goalId)
+                    .orElseThrow(() -> new DataValidationException("Goal not found"));;
             long authorId = userContext.getUserId();
-            LocalDateTime completedAt = updatedGoal.getUpdatedAt();
+            LocalDateTime completedAt = comletedGoal.getUpdatedAt();
             goalCompletedPublisher.publish(new GoalCompletedEvent(goalId, authorId, completedAt));
         }
 
