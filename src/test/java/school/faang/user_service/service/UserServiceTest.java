@@ -70,6 +70,23 @@ public class UserServiceTest {
     }
 
     @Test
+    public void testBanUsers() {
+        // arrange
+        List<Long> userIds = List.of(1L, 2L);
+        List<User> users = List.of(
+                User.builder().id(1L).build(),
+                User.builder().id(2L).build()
+        );
+        when(userRepository.findAllById(userIds)).thenReturn(users);
+
+        // act
+        userService.banUsers(userIds);
+
+        // assert
+        users.forEach(user -> assertTrue(user.isBanned()));
+    }
+
+    @Test
     void testGetUserByIdWithExistingUser() {
         when(userRepository.findById(1L))
                 .thenReturn(Optional.of(user));

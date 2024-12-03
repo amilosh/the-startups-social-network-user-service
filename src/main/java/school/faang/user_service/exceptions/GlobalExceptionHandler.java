@@ -22,6 +22,7 @@ public class GlobalExceptionHandler {
     public static final String UNEXPECTED_ERROR = "An unexpected error occurred: ";
     public static final String PAYMENT_ERROR = "PaymentException occurred: ";
     private static final String ENTITY_NOT_FOUND = "EntityNotFoundException: ";
+    private static final String MESSAGE_MAPPING = "MessageMappingException: ";
 
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -55,6 +56,13 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleEntityNotFoundException(EntityNotFoundException ex) {
         log.error(ENTITY_NOT_FOUND, ex);
+        return new ErrorResponse(ex.getMessage());
+    }
+
+    @ExceptionHandler(MessageMappingException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleMessageMappingException(MessageMappingException ex) {
+        log.error(MESSAGE_MAPPING, ex);
         return new ErrorResponse(ex.getMessage());
     }
 

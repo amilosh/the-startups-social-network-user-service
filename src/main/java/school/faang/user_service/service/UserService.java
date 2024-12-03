@@ -1,6 +1,7 @@
 package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,13 @@ public class UserService {
     private final PremiumRepository premiumRepository;
     private final List<UserFilter> filters;
     private final UserMapper userMapper;
+
+    @Transactional
+    public void banUsers(List<Long> userIdsToBan) {
+        log.info("Trying to ban users: {}", userIdsToBan);
+        List<User> usersToBan = getAllUsersByIds(userIdsToBan);
+        usersToBan.forEach(User::ban);
+    }
 
     public User getUserById(Long id) {
         return userRepository.findById(id)

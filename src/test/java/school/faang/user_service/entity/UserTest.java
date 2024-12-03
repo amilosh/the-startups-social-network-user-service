@@ -88,5 +88,20 @@ class UserTest {
         assertFalse(user.getMentors().contains(mockMentor));
     }
 
+    @Test
+    public void banUser() {
+        user.setBanned(false);
+        user.ban();
+        boolean isUserBanned = user.isBanned();
+        assertTrue(isUserBanned);
+    }
+
+    @Test
+    public void banBannedUser() {
+        user.setBanned(true);
+        user.ban();
+        boolean isUserBanned = user.isBanned();
+        assertTrue(isUserBanned);
+    }
 }
 

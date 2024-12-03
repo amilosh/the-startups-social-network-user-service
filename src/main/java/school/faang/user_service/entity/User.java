@@ -145,6 +145,8 @@ public class User {
     @OneToOne(mappedBy = "user")
     private Premium premium;
 
+    @Column(name = "banned")
+    private boolean banned;
 
     public void removeOwnedEvent(Event event){
         ownedEvents.remove(event);
@@ -206,5 +208,9 @@ public class User {
         if (mentor != null && mentors != null) {
             mentors.remove(mentor);
         }
+    }
+
+    public void ban() {
+        banned = true;
     }
 }
