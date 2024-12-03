@@ -75,6 +75,7 @@ public class GoalService {
             long authorId = userContext.getUserId();
             LocalDateTime completedAt = comletedGoal.getUpdatedAt();
             goalCompletedPublisher.publish(new GoalCompletedEvent(goalId, authorId, completedAt));
+            log.info("Completed goal {} successfully submitted to redis ", goalId);
         }
 
         return goalMapper.toDto(updatedGoal);
