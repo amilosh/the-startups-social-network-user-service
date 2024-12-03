@@ -20,6 +20,7 @@ import school.faang.user_service.mapper.PremiumMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.validator.PaymentValidator;
 import school.faang.user_service.validator.PremiumValidator;
+import school.faang.user_service.validator.UserValidator;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -49,29 +50,24 @@ public class PremiumServiceTest {
     @Mock
     private PaymentServiceClient paymentServiceClient;
 
+    @Mock
+    UserValidator userValidator;
+
     @InjectMocks
     private PremiumService premiumService;
 
+    private final long userId = 1L;
+
     @Test
     void testBuyPremiumSuccessful() {
-        long userId = 1L;
-        PremiumPeriod premiumPeriod = PremiumPeriod.MONTH;
-
         when(userService.findUserById(userId)).thenReturn(new User());
         when(paymentServiceClient.sentPayment(any(PaymentRequest.class)))
                 .thenReturn(new PaymentResponse(PaymentStatus.SUCCESS, 1234, 123456789L,
                         BigDecimal.valueOf(9.99), Currency.USD, "Payment Successful"));
         when(premiumMapper.toDto(any(Premium.class))).thenReturn(new PremiumDto());
+        when(premiumRepository.save(any(Premium.class))).thenReturn(setUpPremium());
 
-        Premium premium = Premium.builder()
-                .user(new User())
-                .startDate(LocalDateTime.now())
-                .endDate(LocalDateTime.now().plusDays(30))
-                .build();
-
-        when(premiumRepository.save(any(Premium.class))).thenReturn(premium);
-
-        PremiumDto result = premiumService.buyPremium(userId, premiumPeriod);
+        PremiumDto result = premiumService.buyPremium(userId, setUpPeriodMonth());
 
         assertNotNull(result);
         verify(premiumValidator).validateUserIsNotPremium(userId);
@@ -83,14 +79,11 @@ public class PremiumServiceTest {
 
     @Test
     void testBuyPremiumUserAlreadyPremium() {
-        long userId = 1L;
-        PremiumPeriod premiumPeriod = PremiumPeriod.MONTH;
-
         doThrow(new IllegalArgumentException("User with userId: " + userId + " already has premium"))
                 .when(premiumValidator).validateUserIsNotPremium(userId);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
-                premiumService.buyPremium(userId, premiumPeriod));
+                premiumService.buyPremium(userId, setUpPeriodMonth()));
 
         assertEquals("User with userId: " + userId + " already has premium", exception.getMessage());
         verify(premiumValidator).validateUserIsNotPremium(userId);
@@ -99,9 +92,6 @@ public class PremiumServiceTest {
 
     @Test
     void testBuyPremiumPaymentFailed() {
-        long userId = 1L;
-        PremiumPeriod premiumPeriod = PremiumPeriod.MONTH;
-
         PaymentResponse failedResponse = new PaymentResponse(PaymentStatus.FAILED,
                 1234, 123456789L, BigDecimal.valueOf(9.99),
                 Currency.USD, "Payment Failed");
@@ -112,12 +102,24 @@ public class PremiumServiceTest {
                 .when(paymentValidator).checkIfPaymentSuccess(failedResponse);
 
         Exception exception = assertThrows(PaymentFailedException.class, () ->
-                premiumService.buyPremium(userId, premiumPeriod));
+                premiumService.buyPremium(userId, setUpPeriodMonth()));
 
         assertEquals("Payment status:" + failedResponse.message(), exception.getMessage());
         verify(premiumValidator).validateUserIsNotPremium(userId);
         verify(paymentServiceClient).sentPayment(any(PaymentRequest.class));
         verify(paymentValidator).checkIfPaymentSuccess(failedResponse);
         verifyNoInteractions(premiumRepository, premiumMapper);
+    }
+
+    private PremiumPeriod setUpPeriodMonth() {
+        return PremiumPeriod.MONTH;
+    }
+
+    private Premium setUpPremium() {
+        return Premium.builder()
+                .user(new User())
+                .startDate(LocalDateTime.now())
+                .endDate(LocalDateTime.now().plusDays(30))
+                .build();
     }
 }

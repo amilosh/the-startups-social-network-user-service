@@ -51,7 +51,7 @@ public class PremiumService {
 
     private PaymentRequest createPaymentRequest(PremiumPeriod premiumPeriod) {
         return PaymentRequest.builder()
-                .paymentNumber((int) Math.round(Math.random() * Integer.MAX_VALUE))
+                .paymentNumber(Math.round(Math.random() * Integer.MAX_VALUE))
                 .amount(premiumPeriod.getPrice())
                 .currency(Currency.USD)
                 .build();
