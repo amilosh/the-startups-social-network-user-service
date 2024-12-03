@@ -20,6 +20,8 @@ spring:
     redis:
       port: 6379
       host: localhost
+      topic:
+        donation: donation
       channels:
         mentorship-channel:
           name: mentorship_channel
