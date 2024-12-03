@@ -90,6 +90,7 @@ public class GlobalExceptionHandler {
         log.error("SkillDuplicateException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+
     @ExceptionHandler(IOException.class)
     public ResponseEntity<String> handleAllExceptions(IOException exception) {
         log.error("IOException exception: {}", exception.getMessage(), exception);
@@ -115,12 +116,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleFileSizeExceededException(FileSizeExceededException exception) {
         log.error("FileSizeExceededException: {}", exception.getMessage(), exception);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception.getMessage());
-    }
-
-    @ExceptionHandler(IOException.class)
-    public ResponseEntity<String> handleIOException(IOException exception) {
-        log.error("IOException: {}", exception.getMessage(), exception);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while file processing");
     }
 
     @ExceptionHandler({
