@@ -35,7 +35,6 @@ public class UserService {
     private final UserJiraMapper userJiraMapper;
     private final UserJiraService userJiraService;
 
-
     @Transactional(readOnly = true)
     public UserDto getUser(long userId) {
         return userMapper.toDto(findUserById(userId));
@@ -118,11 +117,11 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void handleUserBanMessage(Long userId) {
-        User user = findUserById(userId);
+    public void handleUserBanMessage(Long authorId) {
+        User user = findUserById(authorId);
         user.setBanned(true);
+        log.info("User {} is banned", authorId);
         userRepository.save(user);
-        log.info("Set status banned to true, for user with id : {}", userId);
     }
 
     private User findUserById(long userId) {
@@ -143,4 +142,5 @@ public class UserService {
                 || user.getPremium().getEndDate() == null
                 || user.getPremium().getEndDate().isBefore(LocalDateTime.now()));
     }
+
 }

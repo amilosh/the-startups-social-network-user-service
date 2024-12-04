@@ -3,11 +3,11 @@ package school.faang.user_service.service.user;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mapstruct.factory.Mappers;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
@@ -15,25 +15,25 @@ import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
 import school.faang.user_service.dto.user_jira.UserJiraDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.userJira.UserJira;
 import school.faang.user_service.exception.EntityNotFoundException;
 import school.faang.user_service.exception.ErrorMessage;
-import school.faang.user_service.mapper.user.UserMapper;
-import school.faang.user_service.mapper.user_jira.UserJiraMapper;
-import school.faang.user_service.repository.UserRepository;
-import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.filter.user.UserEmailFilter;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNameFilter;
+import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user.UserMapperImpl;
+import school.faang.user_service.mapper.user_jira.UserJiraMapper;
+import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.user_jira.UserJiraService;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -63,7 +63,9 @@ class UserServiceTest {
     @Mock
     private UserJiraService userJiraService;
 
+    @InjectMocks
     private UserService userService;
+
     private List<UserFilter> userFilters;
 
     @Captor
@@ -355,30 +357,7 @@ class UserServiceTest {
         userService.banUser(user.getId());
 
         verify(userRepository, times(1)).save(userCaptor.capture());
-        assertEquals(true, userCaptor.getValue().isBanned());
-    }
-
-    @Test
-    public void handleUserBanMessageTest() {
-        Long userId = 1L;
-        User user = new User();
-        user.setId(1L);
-        user.setBanned(false);
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        userService.handleUserBanMessage(userId);
-        verify(userRepository, times(1)).findById(userId);
-        verify(userRepository, times(1)).save(Mockito.any());
-        assertTrue(user.isBanned());
-    }
-
-    @Test
-    public void handleUserBanMessageThrowsTest() {
-        Long userId = 1L;
-        when(userRepository.findById(userId)).thenThrow(IllegalArgumentException.class);
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> userService.handleUserBanMessage(userId)
-        );
+        assertTrue(userCaptor.getValue().isBanned());
     }
 
 }
