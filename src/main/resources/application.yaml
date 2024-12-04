@@ -48,6 +48,10 @@ application:
     max-month-limit-recommendation-request: 6
   skill:
     minOffersRequired: 3
+  premium:
+    threads-number: 20
+    time-to-run-remove-expired-premium: "0 0 8 * * Sun" # every sunday at 8 a.m.
+    batch-size: 100
 
 
 
