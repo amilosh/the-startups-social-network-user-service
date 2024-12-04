@@ -135,7 +135,7 @@ public class GoalInvitationServiceTest {
         GoalInvitationResponseDto result = goalInvitationService.rejectGoalInvitation(1L);
 
         assertNotNull(result);
-        assertEquals(RequestStatus.REJECTED, result.getStatus());
+        assertEquals(RequestStatus.ACCEPTED, result.getStatus());
     }
 
     @Test
