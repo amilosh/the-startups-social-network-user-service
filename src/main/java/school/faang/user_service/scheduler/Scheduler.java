@@ -17,10 +17,8 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class Scheduler {
-
     private final EventService eventService;
 
-    @Async("fixedThreadPool")//как бы по задаче надо но @Scheduled и так выполняется в отдельном потоке, но я решил оставить
     @Scheduled(cron = "${removeEventTime.cron}")
     public void clearEvents() {
         log.info("calling eventService to remove all past events");

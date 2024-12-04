@@ -42,7 +42,5 @@ payment-service:
   port: 9080
 
 removeEventTime:
-  cron: 0 0 * * *
+  cron: 0 0 * * * *
 
-threadPool:
-  size: 2
