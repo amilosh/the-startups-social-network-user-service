@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.user;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -71,5 +71,11 @@ public class UserService {
     public List<UserSubResponseDto> getAllUsersDtoByIds(List<Long> ids) {
         List<User> users = getAllUsersByIds(ids);
         return userMapper.toUserSubResponseList(users);
+    }
+
+    public void banUser(Long userId) {
+        User user = getUserById(userId);
+        user.setBanned(true);
+        userRepository.save(user);
     }
 }

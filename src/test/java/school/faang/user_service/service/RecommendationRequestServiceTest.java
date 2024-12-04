@@ -19,6 +19,7 @@ import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.filter.recommendationRequestFilters.RecommendationRequestFilter;
 import school.faang.user_service.mapper.RecommendationRequestMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
+import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;

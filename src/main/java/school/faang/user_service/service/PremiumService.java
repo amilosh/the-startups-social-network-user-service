@@ -11,6 +11,7 @@ import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.exceptions.PaymentException;
 import school.faang.user_service.mapper.PremiumMapper;
 import school.faang.user_service.repository.premium.PremiumRepository;
+import school.faang.user_service.service.user.UserService;
 
 import java.time.LocalDateTime;
 
