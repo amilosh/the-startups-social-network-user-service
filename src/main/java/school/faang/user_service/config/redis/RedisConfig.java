@@ -8,7 +8,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
-import school.faang.user_service.service.consumer.BanUserSubscriber;
+import school.faang.user_service.message.consumer.BanUserEventListener;
 
 @Configuration
 @RequiredArgsConstructor
@@ -17,18 +17,18 @@ public class RedisConfig {
     @Value("${spring.data.redis.channels.ban-user-channel.name}")
     private String banUserTopicName;
 
-    private final BanUserSubscriber banUserSubscriber;
+    private final BanUserEventListener banUserEventListener;
 
     @Bean
-    public MessageListenerAdapter messageListenerAdapter(BanUserSubscriber banUserSubscriber) {
-        return new MessageListenerAdapter(banUserSubscriber);
+    public MessageListenerAdapter banUserEventListenerAdapter(BanUserEventListener banUserEventListener) {
+        return new MessageListenerAdapter(banUserEventListener);
     }
 
     @Bean
     public RedisMessageListenerContainer redisMessageListenerContainer(RedisConnectionFactory connectionFactory) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(banUserSubscriber, banUserTopic());
+        container.addMessageListener(banUserEventListener, banUserTopic());
         return container;
     }
 

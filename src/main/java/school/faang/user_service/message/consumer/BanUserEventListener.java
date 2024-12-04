@@ -1,4 +1,4 @@
-package school.faang.user_service.service.consumer;
+package school.faang.user_service.message.consumer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class BanUserSubscriber implements MessageListener {
+public class BanUserEventListener implements MessageListener {
 
     private final UserService userService;
 
