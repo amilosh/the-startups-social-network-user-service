@@ -19,7 +19,6 @@ import school.faang.user_service.dto.user_jira.UserJiraDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.contact.ContactPreference;
-import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.entity.userJira.UserJira;
 import school.faang.user_service.exception.EntityNotFoundException;
@@ -54,6 +53,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static school.faang.user_service.entity.contact.PreferredContact.EMAIL;
 
 @ExtendWith({MockitoExtension.class})
 class UserServiceTest {
@@ -260,28 +260,22 @@ class UserServiceTest {
         long firstUserId = 1L;
         long secondUserId = 2L;
 
-        ContactPreference firstUserContactPreference = new ContactPreference();
-        firstUserContactPreference.setPreference(PreferredContact.EMAIL);
         User firstUser = User.builder()
                 .id(firstUserId)
                 .username("firstUser")
                 .email("first@email.com")
-                .telegramChatId(90182590L)
-                .contactPreference(firstUserContactPreference)
+                .telegramChatId(1242142141241L)
                 .build();
 
-        ContactPreference secondUserContactPreference = new ContactPreference();
-        secondUserContactPreference.setPreference(PreferredContact.EMAIL);
         User secondUser = User.builder()
                 .id(secondUserId)
                 .username("secondUser")
                 .email("second@email.com")
-                .telegramChatId(893248953L)
-                .contactPreference(secondUserContactPreference)
+                .telegramChatId(90218421908421L)
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L, PreferredContact.EMAIL);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L, PreferredContact.EMAIL);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 90218421908421L);
 
         Stream<User> users = Stream.of(firstUser, secondUser);
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
@@ -310,28 +304,21 @@ class UserServiceTest {
         Premium expiredPremium = new Premium();
         expiredPremium.setEndDate(LocalDateTime.now().minusDays(1));
 
-        ContactPreference firstUserContactPreference = new ContactPreference();
-        firstUserContactPreference.setPreference(PreferredContact.EMAIL);
         User firstUser = User.builder()
                 .id(firstUserId)
                 .username("firstUser")
                 .email("first@email.com")
-                .telegramChatId(90182590L)
-                .contactPreference(firstUserContactPreference)
+                .premium(expiredPremium)
                 .build();
 
-        ContactPreference secondUserContactPreference = new ContactPreference();
-        secondUserContactPreference.setPreference(PreferredContact.EMAIL);
         User secondUser = User.builder()
                 .id(secondUserId)
                 .username("secondUser")
                 .email("second@email.com")
-                .telegramChatId(893248953L)
-                .contactPreference(secondUserContactPreference)
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L, PreferredContact.EMAIL);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L, PreferredContact.EMAIL);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L, EMAIL);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L, EMAIL);
 
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
         List<User> usersList = List.of(firstUser, secondUser);
