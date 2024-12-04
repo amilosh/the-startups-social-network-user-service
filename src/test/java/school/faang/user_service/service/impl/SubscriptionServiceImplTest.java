@@ -11,11 +11,12 @@ import school.faang.user_service.datatest.DataSubscription;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.extention.DataValidationException;
-import school.faang.user_service.extention.ErrorMessages;
+import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.ErrorMessages;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.UserMapperImpl;
 import school.faang.user_service.repository.SubscriptionRepository;
+import school.faang.user_service.utilities.TestLocalData;
 
 import java.util.List;
 
@@ -84,52 +85,22 @@ class SubscriptionServiceImplTest {
 
     @Test
     void getFollowersSetAllFilterValueSuccessTest() {
-        generalGetFollowersFilterCalculation(
-                PAGE_NUMBER,
-                PAGE_SIZE,
-                PAGE_SIZE,
-                "EE001 - Incorrect number rows in a page.",
-                false);
-    }
-
-    @Test
-    void getFollowersSetNullPageSizeSuccessTest() {
-        generalGetFollowersFilterCalculation(
-                PAGE_NUMBER,
-                null,
-                NUMBER_USER_SUCCESS_FILTER + NUMBER_USER_NOT_SUCCESS_FILTER,
-                "EE002 - Incorrect number rows.",
-                false);
-    }
-
-    @Test
-    void getFollowersSetNullPageSuccessTest() {
-        generalGetFollowersFilterCalculation(
-                null,
-                PAGE_SIZE,
-                NUMBER_USER_SUCCESS_FILTER + NUMBER_USER_NOT_SUCCESS_FILTER,
-                "EE003 - Incorrect number rows.",
-                false);
-    }
-
-    @Test
-    void getFollowersSetNullPageAndPageSizeSuccessTest() {
-        generalGetFollowersFilterCalculation(
-                null,
-                null,
-                NUMBER_USER_SUCCESS_FILTER + NUMBER_USER_NOT_SUCCESS_FILTER,
-                "EE004 - Incorrect number rows.",
-                false);
-    }
-
-    @Test
-    void getFollowersLogicFilterTest() {
-        generalGetFollowersFilterCalculation(
-                null,
-                null,
-                NUMBER_USER_SUCCESS_FILTER,
-                "EE005 -A logic of general filter calculation is wrong.",
-                true);
+        List<TestLocalData> testLocalDataList = List.of(
+                new TestLocalData(PAGE_NUMBER, PAGE_SIZE, PAGE_SIZE, "EE001 - Incorrect number rows in a page.", false),
+                new TestLocalData(PAGE_NUMBER, null, NUMBER_USER_SUCCESS_FILTER + NUMBER_USER_NOT_SUCCESS_FILTER, "EE002 - Incorrect number rows.", false),
+                new TestLocalData(null, PAGE_SIZE, NUMBER_USER_SUCCESS_FILTER + NUMBER_USER_NOT_SUCCESS_FILTER, "EE003 - Incorrect number rows.", false),
+                new TestLocalData(null, null, NUMBER_USER_SUCCESS_FILTER + NUMBER_USER_NOT_SUCCESS_FILTER, "EE004 - Incorrect number rows.", false),
+                new TestLocalData(null, null, NUMBER_USER_SUCCESS_FILTER, "EE005 -A logic of general filter calculation is wrong.", true)
+        );
+        testLocalDataList.forEach(testLocalData ->
+                generalGetFollowersFilterCalculation(
+                        testLocalData.pageNumber(),
+                        testLocalData.pageSize(),
+                        testLocalData.resultNumberRows(),
+                        testLocalData.errorMessage(),
+                        testLocalData.isLogicFilterPresent())
+        );
+        verify(subscriptionRepository, times(5)).findByFolloweeId(FOLLOWEE_ID);
     }
 
     @Test
@@ -150,6 +121,7 @@ class SubscriptionServiceImplTest {
 
         when(subscriptionRepository.findByFolloweeId(FOLLOWEE_ID))
                 .thenReturn(DataSubscription.getUserList(NUMBER_USER_SUCCESS_FILTER, NUMBER_USER_NOT_SUCCESS_FILTER).stream());
+
         if (isLogicFilterPresent) {
             subscriptionService = new SubscriptionServiceImpl(subscriptionRepository,
                     userMapper,
@@ -166,8 +138,6 @@ class SubscriptionServiceImplTest {
         List<UserDto> resultUserDTos = subscriptionService.getFollowers(FOLLOWEE_ID, userFilterDto);
 
         log.info("" + resultUserDTos.size());
-
-        verify(subscriptionRepository, times(1)).findByFolloweeId(FOLLOWEE_ID);
         assertEquals(resultNumberRows, resultUserDTos.size(), errorMessage);
     }
 }

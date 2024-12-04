@@ -8,11 +8,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import school.faang.user_service.dto.ExceptionBaseStructure;
-import school.faang.user_service.extention.DataValidationException;
-import school.faang.user_service.extention.ErrorCode;
-import school.faang.user_service.utilities.ServiceMethods;
-import school.faang.user_service.utilities.UrlUtils;
+import school.faang.user_service.exception.DataValidationException;
 
 @RestControllerAdvice
 public class ExceptionApiHandler {
@@ -45,11 +41,9 @@ public class ExceptionApiHandler {
     }
 
     @ExceptionHandler(DataValidationException.class)
-    public ResponseEntity<ExceptionBaseStructure> handleElementNotFindException(Exception exception) {
-        return new ResponseEntity<>(new ExceptionBaseStructure(exception.getMessage(),
-                ErrorCode.INVALID_FOLLOW,
-                ServiceMethods.getTimeIsoOffsetDateTime(),
-                UrlUtils.SYSTEM_ID
-        ), HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ErrorMessage> handleElementNotFindException(Exception exception) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessage(exception.getMessage()));
     }
 }

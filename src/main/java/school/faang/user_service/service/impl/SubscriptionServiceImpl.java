@@ -2,12 +2,13 @@ package school.faang.user_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.User;
-import school.faang.user_service.extention.DataValidationException;
-import school.faang.user_service.extention.ErrorMessages;
+import school.faang.user_service.exception.DataValidationException;
+import school.faang.user_service.exception.ErrorMessages;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.SubscriptionRepository;
@@ -25,7 +26,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     private final List<UserFilter> userFilters;
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void followUser(long followerId, long followeeId) {
         if (subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             throw new DataValidationException(ErrorMessages.M_FOLLOW_EXIST);
