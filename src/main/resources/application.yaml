@@ -62,4 +62,4 @@ premium:
 
 redis:
   topic:
-    premium-bought: premium
+    premium-bought: premium-bought
