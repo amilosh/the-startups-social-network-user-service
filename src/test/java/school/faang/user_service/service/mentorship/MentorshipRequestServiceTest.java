@@ -17,6 +17,7 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapperImpl;
+import school.faang.user_service.redis.publisher.MentorshipAcceptedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.filter.mentorship.RequestDescriptionFilter;
 import school.faang.user_service.filter.mentorship.RequestFilter;
@@ -34,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -52,6 +54,9 @@ class MentorshipRequestServiceTest {
 
     @Spy
     private MentorshipRequestMapperImpl requestMapper;
+
+    @Mock
+    MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
 
     @Captor
     ArgumentCaptor<MentorshipRequest> requestCaptor;
@@ -83,8 +88,7 @@ class MentorshipRequestServiceTest {
         List<RequestFilter> requestFilters = List.of(firstFilter, secondFilter, thirdFilter, fourthFilter);
 
         requestService = new MentorshipRequestService(
-                requestRepository, userService, requestValidator, requestMapper, requestFilters
-        );
+                requestRepository, userService, requestValidator, requestMapper, requestFilters, mentorshipAcceptedEventPublisher);
 
         Long requesterId = 1L;
         Long receiverId = 2L;
@@ -157,12 +161,14 @@ class MentorshipRequestServiceTest {
         firstRequest.getReceiver().setMentors(null);
         when(requestValidator.validateAcceptRequest(requestId)).thenReturn(firstRequest);
         when(requestRepository.save(any(MentorshipRequest.class))).thenReturn(firstRequest);
+        doNothing().when(mentorshipAcceptedEventPublisher).publish(any());
 
         MentorshipRequestDto resultDto = requestService.acceptRequest(requestId);
 
         verify(userService, times(1)).saveUser(firstRequest.getRequester());
         verify(userService, times(1)).saveUser(firstRequest.getReceiver());
         verify(requestValidator, times(1)).validateAcceptRequest(requestId);
+        verify(mentorshipAcceptedEventPublisher, times(1)).publish(any());
         assertEquals(RequestStatus.ACCEPTED, resultDto.getStatus());
         assertEquals(firstRequest.getId(), resultDto.getId());
     }

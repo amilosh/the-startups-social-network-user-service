@@ -29,11 +29,10 @@ spring:
     redis:
       port: 6379
       host: localhost
-      channels:
-        mentorship-channel:
-          name: mentorship_channel
-        follower-event-channel:
-          name: follower_event
+      channel:
+        follower: follower_channel
+        mentorship:
+          accepted: mentorship_accepted_channel
   servlet:
     multipart:
       max-file-size: 5MB
