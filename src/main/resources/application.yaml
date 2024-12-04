@@ -59,3 +59,7 @@ premium:
     cron: 0 0 0 * * 0
     zone: Europe/Moscow
     thread-pool: 1
+
+redis:
+  topic:
+    premium-bought: premium

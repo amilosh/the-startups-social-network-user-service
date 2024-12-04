@@ -9,12 +9,14 @@ import school.faang.user_service.client.payment.PaymentServiceClient;
 import school.faang.user_service.dto.payment.PaymentRequest;
 import school.faang.user_service.dto.payment.PaymentResponse;
 import school.faang.user_service.dto.payment.PaymentStatus;
+import school.faang.user_service.dto.premium.PremiumEvent;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.dto.premium.UserPremiumPeriod;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.exception.PaymentFailedException;
 import school.faang.user_service.mapper.premium.PremiumMapper;
+import school.faang.user_service.publisher.PremiumBoughtPublisher;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.service.user.UserService;
 
@@ -33,6 +35,7 @@ public class PremiumService {
     private final PaymentServiceClient paymentServiceClient;
     private final UserService userService;
     private final PremiumMapper premiumMapper;
+    private final PremiumBoughtPublisher premiumBoughtPublisher;
 
     public ResponseEntity<PremiumDto> buyPremium(PremiumDto premiumDto, UserPremiumPeriod userPremiumPeriod) {
         User user = userService.findById(premiumDto.getUserId())
@@ -57,6 +60,13 @@ public class PremiumService {
             savedPremiumDto.setDays(premiumDto.getDays());
             savedPremiumDto.setCurrency(premiumDto.getCurrency());
             savedPremiumDto.setMessage(paymentResponse.getBody().message());
+            premiumBoughtPublisher.publish(new PremiumEvent(
+                    premium.getId(),
+                    premium.getUser().getId(),
+                    premium.getPremiumType(),
+                    premium.getStartDate(),
+                    premium.getEndDate()
+            ));
             return ResponseEntity.status(HttpStatus.CREATED).body(savedPremiumDto);
         }
         log.error("payment wasn't success, cause: {}", paymentResponse.getBody().message());
