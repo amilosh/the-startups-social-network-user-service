@@ -27,6 +27,10 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int redisPort;
 
+    @Value("${spring.data.redis.channel.follower}")
+    private String followerChannel;
+
+
     @Bean
     public LettuceConnectionFactory lettuceConnectionFactory() {
         logger.info("Создание LettuceConnectionFactory для Redis с хостом: {} и портом: {}", redisHost, redisPort);
@@ -40,8 +44,8 @@ public class RedisConfig {
 
     @Bean
     public ChannelTopic followerChannel() {
-        logger.info("Создание ChannelTopic для канала: follower_channel.");
-        return new ChannelTopic("follower_channel");
+        logger.info("Создание ChannelTopic для канала: {}", followerChannel);
+        return new ChannelTopic(followerChannel);
     }
 
     @Bean
