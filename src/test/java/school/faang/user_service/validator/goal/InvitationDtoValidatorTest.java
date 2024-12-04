@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.dto.goal.GoalInvitationDto;
+import school.faang.user_service.dto.goal.GoalInvitationRequestDto;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
@@ -27,13 +27,13 @@ public class InvitationDtoValidatorTest {
     private GoalRepository goalRepository;
 
     @InjectMocks
-    private InvitationDtoValidator invitationDtoValidator;
+    private InvitationValidator invitationDtoValidator;
 
-    private GoalInvitationDto validGoalInvitationDto;
+    private GoalInvitationRequestDto validGoalInvitationDto;
 
     @BeforeEach
     void setUp() {
-        validGoalInvitationDto = new GoalInvitationDto();
+        validGoalInvitationDto = new GoalInvitationRequestDto();
         validGoalInvitationDto.setInviterId(1L);
         validGoalInvitationDto.setInvitedUserId(2L);
         validGoalInvitationDto.setGoalId(1L);
