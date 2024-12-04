@@ -40,11 +40,11 @@ public class PremiumControllerTest {
 
     @Test
     void testBuyPremiumShouldReturnNotFoundWhenInvalidInput() throws Exception {
-        mockMvc.perform(post("/user/-1/30")
+        mockMvc.perform(post("/user/-1/days/30")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
 
-        mockMvc.perform(post("/user/1/-30")
+        mockMvc.perform(post("/user/1/days/-30")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -69,7 +69,7 @@ public class PremiumControllerTest {
 
         when(premiumService.buyPremium(userId, premiumPeriod)).thenReturn(mockPremiumDto);
 
-        mockMvc.perform(post("/premiums/user/{userId}/{days}", userId, days)
+        mockMvc.perform(post("/premiums/user/{userId}/days/{days}", userId, days)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userDto.id").value(userId))

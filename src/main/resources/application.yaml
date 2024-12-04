@@ -58,5 +58,5 @@ project-service:
   port: 8082
 
 payment-service:
-  host: localhost
+  host: http://localhost
   port: 9080

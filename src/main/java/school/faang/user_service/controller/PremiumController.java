@@ -17,7 +17,7 @@ import school.faang.user_service.service.PremiumService;
 public class PremiumController {
     private final PremiumService premiumService;
 
-    @PostMapping("user/{userId}/{days}")
+    @PostMapping("user/{userId}/days/{days}")
     public ResponseEntity<PremiumDto> buyPremium(@PathVariable @Positive long userId,
                                                  @PathVariable @Positive int days) {
         PremiumPeriod premiumPeriod = PremiumPeriod.fromDays(days);

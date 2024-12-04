@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import school.faang.user_service.client.payment.PaymentRequest;
 import school.faang.user_service.client.payment.PaymentResponse;
 
-@FeignClient(url = "http://${payment-service.host}:${payment-service.port}", name = "payment-service")
+@FeignClient(url = "${payment-service.host}:${payment-service.port}", name = "payment-service")
 public interface PaymentServiceClient {
 
     @PostMapping("/api/payment")
