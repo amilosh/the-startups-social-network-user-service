@@ -10,7 +10,7 @@ import school.faang.user_service.redis.event.MentorshipAcceptedEvent;
 @RequiredArgsConstructor
 public class MentorshipAcceptedEventPublisher {
 
-    @Value("${data.redis.channel.mentorship.accepted}")
+    @Value("${spring.data.redis.channel.mentorship.accepted}")
     private String mentorshipAcceptedChannel;
 
     private final RedisTemplate<String, Object> redisTemplate;
