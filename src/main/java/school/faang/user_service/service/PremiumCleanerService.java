@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.repository.premium.PremiumRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -16,14 +18,17 @@ public class PremiumCleanerService {
     private final PremiumRepository premiumRepository;
 
     @Async("taskExecutor")
-    public void deletePremium(List<Premium> premiums) {
+    public CompletableFuture<List<Premium>> deletePremium(List<Premium> premiums) {
+        List<Premium> failedPremiums = new ArrayList<>();
         for (Premium premium : premiums) {
             try {
                 premiumRepository.delete(premium);
                 log.info("Successfully deleted  premium with id {} ", premium.getId());
             } catch (Exception e) {
                 log.error("Failed to delete premium with id {}. Error: {} ", premium.getId(), e.getMessage(), e);
+                failedPremiums.add(premium);
             }
         }
+        return CompletableFuture.completedFuture(failedPremiums);
     }
 }

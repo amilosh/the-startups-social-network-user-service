@@ -24,8 +24,15 @@ public class PremiumService {
     public void deleteExpiredPremiums(LocalDateTime time) {
         log.info("Starting premium deletion process for premiums before: {}", time);
         List<Premium> premiumsToDelete = premiumRepository.findAllByEndDateBefore(time);
+
+        if(premiumsToDelete.isEmpty()){
+            log.info("No premiums found to delete before: {}", time);
+            return;
+        }
+
         List<List<Premium>> partitions = splitPremiumsIntoBatches(premiumsToDelete, batchSize);
         log.info("Found {} premiums to delete, splitting into batches of size {}", premiumsToDelete.size(), batchSize);
+
         partitions.forEach(premiumCleanerService::deletePremium);
         log.info("Premium deletion process completed.");
     }

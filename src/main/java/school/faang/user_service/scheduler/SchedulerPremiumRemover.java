@@ -10,21 +10,18 @@ import java.time.LocalDateTime;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class SchedulerPremiumRemover {
     private final PremiumService premiumService;
 
     @Scheduled(cron = "${myapp.schedule.cron}")
     public void deleteExpiredPremiums() {
-        log.info("Scheduled task: deleting premium access that has expired");
         String taskId = "DeleteExpiredPremiums-" + System.currentTimeMillis();
         LocalDateTime now = LocalDateTime.now();
         long startTime = System.currentTimeMillis();
         try {
             premiumService.deleteExpiredPremiums(now);
-            log.info("TaskId {} scheduled task completed in {} ms.",taskId, System.currentTimeMillis() - startTime);
         } catch (Exception e) {
-            log.error("TaskId {} Scheduled task failed: {}",taskId, e.getMessage(), e);
+            throw new RuntimeException("Scheduled task failed: " + e.getMessage(), e);
         }
     }
 }
