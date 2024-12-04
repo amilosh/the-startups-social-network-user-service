@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import school.faang.user_service.entity.contact.PreferredContact;
 
 @Builder
 @Getter
@@ -18,4 +19,5 @@ public class UserDto {
     private String username;
     private String email;
     private Long telegramChatId;
+    private PreferredContact preference;
 }

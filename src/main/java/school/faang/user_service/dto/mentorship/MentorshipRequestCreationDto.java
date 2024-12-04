@@ -3,13 +3,17 @@ package school.faang.user_service.dto.mentorship;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter
 @Getter
 @Builder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
 public class MentorshipRequestCreationDto {
 
     @NotBlank(message = "The description of the reasons for mentorship cannot be empty.")

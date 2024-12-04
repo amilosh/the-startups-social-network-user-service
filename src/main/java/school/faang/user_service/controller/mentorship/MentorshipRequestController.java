@@ -24,9 +24,10 @@ import java.util.List;
 
 @Tag(name = "MentorshipRequests", description = "API for managing mentorship requests.")
 @RestController
-@RequestMapping("/mentorship/requests")
+@RequestMapping("/mentorships/requests")
 @RequiredArgsConstructor
 public class MentorshipRequestController {
+
     private final MentorshipRequestService mentorshipRequestService;
 
     @Operation(summary = "Create a mentorship request")
