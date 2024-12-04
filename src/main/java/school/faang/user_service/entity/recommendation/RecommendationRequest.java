@@ -49,10 +49,6 @@ public class RecommendationRequest {
     private Recommendation recommendation;
 
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)
-    //todo new ArrayList<>() - и так инициализация не работает.
-    // Объект создает mapStruct, в его Impl сетяться только поля, которые не null в DTO.
-    // skill в mapper в ignored
-    // Потому, кажется, самое простое создавать List в методе addSkillRequest
     private List<SkillRequest> skills;
 
     @CreationTimestamp

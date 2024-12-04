@@ -54,18 +54,12 @@ class RecommendationRequestServiceTest {
     @Captor
     private ArgumentCaptor<RecommendationRequest> recommendationRequestCaptor;
 
-//    @BeforeEach
-//    void setUp() {
-//        MockitoAnnotations.openMocks(this);
-//    }
-
     private RecommendationRequestDto createRecommendationRequestDto() {
-        RecommendationRequestDto dto = RecommendationRequestDto.builder()
-                        .requesterId(1L)
-                        .receiverId(2L)
-                        .message("Please recommend me")
-                        .skills(List.of(1L, 2L))
-                        .build();
+        RecommendationRequestDto dto = new RecommendationRequestDto();
+        dto.setRequesterId(1L);
+        dto.setReceiverId(2L);
+        dto.setMessage("Please recommend me");
+        dto.setSkills(List.of(1L, 2L));
         return dto;
     }
 
