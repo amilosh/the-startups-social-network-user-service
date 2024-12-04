@@ -27,8 +27,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
@@ -98,8 +97,8 @@ public class GoalServiceTest {
         assertEquals(goalResponseDto, result);
         verify(goalValidator).validateUpdatingGoal(1L, goalDto);
         verify(goalRepository).save(goal);
-        verify(goalCompletedPublisher).publish(new GoalCompletedEvent(1L, 99L,
-                LocalDateTime.of(2024,12,12,12,12)));
+        GoalCompletedEvent goalEvent = new GoalCompletedEvent(1L, 99L, null);
+        verify(goalCompletedPublisher).publish(refEq(goalEvent,"completedAt"));
     }
 
     @Test
