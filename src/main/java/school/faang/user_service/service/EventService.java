@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -40,6 +39,7 @@ public class EventService {
     private final SkillMapper skillMapper;
     private final List<EventFilter> eventFilters;
     private final SchedulerConfig schedulerConfig;
+    private final ExecutorService executorService;
 
     public EventDto create(EventDto eventDto) {
         log.info("Creating event:{}", eventDto.toLogString());
@@ -158,8 +158,6 @@ public class EventService {
 
     public void clearPastEvents() {
         int batchSize = schedulerConfig.getBatchSize();
-        int threadPoolSize = schedulerConfig.getThreadPoolSize();
-        ExecutorService executorService = Executors.newFixedThreadPool(threadPoolSize);
 
         List<Event> pastEvents = eventRepository.findByEndDateBefore(LocalDateTime.now());
         if (pastEvents.isEmpty()) {
