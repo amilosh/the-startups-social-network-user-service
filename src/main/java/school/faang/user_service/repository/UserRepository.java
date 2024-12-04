@@ -79,4 +79,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     void deleteProfilePic(
             @Param("userId") Long userId
     );
+
 }

@@ -14,4 +14,8 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/user_V007__user_premium.sql
   - include:
-      file: db/changelog/changeset/user_V008_user_ban.sql
+      file: db/changelog/changeset/user_V008__add_user_jira.sql
+  - include:
+      file: db/changelog/changeset/user_V009__user_banned.sql
+  - include:
+      file: db/changelog/changeset/user_V010__user_telegram_chat_id.sql
