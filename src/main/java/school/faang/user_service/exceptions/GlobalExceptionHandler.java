@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
+
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -22,6 +23,7 @@ public class GlobalExceptionHandler {
     public static final String UNEXPECTED_ERROR = "An unexpected error occurred: ";
     public static final String PAYMENT_ERROR = "PaymentException occurred: ";
     private static final String ENTITY_NOT_FOUND = "EntityNotFoundException: ";
+    private static final String IMAGE_PROCESSING_EXCEPTION = "ImageProcessingException: ";
 
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -63,6 +65,13 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleGenericException(Exception ex) {
         log.error(UNEXPECTED_ERROR, ex);
         return new ErrorResponse("An unexpected error occurred");
+    }
+
+    @ExceptionHandler(ImageProcessingException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleFileUploadException(ImageProcessingException ex) {
+        log.error(IMAGE_PROCESSING_EXCEPTION, ex);
+        return new ErrorResponse(ex.getMessage());
     }
 }
 
