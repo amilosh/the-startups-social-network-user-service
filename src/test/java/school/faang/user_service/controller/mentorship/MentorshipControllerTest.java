@@ -11,7 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import school.faang.user_service.controller.mentorship.MentorshipController;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.exception.GlobalExceptionHandler;
 import school.faang.user_service.service.MentorshipService;
@@ -44,15 +43,15 @@ public class MentorshipControllerTest {
 
     private long userId = 1L;
     private long deleteUserId = 2L;
-    Long mentee1Id = 2L;
-    Long mentee2Id = 3L;
-    Long mentee3Id = 4L;
-    Long mentor1Id = 5L;
-    Long mentor2Id = 6L;
-    Long mentor3Id = 7L;
+    Long menteeFirstId = 2L;
+    Long menteeSecondId = 3L;
+    Long menteeThirdId = 4L;
+    Long mentorFirstId = 5L;
+    Long mentorSecondId = 6L;
+    Long mentorThirdId = 7L;
     private UserDto userDto;
-    private UserDto userDto1;
-    private UserDto userDto2;
+    private UserDto userDtoFirst;
+    private UserDto userDtoSecond;
     private List<UserDto> userDtos;
 
     @BeforeEach
@@ -61,9 +60,9 @@ public class MentorshipControllerTest {
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
         userDto = mockUserDto();
-        userDto1 = mockUser1();
-        userDto2 = mockUser2();
-        userDtos = Arrays.asList(userDto1, userDto2);
+        userDtoFirst = mockUser1();
+        userDtoSecond = mockUser2();
+        userDtos = Arrays.asList(userDtoFirst, userDtoSecond);
     }
 
     @Test
@@ -75,7 +74,7 @@ public class MentorshipControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id").value(userDto1.getId()));
+                .andExpect(jsonPath("$[0].id").value(userDtoFirst.getId()));
 
         verify(mentorshipService, times(1)).getMentees(userId);
     }
@@ -102,7 +101,7 @@ public class MentorshipControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].id").value(userDto1.getId()));
+                .andExpect(jsonPath("$[0].id").value(userDtoFirst.getId()));
 
         verify(mentorshipService, times(1)).getMentors(userId);
     }
@@ -178,8 +177,8 @@ public class MentorshipControllerTest {
         return UserDto.builder()
                 .id(1L)
                 .username("User1")
-                .menteesId(List.of(mentee1Id, mentee2Id, mentee3Id))
-                .mentorsId(List.of(mentor1Id, mentor2Id, mentor3Id))
+                .menteesId(List.of(menteeFirstId, menteeSecondId, menteeThirdId))
+                .mentorsId(List.of(mentorFirstId, mentorSecondId, mentorThirdId))
                 .build();
     }
 
@@ -187,8 +186,8 @@ public class MentorshipControllerTest {
         return UserDto.builder()
                 .id(2L)
                 .username("Mentee1")
-                .menteesId(List.of(mentee1Id, mentee2Id, mentee3Id))
-                .mentorsId(List.of(mentor1Id, mentor2Id, mentor3Id))
+                .menteesId(List.of(menteeFirstId, menteeSecondId, menteeThirdId))
+                .mentorsId(List.of(mentorFirstId, mentorSecondId, mentorThirdId))
                 .build();
     }
 
@@ -196,8 +195,8 @@ public class MentorshipControllerTest {
         return UserDto.builder()
                 .id(3L)
                 .username("Mentee1")
-                .menteesId(List.of(mentee1Id, mentee2Id, mentee3Id))
-                .mentorsId(List.of(mentor1Id, mentor2Id, mentor3Id))
+                .menteesId(List.of(menteeFirstId, menteeSecondId, menteeThirdId))
+                .mentorsId(List.of(mentorFirstId, mentorSecondId, mentorThirdId))
                 .build();
     }
 }
