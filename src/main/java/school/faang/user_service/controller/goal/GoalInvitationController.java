@@ -8,8 +8,17 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
-import school.faang.user_service.dto.goal.GoalInvitationDto;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import school.faang.user_service.dto.goal.GoalInvitationRequestDto;
+import school.faang.user_service.dto.goal.GoalInvitationResponseDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
 import school.faang.user_service.service.goal.GoalInvitationService;
 
@@ -34,7 +43,7 @@ public class GoalInvitationController {
     )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public GoalInvitationDto createInvitation(@Valid @RequestBody GoalInvitationDto invitation) {
+    public GoalInvitationResponseDto createInvitation(@Valid @RequestBody GoalInvitationRequestDto invitation) {
         return goalInvitationService.createInvitation(invitation);
     }
 
@@ -47,7 +56,7 @@ public class GoalInvitationController {
     )
     @PutMapping("/{id}/accept")
     @ResponseStatus(HttpStatus.OK)
-    public GoalInvitationDto acceptGoalInvitation(
+    public GoalInvitationResponseDto acceptGoalInvitation(
             @PathVariable @NotNull(message = "Invitation ID should not be null") Long id) {
         return goalInvitationService.acceptGoalInvitation(id);
     }
@@ -61,7 +70,7 @@ public class GoalInvitationController {
     )
     @PutMapping("/{id}/reject")
     @ResponseStatus(HttpStatus.OK)
-    public GoalInvitationDto rejectGoalInvitation(
+    public GoalInvitationResponseDto rejectGoalInvitation(
             @PathVariable @NotNull(message = "Invitation ID should not be null") Long id) {
         return goalInvitationService.rejectGoalInvitation(id);
     }
@@ -75,7 +84,7 @@ public class GoalInvitationController {
     )
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<GoalInvitationDto> getInvitations(@Valid @ModelAttribute InvitationFilterDto filter) {
+    public List<GoalInvitationResponseDto> getInvitations(@Valid @ModelAttribute InvitationFilterDto filter) {
         return goalInvitationService.getInvitationsByFilter(filter);
     }
 }
