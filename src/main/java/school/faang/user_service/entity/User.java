@@ -209,4 +209,16 @@ public class User {
             mentors.remove(mentor);
         }
     }
+
+    public void deleteUserProfilePic() {
+        this.userProfilePic = null;
+    }
+
+    public String toStringProfilePicInfo() {
+        return "User {" +
+                "id=" + id +
+                ", updatedAt=" + updatedAt +
+                ", userProfilePic=" + userProfilePic +
+                '}';
+    }
 }
