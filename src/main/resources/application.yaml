@@ -40,3 +40,11 @@ project-service:
 payment-service:
   host: localhost
   port: 9080
+
+integration:
+
+  dice-bear:
+    base-url: https://api.dicebear.com
+    version: 9.x
+    styles: adventurer, bottts, big-ears
+    seed-names: Brian, Adrian, Chase, Oliver, Robert

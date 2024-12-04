@@ -70,6 +70,9 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name= "avatar_url")
+    private String avatarUrl;
+
     @ManyToMany
     @JoinTable(name = "subscription",
             joinColumns = @JoinColumn(name = "followee_id"), inverseJoinColumns = @JoinColumn(name = "follower_id"))
