@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class PremiumEvent {
+public class PremiumBoughtEvent {
     private long id;
     private long userId;
     private String premiumType;

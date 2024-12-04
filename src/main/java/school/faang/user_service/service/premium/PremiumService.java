@@ -9,7 +9,7 @@ import school.faang.user_service.client.payment.PaymentServiceClient;
 import school.faang.user_service.dto.payment.PaymentRequest;
 import school.faang.user_service.dto.payment.PaymentResponse;
 import school.faang.user_service.dto.payment.PaymentStatus;
-import school.faang.user_service.dto.premium.PremiumEvent;
+import school.faang.user_service.dto.premium.PremiumBoughtEvent;
 import school.faang.user_service.dto.premium.PremiumDto;
 import school.faang.user_service.dto.premium.UserPremiumPeriod;
 import school.faang.user_service.entity.User;
@@ -60,7 +60,7 @@ public class PremiumService {
             savedPremiumDto.setDays(premiumDto.getDays());
             savedPremiumDto.setCurrency(premiumDto.getCurrency());
             savedPremiumDto.setMessage(paymentResponse.getBody().message());
-            premiumBoughtPublisher.publish(new PremiumEvent(
+            premiumBoughtPublisher.publish(new PremiumBoughtEvent(
                     premium.getId(),
                     premium.getUser().getId(),
                     premium.getPremiumType(),
