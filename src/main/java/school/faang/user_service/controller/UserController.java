@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserProfilePicDto;
@@ -44,21 +46,21 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/avatar")
+    @ResponseStatus(HttpStatus.OK)
     public UserProfilePicDto updateAvatar(@PathVariable("userId") @Positive long userId,
                                           @RequestPart MultipartFile file) {
         return userService.updateUserProfilePicture(userId, file);
     }
 
-    @GetMapping("/{userId}/avatar")
-    public ResponseEntity<InputStreamResource> getAvatar(@PathVariable("userId") @Positive long userId) {
-        InputStreamResource file = userService.getUserAvatar(userId);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_JPEG);
-        return new ResponseEntity<>(file, headers, HttpStatus.OK);
+    @GetMapping(value = "/{userId}/avatar", produces = MediaType.IMAGE_JPEG_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public InputStreamResource getAvatar(@PathVariable("userId") @Positive long userId) {
+        return userService.getUserAvatar(userId);
     }
 
     @DeleteMapping("/{userId}/avatar")
+    @ResponseStatus(HttpStatus.OK)
     public void deleteAvatar(@PathVariable("userId") @Positive long userId) {
         userService.deleteUserAvatar(userId);
     }
