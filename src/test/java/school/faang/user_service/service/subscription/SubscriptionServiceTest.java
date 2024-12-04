@@ -128,6 +128,7 @@ public class SubscriptionServiceTest {
                 .username("firstUser")
                 .email("first@email.com")
                 .contactPreference(contactPreference)
+                .telegramChatId(98125891L)
                 .build();
 
         secondUser = User.builder()
@@ -135,6 +136,7 @@ public class SubscriptionServiceTest {
                 .username("secondUser")
                 .email("second@email.com")
                 .contactPreference(contactPreference)
+                .telegramChatId(3454353L)
                 .build();
 
         users = Stream.of(firstUser, secondUser);
@@ -144,8 +146,8 @@ public class SubscriptionServiceTest {
                 .emailPattern("first")
                 .build();
 
-        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 0);
-        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 0);
+        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 0, 98125891L);
+        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 0, 3454353L);
         expectedUsers = new ArrayList<>(List.of(firstUserDto, secondUserDto));
 
         when(userService.existsById(userId)).thenReturn(isExists);
@@ -202,6 +204,7 @@ public class SubscriptionServiceTest {
                 .username("firstUser")
                 .email("first@email.com")
                 .contactPreference(contactPreference)
+                .telegramChatId(9821491L)
                 .build();
 
         secondUser = User.builder()
@@ -209,6 +212,7 @@ public class SubscriptionServiceTest {
                 .username("secondUser")
                 .email("second@email.com")
                 .contactPreference(contactPreference)
+                .telegramChatId(894189742L)
                 .build();
 
         users = Stream.of(firstUser, secondUser);
@@ -218,8 +222,8 @@ public class SubscriptionServiceTest {
                 .emailPattern("first")
                 .build();
 
-        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 0);
-        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 0);
+        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 0, 9821491L);
+        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 0, 894189742L);
         expectedUsers = new ArrayList<>(List.of(firstUserDto, secondUserDto));
 
         when(userService.existsById(userId)).thenReturn(isExists);

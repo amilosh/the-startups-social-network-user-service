@@ -1,13 +1,19 @@
 package school.faang.user_service.service.user;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
 import school.faang.user_service.dto.user_jira.UserJiraDto;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.userJira.UserJira;
 import school.faang.user_service.exception.EntityNotFoundException;
@@ -15,12 +21,19 @@ import school.faang.user_service.exception.ErrorMessage;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user_jira.UserJiraMapper;
+import school.faang.user_service.pojo.user.Person;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.user_jira.UserJiraService;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,6 +48,8 @@ public class UserService {
     private final UserJiraMapper userJiraMapper;
     private final UserJiraService userJiraService;
 
+    private final CountryService countryService;
+    private static final String FILE_TYPE = "text/csv";
 
     @Transactional(readOnly = true)
     public UserDto getUser(long userId) {
@@ -123,6 +138,70 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format(ErrorMessage.USER_NOT_FOUND, userId)));
     }
 
+    @Transactional
+    public List<UserDto> parsePersonDataIntoUserDto(MultipartFile csvFile) {
+        if (csvFile.isEmpty() || !Objects.equals(csvFile.getContentType(), FILE_TYPE)) {
+            throw new IllegalArgumentException("Invalid file type or there is no file." +
+                    " Please upload a CSV file.");
+        }
+        try {
+            InputStream inputStream = csvFile.getInputStream();
+            CsvMapper csvMapper = new CsvMapper();
+            csvMapper.findAndRegisterModules();
+
+            CsvSchema schema = csvMapper.schemaFor(Person.class).withHeader();
+            MappingIterator<Person> iterator = csvMapper.readerFor(Person.class).with(schema).readValues(inputStream);
+            List<Person> persons = iterator.readAll();
+            log.info("CSV file processed. Number of records: {}", persons.size());
+
+            return saveUsers(persons);
+        } catch (IOException e) {
+            log.error("Error processing CSV file", e);
+            throw new RuntimeException("Error processing CSV file", e);
+        }
+    }
+
+    private List<UserDto> saveUsers(List<Person> persons) {
+        log.info("Starting to save {} users", persons.size());
+
+        List<CompletableFuture<User>> futures = persons.stream()
+                .map(this::convertToUser)
+                .toList();
+
+        List<User> users = futures.stream()
+                .map(future -> {
+                    try {
+                        return future.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        throw new RuntimeException("Error processing user", e);
+                    }
+                })
+                .collect(Collectors.toList());
+
+        List<User> savedUsers = userRepository.saveAll(users);
+        log.info("Successfully saved {} users to the database", savedUsers.size());
+
+        return savedUsers.stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Async("taskExecutor")
+    protected CompletableFuture<User> convertToUser(Person person) {
+        log.debug("Processing person: {}", person);
+        User user = userMapper.toUser(person);
+        user.setPassword(generatePassword());
+
+        Country country = countryService.getOrCreateCountry(person.getCountry());
+        user.setCountry(country);
+
+        return CompletableFuture.completedFuture(user);
+    }
+
+    private String generatePassword() {
+        return UUID.randomUUID().toString().substring(0, 8);
+    }
+
     private List<UserDto> filter(Stream<User> usersStream, UserFilterDto filterDto) {
         return userMapper.entityStreamToDtoList(userFilters.stream()
                 .filter(userFilter -> userFilter.isApplicable(filterDto))
@@ -136,4 +215,5 @@ public class UserService {
                 || user.getPremium().getEndDate() == null
                 || user.getPremium().getEndDate().isBefore(LocalDateTime.now()));
     }
+
 }

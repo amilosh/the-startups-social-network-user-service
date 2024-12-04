@@ -86,7 +86,6 @@ public class AvatarService {
                 throw new RuntimeException("Failed to read the uploaded file", e);
             }
         }
-
         return processAndSaveAvatar(userId, avatarData, contentType);
     }
 
