@@ -12,10 +12,8 @@ import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
-import school.faang.user_service.validator.mentorship_request.MentorshipRequestValidation;
 
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Optional;
@@ -44,7 +42,7 @@ public class MentorshipRequestServiceValidationTest {
     void initData() {
         mentorshipRequest = MentorshipRequest.builder()
                 .status(RequestStatus.ACCEPTED)
-                .createdAt(LocalDateTime.of(2024, Month.SEPTEMBER, 2, 15, 20, 13))
+                .createdAt(LocalDateTime.now().minusMonths(1))
                 .build();
         requester = User.builder()
                 .id(requestId)
