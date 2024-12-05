@@ -219,6 +219,11 @@ public class UserService {
         }
     }
 
+    public List<UserDto> getUsersByIds(List<Long> ids) {
+        List<User> users = userRepository.findAllById(ids);
+        return userMapper.toDto(users);
+    }
+
     private Stream<User> applyFilters(Stream<User> users, UserFilterDto filterDto) {
         for (Filter<User, UserFilterDto> filter : userFilters) {
             if (filter.isApplicable(filterDto)) {

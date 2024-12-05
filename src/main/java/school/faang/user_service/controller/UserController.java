@@ -3,6 +3,7 @@ package school.faang.user_service.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,5 +73,10 @@ public class UserController {
     public List<UserDto> getPremiumUsers(
             @Valid UserFilterDto filter) {
         return userService.getPremiumUsers(filter);
+    }
+
+    @GetMapping("/ids")
+    public List<UserDto> getUsersByIds(@RequestParam List<Long> ids) {
+        return userService.getUsersByIds(ids);
     }
 }

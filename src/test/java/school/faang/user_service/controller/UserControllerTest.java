@@ -29,6 +29,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -164,5 +165,40 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.сountSuccessfullySavedUsers").value(1))
                 .andExpect(jsonPath("$.errors").isEmpty());
+    }
+
+    @Test
+    void getUsersByIdsShouldReturnUserDtosWhenUsersExist() throws Exception {
+        List<UserDto> userDtos = Arrays.asList(
+                UserDto.builder().id(1L).username("John Doe").build(),
+                UserDto.builder().id(2L).username("Jane Doe").build()
+        );
+
+        when(userService.getUsersByIds(Arrays.asList(1L, 2L))).thenReturn(userDtos);
+
+        mockMvc.perform(get("/users/ids")
+                        .param("ids", "1", "2"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].username").value("John Doe"))
+                .andExpect(jsonPath("$[1].id").value(2L))
+                .andExpect(jsonPath("$[1].username").value("Jane Doe"));
+
+        verify(userService, times(1)).getUsersByIds(Arrays.asList(1L, 2L));
+        verifyNoMoreInteractions(userService);
+    }
+
+    @Test
+    void getUsersByIdsShouldReturnEmptyListWhenNoUsersExist() throws Exception {
+        when(userService.getUsersByIds(Arrays.asList(3L, 4L))).thenReturn(List.of());
+
+        mockMvc.perform(get("/users/ids")
+                        .param("ids", "3", "4"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+
+        verify(userService, times(1)).getUsersByIds(Arrays.asList(3L, 4L));
+        verifyNoMoreInteractions(userService);
     }
 }
