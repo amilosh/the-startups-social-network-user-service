@@ -10,11 +10,13 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
@@ -22,6 +24,7 @@ import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.RecommendationValidator;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +54,8 @@ class RecommendationServiceTest {
     private UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     @Mock
     private UserService userService;
+    @Mock
+    private RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
     @InjectMocks
     private RecommendationService recommendationService;
 
@@ -94,11 +99,18 @@ class RecommendationServiceTest {
                 .thenReturn(CREATED_RECOMMENDATION_ID);
 
         RecommendationDto recommendationDtoWithId = recommendationService.create(recommendationDto);
+        RecommendationReceivedEvent event = new RecommendationReceivedEvent(
+                recommendationDtoWithId.getId(),
+                recommendationDtoWithId.getAuthorId(),
+                recommendationDtoWithId.getReceiverId(),
+                recommendationDtoWithId.getContent(),
+                recommendationDtoWithId.getCreatedAt());
 
         verify(recommendationRepository).create(
                 recommendationDto.getAuthorId(),
                 recommendationDto.getReceiverId(),
                 recommendationDto.getContent());
+        verify(recommendationReceivedEventPublisher).publish(event);
         assertEquals(CREATED_RECOMMENDATION_ID, recommendationDtoWithId.getId());
     }
 

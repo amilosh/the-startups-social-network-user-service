@@ -5,11 +5,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.recommendation.RecommendationDto;
+import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserSkillGuarantee;
 import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
@@ -17,6 +19,7 @@ import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.exception.RecommendationValidator;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,6 +34,7 @@ public class RecommendationService {
     private final SkillRepository skillRepository;
     private final UserSkillGuaranteeRepository userSkillGuaranteeRepository;
     private final UserService userService;
+    private final RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
 
     public RecommendationDto create(RecommendationDto recommendationDto) {
         recommendationValidator.checkTimeInterval(recommendationDto);
@@ -45,6 +49,13 @@ public class RecommendationService {
         skillOfferService.saveSkillOffers(recommendationDto.getSkillOffers(), recommendationId);
         handleGuarantees(recommendationDto);
         recommendationDto.setId(recommendationId);
+
+        recommendationReceivedEventPublisher.publish(new RecommendationReceivedEvent(
+                recommendationDto.getId(),
+                recommendationDto.getAuthorId(),
+                recommendationDto.getReceiverId(),
+                recommendationDto.getContent(),
+                recommendationDto.getCreatedAt()));
         return recommendationDto;
     }
 
