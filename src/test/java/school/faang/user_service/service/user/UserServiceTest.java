@@ -28,6 +28,7 @@ import school.faang.user_service.filter.user.UserNameFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.mapper.user_jira.UserJiraMapper;
+import school.faang.user_service.redis.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.user_jira.UserJiraService;
 
@@ -74,6 +75,9 @@ class UserServiceTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private ProfileViewEventPublisher profileViewEventPublisher;
+
     private List<UserFilter> userFilters;
 
     @Captor
@@ -101,7 +105,7 @@ class UserServiceTest {
         userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
         userMapper = new UserMapperImpl();
 
-        userService = new UserService(userRepository, userFilters, userMapper, userJiraMapper, userJiraService, countryService);
+        userService = new UserService(userRepository, userFilters, userMapper, userJiraMapper, userJiraService, profileViewEventPublisher, countryService);
     }
 
     @Test
@@ -272,8 +276,8 @@ class UserServiceTest {
                 .telegramChatId(90218421908421L)
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 90218421908421L);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L, "8778", UserDto.PreferredContact.EMAIL);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 90218421908421L, "8778", UserDto.PreferredContact.EMAIL);
 
         Stream<User> users = Stream.of(firstUser, secondUser);
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
@@ -317,8 +321,8 @@ class UserServiceTest {
                 .telegramChatId(893248953L)
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L, "8778", UserDto.PreferredContact.EMAIL);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L, "8778", UserDto.PreferredContact.EMAIL);
 
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
         List<User> usersList = List.of(firstUser, secondUser);
