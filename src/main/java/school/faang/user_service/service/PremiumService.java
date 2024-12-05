@@ -3,7 +3,6 @@ package school.faang.user_service.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.client.PaymentServiceClient;
 import school.faang.user_service.client.payment.Currency;
 import school.faang.user_service.client.payment.PaymentRequest;
 import school.faang.user_service.client.payment.PaymentResponse;
@@ -26,14 +25,14 @@ public class PremiumService {
     private final UserService userService;
     private final PaymentValidator paymentValidator;
     private final PremiumMapper premiumMapper;
-    private final PaymentServiceClient paymentServiceClient;
+    private final PaymentService paymentService;
     private final UserValidator userValidator;
 
     @Transactional
     public PremiumDto buyPremium(long userId, PremiumPeriod premiumPeriod) {
         userValidator.validateUserById(userId);
         premiumValidator.validateUserIsNotPremium(userId);
-        PaymentResponse response = paymentServiceClient.sentPayment(createPaymentRequest(premiumPeriod));
+        PaymentResponse response = paymentService.sentPayment(createPaymentRequest(premiumPeriod));
         paymentValidator.checkIfPaymentSuccess(response);
         Premium premium = createPremium(userId, premiumPeriod);
         premiumRepository.save(premium);

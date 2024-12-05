@@ -79,6 +79,28 @@ public class UserService {
         return userMapper.toDto(user);
     }
 
+    @Transactional
+    public List<UserDto> getAllUsers(UserFilterDto filterDto) {
+        try (Stream<User> usersStream = userRepository.findAll().stream()) {
+            Stream<User> filteredStream = applyFilters(usersStream, filterDto);
+
+            return filteredStream
+                    .map(userMapper::toDto)
+                    .collect(Collectors.toList());
+        }
+    }
+
+    @Transactional
+    public List<UserDto> getPremiumUsers(UserFilterDto filterDto) {
+        try (Stream<User> premiumUsersStream = userRepository.findPremiumUsers()) {
+            Stream<User> filteredStream = applyFilters(premiumUsersStream, filterDto);
+
+            return filteredStream
+                    .map(userMapper::toDto)
+                    .collect(Collectors.toList());
+        }
+    }
+
     private void stopAllUserActivities(User user) {
         removeGoals(user);
         eventService.cancelUserOwnedEvents(user.getId());
@@ -100,28 +122,6 @@ public class UserService {
 
     private void removeGoals(User user) {
         user.getSetGoals().removeIf(goal -> goal.getUsers().isEmpty());
-    }
-
-    @Transactional
-    public List<UserDto> getPremiumUsers(UserFilterDto filterDto) {
-        try (Stream<User> premiumUsersStream = userRepository.findPremiumUsers()) {
-            Stream<User> filteredStream = applyFilters(premiumUsersStream, filterDto);
-
-            return filteredStream
-                    .map(userMapper::toDto)
-                    .collect(Collectors.toList());
-        }
-    }
-
-    @Transactional
-    public List<UserDto> getAllUsers(UserFilterDto filterDto) {
-        try (Stream<User> usersStream = userRepository.findAll().stream()) {
-            Stream<User> filteredStream = applyFilters(usersStream, filterDto);
-
-            return filteredStream
-                    .map(userMapper::toDto)
-                    .collect(Collectors.toList());
-        }
     }
 
     private Stream<User> applyFilters(Stream<User> users, UserFilterDto filterDto) {

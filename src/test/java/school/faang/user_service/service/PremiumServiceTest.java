@@ -6,7 +6,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import school.faang.user_service.client.PaymentServiceClient;
 import school.faang.user_service.client.payment.Currency;
 import school.faang.user_service.client.payment.PaymentRequest;
 import school.faang.user_service.client.payment.PaymentResponse;
@@ -48,7 +47,7 @@ public class PremiumServiceTest {
     private PremiumMapper premiumMapper;
 
     @Mock
-    private PaymentServiceClient paymentServiceClient;
+    private PaymentService paymentService;
 
     @Mock
     UserValidator userValidator;
@@ -61,7 +60,7 @@ public class PremiumServiceTest {
     @Test
     void testBuyPremiumSuccessful() {
         when(userService.findUserById(userId)).thenReturn(new User());
-        when(paymentServiceClient.sentPayment(any(PaymentRequest.class)))
+        when(paymentService.sentPayment(any(PaymentRequest.class)))
                 .thenReturn(new PaymentResponse(PaymentStatus.SUCCESS, 1234, 123456789L,
                         BigDecimal.valueOf(9.99), Currency.USD, "Payment Successful"));
         when(premiumMapper.toDto(any(Premium.class))).thenReturn(new PremiumDto());
@@ -71,7 +70,7 @@ public class PremiumServiceTest {
 
         assertNotNull(result);
         verify(premiumValidator).validateUserIsNotPremium(userId);
-        verify(paymentServiceClient).sentPayment(any(PaymentRequest.class));
+        verify(paymentService).sentPayment(any(PaymentRequest.class));
         verify(paymentValidator).checkIfPaymentSuccess(any(PaymentResponse.class));
         verify(premiumRepository).save(any(Premium.class));
         verify(premiumMapper).toDto(any(Premium.class));
@@ -87,7 +86,7 @@ public class PremiumServiceTest {
 
         assertEquals("User with userId: " + userId + " already has premium", exception.getMessage());
         verify(premiumValidator).validateUserIsNotPremium(userId);
-        verifyNoInteractions(paymentServiceClient, paymentValidator, premiumRepository, premiumMapper);
+        verifyNoInteractions(paymentService, paymentValidator, premiumRepository, premiumMapper);
     }
 
     @Test
@@ -96,7 +95,7 @@ public class PremiumServiceTest {
                 1234, 123456789L, BigDecimal.valueOf(9.99),
                 Currency.USD, "Payment Failed");
 
-        when(paymentServiceClient.sentPayment(any())).thenReturn(failedResponse);
+        when(paymentService.sentPayment(any())).thenReturn(failedResponse);
 
         doThrow(new PaymentFailedException("Payment status:" + failedResponse.message()))
                 .when(paymentValidator).checkIfPaymentSuccess(failedResponse);
@@ -106,7 +105,7 @@ public class PremiumServiceTest {
 
         assertEquals("Payment status:" + failedResponse.message(), exception.getMessage());
         verify(premiumValidator).validateUserIsNotPremium(userId);
-        verify(paymentServiceClient).sentPayment(any(PaymentRequest.class));
+        verify(paymentService).sentPayment(any(PaymentRequest.class));
         verify(paymentValidator).checkIfPaymentSuccess(failedResponse);
         verifyNoInteractions(premiumRepository, premiumMapper);
     }

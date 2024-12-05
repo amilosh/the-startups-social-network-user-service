@@ -20,38 +20,32 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
     private final long userId = 1L;
+
     @Mock
     private UserRepository userRepository;
+
     @Mock
     private UserMapper userMapper;
+
     @Mock
     private MentorshipService mentorshipService;
+
     @Mock
     private EventService eventService;
+
     @Mock
     private UserValidator userValidator;
 
@@ -84,10 +78,11 @@ class UserServiceTest {
 
     @Mock
     private Filter<User, UserFilterDto> userExperienceMaxFilter;
+
     @InjectMocks
     private UserService userService;
+
     private User user;
-    private List<Event> events;
     private UserDto dto;
 
     @BeforeEach
@@ -98,7 +93,6 @@ class UserServiceTest {
         user.setOwnedEvents(Arrays.asList(new Event(), new Event()));
         user.setMentees(new ArrayList<>());
         user.setSetGoals(new ArrayList<>());
-        events = new ArrayList<>();
 
         dto = UserDto.builder()
                 .id(userId)
@@ -416,11 +410,6 @@ class UserServiceTest {
         UserDto firstUserDto = UserDto.builder()
                 .id(1L)
                 .username("JohnDoe")
-                .build();
-
-        UserDto secondUserDto = UserDto.builder()
-                .id(2L)
-                .username("JaneSmith")
                 .build();
 
         when(userMapper.toDto(regularUser)).thenReturn(firstUserDto);
