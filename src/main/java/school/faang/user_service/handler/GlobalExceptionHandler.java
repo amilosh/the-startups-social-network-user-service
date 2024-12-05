@@ -90,4 +90,12 @@ public class GlobalExceptionHandler {
         log.error("Value Exceeded: {}", e.getMessage(), e);
         return new ErrorResponse("Value Exceeded", e.getMessage());
     }
+//    @ExceptionHandler(PremiumSubscriptionException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public ErrorResponse handlePremiumSubscriptionException(PremiumSubscriptionException ex) {
+//        log.warn("Premium Subscription Exception: {}", ex.getMessage());
+//        return new ErrorResponse("Premium Subscription Exception", ex.getMessage());
+//    }
+
+
 }
