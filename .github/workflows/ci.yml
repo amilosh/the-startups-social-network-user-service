@@ -25,6 +25,13 @@ jobs:
       - name: Unit Tests
         run: ./gradlew test jacocoTestReport
 
+      - name: Upload test report
+        if: failure() # Выполняется только при сбое
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: build/reports/tests/test
+
       - name: Build the application
         run: ./gradlew build
 
