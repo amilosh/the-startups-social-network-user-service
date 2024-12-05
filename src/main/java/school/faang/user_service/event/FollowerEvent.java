@@ -21,6 +21,5 @@ public class FollowerEvent {
 
     @NotNull
     private Long followeeId;
-    private Long projectId;
     private LocalDateTime subscriptionTime;
 }

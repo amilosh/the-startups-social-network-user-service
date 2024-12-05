@@ -6,13 +6,16 @@ import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.event.FollowerEvent;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
+import school.faang.user_service.redis.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.subscription.SubscriptionValidator;
 import school.faang.user_service.validator.user.UserValidator;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -27,6 +30,7 @@ public class SubscriptionService {
     private final SubscriptionValidator subscriptionValidator;
     private final UserValidator userValidator;
     private final UserService userService;
+    private final FollowerEventPublisher followerEventPublisher;
 
     public void followUser(long followerId, long followeeId) {
         userValidator.validateUserExistence(userService.existsById(followerId));
@@ -34,8 +38,14 @@ public class SubscriptionService {
 
         subscriptionValidator.isFollowingExistsValidate(followerId, followeeId);
 
+        FollowerEvent followerEvent = FollowerEvent.builder()
+                .followerId(followerId)
+                .followeeId(followeeId)
+                .subscriptionTime(LocalDateTime.now())
+                .build();
         subscriptionRepository.followUser(followerId, followeeId);
         log.info("User with id: {} follow user with id: {}", followerId, followeeId);
+        followerEventPublisher.publish(followerEvent);
     }
 
     public void unfollowUser(long followerId, long followeeId) {
