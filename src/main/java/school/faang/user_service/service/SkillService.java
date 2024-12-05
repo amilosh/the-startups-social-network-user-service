@@ -12,6 +12,7 @@ import school.faang.user_service.repository.skill.SkillRepository;
 import school.faang.user_service.repository.skill.SkillRequestRepository;
 import school.faang.user_service.validator.SkillValidator;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -83,5 +84,9 @@ public class SkillService {
 
     public int countExisting(List<Long> ids){
         return skillRepository.countExisting(ids);
+    }
+
+    public List<Skill> findByIdIn(Collection<Long> ids) {
+        return skillRepository.findByIdIn(ids);
     }
 }
