@@ -9,10 +9,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableFeignClients("school.faang.user_service.client")
 @ConfigurationPropertiesScan
+@EnableAsync
 @OpenAPIDefinition(
         info = @Info(
                 title = "User Service",

@@ -7,6 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
@@ -18,6 +20,7 @@ import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.recommandation.RecommendationRequestMapperImpl;
 import school.faang.user_service.mapper.recommandation.RecommendationRequestRejectionMapperImpl;
+import school.faang.user_service.publisher.recommendation.RecommendationEventPublish;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.skil.SkillRequestService;
 import school.faang.user_service.service.skil.SkillService;
@@ -47,6 +50,13 @@ public class RecommendationRequestServiceTest {
     private RecommendationRequestMapperImpl requestMapper;
     @Mock
     private RecommendationRequestRejectionMapperImpl rejectionMapper;
+    @Mock
+    private RedisTemplate redisTemplate;
+    @Mock
+    private RecommendationEventPublish recommendationEventPublisher;
+
+    @Value("${spring.data.redis.channel-topic}")
+    private String channelTopic;
 
     @Test
     @DisplayName("testCreateWithUserExistence")
@@ -142,8 +152,9 @@ public class RecommendationRequestServiceTest {
         Filter<RequestFilterDto, RecommendationRequest> mockFilter = mock(Filter.class);
         List<Filter<RequestFilterDto, RecommendationRequest>> filters = List.of(mockFilter);
 
+
         requestService = new RecommendationRequestService(requestRepository, requestMapper, rejectionMapper, filters,
-                userService, skillRequestService, skillService);
+                userService, skillRequestService, skillService, recommendationEventPublisher);
 
         RequestFilterDto filterDto = RequestFilterDto.builder().status(RequestStatus.PENDING).build();
         List<RecommendationRequest> requests = List.of(

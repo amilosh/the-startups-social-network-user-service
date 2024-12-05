@@ -4,9 +4,11 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
+import school.faang.user_service.publisher.recommendation.RecommendationEvent;
 import school.faang.user_service.dto.recommendation.RecommendationRequestDto;
 import school.faang.user_service.dto.recommendation.RejectionDto;
 import school.faang.user_service.dto.recommendation.RequestFilterDto;
@@ -17,6 +19,7 @@ import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.recommandation.RecommendationRequestMapper;
 import school.faang.user_service.mapper.recommandation.RecommendationRequestRejectionMapper;
+import school.faang.user_service.publisher.recommendation.RecommendationEventPublish;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.skil.SkillRequestService;
 import school.faang.user_service.service.skil.SkillService;
@@ -45,6 +48,7 @@ public class RecommendationRequestService {
     private final UserService userService;
     private final SkillRequestService skillRequestService;
     private final SkillService skillService;
+    private final RecommendationEventPublish recommendationEventPublisher;
 
     @Transactional
     public RecommendationRequestDto create(@NotNull @Valid RecommendationRequestDto requestDto) {
@@ -65,7 +69,18 @@ public class RecommendationRequestService {
             requestSaved.getSkills().add(skillRequest);
         });
         requestRepository.save(requestSaved);
+        RecommendationEvent event = RecommendationEvent.builder()
+                .requesterId(requestSaved.getRequester().getId())
+                .receiverId(requestSaved.getReceiver().getId())
+                .build();
+        sendEvent(event);
         return requestMapper.toDto(requestSaved);
+    }
+
+    @Async
+    protected void sendEvent(RecommendationEvent event) {
+        recommendationEventPublisher.publish(event);
+        System.out.println("event sent");
     }
 
     public List<RecommendationRequestDto> getRequests(@NotNull RequestFilterDto filterDto) {
