@@ -5,10 +5,10 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.internal.Function;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
 import school.faang.user_service.domain.Person;
 import school.faang.user_service.dto.ProcessResultDto;
 import school.faang.user_service.dto.UserDto;
@@ -24,17 +24,16 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -220,12 +219,16 @@ public class UserService {
     }
 
     private Stream<User> applyFilters(Stream<User> users, UserFilterDto filterDto) {
-        for (Filter<User, UserFilterDto> filter : userFilters) {
-            if (filter.isApplicable(filterDto)) {
-                users = filter.apply(users, filterDto);
-            }
-        }
-        return users;
+        Stream<Function<Stream<User>, Stream<User>>> filterFunctions = userFilters.stream()
+                .filter(filter -> filter.isApplicable(filterDto))
+                .map(filter -> userStream -> filter.apply(userStream, filterDto));
+
+        return filterFunctions.reduce(
+                users,
+                (currentStream, filterFunction)
+                        -> filterFunction.apply(currentStream),
+                (stream1, stream2) -> stream1
+        );
     }
 
     private void removeOwnedEvents(User user) {
