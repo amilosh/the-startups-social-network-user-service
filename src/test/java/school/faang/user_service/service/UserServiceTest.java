@@ -16,6 +16,7 @@ import school.faang.user_service.domain.ContactInfo;
 import school.faang.user_service.domain.Education;
 import school.faang.user_service.domain.Person;
 import school.faang.user_service.dto.ProcessResultDto;
+import school.faang.user_service.dto.UserContactsDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.Country;
@@ -23,6 +24,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.PersonToUserMapper;
+import school.faang.user_service.mapper.UserContactsMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.parser.CsvParser;
 import school.faang.user_service.repository.UserRepository;
@@ -75,6 +77,9 @@ class UserServiceTest {
 
     @Mock
     private PersonToUserMapper personToUserMapper;
+
+    @Mock
+    private UserContactsMapper userContactsMapper;
 
     @Mock
     private CsvParser parser;
@@ -156,6 +161,7 @@ class UserServiceTest {
                 userRepository,
                 userMapper,
                 personToUserMapper,
+                userContactsMapper,
                 userValidator,
                 mentorshipService,
                 countryService,
@@ -714,6 +720,32 @@ class UserServiceTest {
         assertTrue(result.getErrors().get(0).contains("Failed to save user"));
 
         verify(userRepository, times(1)).save(mockUser);
+    }
+
+    @Test
+    @DisplayName("Get user contacts success")
+    void testGetUserContactsSuccess() {
+        Long userId = 1L;
+        UserContactsDto dto = UserContactsDto.builder()
+                .id(1L)
+                .email("email")
+                .phone("phone")
+                .build();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(userContactsMapper.toDto(mockUser)).thenReturn(dto);
+
+        UserContactsDto result = userService.getUserContacts(userId);
+
+        assertEquals(dto, result);
+    }
+
+    @Test
+    @DisplayName("Get user contacts when user not found")
+    void testGetUserContactsWhenUserNotFound() {
+        Long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> userService.getUserContacts(userId));
     }
 
     private Person createMockPerson(String firstName, String lastName, String email) {

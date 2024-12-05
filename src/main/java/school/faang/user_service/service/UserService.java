@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import school.faang.user_service.domain.Person;
 import school.faang.user_service.dto.ProcessResultDto;
+import school.faang.user_service.dto.UserContactsDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.Country;
@@ -18,6 +19,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.EventStatus;
 import school.faang.user_service.filter.Filter;
 import school.faang.user_service.mapper.PersonToUserMapper;
+import school.faang.user_service.mapper.UserContactsMapper;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.parser.CsvParser;
 import school.faang.user_service.repository.UserRepository;
@@ -43,6 +45,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PersonToUserMapper personToUserMapper;
+    private final UserContactsMapper userContactsMapper;
     private final UserValidator userValidator;
     private final MentorshipService mentorshipService;
     private final CountryService countryService;
@@ -54,6 +57,7 @@ public class UserService {
     public UserService(UserRepository userRepository,
                        UserMapper userMapper,
                        PersonToUserMapper personToUserMapper,
+                       UserContactsMapper userContactsMapper,
                        UserValidator userValidator,
                        CountryService countryService,
                        @Lazy MentorshipService mentorshipService,
@@ -63,6 +67,7 @@ public class UserService {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.personToUserMapper = personToUserMapper;
+        this.userContactsMapper = userContactsMapper;
         this.userValidator = userValidator;
         this.countryService = countryService;
         this.mentorshipService = mentorshipService;
@@ -217,6 +222,11 @@ public class UserService {
                     .map(userMapper::toDto)
                     .collect(Collectors.toList());
         }
+    }
+
+    public UserContactsDto getUserContacts(Long userId) {
+        User user = findUserById(userId);
+        return userContactsMapper.toDto(user);
     }
 
     private Stream<User> applyFilters(Stream<User> users, UserFilterDto filterDto) {
