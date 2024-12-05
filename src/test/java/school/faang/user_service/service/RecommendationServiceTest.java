@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,7 +18,10 @@ import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.entity.recommendation.SkillOffer;
+import school.faang.user_service.event.RecommendationReceivedEvent;
+import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.RecommendationMapperImpl;
+import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.validator.RecommendationValidator;
 import school.faang.user_service.validator.UserValidator;
@@ -25,8 +29,17 @@ import school.faang.user_service.validator.UserValidator;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RecommendationServiceTest {
@@ -54,6 +67,9 @@ class RecommendationServiceTest {
 
     @Mock
     private RecommendationService recommendationServiceMock;
+
+    @Mock
+    private RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
 
     @InjectMocks
     private RecommendationService recommendationService;
@@ -99,6 +115,9 @@ class RecommendationServiceTest {
     @Test
     void testCreateSuccessful() {
         recommendation.setId(10L);
+        recommendation.setAuthor(User.builder().id(1L).build());
+        recommendation.setReceiver(User.builder().id(2L).build());
+
         when(userService.findUserById(dto.getAuthorId())).thenReturn(User.builder().id(1L).build());
         when(userService.findUserById(dto.getReceiverId())).thenReturn(User.builder().id(2L).build());
         when(skillOfferService.findAllByUserId(dto.getReceiverId())).thenReturn(List.of(SkillOffer.builder().
@@ -120,6 +139,18 @@ class RecommendationServiceTest {
         verify(skillOfferService, times(1)).findAllByUserId(dto.getReceiverId());
         verify(skillOfferService, times(1)).create(1L, recommendation.getId());
         verify(skillService, times(1)).addGuarantee(recommendation);
+        verify(recommendationReceivedEventPublisher, times(1)).publish(any(RecommendationReceivedEvent.class));
+    }
+
+    @Test
+    @DisplayName("Recommendation create fails: author and receiver same person")
+    void testCreate_AuthorSameAsReceiver_Fail() {
+        doThrow(new DataValidationException("You cannot recommend yourself")).when(recommendationValidator).validateAuthorAndReceiverId(dto);
+
+        assertThrows(DataValidationException.class, () -> recommendationService.create(dto));
+
+        verify(recommendationValidator, times(1)).validateAuthorAndReceiverId(dto);
+        verify(recommendationValidator, never()).validateSkillAndTimeRequirementsForGuarantee(dto);
     }
 
     @Test

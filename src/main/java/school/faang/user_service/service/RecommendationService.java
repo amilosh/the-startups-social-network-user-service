@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.RecommendationDto;
 import school.faang.user_service.entity.recommendation.Recommendation;
+import school.faang.user_service.event.RecommendationReceivedEvent;
 import school.faang.user_service.mapper.RecommendationMapper;
+import school.faang.user_service.publisher.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.validator.RecommendationValidator;
 import school.faang.user_service.validator.UserValidator;
@@ -25,6 +27,7 @@ public class RecommendationService {
     private final UserService userService;
     private final SkillOfferService skillOfferService;
     private final SkillService skillService;
+    private final RecommendationReceivedEventPublisher recommendationReceivedEventPublisher;
 
     @Transactional
     public RecommendationDto create(RecommendationDto recommendationDto) {
@@ -35,6 +38,13 @@ public class RecommendationService {
 
         saveNewSkillOffers(recommendation);
         skillService.addGuarantee(recommendation);
+
+        recommendationReceivedEventPublisher.publish(new RecommendationReceivedEvent(
+                        recommendation.getId(),
+                        recommendation.getReceiver().getId(),
+                        recommendation.getAuthor().getId()
+                )
+        );
 
         return recommendationMapper.toDto(recommendation);
     }
