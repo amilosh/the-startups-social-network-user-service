@@ -12,6 +12,11 @@ jobs:
   test-build:
     name: Test and Build User-Service
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:latest
+        ports:
+          - 6379:6379
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,8 +30,11 @@ jobs:
       - name: Unit Tests
         run: ./gradlew test jacocoTestReport
 
+      - name: Show Redis logs
+        run: docker logs $(docker ps -q --filter ancestor=redis)
+
       - name: Upload test report
-        if: failure() # Выполняется только при сбое
+        if: failure()
         uses: actions/upload-artifact@v3
         with:
           name: test-report
