@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.user.UserAvatarSize;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.repository.UserRepository;
@@ -77,6 +78,13 @@ public class UserService {
         s3Service.deleteFile(profilePic.getFileId());
         s3Service.deleteFile(profilePic.getSmallFileId());
         userRepository.deleteUserProfilePicByUserId(userId);
+    }
+
+    @Transactional
+    public void banUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("User not found by id: %s", userId)));
+        user.setBanned(true);
     }
 
     private void uploadAvatars(MultipartFile avatar, String largeAvatarKey, String smallAvatarKey) {

@@ -25,6 +25,8 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+        userBanChannel:
+          name: user_ban_channel
 
 services:
   s3:
