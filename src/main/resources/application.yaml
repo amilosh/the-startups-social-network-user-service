@@ -68,3 +68,7 @@ cron:
 batch:
   size:
     eventBatch: 50
+
+redis:
+  topic:
+    mentorship-requested: mentorshipRequestedEventTopic
