@@ -22,6 +22,8 @@ import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user_jira.UserJiraMapper;
 import school.faang.user_service.pojo.user.Person;
+import school.faang.user_service.redis.ProfileViewEventPublisher;
+import school.faang.user_service.dto.events.ProfileViewEvent;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.user_jira.UserJiraService;
 
@@ -47,6 +49,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final UserJiraMapper userJiraMapper;
     private final UserJiraService userJiraService;
+    private final ProfileViewEventPublisher profileViewEventPublisher;
 
     private final CountryService countryService;
     private static final String FILE_TYPE = "text/csv";
@@ -159,6 +162,14 @@ public class UserService {
             log.error("Error processing CSV file", e);
             throw new RuntimeException("Error processing CSV file", e);
         }
+    }
+
+    @Transactional
+    public UserDto getUserProfile(Long userId, Long viewerId) {
+        ProfileViewEvent profileViewEvent = new ProfileViewEvent(viewerId, userId);
+        profileViewEventPublisher.publish(profileViewEvent);
+        log.info("Json sent : viewerId - " + profileViewEvent.getViewerId() + ", profileId - " + profileViewEvent.getProfileId());
+        return getUser(userId);
     }
 
     private List<UserDto> saveUsers(List<Person> persons) {

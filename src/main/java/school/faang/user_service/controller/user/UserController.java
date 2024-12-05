@@ -166,4 +166,13 @@ public class UserController {
         UserJiraDto responseDto = userService.getUserJiraInfo(userId, jiraDomain);
         return ResponseEntity.ok(responseDto);
     }
+
+    @GetMapping("/{userId}/profile/{viewerId}")
+    public UserDto getUserProfile(
+            @PathVariable @Min(1) Long userId,
+            @PathVariable @Min(1) Long viewerId) {
+        return userService.getUserProfile(userId, viewerId);
+    }
+
+
 }

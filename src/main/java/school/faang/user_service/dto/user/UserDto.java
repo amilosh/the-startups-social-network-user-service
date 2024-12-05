@@ -18,4 +18,11 @@ public class UserDto {
     private String username;
     private String email;
     private Long telegramChatId;
+    private String phone;
+    private PreferredContact preference;
+
+    public enum PreferredContact {
+        EMAIL, SMS, TELEGRAM
+    }
+
 }
