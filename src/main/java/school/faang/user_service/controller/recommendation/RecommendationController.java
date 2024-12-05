@@ -1,5 +1,6 @@
 package school.faang.user_service.controller.recommendation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,8 @@ public class RecommendationController {
     private final RecommendationService recommendationService;
 
     @PostMapping
-    public long giveRecommendation(@RequestBody @Valid RecommendationDto recommendation) {
+    public long giveRecommendation(@RequestBody @Valid RecommendationDto recommendation)
+            throws JsonProcessingException {
         return recommendationService.create(recommendation).getId();
     }
 
