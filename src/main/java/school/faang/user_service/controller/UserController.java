@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserProfilePicDto;
+import school.faang.user_service.dto.UserRegistrationDTO;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.service.UserService;
 
@@ -63,5 +65,11 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public void deleteAvatar(@PathVariable("userId") @Positive long userId) {
         userService.deleteUserAvatar(userId);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<UserSubResponseDto> registerUser(@RequestBody UserRegistrationDTO userDto) {
+        UserSubResponseDto createdUser = userService.registerUser(userDto);
+        return ResponseEntity.ok(createdUser);
     }
 }

@@ -1,13 +1,31 @@
 package school.faang.user_service.service.Integrations.avatar;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.service.S3Service;
+import school.faang.user_service.util.ImageUtils;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
 import java.util.Random;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class AvatarService {
+
+    private final S3Service s3Service;
+    private final ImageUtils imageUtils;
+    private static final String FOLDER_NAME = "avatars";
 
     @Value("${integration.dice-bear.base-url}")
     private String baseUrl;
@@ -24,17 +42,8 @@ public class AvatarService {
     private final Random random = new Random();
 
     private void validateConfiguration() {
-        if (styles == null || styles.isEmpty()) {
-            throw new IllegalStateException("Styles list is empty or not configured properly.");
-        }
-        if (seedNames == null || seedNames.isEmpty()) {
-            throw new IllegalStateException("Seed names list is empty or not configured properly.");
-        }
-        if (baseUrl == null || baseUrl.isBlank()) {
-            throw new IllegalStateException("Base URL is not configured properly.");
-        }
-        if (version == null || version.isBlank()) {
-            throw new IllegalStateException("API version is not configured properly.");
+        if (styles.isEmpty() || seedNames.isEmpty() || baseUrl.isBlank() || version.isBlank()) {
+            throw new IllegalStateException("Invalid DiceBear configuration");
         }
     }
 
@@ -44,15 +53,51 @@ public class AvatarService {
         String randomStyle = styles.get(random.nextInt(styles.size()));
         String randomSeed = seedNames.get(random.nextInt(seedNames.size()));
 
-        return String.format("%s/%s/%s/svg?seed=%s", baseUrl, version, randomStyle, randomSeed);
+        return String.format("%s/%s/%s/png?seed=%s", baseUrl, version, randomStyle, randomSeed);
     }
 
-    public String getRandomAvatar() {
-        try {
-            return generateUrlRandomAvatar();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to generate random avatar URL", e);
+    public UserProfilePic generateAndUploadUserAvatars(String userId) {
+        String avatarUrl = generateUrlRandomAvatar();
+        log.info("Generated avatar URL: {}", avatarUrl);
+        try (InputStream inputStream = new URL(avatarUrl).openStream()) {
+            BufferedImage originalImage = ImageIO.read(inputStream);
+
+            if (originalImage == null) {
+                throw new RuntimeException("Failed to load avatar image from URL: " + avatarUrl);
+            }
+
+            String largeFileId = uploadAvatar(originalImage, userId, false);
+            String smallFileId = uploadAvatar(originalImage, userId, true);
+
+            return UserProfilePic.builder()
+                    .fileId(largeFileId)
+                    .smallFileId(smallFileId)
+                    .build();
+        } catch (IOException e) {
+            log.error("IOException while fetching or processing avatar: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to save avatar to S3", e);
         }
     }
-}
 
+    public String uploadAvatar(BufferedImage image, String userId, boolean isSmall) {
+        int size = isSmall ? 170 : 1080;
+        BufferedImage resizedImage = imageUtils.resizeImage(image, size);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            ImageIO.write(resizedImage, "png", outputStream); // Сохраняем изображение в поток
+            byte[] byteArray = outputStream.toByteArray(); // Получаем массив байтов
+
+            MultipartFile multipartFile = new CustomMultipartFile(
+                    "avatar",
+                    "avatar_user_" + userId + (isSmall ? "_small" : "_large") + ".png",
+                    "image/png",
+                    byteArray
+            );
+
+            return s3Service.uploadImage(multipartFile, FOLDER_NAME, multipartFile.getOriginalFilename(), resizedImage);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to process and upload avatar", e);
+        }
+    }
+
+}

@@ -6,17 +6,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.UserProfilePicDto;
+import school.faang.user_service.dto.UserRegistrationDTO;
 import school.faang.user_service.dto.UserSubResponseDto;
+import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.mapper.UserProfilePicMapper;
+import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
+import school.faang.user_service.service.Integrations.avatar.AvatarService;
 import school.faang.user_service.util.ImageUtils;
 
 import java.awt.image.BufferedImage;
@@ -40,6 +45,8 @@ public class UserService {
     private final S3Service s3Service;
     private final UserProfilePicMapper userProfilePicMapper;
     private final ImageUtils imageUtils;
+    private final AvatarService avatarService;
+    private final CountryRepository countryRepository;
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
@@ -61,6 +68,42 @@ public class UserService {
     public User getUserById(long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new
                 EntityNotFoundException("User do not found by " + userId));
+    }
+
+    public UserSubResponseDto registerUser(UserRegistrationDTO userDto) {
+        if (userRepository.existsByEmail(userDto.email())) {
+            throw new DataValidationException("Пользователь с почтой " + userDto.email() + " уже зарегистрирован.");
+        }
+
+        Country country = countryRepository.findById(userDto.countryId())
+                .orElseThrow(() -> new DataValidationException("Страна с ID " + userDto.countryId() + " не найдена"));
+
+
+        User user = User.builder()
+                .username(userDto.username())
+                .email(userDto.email())
+                .phone(userDto.phone())
+                .password(userDto.password())
+                .active(true)
+                .aboutMe(userDto.aboutMe())
+                .country(country)
+                .city(userDto.city())
+                .experience(userDto.experience())
+                .build();
+
+        userRepository.save(user);
+
+        try {
+            UserProfilePic profilePic = avatarService.generateAndUploadUserAvatars(user.getId().toString());
+
+            user.setUserProfilePic(profilePic);
+
+            userRepository.save(user);
+        } catch (Exception e) {
+            log.warn("Ошибка генерации аватара для пользователя {}", user.getId(), e);
+        }
+
+        return new UserSubResponseDto(user.getId(), user.getUsername(), user.getEmail(), user.getUserProfilePic());
     }
 
     public void saveUser(User user) {
