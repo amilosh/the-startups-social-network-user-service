@@ -25,6 +25,9 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+      topic:
+        search-appearance: search_appearance_topic
+        premium-bought: premium_bought_topic
 
 server:
   port: 8080

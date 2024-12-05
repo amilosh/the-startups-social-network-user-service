@@ -1,17 +1,16 @@
 package school.faang.user_service.service.premium;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
-import school.faang.user_service.scheduler.premium.ListPartitioner;
-import school.faang.user_service.scheduler.premium.PremiumRemover;
+import org.mockito.MockitoAnnotations;
+import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.entity.premium.Premium;
 import school.faang.user_service.repository.premium.PremiumRepository;
+import school.faang.user_service.scheduler.premium.ListPartitioner;
+import school.faang.user_service.scheduler.premium.PremiumRemover;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -22,10 +21,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
-@TestPropertySource(locations = "classpath:application-test.yaml")
-@ActiveProfiles("test")
 class PremiumServiceTest {
+
     @InjectMocks
     private PremiumRemover premiumRemover;
 
@@ -35,8 +32,11 @@ class PremiumServiceTest {
     @Mock
     private ListPartitioner listPartitioner;
 
-    @Value("${application.premium.batch-size}")
-    private int batchSize;
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        ReflectionTestUtils.setField(premiumRemover, "batchSize", 2); // Set batchSize manually
+    }
 
     @Test
     void removeExpiredPremium_shouldCallDeleteAllOnRepository() {
@@ -47,11 +47,12 @@ class PremiumServiceTest {
 
         when(premiumRepository.findAllByEndDateBefore(any(LocalDateTime.class)))
                 .thenReturn(expiredPremiums);
-        when(listPartitioner.partition(expiredPremiums, batchSize)).thenReturn(partitionedList);
+        when(listPartitioner.partition(expiredPremiums, 2)).thenReturn(partitionedList);
 
         premiumRemover.removeExpiredPremium();
 
         verify(premiumRepository, times(1)).findAllByEndDateBefore(any(LocalDateTime.class));
+        verify(premiumRepository, times(1)).deleteAll(expiredPremiums);
     }
 
     @Test
@@ -63,7 +64,6 @@ class PremiumServiceTest {
                 () -> premiumRemover.removeExpiredPremium());
 
         verify(premiumRepository, times(1)).findAllByEndDateBefore(any(LocalDateTime.class));
-
         assertEquals(EntityNotFoundException.class, exception.getClass());
     }
 }
