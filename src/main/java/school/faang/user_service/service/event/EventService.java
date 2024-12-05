@@ -1,6 +1,7 @@
 package school.faang.user_service.service.event;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.validator.event.EventValidator;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -72,5 +74,11 @@ public class EventService {
     public List<EventDto> getParticipatedEvents(long userId) {
         List<Event> events = eventRepository.findParticipatedEventsByUserId(userId);
         return events.stream().map(eventMapper::toDto).toList();
+    }
+
+    @Transactional
+    public void deletePastEvents() {
+        log.info("calling eventRepository to remove all past events");
+        eventRepository.deleteAllPastEvents(LocalDateTime.now());
     }
 }
