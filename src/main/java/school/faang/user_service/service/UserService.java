@@ -142,7 +142,7 @@ public class UserService {
     }
 
     public void publishProfileViewEvent(long receiverId, long actorId) {
-        log.info("Trying to publish profile view event. User: {} followed user: {}", receiverId, actorId);
+        log.info("Trying to publish profile view event. ActorId: {} receiverId user: {}", receiverId, actorId);
         ProfileViewEvent profileViewEvent = ProfileViewEvent.builder()
                 .receiverId(receiverId)
                 .actorId(actorId)
