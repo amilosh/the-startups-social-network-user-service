@@ -101,10 +101,10 @@ public class MentorshipRequestService {
         MentorshipRequest savedRequest = requestRepository.save(request);
         log.info("Successfully accepted request ID: {}", requestId);
 
-        MentorshipAcceptedEvent event = new MentorshipAcceptedEvent(requestId, request.getRequester().getId(), request.getReceiver().getId());
+        MentorshipAcceptedEvent event = new MentorshipAcceptedEvent(requestId, request.getRequester().getId(), request.getReceiver().getUsername());
         mentorshipAcceptedEventPublisher.publish(event);
-        log.info("MentorshipAcceptedEvent with requestId: {}, requesterId: {}, receiverId: {} was sent to Redis channel",
-                event.getId(), event.getRequesterId(), event.getReceiverId());
+        log.info("MentorshipAcceptedEvent with requestId: {}, requesterId: {}, receiver username: {} was sent to Redis channel",
+                event.getId(), event.getRequesterId(), event.getReceiverUsername());
 
         return requestMapper.toMentorshipRequestDto(savedRequest);
     }
