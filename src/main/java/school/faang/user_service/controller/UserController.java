@@ -78,6 +78,7 @@ public class UserController {
     @Operation(summary = "Get contacts of a user", description = "Retrieve a list of contact preferences of a user ")
     public ResponseEntity<UserContactsDto> getUserContacts(
             @PathVariable @Positive (message = "User id should be a positive integer") Long userId) {
+        log.info("Getting contacts of user with id {}", userId);
         return ResponseEntity.ok(userService.getUserContacts(userId));
     }
 }
