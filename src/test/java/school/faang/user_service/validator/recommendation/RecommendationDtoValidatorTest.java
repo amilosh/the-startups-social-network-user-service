@@ -128,7 +128,7 @@ public class RecommendationDtoValidatorTest {
         RecommendationDto recDto = getTestRecommendationData();
 
         Recommendation recommendation = Recommendation.builder()
-                .createdAt(LocalDateTime.now().minusMonths(7))
+                .createdAt(LocalDateTime.now().minusDays(186))
                 .build();
         for (SkillOfferDto skillOffer : recDto.getSkillOffers()) {
             when(skillRepository.existsByTitle(skillOffer.getSkillTitle())).thenReturn(true);

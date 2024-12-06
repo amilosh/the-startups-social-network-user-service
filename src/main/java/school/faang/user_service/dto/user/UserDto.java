@@ -22,5 +22,6 @@ public class UserDto {
     private String email;
     private String phone;
     private LocalDateTime updatedAt;
+    private Long telegramChatId;
     private PreferredContact preference;
 }

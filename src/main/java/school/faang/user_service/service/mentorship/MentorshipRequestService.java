@@ -12,6 +12,8 @@ import school.faang.user_service.entity.MentorshipRequest;
 import school.faang.user_service.entity.RequestStatus;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.mapper.mentorship.MentorshipRequestMapper;
+import school.faang.user_service.redis.event.MentorshipAcceptedEvent;
+import school.faang.user_service.redis.publisher.MentorshipAcceptedEventPublisher;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
 import school.faang.user_service.filter.mentorship.RequestFilter;
 import school.faang.user_service.service.user.UserService;
@@ -31,6 +33,7 @@ public class MentorshipRequestService {
     private final MentorshipRequestDtoValidator requestValidator;
     private final MentorshipRequestMapper requestMapper;
     private final List<RequestFilter> requestFilters;
+    private final MentorshipAcceptedEventPublisher mentorshipAcceptedEventPublisher;
 
     @Transactional
     public MentorshipRequestDto requestMentorship(MentorshipRequestCreationDto creationRequestDto) {
@@ -97,6 +100,11 @@ public class MentorshipRequestService {
         request.setStatus(RequestStatus.ACCEPTED);
         MentorshipRequest savedRequest = requestRepository.save(request);
         log.info("Successfully accepted request ID: {}", requestId);
+
+        MentorshipAcceptedEvent event = new MentorshipAcceptedEvent(requestId, request.getRequester().getId(), request.getReceiver().getUsername());
+        mentorshipAcceptedEventPublisher.publish(event);
+        log.info("MentorshipAcceptedEvent with requestId: {}, requesterId: {}, receiver username: {} was sent to Redis channel",
+                event.getId(), event.getRequesterId(), event.getReceiverUsername());
 
         return requestMapper.toMentorshipRequestDto(savedRequest);
     }

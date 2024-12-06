@@ -2,6 +2,7 @@ app:
   user-service:
     goal-service:
       max-goals-amount: 3
+    thread-amount: 10
 
 spring:
   mvc:
@@ -28,11 +29,30 @@ spring:
     redis:
       port: 6379
       host: localhost
-      channels:
-        mentorship-channel:
-          name: mentorship_channel
-        follower-event-channel:
-          name: follower_event
+      channel:
+        follower: follower_channel
+        mentorship:
+          accepted: mentorship_accepted_channel
+  servlet:
+    multipart:
+      max-file-size: 5MB
+
+clear-events:
+  batch-size: 100
+  scheduler:
+    cron: "0 0 0 * * ?"
+
+dicebear:
+  base-url: https://api.dicebear.com
+  version: 9.x
+  style: bottts
+  format: jpeg
+
+minio:
+  endpoint: http://127.0.0.1:9000
+  accessKey: user
+  secretKey: password
+  bucketName: corpbucket
 
 server:
   port: 8080

@@ -40,6 +40,9 @@ public class User {
     @Column(name = "phone", length = 32, unique = true)
     private String phone;
 
+    @Column(name = "telegram_chat_id", unique = true)
+    private Long telegramChatId;
+
     @Column(name = "password", length = 128, nullable = false)
     private String password;
 
@@ -68,6 +71,9 @@ public class User {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(name = "banned")
+    private Boolean banned;
 
     @ManyToMany
     @JoinTable(name = "subscription",
