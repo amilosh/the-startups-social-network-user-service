@@ -34,6 +34,8 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+        profile-view-channel:
+          name: profile-view
   servlet:
     multipart:
       max-file-size: 5MB
