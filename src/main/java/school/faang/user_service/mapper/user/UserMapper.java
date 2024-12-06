@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserMapper {
 
+    @Mapping(source = "contactPreference.preference", target = "preference")
     UserDto toDto(User user);
 
     @Mapping(target = "username", expression = "java(person.getFirstName() + \" \" + person.getLastName())")

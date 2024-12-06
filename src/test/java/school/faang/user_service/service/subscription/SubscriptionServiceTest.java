@@ -9,6 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.contact.ContactPreference;
+import school.faang.user_service.entity.contact.PreferredContact;
 import school.faang.user_service.filter.user.UserEmailFilter;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNameFilter;
@@ -118,18 +120,24 @@ public class SubscriptionServiceTest {
         userId = 10L;
         boolean isExists = true;
 
+        ContactPreference firstUserContactPreference = new ContactPreference();
+        firstUserContactPreference.setPreference(PreferredContact.EMAIL);
         firstUser = User.builder()
                 .id(followerId)
                 .username("firstUser")
                 .email("first@email.com")
                 .telegramChatId(98125891L)
+                .contactPreference(firstUserContactPreference)
                 .build();
 
+        ContactPreference secondUserContactPreference = new ContactPreference();
+        secondUserContactPreference.setPreference(PreferredContact.EMAIL);
         secondUser = User.builder()
                 .id(followeeId)
                 .username("secondUser")
                 .email("second@email.com")
                 .telegramChatId(3454353L)
+                .contactPreference(secondUserContactPreference)
                 .build();
 
         users = Stream.of(firstUser, secondUser);
@@ -139,8 +147,8 @@ public class SubscriptionServiceTest {
                 .emailPattern("first")
                 .build();
 
-        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 98125891L);
-        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 3454353L);
+        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 98125891L, PreferredContact.EMAIL);
+        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 3454353L, PreferredContact.EMAIL);
         expectedUsers = new ArrayList<>(List.of(firstUserDto, secondUserDto));
 
         when(userService.existsById(userId)).thenReturn(isExists);
@@ -189,18 +197,24 @@ public class SubscriptionServiceTest {
         userId = 10L;
         boolean isExists = true;
 
+        ContactPreference firstUserContactPreference = new ContactPreference();
+        firstUserContactPreference.setPreference(PreferredContact.EMAIL);
         firstUser = User.builder()
                 .id(followerId)
                 .username("firstUser")
                 .email("first@email.com")
-                .telegramChatId(9821491L)
+                .telegramChatId(98125891L)
+                .contactPreference(firstUserContactPreference)
                 .build();
 
+        ContactPreference secondUserContactPreference = new ContactPreference();
+        secondUserContactPreference.setPreference(PreferredContact.EMAIL);
         secondUser = User.builder()
                 .id(followeeId)
                 .username("secondUser")
                 .email("second@email.com")
-                .telegramChatId(894189742L)
+                .telegramChatId(3454353L)
+                .contactPreference(secondUserContactPreference)
                 .build();
 
         users = Stream.of(firstUser, secondUser);
@@ -210,8 +224,8 @@ public class SubscriptionServiceTest {
                 .emailPattern("first")
                 .build();
 
-        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 9821491L);
-        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 894189742L);
+        firstUserDto = new UserDto(followerId, "firstUser", "first@email.com", 98125891L, PreferredContact.EMAIL);
+        secondUserDto = new UserDto(followeeId, "secondUser", "second@email.com", 3454353L, PreferredContact.EMAIL);
         expectedUsers = new ArrayList<>(List.of(firstUserDto, secondUserDto));
 
         when(userService.existsById(userId)).thenReturn(isExists);
