@@ -1,4 +1,4 @@
-package school.faang.user_service.listener;
+package school.faang.user_service.message.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -7,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.connection.Message;
-import school.faang.user_service.event.UsersBanEvent;
+import school.faang.user_service.message.event.UsersBanEvent;
 import school.faang.user_service.exceptions.MessageMappingException;
 import school.faang.user_service.service.UserService;
 

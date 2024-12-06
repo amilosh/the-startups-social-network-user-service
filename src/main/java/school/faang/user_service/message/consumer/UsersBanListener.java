@@ -1,4 +1,4 @@
-package school.faang.user_service.listener;
+package school.faang.user_service.message.consumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.event.UsersBanEvent;
+import school.faang.user_service.message.event.UsersBanEvent;
 import school.faang.user_service.exceptions.MessageMappingException;
 import school.faang.user_service.service.UserService;
 
