@@ -4,18 +4,23 @@ import lombok.RequiredArgsConstructor;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.goal.GoalCompletedEvent;
 import school.faang.user_service.dto.goal.GoalFilterDto;
 import school.faang.user_service.dto.goal.GoalRequestDto;
 import school.faang.user_service.dto.goal.GoalResponseDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
+import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.goal.GoalMapper;
+import school.faang.user_service.publisher.goal.GoalCompletedEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.goal.filter.GoalFilter;
 import school.faang.user_service.validator.goal.GoalValidator;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -27,6 +32,8 @@ public class GoalService {
     private final GoalValidator goalValidator;
     private final GoalMapper goalMapper;
     private final SkillRepository skillRepository;
+    private final GoalCompletedEventPublisher goalCompletedPublisher;
+    private final UserContext userContext;
     private final List<GoalFilter> goalFilters;
 
     @Transactional
@@ -62,6 +69,11 @@ public class GoalService {
 
         goalRepository.save(updatedGoal);
         log.info("Goal updated successfully: {}", updatedGoal);
+        if (goalDto.getStatus() == GoalStatus.COMPLETED) {
+            long authorId = userContext.getUserId();
+            goalCompletedPublisher.publish(new GoalCompletedEvent(goalId, authorId, LocalDateTime.now()));
+            log.info("Completed goal {} successfully submitted to redis ", goalId);
+        }
 
         return goalMapper.toDto(updatedGoal);
     }
