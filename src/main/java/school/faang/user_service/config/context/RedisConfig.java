@@ -3,6 +3,7 @@ package school.faang.user_service.config.context;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,9 +18,8 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
+@Slf4j
 public class RedisConfig {
-
-    private static final Logger logger = LoggerFactory.getLogger(RedisConfig.class);
 
     @Value("${spring.data.redis.host}")
     private String redisHost;
@@ -33,24 +33,24 @@ public class RedisConfig {
 
     @Bean
     public LettuceConnectionFactory lettuceConnectionFactory() {
-        logger.info("Создание LettuceConnectionFactory для Redis с хостом: {} и портом: {}", redisHost, redisPort);
+        log.info("Создание LettuceConnectionFactory для Redis с хостом: {} и портом: {}", redisHost, redisPort);
 
         RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(redisHost, redisPort);
         LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory(redisStandaloneConfiguration);
-        logger.info("LettuceConnectionFactory успешно создан.");
+        log.info("LettuceConnectionFactory успешно создан.");
 
         return connectionFactory;
     }
 
     @Bean
     public ChannelTopic followerChannel() {
-        logger.info("Создание ChannelTopic для канала: {}", followerEventChannel);
+        log.info("Создание ChannelTopic для канала: {}", followerEventChannel);
         return new ChannelTopic(followerEventChannel);
     }
 
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        logger.info("Создание RedisTemplate с кастомными сериализаторами.");
+        log.info("Создание RedisTemplate с кастомными сериализаторами.");
 
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
@@ -66,7 +66,7 @@ public class RedisConfig {
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashValueSerializer(serializer);
 
-        logger.info("RedisTemplate создан и сериализаторы настроены.");
+        log.info("RedisTemplate создан и сериализаторы настроены.");
 
         return redisTemplate;
     }
