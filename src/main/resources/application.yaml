@@ -24,7 +24,7 @@ spring:
         mentorship-channel:
           name: mentorship_channel
         follower-event-channel:
-          name: follower_event
+          follower: follower_channel_new_sub
 
 server:
   port: 8080
