@@ -10,12 +10,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.dto.event.EventStartEvent;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.event.EventMapperImpl;
 import school.faang.user_service.mapper.skill.SkillMapperImpl;
+import school.faang.user_service.publisher.event.EventStartEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.event_filters.EventDateRangeFilter;
@@ -53,6 +55,9 @@ public class EventServiceTest {
     private SkillRepository skillRepository;
     @Mock
     private EventServiceValidator eventServiceValidator;
+    @Mock
+    private EventStartEventPublisher publisher;
+
     @InjectMocks
     private EventService eventService;
 
@@ -62,6 +67,8 @@ public class EventServiceTest {
     private User userJohn;
     private Event eventBaking;
     private Event eventCarFixing;
+    private User userJane;
+    private EventStartEvent eventStartEvent;
 
     @BeforeEach
     void setUp() {
@@ -72,7 +79,7 @@ public class EventServiceTest {
         skillMapper = new SkillMapperImpl();
         eventMapper = new EventMapperImpl(skillMapper);
         eventService = new EventService
-                (eventRepository, eventServiceValidator, eventMapper, eventFilters, skillRepository);
+                (eventRepository, eventServiceValidator, eventMapper, eventFilters, skillRepository, publisher);
 
         ReflectionTestUtils.setField(eventService, "batchSize", 10);
     }
@@ -92,7 +99,7 @@ public class EventServiceTest {
         userJohn.setUsername("John");
         userJohn.setSkills(new ArrayList<>(Set.of(bakingSkill, decoratingSkill)));
 
-        User userJane = new User();
+        userJane = new User();
         userJane.setId(2L);
         userJane.setUsername("Jane");
         userJane.setSkills(new ArrayList<>(Set.of(bakingSkill)));
@@ -108,6 +115,11 @@ public class EventServiceTest {
         eventCarFixing = new Event();
         eventCarFixing.setTitle("Car Fixing");
         eventCarFixing.setMaxAttendees(100);
+
+        eventStartEvent = EventStartEvent.builder()
+                .eventId(1L)
+                .attendeesIds(List.of(2L))
+                .build();
     }
 
     @Test
@@ -127,6 +139,7 @@ public class EventServiceTest {
         when(eventRepository.save(any(Event.class))).thenAnswer(invocation -> {
             Event event = invocation.getArgument(0);
             event.setId(1L);
+            event.setAttendees(List.of(userJane));
             return event;
         });
 
@@ -152,6 +165,7 @@ public class EventServiceTest {
         assertEquals(1, capturedEvent.getRelatedSkills().size());
         assertEquals("Baking", capturedEvent.getRelatedSkills().get(0).getTitle());
         verify(skillRepository, times(1)).saveAll(anyList());
+        verify(publisher).publish(eventStartEvent);
     }
 
     @Test

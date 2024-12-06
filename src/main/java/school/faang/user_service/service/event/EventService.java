@@ -9,11 +9,13 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
+import school.faang.user_service.dto.event.EventStartEvent;
 import school.faang.user_service.dto.skill.SkillDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.mapper.event.EventMapper;
+import school.faang.user_service.publisher.event.EventStartEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.event_filters.EventFilter;
@@ -33,6 +35,7 @@ public class EventService {
     private final EventMapper eventMapper;
     private final List<EventFilter> eventFilters;
     private final SkillRepository skillRepository;
+    private final EventStartEventPublisher publisher;
 
     @Value("${app.event.batch.size}")
     private int batchSize;
@@ -45,8 +48,10 @@ public class EventService {
         Event event = eventMapper.toEntity(eventDto);
         event.setId(null);
         event = addRealtedSkillsToEvent(eventDto, event);
-
         log.info("New event saved to the database;");
+
+        publishEventStartEvent(event);
+
         return eventMapper.toDto(event);
     }
 
@@ -141,5 +146,15 @@ public class EventService {
                 .map(SkillDto::getId)
                 .toList();
         return skillRepository.findAllById(ids);
+    }
+
+    private void publishEventStartEvent(Event event) {
+        EventStartEvent eventStartEvent = EventStartEvent.builder()
+                .eventId(event.getId())
+                .attendeesIds(event.getAttendees().stream()
+                        .map(User::getId)
+                        .toList())
+                .build();
+        publisher.publish(eventStartEvent);
     }
 }
