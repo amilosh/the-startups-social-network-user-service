@@ -75,13 +75,13 @@ class UserServiceTest {
     @Mock
     private UserService userService;
 
-    @Mock
-    private ProfileViewEventPublisher profileViewEventPublisher;
-
     private List<UserFilter> userFilters;
 
     @Captor
     ArgumentCaptor<User> userCaptor;
+
+    @Mock
+    private  ProfileViewEventPublisher profileViewEventPublisher;
 
     @Test
     void getUserTest() {
@@ -276,8 +276,8 @@ class UserServiceTest {
                 .telegramChatId(90218421908421L)
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L, "8778", UserDto.PreferredContact.EMAIL);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 90218421908421L, "8778", UserDto.PreferredContact.EMAIL);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 90218421908421L);
 
         Stream<User> users = Stream.of(firstUser, secondUser);
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
@@ -321,8 +321,8 @@ class UserServiceTest {
                 .telegramChatId(893248953L)
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L, "8778", UserDto.PreferredContact.EMAIL);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L, "8778", UserDto.PreferredContact.EMAIL);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 90182590L);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 893248953L);
 
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
         List<User> usersList = List.of(firstUser, secondUser);
