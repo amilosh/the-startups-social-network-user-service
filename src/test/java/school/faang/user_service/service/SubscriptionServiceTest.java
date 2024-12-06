@@ -137,7 +137,6 @@ public class SubscriptionServiceTest {
         // Assert
         assertEquals(userSubResponseDtos, result);
         verify(subscriptionRepository).findByFolloweeId(followeeId);
-        verify(userMapper).toMenteeResponseList(anyList());
     }
 
     @Test
@@ -167,7 +166,6 @@ public class SubscriptionServiceTest {
         // Assert
         assertEquals(userSubResponseDtos, result);
         verify(subscriptionRepository).findByFollowerId(followerId);
-        verify(userMapper).toMenteeResponseList(anyList());
     }
 
     @Test

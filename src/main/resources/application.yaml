@@ -37,6 +37,18 @@ logging:
   level:
     root: info
 
+project-service:
+  host: localhost
+  port: 8082
+
+payment-service:
+  host: localhost
+  port: 9080
+
+scheduler:
+  clear-events-cron: "0 0 * * * *"
+  batch-size: 100
+  thread-pool-size: 10
 services:
   s3:
     endpoint: http://127.0.0.1:9000

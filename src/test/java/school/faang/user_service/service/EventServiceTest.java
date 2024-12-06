@@ -8,6 +8,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import school.faang.user_service.config.scheduler.SchedulerConfig;
 import school.faang.user_service.dto.EventDto;
 import school.faang.user_service.dto.EventFilterDto;
 import school.faang.user_service.dto.SkillDto;
@@ -21,6 +23,7 @@ import school.faang.user_service.mapper.SkillMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -58,6 +61,9 @@ class EventServiceTest {
     @Mock
     private SkillMapper skillMapper;
 
+    @Mock
+    private SchedulerConfig schedulerConfig;
+
     @InjectMocks
     private EventService eventService;
 
@@ -77,7 +83,7 @@ class EventServiceTest {
     @BeforeEach
     public void setUp() {
         mockFilter = mock(EventFilter.class);
-        eventService = new EventService(eventRepository, userRepository, userService, eventMapper, skillMapper, List.of(mockFilter));
+        eventService = new EventService(eventRepository, userRepository, userService, eventMapper, skillMapper, List.of(mockFilter), schedulerConfig);
 
         skillDto1 = SkillDto.builder().id(1L).title("Java").build();
         skillDto2 = SkillDto.builder().id(2L).title("Spring").build();
@@ -114,6 +120,10 @@ class EventServiceTest {
                 .title("Java Conference 2024")
                 .relatedSkills(skillsDtos)
                 .build();
+
+        ReflectionTestUtils.setField(eventService, "schedulerConfig", schedulerConfig);
+        when(schedulerConfig.getBatchSize()).thenReturn(10);
+        when(schedulerConfig.getThreadPoolSize()).thenReturn(5);
     }
 
     @Test
@@ -394,5 +404,35 @@ class EventServiceTest {
                 "The event title should match the filter title");
         verify(eventRepository).findAll();
         verify(eventMapper).toDtoList(anyList());
+    }
+
+    @Test
+    void testClearPastEvents() {
+        // Given
+        Event pastEvent1 = Event.builder().id(1L).endDate(LocalDateTime.now().minusDays(1)).build();
+        Event pastEvent2 = Event.builder().id(2L).endDate(LocalDateTime.now().minusDays(2)).build();
+        List<Event> pastEvents = Arrays.asList(pastEvent1, pastEvent2);
+
+        when(eventRepository.findByEndDateBefore(any(LocalDateTime.class))).thenReturn(pastEvents);
+
+        // When
+        eventService.clearPastEvents();
+
+        // Then
+        verify(eventRepository, times(1)).findByEndDateBefore(any(LocalDateTime.class));
+        verify(eventRepository, times(1)).deleteAll(pastEvents);
+    }
+
+    @Test
+    void testClearPastEvents_NoEvents() {
+        // Given
+        when(eventRepository.findByEndDateBefore(any(LocalDateTime.class))).thenReturn(List.of());
+
+        // When
+        eventService.clearPastEvents();
+
+        // Then
+        verify(eventRepository, times(1)).findByEndDateBefore(any(LocalDateTime.class));
+        verify(eventRepository, never()).deleteAll(anyList());
     }
 }

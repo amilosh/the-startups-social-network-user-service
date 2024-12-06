@@ -11,7 +11,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 
-@Mapper(componentModel = "spring", uses = GoalInvitationMapper.class)
+@Mapper(componentModel = "spring", uses = GoalInvitationMapper.class, unmappedTargetPolicy = org.mapstruct.ReportingPolicy.IGNORE)
 public interface GoalMapper {
 
     @Mapping(target = "parent", ignore = true)

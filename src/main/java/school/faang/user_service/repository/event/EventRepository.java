@@ -35,4 +35,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     );
 
     Iterable<Long> owner(User owner);
+
+    List<Event> findByEndDateBefore(LocalDateTime dateTime);
 }
