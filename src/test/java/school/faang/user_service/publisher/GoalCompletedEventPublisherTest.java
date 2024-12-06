@@ -1,5 +1,4 @@
 package school.faang.user_service.publisher;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
@@ -10,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import school.faang.user_service.dto.goal.GoalCompletedEvent;
 import school.faang.user_service.dto.recommendation.RecommendationEvent;
 
 import java.time.LocalDateTime;
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class RecommendationEventPublisherTest {
+public class GoalCompletedEventPublisherTest {
 
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
@@ -27,14 +27,14 @@ public class RecommendationEventPublisherTest {
     private ObjectMapper objectMapper;
 
     @InjectMocks
-    private RecommendationEventPublisher publisher;
+    private GoalCompletedEventPublisher publisher;
 
-    @Value("${spring.data.redis.channels.recommendation-topic}")
+    @Value("${spring.data.redis.channels.goal_topic}")
     private String channel;
 
     @Test
     public void testSuccessfulPublish() throws JsonProcessingException {
-        RecommendationEvent event = setEvent();
+        GoalCompletedEvent event = setEvent();
         when(objectMapper.writeValueAsString(event)).thenReturn("some_json");
 
         publisher.publish(event);
@@ -44,7 +44,7 @@ public class RecommendationEventPublisherTest {
 
     @Test
     public void testPublishWithJsonProcessingException() throws JsonProcessingException {
-        RecommendationEvent event = setEvent();
+        GoalCompletedEvent event = setEvent();
         when(objectMapper.writeValueAsString(event)).thenThrow(JsonProcessingException.class);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
@@ -53,7 +53,7 @@ public class RecommendationEventPublisherTest {
         Assertions.assertEquals(RuntimeException.class, exception.getClass());
     }
 
-    public RecommendationEvent setEvent() {
-        return new RecommendationEvent(1L, 1L, 1L, LocalDateTime.now());
+    public GoalCompletedEvent setEvent() {
+        return new GoalCompletedEvent(1L, 1L, LocalDateTime.now());
     }
 }
