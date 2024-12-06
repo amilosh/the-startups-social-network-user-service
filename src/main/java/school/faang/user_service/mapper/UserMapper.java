@@ -8,6 +8,7 @@ import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.dto.user.DeactivatedUserDto;
 import school.faang.user_service.dto.user.MenteeResponseDto;
+import school.faang.user_service.dto.user.UserForNotificationDto;
 import school.faang.user_service.entity.Skill;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
@@ -49,6 +50,9 @@ public interface UserMapper {
     @Mapping(target = "country", ignore = true)
     User deactivatedUserDtoToEntity(DeactivatedUserDto deactivatedUserDto);
     UserDto toDto(User user);
+
+
+    UserForNotificationDto toUserForNotificationDto(User user);
 
     @Named("mapGoalsToListId")
     default List<Long> mapGoalsToListId(List<Goal> goals) {
