@@ -37,17 +37,17 @@ public class SubscriptionService {
     public void followUser(long followerId, long followeeId) {
         userValidator.validateUserExistence(userService.existsById(followerId));
         userValidator.validateUserExistence(userService.existsById(followeeId));
-
         subscriptionValidator.isFollowingExistsValidate(followerId, followeeId);
+
+        subscriptionRepository.followUser(followerId, followeeId);
 
         FollowerEvent followerEvent = FollowerEvent.builder()
                 .actorId(followerId)
                 .receiverId(followeeId)
                 .receivedAt(LocalDateTime.now())
                 .build();
-        subscriptionRepository.followUser(followerId, followeeId);
-        log.info("User with id: {} follow user with id: {}", followerId, followeeId);
         followerEventPublisher.publish(followerEvent);
+        log.info("User with id: {} follow user with id: {}", followerId, followeeId);
     }
 
     @Transactional

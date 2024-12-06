@@ -3,17 +3,20 @@ package school.faang.user_service.service.subscription;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.User;
+import school.faang.user_service.event.FollowerEvent;
 import school.faang.user_service.filter.user.UserEmailFilter;
 import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.filter.user.UserNameFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user.UserMapperImpl;
+import school.faang.user_service.redis.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.subscription.SubscriptionValidator;
@@ -46,6 +49,9 @@ public class SubscriptionServiceTest {
     private UserValidator userValidator;
 
     @Mock
+    private FollowerEventPublisher followerEventPublisher;
+
+    @Mock
     UserService userService;
 
     SubscriptionService subscriptionService;
@@ -71,12 +77,14 @@ public class SubscriptionServiceTest {
         UserFilter MockUserEmailFilter = mock(UserEmailFilter.class);
         userFilters = new ArrayList<>(List.of(MockUserNameFilter, MockUserEmailFilter));
 
-        subscriptionService = new SubscriptionService(subscriptionRepository, userMapper,
-                userFilters, subscriptionValidation, userValidator, userService);
+        subscriptionService = new SubscriptionService(subscriptionRepository,
+                userMapper, userFilters, subscriptionValidation, userValidator,
+                userService, followerEventPublisher);
     }
 
     @Test
     public void followUserTest() {
+        ArgumentCaptor<FollowerEvent> followerEventCaptor = ArgumentCaptor.forClass(FollowerEvent.class);
         followerId = 1L;
         followeeId = 2L;
         boolean isExists = true;
@@ -91,6 +99,11 @@ public class SubscriptionServiceTest {
         verify(userValidator, times(2)).validateUserExistence(isExists);
         verify(subscriptionValidation).isFollowingExistsValidate(followerId, followeeId);
         verify(subscriptionRepository).followUser(followerId, followeeId);
+        verify(followerEventPublisher, times(1)).publish(followerEventCaptor.capture());
+
+        FollowerEvent eventToSend = followerEventCaptor.getValue();
+        assertEquals(followerId, eventToSend.getActorId());
+        assertEquals(followeeId, eventToSend.getReceiverId());
     }
 
     @Test
