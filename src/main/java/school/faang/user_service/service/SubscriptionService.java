@@ -57,9 +57,6 @@ public class SubscriptionService {
             log.error("Произошла ошибка при отписке пользователя: followerId={}, followeeId={}", followerId, followeeId, ex);
             throw new UnfollowException("Не удалось отписаться от пользователя.", ex);
         }
-        followerEventPublisher.publish(new FollowerEvent(followerId, followeeId, LocalDateTime.now()));
-        log.info("Событие отписки для пользователей {} и {} успешно опубликовано.", followeeId, followerId);
-
     }
     public List<UserDTO> getFollowers(Long userId, UserFilterDTO filter) {
         log.info("Запрос на получение подписчиков пользователя {}", userId);
