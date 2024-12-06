@@ -15,6 +15,7 @@ import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.goalInvitationFilters.GoalInvitationFilter;
 import school.faang.user_service.mapper.GoalInvitationMapper;
 import school.faang.user_service.repository.goal.GoalInvitationRepository;
+import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.validator.GoalInvitationValidator;
 
 import java.util.List;

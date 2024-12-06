@@ -18,6 +18,7 @@ import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.mapper.SkillOfferMapper;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
+import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.util.CollectionUtils;
 import school.faang.user_service.util.SkillUtils;
 import school.faang.user_service.validator.RecommendationValidator;

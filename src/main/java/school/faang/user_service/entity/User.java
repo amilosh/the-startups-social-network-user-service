@@ -146,7 +146,6 @@ public class User {
     @OneToOne(mappedBy = "user")
     private Premium premium;
 
-
     @Enumerated(EnumType.STRING)
     @Column(name = "locale", nullable = false)
     private Language locale;

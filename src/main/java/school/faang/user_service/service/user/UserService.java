@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.user;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +18,7 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.mapper.UserProfilePicMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
+import school.faang.user_service.service.S3Service;
 import school.faang.user_service.util.ImageUtils;
 
 import java.awt.image.BufferedImage;
