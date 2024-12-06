@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.UserProfilePicDto;
 import school.faang.user_service.dto.UserSubResponseDto;
+import school.faang.user_service.dto.user.UserForNotificationDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exceptions.DataValidationException;
@@ -61,6 +62,11 @@ public class UserService {
     public User getUserById(long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new
                 EntityNotFoundException("User do not found by " + userId));
+    }
+
+    public UserForNotificationDto getUserByIdForNotification(long userId) {
+        User user = getUserById(userId);
+        return userMapper.toUserForNotificationDto(user);
     }
 
     public void saveUser(User user) {
