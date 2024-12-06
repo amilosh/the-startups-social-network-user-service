@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.FollowerEvent;
+import school.faang.user_service.dto.SubscribeEventDTO;
 import school.faang.user_service.dto.subscribe.UserDTO;
 import school.faang.user_service.dto.subscribe.UserFilterDTO;
 import school.faang.user_service.entity.User;
@@ -12,6 +12,7 @@ import school.faang.user_service.exceptions.InvalidUserIdException;
 import school.faang.user_service.exceptions.SubscriptionNotFoundException;
 import school.faang.user_service.exceptions.UnfollowException;
 import school.faang.user_service.publisher.FollowerEventPublisher;
+import school.faang.user_service.publisher.UnfollowEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
     private final FollowerEventPublisher followerEventPublisher;
+    private final UnfollowEventPublisher unfollowEventPublisher;
 
     @Transactional
     public void followUser(Long followerId, Long followeeId) {
@@ -36,7 +38,7 @@ public class SubscriptionService {
         }
         subscriptionRepository.followUser(followerId, followeeId);
         log.info("Пользователь с ID {} успешно подписался на пользователя с ID {}.", followerId, followeeId);
-        followerEventPublisher.publish(new FollowerEvent(followerId, followeeId, LocalDateTime.now()));
+        followerEventPublisher.publish(new SubscribeEventDTO(followerId, followeeId, LocalDateTime.now(), "SUBSCRIBE"));
         log.info("Событие подписки для пользователей {} и {} успешно опубликовано.", followerId, followeeId);
 
     }
@@ -45,6 +47,7 @@ public class SubscriptionService {
     public void unfollowUser(Long followerId, Long followeeId) {
         log.info("Пользователь {} пытается отписаться от пользователя {}", followerId, followeeId);
         validateUserIds(followerId, followeeId);
+
         if (!subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)) {
             log.warn("Подписка между пользователями {} и {} не существует.", followerId, followeeId);
             throw new SubscriptionNotFoundException("Подписка не существует.");
@@ -53,11 +56,15 @@ public class SubscriptionService {
         try {
             subscriptionRepository.unfollowUser(followerId, followeeId);
             log.info("Пользователь {} успешно отписался от пользователя {}.", followerId, followeeId);
+            unfollowEventPublisher.publish(new SubscribeEventDTO(followerId, followeeId, LocalDateTime.now(), "UNSUBSCRIBE"));
+            log.info("Событие отписки отправлено в Redis для FollowerId: {} и FolloweeId: {}", followerId, followeeId);
+
         } catch (Exception ex) {
             log.error("Произошла ошибка при отписке пользователя: followerId={}, followeeId={}", followerId, followeeId, ex);
             throw new UnfollowException("Не удалось отписаться от пользователя.", ex);
         }
     }
+
     public List<UserDTO> getFollowers(Long userId, UserFilterDTO filter) {
         log.info("Запрос на получение подписчиков пользователя {}", userId);
         if (filter == null) {

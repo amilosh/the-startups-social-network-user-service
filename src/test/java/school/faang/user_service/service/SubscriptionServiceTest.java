@@ -5,11 +5,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.SubscribeEventDTO;
 import school.faang.user_service.dto.subscribe.UserDTO;
 import school.faang.user_service.dto.subscribe.UserFilterDTO;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.InvalidUserIdException;
 import school.faang.user_service.exceptions.SubscriptionNotFoundException;
+import school.faang.user_service.publisher.UnfollowEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.util.Arrays;
@@ -23,6 +25,9 @@ class SubscriptionServiceTest {
 
     @Mock
     private SubscriptionRepository subscriptionRepository;
+
+    @Mock
+    private UnfollowEventPublisher unfollowEventPublisher;
 
     @InjectMocks
     private SubscriptionService subscriptionService;
@@ -46,12 +51,12 @@ class SubscriptionServiceTest {
         Long followerId = 1L;
         Long followeeId = 2L;
 
-
         when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(true);
 
         subscriptionService.unfollowUser(followerId, followeeId);
 
         verify(subscriptionRepository).unfollowUser(followerId, followeeId);
+        verify(unfollowEventPublisher).publish(any(SubscribeEventDTO.class));
     }
 
     @Test

@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class FollowerEvent {
+public class SubscribeEventDTO {
     private long followerId;
     private long followeeId;
     private LocalDateTime eventTime;
-
+    private String eventType;
 }
