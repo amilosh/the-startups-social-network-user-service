@@ -129,6 +129,7 @@ public class SubscriptionServiceTest {
                 .username("firstUser")
                 .email("first@email.com")
                 .telegramChatId(98125891L)
+                .contactPreference(new ContactPreference(1, firstUser, EMAIL))
                 .build();
 
         secondUser = User.builder()

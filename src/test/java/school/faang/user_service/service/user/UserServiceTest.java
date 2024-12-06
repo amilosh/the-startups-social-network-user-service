@@ -260,11 +260,14 @@ class UserServiceTest {
         long firstUserId = 1L;
         long secondUserId = 2L;
 
+        ContactPreference contactPreference = new ContactPreference();
+        contactPreference.setPreference(EMAIL);
         User firstUser = User.builder()
                 .id(firstUserId)
                 .username("firstUser")
                 .email("first@email.com")
                 .telegramChatId(1242142141241L)
+                .contactPreference(contactPreference)
                 .build();
 
         User secondUser = User.builder()
@@ -272,10 +275,11 @@ class UserServiceTest {
                 .username("secondUser")
                 .email("second@email.com")
                 .telegramChatId(90218421908421L)
+                .contactPreference(contactPreference)
                 .build();
 
-        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L);
-        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 90218421908421L);
+        UserDto firstUserDto = new UserDto(firstUserId, "firstUser", "first@email.com", 1242142141241L, EMAIL);
+        UserDto secondUserDto = new UserDto(secondUserId, "secondUser", "second@email.com", 90218421908421L, EMAIL);
 
         Stream<User> users = Stream.of(firstUser, secondUser);
         List<UserDto> expectedUsersDto = List.of(firstUserDto, secondUserDto);
@@ -422,5 +426,4 @@ class UserServiceTest {
                 "text/plain", "Some content".getBytes());
         assertThrows(IllegalArgumentException.class, () -> userService.parsePersonDataIntoUserDto(invalidTypeFile));
     }
-
 }
