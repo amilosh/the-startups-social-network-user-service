@@ -12,6 +12,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProfileViewEvent {
-    private Long viewerId;
+    private String username;
     private Long profileId;
 }

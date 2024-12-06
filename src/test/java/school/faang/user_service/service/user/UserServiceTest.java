@@ -442,7 +442,16 @@ class UserServiceTest {
                 .phone("1234567890")
                 .build();
 
+        User user1 = User.builder()
+                .id(userId)
+                .username("test1")
+                .email("test1@example.com")
+                .telegramChatId(null)
+                .phone("12345678901")
+                .build();
+
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userRepository.findById(viewerId)).thenReturn(Optional.of(user1));
 
         UserDto result = userService.getUserProfile(userId, viewerId);
 
