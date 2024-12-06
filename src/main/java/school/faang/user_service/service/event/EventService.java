@@ -34,7 +34,7 @@ public class EventService {
     private final List<EventFilter> eventFilters;
     private final SkillRepository skillRepository;
 
-    @Value("${event.batch.size}")
+    @Value("${app.event.batch.size}")
     private int batchSize;
 
     @Transactional

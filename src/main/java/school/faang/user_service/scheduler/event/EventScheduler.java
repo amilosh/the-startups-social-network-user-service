@@ -13,7 +13,7 @@ public class EventScheduler {
 
     private final EventService eventService;
 
-    @Scheduled(cron = "${event.cron}")
+    @Scheduled(cron = "${app.event.cron}")
     public void clearEvents() {
         try {
             eventService.deletePastEvents().get();
