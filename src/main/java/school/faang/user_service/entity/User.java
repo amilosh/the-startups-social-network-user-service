@@ -66,6 +66,9 @@ public class User {
     @Column(name = "about_me", length = 4096)
     private String aboutMe;
 
+    @Column(name = "banned", nullable = false)
+    private Boolean banned = false;
+
     @ManyToOne
     @JoinColumn(name = "country_id", nullable = false)
     private Country country;

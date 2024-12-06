@@ -49,6 +49,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 
@@ -688,6 +689,20 @@ class UserServiceTest {
     }
 
     @Test
+    void testBanUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setBanned(false);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        userService.banUser(1L);
+
+        assertTrue(user.getBanned());
+        verify(userRepository, times(1)).save(user);
+    }
+
+    @Test
     void importUsersFromCsvSuccessfully() throws IOException {
         when(parser.parseCsv(inputStream)).thenReturn(people);
         when(personToUserMapper.personToUser(mockPerson)).thenReturn(mockUser);
@@ -714,6 +729,51 @@ class UserServiceTest {
         assertTrue(result.getErrors().get(0).contains("Failed to save user"));
 
         verify(userRepository, times(1)).save(mockUser);
+    }
+
+    @Test
+    void getUsersByIdsShouldReturnUserDtosWhenUsersExist() {
+        List<Long> ids = Arrays.asList(1L, 2L, 3L);
+
+        List<User> users = Arrays.asList(
+                User.builder().id(1L).username("John Doe").build(),
+                User.builder().id(2L).username("Jane Doe").build()
+        );
+
+        List<UserDto> expectedDtos = Arrays.asList(
+                UserDto.builder().id(1L).username("John Doe").build(),
+                UserDto.builder().id(2L).username("Jane Doe").build()
+        );
+
+        when(userRepository.findAllById(ids)).thenReturn(users);
+        when(userMapper.toDto(users)).thenReturn(expectedDtos);
+
+        List<UserDto> result = userService.getUsersByIds(ids);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(expectedDtos, result);
+
+        verify(userRepository).findAllById(ids);
+        verify(userMapper).toDto(users);
+        verifyNoMoreInteractions(userRepository, userMapper);
+    }
+
+    @Test
+    void getUsersByIdsShouldReturnEmptyListWhenNoUsersExist() {
+        List<Long> ids = Arrays.asList(4L, 5L);
+
+        when(userRepository.findAllById(ids)).thenReturn(List.of());
+        when(userMapper.toDto(List.of())).thenReturn(List.of());
+
+        List<UserDto> result = userService.getUsersByIds(ids);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        verify(userRepository).findAllById(ids);
+        verify(userMapper).toDto(List.of());
+        verifyNoMoreInteractions(userRepository, userMapper);
     }
 
     private Person createMockPerson(String firstName, String lastName, String email) {
