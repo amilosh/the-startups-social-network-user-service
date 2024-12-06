@@ -9,27 +9,36 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UserDto;
+import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.mapper.user.UserMapperImpl;
+import school.faang.user_service.publisher.user.SearchAppearanceEventPublisher;
 import school.faang.user_service.repository.CountryRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.repository.goal.GoalRepository;
 import school.faang.user_service.service.mentorship.MentorshipService;
 import school.faang.user_service.service.s3.S3Service;
+import school.faang.user_service.service.user.filter.UserFilter;
 import school.faang.user_service.service.user.random_password.PasswordGenerator;
 import school.faang.user_service.validator.user.UserValidator;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -56,6 +65,12 @@ class UserServiceTest {
     private UserMapperImpl userMapper;
 
     @Mock
+    private SearchAppearanceEventPublisher searchAppearanceEventPublisher;
+
+    @Mock
+    private UserContext userContext;
+
+    @Mock
     private UserValidator userValidator;
 
     @Mock
@@ -66,6 +81,9 @@ class UserServiceTest {
 
     @Mock
     private CountryRepository countryRepository;
+
+    @Mock
+    private List<UserFilter> userFilters;
 
     private final long userId = 1L;
     private User user;
@@ -106,6 +124,35 @@ class UserServiceTest {
         verify(userValidator, times(1)).validateUser(userId);
         verify(userMapper, times(1)).toDto(user);
     }
+
+    @Test
+    void testGetUserWithFiltersAndRedis() {
+            UserFilterDto filterDto = new UserFilterDto();
+            when(userContext.getUserId()).thenReturn(2L);
+            when(userRepository.findAll()).thenReturn(List.of(user));
+
+            UserFilter applicableFilter = mock(UserFilter.class);
+            when(applicableFilter.isApplicable(filterDto)).thenReturn(true);
+            when(applicableFilter.apply(any(Stream.class), eq(filterDto)))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+
+            when(userFilters.iterator()).thenReturn(List.of(applicableFilter).iterator());
+
+            Stream<UserDto> resultStream = userService.getUser(filterDto);
+            List<UserDto> result = resultStream.toList();
+
+            assertNotNull(result, "Result can't be null");
+            assertEquals(1, result.size(), "1 user should be");
+            assertEquals(userId, result.get(0).getId(), "User IDs should be same");
+
+            verify(searchAppearanceEventPublisher).publish(argThat(event ->
+                    event.getUserId() == userId &&
+                            event.getSearchingUserId() == 2L
+            ));
+            verify(userMapper).toDto(user);
+            verify(applicableFilter).isApplicable(filterDto);
+            verify(applicableFilter).apply(any(Stream.class), eq(filterDto));
+        }
 
     @Test
     public void testGetUsersByIdsSuccess() {
@@ -153,7 +200,7 @@ class UserServiceTest {
 
         byte[] fileBytes = userService.getAvatar(userId);
 
-        Assertions.assertNotNull(fileBytes);
+        assertNotNull(fileBytes);
         Assertions.assertArrayEquals("imageData".getBytes(), fileBytes);
     }
 
