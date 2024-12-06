@@ -27,8 +27,8 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int redisPort;
 
-    @Value("${spring.data.redis.channel.follower}")
-    private String followerChannel;
+    @Value("${spring.data.redis.channels.follower-event-channel.follower}")
+    private String followerEventChannel;
 
 
     @Bean
@@ -44,8 +44,8 @@ public class RedisConfig {
 
     @Bean
     public ChannelTopic followerChannel() {
-        logger.info("Создание ChannelTopic для канала: {}", followerChannel);
-        return new ChannelTopic(followerChannel);
+        logger.info("Создание ChannelTopic для канала: {}", followerEventChannel);
+        return new ChannelTopic(followerEventChannel);
     }
 
     @Bean
