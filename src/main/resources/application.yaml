@@ -56,3 +56,6 @@ services:
   user-service:
     host: http://localhost
     port: 8080
+
+thread-pool:
+  size: 5

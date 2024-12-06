@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserFilterDto;
@@ -141,6 +142,7 @@ public class UserService {
         s3Service.deleteFiles(fileId, smallFileId);
     }
 
+    @Async("threadPool")
     public void publishProfileViewEvent(long receiverId, long actorId) {
         log.info("Trying to publish profile view event. ActorId: {} receiverId user: {}", receiverId, actorId);
         ProfileViewEvent profileViewEvent = ProfileViewEvent.builder()
