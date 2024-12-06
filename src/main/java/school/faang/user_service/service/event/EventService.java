@@ -3,6 +3,9 @@ package school.faang.user_service.service.event;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.ListUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.event.EventDto;
 import school.faang.user_service.dto.event.EventFilterDto;
@@ -16,8 +19,10 @@ import school.faang.user_service.repository.event.EventRepository;
 import school.faang.user_service.service.event.event_filters.EventFilter;
 import school.faang.user_service.validator.event.EventServiceValidator;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +33,9 @@ public class EventService {
     private final EventMapper eventMapper;
     private final List<EventFilter> eventFilters;
     private final SkillRepository skillRepository;
+
+    @Value("${app.event.batch.size}")
+    private int batchSize;
 
     @Transactional
     public EventDto create(EventDto eventDto) {
@@ -88,6 +96,27 @@ public class EventService {
         List<Event> events = eventRepository.findParticipatedEventsByUserId(userId);
         log.info("A list of events where user with id {} participates has been retrieved", userId);
         return eventMapper.toDto(events);
+    }
+
+    @Async("taskExecutor")
+    public CompletableFuture<Void> deletePastEvents() {
+        try {
+            List<Event> events = getPastEvents();
+            if (!events.isEmpty()) {
+                ListUtils.partition(events, batchSize)
+                        .forEach(list -> eventRepository.deleteAllById(
+                                list.stream().map(Event::getId).toList()));
+            }
+            log.info("Deleted {} past events", events.size());
+            return CompletableFuture.completedFuture(null);
+        } catch (Exception e) {
+            log.error("Error occurred while deleting past events: {}", e.getMessage(), e);
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+
+    private List<Event> getPastEvents() {
+        return eventRepository.findAllByEndDateBefore(LocalDateTime.now());
     }
 
     private Event addRealtedSkillsToEvent(EventDto eventDto, Event event) {

@@ -27,15 +27,20 @@ import school.faang.user_service.service.event.event_filters.EventSkillsFilter;
 import school.faang.user_service.service.event.event_filters.EventTitleFilter;
 import school.faang.user_service.validator.event.EventServiceValidator;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -68,6 +73,8 @@ public class EventServiceTest {
         eventMapper = new EventMapperImpl(skillMapper);
         eventService = new EventService
                 (eventRepository, eventServiceValidator, eventMapper, eventFilters, skillRepository);
+
+        ReflectionTestUtils.setField(eventService, "batchSize", 10);
     }
 
     @BeforeEach
@@ -257,5 +264,42 @@ public class EventServiceTest {
 
         assertEquals(1, result.size());
         assertEquals(eventBakingDto, result.get(0));
+    }
+
+    @Test
+    public void testDeletePastEvents_whenEventsExist_shouldDeleteEvents() throws Exception {
+        when(eventRepository.findAllByEndDateBefore(any(LocalDateTime.class))).thenReturn(List.of(eventBaking, eventCarFixing));
+        doNothing().when(eventRepository).deleteAllById(any());
+
+        CompletableFuture<Void> result = eventService.deletePastEvents();
+        result.get();
+
+        verify(eventRepository, times(1)).findAllByEndDateBefore(any(LocalDateTime.class));
+        verify(eventRepository, times(1)).deleteAllById(any());
+        assertTrue(result.isDone());
+        assertFalse(result.isCompletedExceptionally());
+    }
+
+    @Test
+    public void testDeletePastEvents_whenNoEventsExist_shouldNotDeleteEvents() throws Exception {
+        when(eventRepository.findAllByEndDateBefore(any(LocalDateTime.class))).thenReturn(List.of());
+
+        CompletableFuture<Void> result = eventService.deletePastEvents();
+        result.get();
+
+        verify(eventRepository, times(1)).findAllByEndDateBefore(any(LocalDateTime.class));
+        verify(eventRepository, never()).deleteAllById(any());
+        assertTrue(result.isDone());
+        assertFalse(result.isCompletedExceptionally());
+    }
+
+    @Test
+    public void testDeletePastEvents_whenExceptionOccurs_shouldLogError() {
+        when(eventRepository.findAllByEndDateBefore(any(LocalDateTime.class))).thenThrow(new RuntimeException("Database error"));
+
+        CompletableFuture<Void> result = eventService.deletePastEvents();
+
+        assertTrue(result.isCompletedExceptionally());
+        verify(eventRepository, times(1)).findAllByEndDateBefore(any(LocalDateTime.class));
     }
 }
