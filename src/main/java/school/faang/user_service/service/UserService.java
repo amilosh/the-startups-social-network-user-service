@@ -11,16 +11,19 @@ import school.faang.user_service.dto.UserProfilePicDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.event.ProfileViewEvent;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.mapper.UserProfilePicMapper;
+import school.faang.user_service.messaging.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.util.ImageUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -40,6 +43,7 @@ public class UserService {
     private final S3Service s3Service;
     private final UserProfilePicMapper userProfilePicMapper;
     private final ImageUtils imageUtils;
+    private final ProfileViewEventPublisher profileViewEventPublisher;
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
@@ -135,6 +139,16 @@ public class UserService {
         updateUser(user);
 
         s3Service.deleteFiles(fileId, smallFileId);
+    }
+
+    public void publishProfileViewEvent(long receiverId, long actorId) {
+        log.info("Trying to publish profile view event. User: {} followed user: {}", receiverId, actorId);
+        ProfileViewEvent profileViewEvent = ProfileViewEvent.builder()
+                .receiverId(receiverId)
+                .actorId(actorId)
+                .receivedAt(LocalDateTime.now())
+                .build();
+        profileViewEventPublisher.publish(profileViewEvent);
     }
 
     private void validateAvatarSize(MultipartFile file) {

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mapstruct.factory.Mappers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -17,16 +18,19 @@ import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.UserSubResponseDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.event.ProfileViewEvent;
 import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.filter.userFilter.UserFilter;
 import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.mapper.UserProfilePicMapper;
+import school.faang.user_service.messaging.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
 import school.faang.user_service.util.ImageUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +63,8 @@ public class UserServiceTest {
     private S3Service s3Service;
     @Mock
     private ImageUtils imageUtils;
+    @Mock
+    private ProfileViewEventPublisher profileViewEventPublisher;
     @Spy
     private UserProfilePicMapper mapper = Mappers.getMapper(UserProfilePicMapper.class);
 
@@ -202,5 +208,24 @@ public class UserServiceTest {
         verify(userRepository).save(user);
         verify(s3Service).deleteFiles(fileId, smallFileId);
         assertNull(user.getUserProfilePic());
+    }
+
+    @Test
+    public void testPublishProfileViewEvent() {
+        // arrange
+        long actorId = 5L;
+        long receiverId = 2L;
+
+        // act
+        ArgumentCaptor<ProfileViewEvent> profileViewEventCaptor
+                = ArgumentCaptor.forClass(ProfileViewEvent.class);
+        userService.publishProfileViewEvent(receiverId, actorId);
+
+        // assert
+        verify(profileViewEventPublisher).publish(profileViewEventCaptor.capture());
+        ProfileViewEvent profileViewEvent = profileViewEventCaptor.getValue();
+
+        assertEquals(actorId, profileViewEvent.actorId());
+        assertEquals(receiverId, profileViewEvent.receiverId());
     }
 }
