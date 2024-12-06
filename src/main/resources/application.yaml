@@ -32,8 +32,8 @@ spring:
       channel:
         mentorship-channel:
           name: mentorship_channel
-        follower-event-channel:
-          name: follower_event
+        follower-event-channel: follower_event
+        user-ban: user_ban
 
   servlet:
     multipart:

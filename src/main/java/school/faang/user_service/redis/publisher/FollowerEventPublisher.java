@@ -12,9 +12,9 @@ import school.faang.user_service.event.FollowerEvent;
 @RequiredArgsConstructor
 public class FollowerEventPublisher implements EventPublisher<FollowerEvent> {
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
-    @Value("${spring.data.redis.channel.follower-event-channel.name}")
+    @Value("${spring.data.redis.channel.follower-event-channel}")
     private String followerEventChannel;
 
     @Override
