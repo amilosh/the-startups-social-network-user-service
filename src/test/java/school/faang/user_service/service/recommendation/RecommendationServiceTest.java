@@ -17,6 +17,7 @@ import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.recommendation.Recommendation;
 import school.faang.user_service.mapper.RecommendationMapper;
 import school.faang.user_service.publisher.RecommendationEventPublisher;
+import school.faang.user_service.publisher.RecommendationEventPublisherTest;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserSkillGuaranteeRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
