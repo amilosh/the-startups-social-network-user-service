@@ -1,4 +1,4 @@
-package school.faang.user_service.event;
+package school.faang.user_service.message.event.event;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;

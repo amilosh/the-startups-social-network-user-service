@@ -1,11 +1,11 @@
-package school.faang.user_service.messaging;
+package school.faang.user_service.message.producer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.event.ProfileViewEvent;
+import school.faang.user_service.message.event.event.ProfileViewEvent;
 
 @Component
 @Slf4j
