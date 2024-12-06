@@ -56,4 +56,6 @@ services:
     host: localhost
     port: 8082
 
+removeEventTime:
+  cron: 0 0 * * * *
 
