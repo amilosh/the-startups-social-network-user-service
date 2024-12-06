@@ -8,13 +8,14 @@ import school.faang.user_service.redis.event.MentorshipAcceptedEvent;
 
 @Component
 @RequiredArgsConstructor
-public class MentorshipAcceptedEventPublisher {
+public class MentorshipAcceptedEventPublisher implements EventPublisher<MentorshipAcceptedEvent> {
 
     @Value("${spring.data.redis.channel.mentorship.accepted}")
     private String mentorshipAcceptedChannel;
 
     private final RedisTemplate<String, Object> redisTemplate;
 
+    @Override
     public void publish(MentorshipAcceptedEvent event) {
         redisTemplate.convertAndSend(mentorshipAcceptedChannel, event);
     }
