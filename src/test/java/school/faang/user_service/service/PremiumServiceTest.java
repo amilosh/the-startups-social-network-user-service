@@ -7,7 +7,6 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.client.payment.Currency;
-import school.faang.user_service.client.payment.PaymentRequest;
 import school.faang.user_service.client.payment.PaymentResponse;
 import school.faang.user_service.client.payment.PaymentStatus;
 import school.faang.user_service.dto.premium.PremiumDto;
@@ -60,7 +59,7 @@ public class PremiumServiceTest {
     @Test
     void testBuyPremiumSuccessful() {
         when(userService.findUserById(userId)).thenReturn(new User());
-        when(paymentService.sentPayment(any(PaymentRequest.class)))
+        when(paymentService.sentPayment(any(PremiumPeriod.class)))
                 .thenReturn(new PaymentResponse(PaymentStatus.SUCCESS, 1234, 123456789L,
                         BigDecimal.valueOf(9.99), Currency.USD, "Payment Successful"));
         when(premiumMapper.toDto(any(Premium.class))).thenReturn(new PremiumDto());
@@ -70,7 +69,7 @@ public class PremiumServiceTest {
 
         assertNotNull(result);
         verify(premiumValidator).validateUserIsNotPremium(userId);
-        verify(paymentService).sentPayment(any(PaymentRequest.class));
+        verify(paymentService).sentPayment(any(PremiumPeriod.class));
         verify(paymentValidator).checkIfPaymentSuccess(any(PaymentResponse.class));
         verify(premiumRepository).save(any(Premium.class));
         verify(premiumMapper).toDto(any(Premium.class));
@@ -105,7 +104,7 @@ public class PremiumServiceTest {
 
         assertEquals("Payment status:" + failedResponse.message(), exception.getMessage());
         verify(premiumValidator).validateUserIsNotPremium(userId);
-        verify(paymentService).sentPayment(any(PaymentRequest.class));
+        verify(paymentService).sentPayment(any(PremiumPeriod.class));
         verify(paymentValidator).checkIfPaymentSuccess(failedResponse);
         verifyNoInteractions(premiumRepository, premiumMapper);
     }
