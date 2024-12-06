@@ -1,4 +1,4 @@
-package school.faang.user_service.service.controller.validator.recommendationRequest;
+package school.faang.user_service.validator.recommendationRequest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,7 +16,6 @@ import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
-import school.faang.user_service.validator.recommendationRequest.RecommendationRequestValidator;
 
 import java.time.LocalDateTime;
 import java.util.Collections;

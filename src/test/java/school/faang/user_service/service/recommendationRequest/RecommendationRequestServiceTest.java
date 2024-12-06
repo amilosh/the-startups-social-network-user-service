@@ -1,4 +1,4 @@
-package school.faang.user_service.service.controller.recommendationRequest;
+package school.faang.user_service.service.recommendationRequest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +21,6 @@ import school.faang.user_service.filter.recommendationRequest.RecommendationRequ
 import school.faang.user_service.mapper.recommendationRequest.RecommendationRequestMapperImpl;
 import school.faang.user_service.repository.recommendation.RecommendationRequestRepository;
 import school.faang.user_service.service.SkillRequestService.SkillRequestService;
-import school.faang.user_service.service.recommendationRequest.RecommendationRequestService;
 import school.faang.user_service.validator.recommendationRequest.RecommendationRequestValidator;
 
 import java.util.ArrayList;

@@ -25,8 +25,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{userId}")
-    ResponseEntity<UserDto> getUser(@PathVariable long userId) {
-        return ResponseEntity.ok(userService.getUser(userId));
+    UserDto getUser(@PathVariable long userId){
+        return userService.getUser(userId);
     }
 
     @PostMapping("/by-ids")
@@ -39,5 +39,11 @@ public class UserController {
     public ResponseEntity<List<Long>> getNotExistingUserIds(@RequestBody @Valid UserIdsDto request) {
         List<Long> notExistingUserIds = userService.getNotExistingUserIds(request.getUserIds());
         return ResponseEntity.ok(notExistingUserIds);
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<UserDto> saveUser(@RequestBody @Valid UserDto userDto) {
+        UserDto savedUser = userService.saveUser(userDto);
+        return ResponseEntity.ok(savedUser);
     }
 }

@@ -1,8 +1,8 @@
 package school.faang.user_service.service.user;
 
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exception.EntityNotFoundException;
@@ -43,6 +43,14 @@ public class UserService {
     @Transactional
     public void saveUser(User user) {
         userRepository.save(user);
+    }
+
+    @Transactional
+    public UserDto saveUser(UserDto userDto) {
+        User user = userRepository.findById(userDto.getId()).orElseThrow();
+        user.setUsername(userDto.getUsername());
+        user.setUpdatedAt(userDto.getUpdatedAt());
+        return userMapper.toDto(user);
     }
 
     @Transactional(readOnly = true)
