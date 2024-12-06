@@ -12,6 +12,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.dto.events.ProfileViewEvent;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
@@ -49,10 +50,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith({MockitoExtension.class})
 class UserServiceTest {
@@ -421,6 +419,50 @@ class UserServiceTest {
         MockMultipartFile invalidTypeFile = new MockMultipartFile("file", "file.txt",
                 "text/plain", "Some content".getBytes());
         assertThrows(IllegalArgumentException.class, () -> userService.parsePersonDataIntoUserDto(invalidTypeFile));
+    }
+
+    @Test
+    public void testGetUserProfileTest() {
+        Long userId = 1L;
+        Long viewerId = 2L;
+
+        UserDto mockUser = UserDto.builder()
+                .id(userId)
+                .username("test")
+                .email("test@example.com")
+                .telegramChatId(null)
+                .phone("1234567890")
+                .build();
+
+        User user = User.builder()
+                .id(userId)
+                .username("test")
+                .email("test@example.com")
+                .telegramChatId(null)
+                .phone("1234567890")
+                .build();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        UserDto result = userService.getUserProfile(userId, viewerId);
+
+        assertEquals(mockUser, result);
+        verify(profileViewEventPublisher, times(1)).publish(any(ProfileViewEvent.class));
+    }
+
+    @Test
+    public void testGetUserProfileUserNotFoundTest() {
+        Long userId = 1L;
+        Long viewerId = 2L;
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        EntityNotFoundException exception = assertThrows(
+                EntityNotFoundException.class, () -> userService.getUserProfile(userId, viewerId)
+        );
+        assertEquals(String.format(ErrorMessage.USER_NOT_FOUND, userId), exception.getMessage());
+
+        verify(profileViewEventPublisher, never()).publish(any(ProfileViewEvent.class));
     }
 
 }

@@ -166,10 +166,11 @@ public class UserService {
 
     @Transactional
     public UserDto getUserProfile(Long userId, Long viewerId) {
+        UserDto userDto = getUser(userId);
         ProfileViewEvent profileViewEvent = new ProfileViewEvent(viewerId, userId);
         profileViewEventPublisher.publish(profileViewEvent);
         log.info("Json sent : viewerId - " + profileViewEvent.getViewerId() + ", profileId - " + profileViewEvent.getProfileId());
-        return getUser(userId);
+        return userDto;
     }
 
     private List<UserDto> saveUsers(List<Person> persons) {
