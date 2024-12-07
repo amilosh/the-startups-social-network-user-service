@@ -12,7 +12,7 @@ import school.faang.user_service.exceptions.InvalidUserIdException;
 import school.faang.user_service.exceptions.SubscriptionNotFoundException;
 import school.faang.user_service.exceptions.UnfollowException;
 import school.faang.user_service.publisher.FollowerEventPublisher;
-import school.faang.user_service.publisher.UnfollowerEventPublisher;
+import school.faang.user_service.publisher.UnfollowEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.time.LocalDateTime;
@@ -26,7 +26,7 @@ public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
     private final FollowerEventPublisher followerEventPublisher;
-    private final UnfollowerEventPublisher unfollowerEventPublisher;
+    private final UnfollowEventPublisher unfollowEventPublisher;
 
     @Transactional
     public void followUser(Long followerId, Long followeeId) {
@@ -55,7 +55,7 @@ public class SubscriptionService {
         try {
             subscriptionRepository.unfollowUser(followerId, followeeId);
             log.info("Пользователь {} успешно отписался от пользователя {}.", followerId, followeeId);
-            unfollowerEventPublisher.publish(new SubscribeEventDTO(followerId, followeeId, LocalDateTime.now()));
+            unfollowEventPublisher.publish(new SubscribeEventDTO(followerId, followeeId, LocalDateTime.now()));
             log.info("Событие отписки для пользователей {} и {} успешно опубликовано.", followerId, followeeId);
         } catch (Exception ex) {
             log.error("Произошла ошибка при отписке пользователя: followerId={}, followeeId={}", followerId, followeeId, ex);
