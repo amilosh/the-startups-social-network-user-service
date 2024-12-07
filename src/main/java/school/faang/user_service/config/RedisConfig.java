@@ -3,8 +3,8 @@ package school.faang.user_service.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -15,26 +15,18 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+@RequiredArgsConstructor
 @Configuration
 @Slf4j
 public class RedisConfig {
 
-    @Value("${spring.data.redis.host}")
-    private String redisHost;
+    private final RedisProperties redisProperties;
 
-    @Value("${spring.data.redis.port}")
-    private int redisPort;
-
-    @Value("${spring.data.redis.channel.follower}")
-    private String followerChannel;
-
-    @Value("${spring.data.redis.channel.unfollow}")
-    private String unfollowerChannel;
 
     @Bean
     public LettuceConnectionFactory lettuceConnectionFactory() {
-        log.info("Создание LettuceConnectionFactory для Redis с хостом: {} и портом:{}", redisHost, redisPort);
-        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(redisHost, redisPort);
+        log.info("Создание LettuceConnectionFactory для Redis с хостом: {} и портом:{}", redisProperties.getRedisHost(), redisProperties.getRedisPort());
+        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(redisProperties.getRedisHost(), redisProperties.getRedisPort());
         LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory(redisStandaloneConfiguration);
         log.info("LettuceConnectionFactory успешно создан");
         return connectionFactory;
@@ -42,14 +34,14 @@ public class RedisConfig {
 
     @Bean
     public ChannelTopic followerChannel() {
-        log.info("Создание ChannelTopic для канала: {}", followerChannel);
-        return new ChannelTopic(followerChannel);
+        log.info("Создание ChannelTopic для канала: {}", redisProperties.getFollowerChannel());
+        return new ChannelTopic(redisProperties.getFollowerChannel());
     }
 
     @Bean
     public ChannelTopic unfollowerChannel() {
-        log.info("Создание ChannelTopic для канала: {}", unfollowerChannel);
-        return new ChannelTopic(unfollowerChannel);
+        log.info("Создание ChannelTopic для канала: {}", redisProperties.getUnfollowerChannel());
+        return new ChannelTopic(redisProperties.getUnfollowerChannel());
     }
 
     @Bean
