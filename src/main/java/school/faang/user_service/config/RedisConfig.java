@@ -28,7 +28,7 @@ public class RedisConfig {
     @Value("${spring.data.redis.channel.follower}")
     private String followerChannel;
 
-    @Value("${spring.data.redis.channel.unfollower}")
+    @Value("${spring.data.redis.channel.unfollow}")
     private String unfollowerChannel;
 
     @Bean
@@ -74,6 +74,4 @@ public class RedisConfig {
 
         return redisTemplate;
     }
-
-
 }

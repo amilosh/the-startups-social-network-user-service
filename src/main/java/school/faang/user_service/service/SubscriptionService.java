@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.faang.user_service.dto.FollowerEvent;
+import school.faang.user_service.dto.SubscribeEventDTO;
 import school.faang.user_service.dto.subscribe.UserDTO;
 import school.faang.user_service.dto.subscribe.UserFilterDTO;
 import school.faang.user_service.entity.User;
@@ -38,7 +38,7 @@ public class SubscriptionService {
         }
         subscriptionRepository.followUser(followerId, followeeId);
         log.info("Пользователь с ID {} успешно подписался на пользователя с ID {}.", followerId, followeeId);
-        followerEventPublisher.publish(new FollowerEvent(followerId, followeeId, LocalDateTime.now()));
+        followerEventPublisher.publish(new SubscribeEventDTO(followerId, followeeId, LocalDateTime.now()));
         log.info("Событие подписки для пользователей {} и {} успешно опубликовано.", followerId, followeeId);
 
     }
@@ -55,13 +55,14 @@ public class SubscriptionService {
         try {
             subscriptionRepository.unfollowUser(followerId, followeeId);
             log.info("Пользователь {} успешно отписался от пользователя {}.", followerId, followeeId);
-            unfollowerEventPublisher.publish(new FollowerEvent(followerId, followeeId, LocalDateTime.now()));
+            unfollowerEventPublisher.publish(new SubscribeEventDTO(followerId, followeeId, LocalDateTime.now()));
             log.info("Событие отписки для пользователей {} и {} успешно опубликовано.", followerId, followeeId);
         } catch (Exception ex) {
             log.error("Произошла ошибка при отписке пользователя: followerId={}, followeeId={}", followerId, followeeId, ex);
             throw new UnfollowException("Не удалось отписаться от пользователя.", ex);
         }
     }
+
     public List<UserDTO> getFollowers(Long userId, UserFilterDTO filter) {
         log.info("Запрос на получение подписчиков пользователя {}", userId);
         if (filter == null) {

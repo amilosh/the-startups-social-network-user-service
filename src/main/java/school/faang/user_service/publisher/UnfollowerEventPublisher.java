@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.dto.FollowerEvent;
+import school.faang.user_service.dto.SubscribeEventDTO;
 
 @Slf4j
 @Component
@@ -16,7 +16,7 @@ public class UnfollowerEventPublisher {
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
 
-    public void publish(FollowerEvent followerEvent) {
+    public void publish(SubscribeEventDTO followerEvent) {
         try {
             objectMapper.writeValueAsString(followerEvent);
             redisTemplate.convertAndSend("unfollower_channel", followerEvent);
