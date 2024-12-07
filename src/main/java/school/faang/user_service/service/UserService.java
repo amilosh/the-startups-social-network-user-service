@@ -2,6 +2,7 @@ package school.faang.user_service.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -35,6 +36,7 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -86,6 +88,11 @@ public class UserService {
     public User findUserById(Long id) {
         return userRepository.findById(id).orElseThrow(() ->
                 new EntityNotFoundException(String.format("User not found by id: %s", id)));
+    }
+
+    public List<UserDto> getUsersByIds(List<Long> ids) {
+        List<User> users = userRepository.findAllById(ids);
+        return userMapper.toDto(users);
     }
 
     public UserDto findUserDtoById(Long id) {
