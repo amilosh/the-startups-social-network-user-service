@@ -1,4 +1,4 @@
-CREATE TABLE user_google_info
+CREATE TABLE if not exists user_google_info
 (
     id             BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY UNIQUE,
     sub            VARCHAR(255) NOT NULL UNIQUE,
