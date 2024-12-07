@@ -16,6 +16,8 @@ databaseChangeLog:
   - include:
       file: db/changelog/changeset/user_V008__user_premium_add_column_is_active.sql
   - include:
+      file: db/changelog/changeset/user_V009_create_table_user_google_info.sql
+    include:
       file: db/changelog/changeset/user_V009__user_premium_rename_column_is_active.sql
   - include:
       file: db/changelog/changeset/user_V010__update_user_add_banned_column.sql
