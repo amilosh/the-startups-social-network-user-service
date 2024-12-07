@@ -1,15 +1,18 @@
 package school.faang.user_service.service;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import school.faang.user_service.dto.SubscribeEventDto;
 import school.faang.user_service.dto.subscribe.UserDTO;
 import school.faang.user_service.dto.subscribe.UserFilterDTO;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.InvalidUserIdException;
 import school.faang.user_service.exceptions.SubscriptionNotFoundException;
+import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 
 import java.util.Arrays;
@@ -23,6 +26,9 @@ class SubscriptionServiceTest {
 
     @Mock
     private SubscriptionRepository subscriptionRepository;
+
+    @Mock
+    private FollowerEventPublisher followerEventPublisher;
 
     @InjectMocks
     private SubscriptionService subscriptionService;
@@ -42,17 +48,23 @@ class SubscriptionServiceTest {
 
 
     @Test
-    void unfollowUser_ShouldUnfollowUser_WhenSubscriptionExists() {
+    @DisplayName("Успешная подписка: Пользователь подписывается на другого пользователя")
+    void followUser_ShouldFollowUser_WhenSubscriptionDoesNotExist() {
+        // Arrange
         Long followerId = 1L;
         Long followeeId = 2L;
 
+        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(false);
 
-        when(subscriptionRepository.existsByFollowerIdAndFolloweeId(followerId, followeeId)).thenReturn(true);
+        // Act
+        subscriptionService.followUser(followerId, followeeId);
 
-        subscriptionService.unfollowUser(followerId, followeeId);
-
-        verify(subscriptionRepository).unfollowUser(followerId, followeeId);
+        // Assert
+        verify(subscriptionRepository).followUser(followerId, followeeId);
+        verify(followerEventPublisher).publish(any(SubscribeEventDto.class));
+        verifyNoMoreInteractions(followerEventPublisher);
     }
+
 
     @Test
     void unfollowUser_ShouldThrowException_WhenSubscriptionDoesNotExist() {

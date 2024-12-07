@@ -1,16 +1,20 @@
 package school.faang.user_service.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.faang.user_service.dto.SubscribeEventDto;
 import school.faang.user_service.dto.subscribe.UserDTO;
 import school.faang.user_service.dto.subscribe.UserFilterDTO;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.exceptions.InvalidUserIdException;
 import school.faang.user_service.exceptions.SubscriptionNotFoundException;
 import school.faang.user_service.exceptions.UnfollowException;
+import school.faang.user_service.publisher.FollowerEventPublisher;
 import school.faang.user_service.repository.SubscriptionRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +24,9 @@ import java.util.stream.Collectors;
 public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
+    private final FollowerEventPublisher followerEventPublisher;
 
+    @Transactional
     public void followUser(Long followerId, Long followeeId) {
         log.info("Пользователь {} пытается подписаться на пользователя {}", followerId, followeeId);
         validateUserIds(followerId, followeeId);
@@ -29,10 +35,13 @@ public class SubscriptionService {
             throw new IllegalArgumentException("Подписка уже существует.");
         }
         subscriptionRepository.followUser(followerId, followeeId);
-        log.info("Пользователь {} успешно подписался на пользователя {}.", followerId, followeeId);
+        log.info("Пользователь с ID {} успешно подписался на пользователя с ID {}.", followerId, followeeId);
+        followerEventPublisher.publish(new SubscribeEventDto(followerId, followeeId, LocalDateTime.now()));
+        log.info("Событие подписки для пользователей {} и {} успешно опубликовано.", followerId, followeeId);
+
     }
 
-
+    @Transactional
     public void unfollowUser(Long followerId, Long followeeId) {
         log.info("Пользователь {} пытается отписаться от пользователя {}", followerId, followeeId);
         validateUserIds(followerId, followeeId);
