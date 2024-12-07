@@ -30,6 +30,20 @@ spring:
         goal_completed_topic:
           name: goal_complete
 
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 505043354003-fr1slmod1spf1a49gr9ub46pto40u5b1.apps.googleusercontent.com
+            client-secret: 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
+            scope:
+              - openid
+              - profile
+              - email
+              - https://www.googleapis.com/auth/calendar
+#            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+
 server:
   port: 8080
 
