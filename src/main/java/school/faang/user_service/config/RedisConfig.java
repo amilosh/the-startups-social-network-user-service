@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -16,7 +15,6 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-@EnableConfigurationProperties(RedisProperties.class)
 @RequiredArgsConstructor
 @Configuration
 @Slf4j
@@ -27,8 +25,8 @@ public class RedisConfig {
 
     @Bean
     public LettuceConnectionFactory lettuceConnectionFactory() {
-        log.info("Создание LettuceConnectionFactory для Redis с хостом: {} и портом:{}", redisProperties.getHost(), redisProperties.getPort());
-        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(redisProperties.getHost(), redisProperties.getPort());
+        log.info("Создание LettuceConnectionFactory для Redis с хостом: {} и портом:{}", redisProperties.getRedisHost(), redisProperties.getRedisPort());
+        RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(redisProperties.getRedisHost(), redisProperties.getRedisPort());
         LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory(redisStandaloneConfiguration);
         log.info("LettuceConnectionFactory успешно создан");
         return connectionFactory;
@@ -42,8 +40,8 @@ public class RedisConfig {
 
     @Bean
     public ChannelTopic unfollowerChannel() {
-        log.info("Создание ChannelTopic для канала: {}", redisProperties.getUnfollowerChannel());
-        return new ChannelTopic(redisProperties.getUnfollowerChannel());
+        log.info("Создание ChannelTopic для канала: {}", redisProperties.getUnfollowChannel());
+        return new ChannelTopic(redisProperties.getUnfollowChannel());
     }
 
     @Bean

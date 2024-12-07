@@ -1,17 +1,22 @@
 package school.faang.user_service.config;
 
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 @Data
-@ConfigurationProperties(prefix = "spring.data.redis")
+@Configuration
 public class RedisProperties {
 
-    private String host;
+    @Value("${spring.data.redis.host}")
+    private String redisHost;
 
-    private int port;
+    @Value("${spring.data.redis.port}")
+    private int redisPort;
 
+    @Value("${spring.data.redis.channel.follower}")
     private String followerChannel;
 
-    private String unfollowerChannel;
+    @Value("${spring.data.redis.channel.unfollow}")
+    private String unfollowChannel;
 }
