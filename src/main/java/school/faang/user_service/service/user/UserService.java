@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
@@ -22,6 +23,8 @@ import school.faang.user_service.filter.user.UserFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user_jira.UserJiraMapper;
 import school.faang.user_service.pojo.user.Person;
+import school.faang.user_service.redis.event.ProfileViewEvent;
+import school.faang.user_service.redis.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.user_jira.UserJiraService;
 
@@ -47,12 +50,16 @@ public class UserService {
     private final UserMapper userMapper;
     private final UserJiraMapper userJiraMapper;
     private final UserJiraService userJiraService;
+    private final ProfileViewEventPublisher profileViewEventPublisher;
+    private final UserContext userContext;
 
     private final CountryService countryService;
     private static final String FILE_TYPE = "text/csv";
 
     @Transactional(readOnly = true)
     public UserDto getUser(long userId) {
+        ProfileViewEvent event = new ProfileViewEvent(userId, userContext.getUserId(), LocalDateTime.now());
+        profileViewEventPublisher.publish(event);
         return userMapper.toDto(findUserById(userId));
     }
 

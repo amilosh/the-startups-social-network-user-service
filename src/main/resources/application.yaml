@@ -31,6 +31,7 @@ spring:
       host: localhost
       channel:
         follower: follower_channel
+        profile-view: profile_view_channel
         mentorship:
           accepted: mentorship_accepted_channel
   servlet:
