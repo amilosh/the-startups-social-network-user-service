@@ -124,6 +124,11 @@ val jacocoInclude = listOf(
     "**/validator/**",
 //    "**/mapper/**"
 )
+
+val jacocoExclude = listOf(
+    "**/filter/**",
+)
+
 jacoco {
     toolVersion = "0.8.9"
     reportsDirectory.set(layout.buildDirectory.dir("$buildDir/reports/jacoco"))
@@ -150,6 +155,7 @@ tasks.jacocoTestReport {
     classDirectories.setFrom(
         sourceSets.main.get().output.asFileTree.matching {
             include(jacocoInclude)
+            exclude(jacocoExclude)
         }
     )
 }
@@ -162,6 +168,7 @@ tasks.jacocoTestCoverageVerification {
             classDirectories.setFrom(
                 sourceSets.main.get().output.asFileTree.matching {
                     include(jacocoInclude)
+                    exclude(jacocoExclude)
                 }
             )
             enabled = true

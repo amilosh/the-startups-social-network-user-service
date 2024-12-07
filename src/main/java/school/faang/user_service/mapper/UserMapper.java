@@ -21,8 +21,12 @@ public interface UserMapper {
     @Mapping(source = "followees", target = "followeesIds", qualifiedByName = "followees")
     @Mapping(source = "goals", target = "goalsIds", qualifiedByName = "goals")
     @Mapping(source = "skills", target = "skillsIds", qualifiedByName = "skills")
+    @Mapping(source = "country.title", target = "country")
     UserDto toDto(User user);
 
+    List<UserDto> toDto(List<User> users);
+
+    @Mapping(target = "country", ignore = true)
     User toEntity(UserDto dto);
 
     @Named("mentees")

@@ -153,7 +153,7 @@ class SubscriptionServiceTest {
 //        Mockito.when(mapper.toDto(petr)).thenReturn(petrDto);
 
         // must return Alexander and Alexey ignoring case
-        List<SubscriptionUserDto> actualSubscriptionUserDtoList = subscriptionService.getFollowers(followeeId, subscriptionUserFilterDto);
+        List<SubscriptionUserDto> actualSubscriptionUserDtoList = subscriptionService.getFilteredFollowers(followeeId, subscriptionUserFilterDto);
 
         assertEquals(expectedSubscriptionUserDtoList, actualSubscriptionUserDtoList);
 
@@ -172,7 +172,7 @@ class SubscriptionServiceTest {
                 .thenReturn(false);
 
         Exception exception = assertThrows(NoSuchElementException.class,
-                () -> subscriptionService.getFollowers(followeeId, subscriptionUserFilterDto));
+                () -> subscriptionService.getFilteredFollowers(followeeId, subscriptionUserFilterDto));
 
         assertEquals("Cannot find followee by id " + followeeId, exception.getMessage());
 
