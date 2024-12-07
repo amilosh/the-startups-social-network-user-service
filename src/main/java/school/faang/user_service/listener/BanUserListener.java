@@ -26,8 +26,8 @@ public class BanUserListener implements MessageListener {
             log.warn("mapping message to banUserEvent class");
             banUserEvent = objectMapper.readValue(convertedMessage, BanUserEvent.class);
         } catch (JsonProcessingException e) {
-            log.error("Throw IllegalArgumentException because can't read value " + e.getMessage());
-            throw new IllegalArgumentException("Неверный Json класс");
+            log.error("Throw IllegalArgumentException because can't read value ", e);
+            throw new IllegalArgumentException("Неверный Json класс", e);
         }
 
         userService.banUser(banUserEvent);
