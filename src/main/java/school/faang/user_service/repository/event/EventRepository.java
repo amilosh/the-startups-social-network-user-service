@@ -39,4 +39,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findAllSortedByPromotedEventsPerPage(@Param("offset") int offset, @Param("limit") int limit);
 
     List<Event> findAllByEndDateBefore(LocalDateTime date);
+
+    List<Event> findAllByStartDate(LocalDateTime startDate);
 }

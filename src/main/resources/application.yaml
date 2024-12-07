@@ -54,7 +54,10 @@ app:
   event:
     batch:
       size: 10
-    cron: "0 0 0 * * *"
+    clear:
+      cron: "0 0 0 * * *"
+    start:
+      cron: "0 * * * * *"
   promotion:
     user_promotion_views_decrement_cron: '*/10 * * * * *'
     event__promotion_views_decrement_cron: '*/10 * * * * *'
