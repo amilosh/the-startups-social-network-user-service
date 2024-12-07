@@ -1,4 +1,4 @@
-package school.faang.user_service.service;
+package school.faang.user_service.service.user;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.dto.UserProfilePicDto;
 import school.faang.user_service.dto.UserSubResponseDto;
+import school.faang.user_service.dto.user.UserForNotificationDto;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.UserProfilePic;
 import school.faang.user_service.exceptions.DataValidationException;
@@ -17,6 +18,7 @@ import school.faang.user_service.mapper.UserMapper;
 import school.faang.user_service.mapper.UserProfilePicMapper;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.premium.PremiumRepository;
+import school.faang.user_service.service.S3Service;
 import school.faang.user_service.util.ImageUtils;
 
 import java.awt.image.BufferedImage;
@@ -61,6 +63,11 @@ public class UserService {
     public User getUserById(long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new
                 EntityNotFoundException("User do not found by " + userId));
+    }
+
+    public UserForNotificationDto getUserByIdForNotification(long userId) {
+        User user = getUserById(userId);
+        return userMapper.toUserForNotificationDto(user);
     }
 
     public void saveUser(User user) {

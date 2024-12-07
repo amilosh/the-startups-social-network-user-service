@@ -20,6 +20,7 @@ import school.faang.user_service.exceptions.DataValidationException;
 import school.faang.user_service.exceptions.ResourceNotFoundException;
 import school.faang.user_service.mapper.GoalMapper;
 import school.faang.user_service.repository.goal.GoalRepository;
+import school.faang.user_service.service.user.UserService;
 import school.faang.user_service.specification.GoalSpecification;
 import school.faang.user_service.util.CollectionUtils;
 
