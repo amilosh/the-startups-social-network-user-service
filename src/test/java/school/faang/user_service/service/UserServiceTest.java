@@ -9,24 +9,45 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
+import school.faang.user_service.domain.Address;
+import school.faang.user_service.domain.ContactInfo;
+import school.faang.user_service.domain.Education;
+import school.faang.user_service.domain.Person;
+import school.faang.user_service.dto.ProcessResultDto;
 import school.faang.user_service.dto.UserDto;
 import school.faang.user_service.dto.UserFilterDto;
 import school.faang.user_service.entity.Country;
 import school.faang.user_service.entity.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.filter.Filter;
+import school.faang.user_service.mapper.PersonToUserMapper;
 import school.faang.user_service.mapper.UserMapper;
+import school.faang.user_service.parser.CsvParser;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
 
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 
 
 @ExtendWith(MockitoExtension.class)
@@ -44,7 +65,16 @@ class UserServiceTest {
     private MentorshipService mentorshipService;
 
     @Mock
+    private CountryService countryService;
+
+    @Mock
     private EventService eventService;
+
+    @Mock
+    private PersonToUserMapper personToUserMapper;
+
+    @Mock
+    private CsvParser parser;
 
     @Mock
     private UserValidator userValidator;
@@ -84,15 +114,24 @@ class UserServiceTest {
 
     private User user;
     private UserDto dto;
+    private User user1;
+    private User mockUser;
+    private Person mockPerson;
+    private Country country1;
+    private List<Event> events;
+    private InputStream inputStream;
+    private List<Person> people;
 
     @BeforeEach
-    public void setUp() {
+    public void setUp() throws IOException {
         user = new User();
         user.setId(userId);
         user.setActive(true);
         user.setOwnedEvents(Arrays.asList(new Event(), new Event()));
         user.setMentees(new ArrayList<>());
         user.setSetGoals(new ArrayList<>());
+        events = new ArrayList<>();
+        user1 = new User();
 
         dto = UserDto.builder()
                 .id(userId)
@@ -114,11 +153,25 @@ class UserServiceTest {
         userService = new UserService(
                 userRepository,
                 userMapper,
+                personToUserMapper,
                 userValidator,
                 mentorshipService,
+                countryService,
                 eventService,
+                parser,
                 userFilters
         );
+
+        country1 = Country.builder()
+                .title("Country1")
+                .build();
+
+        String testCsv = IOUtils.toString(ClassLoader.getSystemClassLoader()
+                .getSystemResourceAsStream("students.csv"));
+        inputStream = new ByteArrayInputStream(testCsv.getBytes());
+        mockPerson = createMockPerson("John", "Doe", "john.doe@example.com");
+        mockUser = createMockUser("JohnDoe", "john.doe@example.com");
+        people = List.of(mockPerson);
     }
 
     @Test
@@ -412,6 +465,11 @@ class UserServiceTest {
                 .username("JohnDoe")
                 .build();
 
+        UserDto secondUserDto = UserDto.builder()
+                .id(2L)
+                .username("JaneSmith")
+                .build();
+
         when(userMapper.toDto(regularUser)).thenReturn(firstUserDto);
 
         UserFilterDto filterDto = UserFilterDto.builder()
@@ -625,5 +683,116 @@ class UserServiceTest {
 
         assertThrows(EntityNotFoundException.class, () -> userService.findUserById(1L));
         verify(userRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void testBanUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setBanned(false);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        userService.banUser(1L);
+
+        assertTrue(user.getBanned());
+        verify(userRepository, times(1)).save(user);
+    }
+
+    @Test
+    void importUsersFromCsvSuccessfully() throws IOException {
+        when(parser.parseCsv(inputStream)).thenReturn(people);
+        when(personToUserMapper.personToUser(mockPerson)).thenReturn(mockUser);
+        when(userRepository.save(any(User.class))).thenReturn(mockUser);
+
+        ProcessResultDto result = userService.importUsersFromCsv(inputStream);
+
+        assertEquals(1, result.getСountSuccessfullySavedUsers());
+        assertTrue(result.getErrors().isEmpty());
+        verify(userRepository, times(1)).save(any(User.class));
+    }
+
+    @Test
+    void importUsersFromCsvWhenSavingFails() throws Exception {
+        when(parser.parseCsv(inputStream)).thenReturn(people);
+        when(personToUserMapper.personToUser(mockPerson)).thenReturn(mockUser);
+        when(userRepository.save(mockUser)).thenThrow(new DataIntegrityViolationException("could not execute statement; SQL [n/a]; constraint [users_phone_key] "));
+
+        ProcessResultDto result = userService.importUsersFromCsv(inputStream);
+
+        assertEquals(0, result.getСountSuccessfullySavedUsers());
+        assertFalse(result.getErrors().isEmpty());
+        assertEquals(1, result.getErrors().size());
+        assertTrue(result.getErrors().get(0).contains("Failed to save user"));
+
+        verify(userRepository, times(1)).save(mockUser);
+    }
+
+    @Test
+    void getUsersByIdsShouldReturnUserDtosWhenUsersExist() {
+        List<Long> ids = Arrays.asList(1L, 2L, 3L);
+
+        List<User> users = Arrays.asList(
+                User.builder().id(1L).username("John Doe").build(),
+                User.builder().id(2L).username("Jane Doe").build()
+        );
+
+        List<UserDto> expectedDtos = Arrays.asList(
+                UserDto.builder().id(1L).username("John Doe").build(),
+                UserDto.builder().id(2L).username("Jane Doe").build()
+        );
+
+        when(userRepository.findAllById(ids)).thenReturn(users);
+        when(userMapper.toDto(users)).thenReturn(expectedDtos);
+
+        List<UserDto> result = userService.getUsersByIds(ids);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(expectedDtos, result);
+
+        verify(userRepository).findAllById(ids);
+        verify(userMapper).toDto(users);
+        verifyNoMoreInteractions(userRepository, userMapper);
+    }
+
+    @Test
+    void getUsersByIdsShouldReturnEmptyListWhenNoUsersExist() {
+        List<Long> ids = Arrays.asList(4L, 5L);
+
+        when(userRepository.findAllById(ids)).thenReturn(List.of());
+        when(userMapper.toDto(List.of())).thenReturn(List.of());
+
+        List<UserDto> result = userService.getUsersByIds(ids);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        verify(userRepository).findAllById(ids);
+        verify(userMapper).toDto(List.of());
+        verifyNoMoreInteractions(userRepository, userMapper);
+    }
+
+    private Person createMockPerson(String firstName, String lastName, String email) {
+        Address address = new Address("123 Street", "New York", "NY", "Country1", "10001");
+        ContactInfo contactInfo = new ContactInfo(email, "123456789", address);
+        Education education = new Education("CS", 4, "SE", 3.8);
+
+        return Person.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .contactInfo(contactInfo)
+                .education(education)
+                .employer("TechCorp")
+                .build();
+    }
+
+    private User createMockUser(String username, String email) {
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword("randomPassword");
+        user.setPhone("123456789");
+        return user;
     }
 }

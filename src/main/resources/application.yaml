@@ -25,6 +25,8 @@ spring:
           name: mentorship_channel
         follower-event-channel:
           name: follower_event
+        user_ban-channel:
+          name: user_ban
 
 server:
   port: 8080
@@ -60,3 +62,11 @@ project-service:
 payment-service:
   host: http://localhost
   port: 9080
+
+cron:
+  expressions:
+    clearEvents: "0 0 0 * * *"
+
+batch:
+  size:
+    eventBatch: 50

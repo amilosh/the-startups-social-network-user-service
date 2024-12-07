@@ -15,7 +15,9 @@ import school.faang.user_service.service.RecommendationRequestService;
 
 import java.util.Arrays;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -98,13 +100,15 @@ public class RecommendationRequestControllerTest {
 
     @Test
     void testRequestRecommendation_ServiceException() throws Exception {
-        when(recommendationRequestService.create(any(RecommendationRequestDto.class)))
-                .thenThrow(new RuntimeException("Service error"));
+        doThrow(new RuntimeException("Service error"))
+                .when(recommendationRequestService)
+                .create(any(RecommendationRequestDto.class));
 
         mockMvc.perform(post("/recommendation-request")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Service error")));
     }
 
     @Test

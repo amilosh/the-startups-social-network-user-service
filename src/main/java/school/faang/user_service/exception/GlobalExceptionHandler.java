@@ -10,6 +10,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -86,6 +87,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleInvalidRequestFilterException(InvalidRequestFilterException ex) {
         log.error("InvalidRequestFilterException: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<String> handleAllExceptions(IOException exception) {
+        log.error("IOException exception: {}", exception.getMessage(), exception);
+        return ResponseEntity.badRequest().body(exception.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
