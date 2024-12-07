@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-
 import school.faang.user_service.domain.Person;
 import school.faang.user_service.dto.ProcessResultDto;
 import school.faang.user_service.dto.UserDto;
@@ -24,17 +23,16 @@ import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.event.EventService;
 import school.faang.user_service.validator.UserValidator;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -92,6 +90,11 @@ public class UserService {
                 new EntityNotFoundException(String.format("User not found by id: %s", id)));
     }
 
+    public List<UserDto> getUsersByIds(List<Long> ids) {
+        List<User> users = userRepository.findAllById(ids);
+        return userMapper.toDto(users);
+    }
+
     public UserDto findUserDtoById(Long id) {
         return userMapper.toDto(findUserById(id));
     }
@@ -119,6 +122,39 @@ public class UserService {
 
         logProcessingSummary(persons.size(), successCount, errors.size());
         return new ProcessResultDto(successCount, errors);
+    }
+
+    @Transactional
+    public void banUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+        if (user.getBanned()) {
+            throw new IllegalArgumentException("User is already banned");
+        }
+        user.setBanned(true);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public List<UserDto> getPremiumUsers(UserFilterDto filterDto) {
+        try (Stream<User> premiumUsersStream = userRepository.findPremiumUsers()) {
+            Stream<User> filteredStream = applyFilters(premiumUsersStream, filterDto);
+
+            return filteredStream
+                    .map(userMapper::toDto)
+                    .collect(Collectors.toList());
+        }
+    }
+
+    @Transactional
+    public List<UserDto> getAllUsers(UserFilterDto filterDto) {
+        try (Stream<User> usersStream = userRepository.findAll().stream()) {
+            Stream<User> filteredStream = applyFilters(usersStream, filterDto);
+
+            return filteredStream
+                    .map(userMapper::toDto)
+                    .collect(Collectors.toList());
+        }
     }
 
     private List<Person> parsePersons(InputStream inputStream) throws IOException {
@@ -197,32 +233,6 @@ public class UserService {
         user.getSetGoals().removeIf(goal -> goal.getUsers().isEmpty());
     }
 
-    @Transactional
-    public List<UserDto> getPremiumUsers(UserFilterDto filterDto) {
-        try (Stream<User> premiumUsersStream = userRepository.findPremiumUsers()) {
-            Stream<User> filteredStream = applyFilters(premiumUsersStream, filterDto);
-
-            return filteredStream
-                    .map(userMapper::toDto)
-                    .collect(Collectors.toList());
-        }
-    }
-
-    @Transactional
-    public List<UserDto> getAllUsers(UserFilterDto filterDto) {
-        try (Stream<User> usersStream = userRepository.findAll().stream()) {
-            Stream<User> filteredStream = applyFilters(usersStream, filterDto);
-
-            return filteredStream
-                    .map(userMapper::toDto)
-                    .collect(Collectors.toList());
-        }
-    }
-
-    public List<UserDto> getUsersByIds(List<Long> ids) {
-        List<User> users = userRepository.findAllById(ids);
-        return userMapper.toDto(users);
-    }
 
     private Stream<User> applyFilters(Stream<User> users, UserFilterDto filterDto) {
         for (Filter<User, UserFilterDto> filter : userFilters) {
@@ -237,16 +247,6 @@ public class UserService {
         user.getOwnedEvents().removeIf(event -> event.getStatus() == EventStatus.CANCELED);
     }
 
-    @Transactional
-    public void banUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
-        if (user.getBanned()) {
-            throw new IllegalArgumentException("User is already banned");
-        }
-        user.setBanned(true);
-        userRepository.save(user);
-    }
 
     private String generateRandomPassword() {
         return UUID.randomUUID().toString();

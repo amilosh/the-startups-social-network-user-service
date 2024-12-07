@@ -90,11 +90,6 @@ dependencies {
      * Minio
      */
     implementation("io.minio:minio:8.5.2")
-
-    /**
-     * Redis
-     */
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
 }
 
 jsonSchema2Pojo {
