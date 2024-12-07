@@ -48,8 +48,8 @@ public class RecommendationService {
         recommendation = processAndSaveRecommendation(recommendation);
 
 
-        createRecommendationPublisher(requestRecommendationDto.getReceiverId()
-                , requestRecommendationDto.getAuthorId()
+        createRecommendationPublisher(requestRecommendationDto.getAuthorId()
+                ,requestRecommendationDto.getReceiverId()
                 ,recommendation.getId());
 
         return recommendationMapper.toDto(recommendation);

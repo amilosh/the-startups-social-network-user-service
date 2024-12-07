@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import school.faang.user_service.dto.recommendation.RecommendationReceivedEvent;
 import school.faang.user_service.dto.recommendation.RequestRecommendationDto;
 import school.faang.user_service.dto.recommendation.ResponseRecommendationDto;
 import school.faang.user_service.dto.recommendation.SkillOfferDto;
@@ -21,6 +22,7 @@ import school.faang.user_service.entity.recommendation.SkillOffer;
 import school.faang.user_service.entity.recommendation.SkillRequest;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.mapper.recommendation.RecommendationMapper;
+import school.faang.user_service.publisher.recommendation.RecommendationReceivedEventPublisher;
 import school.faang.user_service.repository.SkillRepository;
 import school.faang.user_service.repository.recommendation.RecommendationRepository;
 import school.faang.user_service.repository.recommendation.SkillOfferRepository;
@@ -67,6 +69,9 @@ public class RecommendationServiceTest {
 
     @Mock
     private RecommendationValidator recommendationValidator;
+
+    @Mock
+    private RecommendationReceivedEventPublisher publisher;
 
     @Mock
     private RecommendationMapper recommendationMapper;
@@ -160,6 +165,8 @@ public class RecommendationServiceTest {
         verify(recommendationMapper).toEntity(requestRecommendationDto);
         verify(recommendationRepository).save(eq(recommendation));
         verify(recommendationMapper).toDto(recommendation);
+        RecommendationReceivedEvent event = new RecommendationReceivedEvent(AUTHOR_ID, RECEIVER_ID, RECOMMENDATION_ID);
+        verify(publisher).publish(event);
     }
 
     @Test
