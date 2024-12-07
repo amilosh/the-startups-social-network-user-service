@@ -17,12 +17,12 @@ public class EventStartEventPublisher {
     private final ObjectMapper objectMapper;
 
     @Value("${spring.data.redis.channels.event-start-event-channel.name}")
-    private String fundRaisedTopic;
+    private String eventStartEventTopic;
 
     public void publish(EventStartEvent eventStartEvent) {
         try {
             String json = objectMapper.writeValueAsString(eventStartEvent);
-            redisTemplate.convertAndSend(fundRaisedTopic, json);
+            redisTemplate.convertAndSend(eventStartEventTopic, json);
         } catch (JsonProcessingException e) {
             log.error("An error occurred while working with JSON: ", e);
             throw new RuntimeException(e);
