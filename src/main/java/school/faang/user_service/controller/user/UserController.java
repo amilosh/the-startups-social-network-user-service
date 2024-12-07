@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.faang.user_service.config.context.UserContext;
+import school.faang.user_service.dto.user.NotificationUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.service.user.UserService;
@@ -56,9 +57,9 @@ public class UserController {
             summary = "Get users by filters",
             description = "Retrieve a list of users based on filter criteria"
     )
-    @GetMapping
+    @GetMapping("/filter")
     @ResponseStatus(HttpStatus.OK)
-    public List<UserDto> getUsers(@Valid @ModelAttribute UserFilterDto filterDto) {
+    public List<UserDto> getUsersByFilter(@Valid @ModelAttribute UserFilterDto filterDto) {
         return userService.getUser(filterDto).toList();
     }
 
@@ -73,10 +74,20 @@ public class UserController {
     }
 
     @Operation(
+            summary = "Get user by ID to send it to Notification Service",
+            description = "Retrieve a user by their ID and turns it into Notification UserDTO"
+    )
+    @GetMapping("/{id}/notification")
+    @ResponseStatus(HttpStatus.OK)
+    public NotificationUserDto getUserForNotification(@PathVariable Long id) {
+        return userService.getNotificationUserDto(id);
+    }
+
+    @Operation(
             summary = "Get users by a list of IDs",
             description = "Retrieve a list of users by their IDs"
     )
-    @GetMapping("{ids}")
+    @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public List<UserDto> getUsersByIds(
             @RequestParam @NotNull(message = "The list of IDs should not be null")

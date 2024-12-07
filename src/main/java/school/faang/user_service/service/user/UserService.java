@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.dto.user.NotificationUserDto;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.entity.Country;
@@ -98,6 +99,11 @@ public class UserService {
     public List<UserDto> getUsersByIds(List<Long> ids) {
         List<User> users = userRepository.findAllById(ids);
         return userMapper.toListDto(users);
+    }
+
+    public NotificationUserDto getNotificationUserDto(Long userId) {
+        User user = userValidator.validateUser(userId);
+        return userMapper.userToNotificationUserDto(user);
     }
 
     public void addAvatar(long userId, MultipartFile file) {
