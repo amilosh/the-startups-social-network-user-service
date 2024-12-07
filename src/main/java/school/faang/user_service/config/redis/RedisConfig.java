@@ -1,4 +1,4 @@
-package school.faang.user_service.config;
+package school.faang.user_service.config.redis;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
