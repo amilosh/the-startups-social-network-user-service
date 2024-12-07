@@ -12,6 +12,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserFilterDto;
 import school.faang.user_service.dto.user_jira.UserJiraCreateUpdateDto;
@@ -30,6 +31,7 @@ import school.faang.user_service.filter.user.UserNameFilter;
 import school.faang.user_service.mapper.user.UserMapper;
 import school.faang.user_service.mapper.user.UserMapperImpl;
 import school.faang.user_service.mapper.user_jira.UserJiraMapper;
+import school.faang.user_service.redis.publisher.ProfileViewEventPublisher;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.user_jira.UserJiraService;
 
@@ -76,6 +78,12 @@ class UserServiceTest {
     @Mock
     private UserService userService;
 
+    @Mock
+    private ProfileViewEventPublisher profileViewEventPublisher;
+
+    @Mock
+    private UserContext userContext;
+
     private List<UserFilter> userFilters;
 
     @Captor
@@ -103,7 +111,15 @@ class UserServiceTest {
         userFilters = new ArrayList<>(List.of(userEmailFilter, userNameFilter));
         userMapper = new UserMapperImpl();
 
-        userService = new UserService(userRepository, userFilters, userMapper, userJiraMapper, userJiraService, countryService);
+        userService = new UserService(
+                userRepository,
+                userFilters,
+                userMapper,
+                userJiraMapper,
+                userJiraService,
+                profileViewEventPublisher,
+                userContext,
+                countryService);
     }
 
     @Test
