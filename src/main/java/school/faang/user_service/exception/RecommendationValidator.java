@@ -84,4 +84,10 @@ public class RecommendationValidator {
         return lastRecommendation.getCreatedAt()
                 .isBefore(LocalDateTime.now().minusMonths(MONTHS_BEFORE_NEW_RECOMMENDATION));
     }
+
+    public void checkMainValidation(RecommendationDto recommendationDto) {
+        checkTimeInterval(recommendationDto);
+        checkSkillsExist(recommendationDto);
+        checkSkillsUnique(recommendationDto);
+    }
 }

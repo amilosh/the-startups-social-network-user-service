@@ -37,9 +37,7 @@ public class RecommendationService {
     private final RecommendationEventPublisher recommendationEventPublisher;
 
     public RecommendationDto create(RecommendationDto recommendationDto) throws JsonProcessingException {
-        recommendationValidator.checkTimeInterval(recommendationDto);
-        recommendationValidator.checkSkillsExist(recommendationDto);
-        recommendationValidator.checkSkillsUnique(recommendationDto);
+        recommendationValidator.checkMainValidation(recommendationDto);
         recommendationValidator.checkRequest(recommendationDto);
 
         Long recommendationId = recommendationRepository.create(
@@ -62,9 +60,7 @@ public class RecommendationService {
 
     public RecommendationDto update(RecommendationDto recommendationDto) {
         recommendationValidator.checkId(recommendationDto);
-        recommendationValidator.checkTimeInterval(recommendationDto);
-        recommendationValidator.checkSkillsExist(recommendationDto);
-        recommendationValidator.checkSkillsUnique(recommendationDto);
+        recommendationValidator.checkMainValidation(recommendationDto);
 
         recommendationRepository.update(
                 recommendationDto.getAuthorId(),
