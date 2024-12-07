@@ -305,4 +305,15 @@ public class EventServiceTest {
         assertTrue(result.isCompletedExceptionally());
         verify(eventRepository, times(1)).findAllByEndDateBefore(any(LocalDateTime.class));
     }
+
+    @Test
+    public void testFindEventsStartingNow() {
+        when(eventRepository.findAllByStartDate(any(LocalDateTime.class))).thenReturn(List.of(eventBaking));
+        doNothing().when(publisher).publish(any());
+
+        eventService.findEventsStartingNow();
+
+        verify(eventRepository, times(1)).findAllByStartDate(any(LocalDateTime.class));
+        verify(publisher, times(1)).publish(any());
+    }
 }

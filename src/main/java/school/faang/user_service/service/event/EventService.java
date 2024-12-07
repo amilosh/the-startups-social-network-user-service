@@ -122,11 +122,12 @@ public class EventService {
     @Transactional()
     public void findEventsStartingNow() {
         List<Event> events = eventRepository.findAllByStartDate(LocalDateTime.now());
-
-        events.forEach(event -> {
-            publishEventStartEvent(event);
-            log.info("Event with id {} was sent to broker", event.getId());
-        });
+        if (!events.isEmpty()) {
+            events.forEach(event -> {
+                publishEventStartEvent(event);
+                log.info("Event with id {} was sent to broker", event.getId());
+            });
+        }
     }
 
     private List<Event> getPastEvents() {
