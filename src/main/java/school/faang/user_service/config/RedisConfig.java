@@ -26,10 +26,10 @@ public class RedisConfig {
     private int redisPort;
 
     @Value("${spring.data.redis.channel.follower}")
-    private String followerEventChannel;
+    private String followerChannel;
 
-    @Value("${spring.data.redis.channel.unfollow}")
-    private String unfollowEventChannel;
+    @Value("${spring.data.redis.channel.unfollower}")
+    private String unfollowerChannel;
 
     @Bean
     public LettuceConnectionFactory lettuceConnectionFactory() {
@@ -42,14 +42,14 @@ public class RedisConfig {
 
     @Bean
     public ChannelTopic followerChannel() {
-        log.info("Создание ChannelTopic для канала: {}", followerEventChannel);
-        return new ChannelTopic(followerEventChannel);
+        log.info("Создание ChannelTopic для канала: {}", followerChannel);
+        return new ChannelTopic(followerChannel);
     }
 
     @Bean
-    public ChannelTopic unfollowChannel() {
-        log.info("Создание ChannelTopic для канала: {}", unfollowEventChannel);
-        return new ChannelTopic(unfollowEventChannel);
+    public ChannelTopic unfollowerChannel() {
+        log.info("Создание ChannelTopic для канала: {}", unfollowerChannel);
+        return new ChannelTopic(unfollowerChannel);
     }
 
     @Bean

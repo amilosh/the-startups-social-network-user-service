@@ -11,7 +11,7 @@ import school.faang.user_service.dto.FollowerEvent;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FollowerEventPublisher {
+public class UnfollowerEventPublisher {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
@@ -19,11 +19,11 @@ public class FollowerEventPublisher {
     public void publish(FollowerEvent followerEvent) {
         try {
             objectMapper.writeValueAsString(followerEvent);
-            redisTemplate.convertAndSend("follower_channel", followerEvent);
+            redisTemplate.convertAndSend("unfollower_channel", followerEvent);
             log.info("Опубликованное событие подписчика для FollowerId: {} и FolloweeId: {}", followerEvent.getFollowerId(), followerEvent.getFolloweeId());
         } catch (JsonProcessingException e) {
-            log.error("Ошибка сериализации события подписчика", e);
-            throw new RuntimeException("Ошибка сериализации события подписчика", e);
+            log.error("Ошибка сериализации события отписки", e);
+            throw new RuntimeException("Ошибка сериализации события отписки", e);
         }
     }
 }
