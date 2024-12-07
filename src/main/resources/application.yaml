@@ -4,8 +4,8 @@ spring:
       host: localhost
       port: 6379
       channel:
-        follower: follower_channel
-        unfollow: unfollow_channel
+        follower-channel: follower_channel
+        unfollow-channel: unfollow_channel
 
   datasource:
     driver-class-name: org.postgresql.Driver
