@@ -164,4 +164,7 @@ public class User {
 
     @Column(name = "rank_score")
     private BigDecimal rankScore;
+
+    @Column(name = "banned", nullable = false)
+    private boolean banned;
 }
