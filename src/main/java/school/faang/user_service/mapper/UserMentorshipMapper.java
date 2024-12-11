@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.mentorship.UserMentorshipDtoResponse;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 
 import java.util.Collection;
 

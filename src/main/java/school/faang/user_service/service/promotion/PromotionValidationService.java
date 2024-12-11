@@ -3,7 +3,7 @@ package school.faang.user_service.service.promotion;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.faang.user_service.dto.payment.PaymentResponseDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.payment.PaymentStatus;
 import school.faang.user_service.entity.promotion.EventPromotion;

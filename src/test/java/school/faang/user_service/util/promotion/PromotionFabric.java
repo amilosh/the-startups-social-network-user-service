@@ -1,6 +1,6 @@
 package school.faang.user_service.util.promotion;
 
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.promotion.EventPromotion;
 import school.faang.user_service.entity.promotion.PromotionTariff;

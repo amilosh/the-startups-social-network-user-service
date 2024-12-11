@@ -1,10 +1,12 @@
-package school.faang.user_service.entity;
+package school.faang.user_service.entity.skill;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import school.faang.user_service.entity.skill.Skill;
+import school.faang.user_service.entity.user.User;
 
 @Data
 @Builder

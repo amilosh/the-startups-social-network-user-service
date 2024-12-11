@@ -1,7 +1,7 @@
 package school.faang.user_service.service.goal;
 
 import school.faang.user_service.dto.goal.GoalFilterDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.goal.Goal;
 
 import java.util.ArrayList;

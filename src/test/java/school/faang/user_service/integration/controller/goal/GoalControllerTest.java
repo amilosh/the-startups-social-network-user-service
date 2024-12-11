@@ -11,7 +11,7 @@ import org.testcontainers.utility.DockerImageName;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalResponseDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.goal.Goal;
 import school.faang.user_service.entity.goal.GoalStatus;
 import school.faang.user_service.integration.CommonIntegrationTest;

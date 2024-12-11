@@ -9,8 +9,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import school.faang.user_service.entity.AvatarStyle;
-import school.faang.user_service.entity.UserProfilePic;
+import school.faang.user_service.entity.avatar.AvatarStyle;
+import school.faang.user_service.entity.user.UserProfilePic;
 import school.faang.user_service.exception.AvatarFetchException;
 import school.faang.user_service.service.minio.MinioService;
 

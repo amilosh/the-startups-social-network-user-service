@@ -5,9 +5,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import school.faang.user_service.dto.promotion.UserResponseDto;
-import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserResponseShortDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.promotion.PromotionTariff;
 import school.faang.user_service.entity.promotion.UserPromotion;
 

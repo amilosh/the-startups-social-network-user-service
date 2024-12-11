@@ -4,10 +4,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 
 import java.util.List;
-import java.util.stream.Stream;
 
 @Repository
 public interface SubscriptionRepository extends CrudRepository<User, Long> {

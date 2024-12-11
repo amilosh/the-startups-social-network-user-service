@@ -3,7 +3,7 @@ package school.faang.user_service.service.user.filter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.user.UserExtendedFilterDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.service.user.UserFilter;
 
 import java.util.function.Predicate;

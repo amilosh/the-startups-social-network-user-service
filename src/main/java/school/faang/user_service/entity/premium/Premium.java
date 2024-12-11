@@ -13,10 +13,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Setter
 @Getter

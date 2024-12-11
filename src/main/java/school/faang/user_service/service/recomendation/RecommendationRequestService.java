@@ -1,13 +1,10 @@
 package school.faang.user_service.service.recomendation;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.dto.recomendation.FilterRecommendationRequestsDto;
-import school.faang.user_service.dto.recomendation.RejectRecommendationRequestDto;
-import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.enumeration.RequestStatus;
 import school.faang.user_service.entity.recommendation.RecommendationRequest;
 import school.faang.user_service.exception.recomendation.request.RecommendationRequestNotFoundException;
 import school.faang.user_service.exception.recomendation.request.RecommendationRequestRejectException;
@@ -17,7 +14,6 @@ import school.faang.user_service.service.recomendation.filters.RecommendationReq
 import school.faang.user_service.validator.RecommendationRequestValidator;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 @Service

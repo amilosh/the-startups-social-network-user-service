@@ -3,7 +3,7 @@ package school.faang.user_service.util.premium;
 import school.faang.user_service.dto.payment.PaymentResponseDto;
 import school.faang.user_service.dto.premium.PremiumBoughtEventDto;
 import school.faang.user_service.dto.premium.PremiumResponseDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.payment.PaymentStatus;
 import school.faang.user_service.entity.premium.Premium;
 

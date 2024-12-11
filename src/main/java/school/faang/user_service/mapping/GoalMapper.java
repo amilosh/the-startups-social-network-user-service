@@ -9,8 +9,8 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.goal.CreateGoalDto;
 import school.faang.user_service.dto.goal.GoalResponseDto;
 import school.faang.user_service.dto.goal.UpdateGoalDto;
-import school.faang.user_service.entity.Skill;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.skill.Skill;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.goal.Goal;
 
 import java.util.List;

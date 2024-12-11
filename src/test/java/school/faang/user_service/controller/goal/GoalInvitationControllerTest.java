@@ -9,7 +9,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import school.faang.user_service.dto.goal.GoalInvitationDto;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
-import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.enumeration.RequestStatus;
 import school.faang.user_service.entity.goal.GoalInvitation;
 import school.faang.user_service.mapper.goal.GoalInvitationMapperImpl;
 import school.faang.user_service.service.goal.GoalInvitationService;

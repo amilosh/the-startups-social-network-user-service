@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import school.faang.user_service.annotation.AppExceptionHandler;
-import school.faang.user_service.dto.ResponseDto;
 import school.faang.user_service.exception.DataValidationException;
 
 @Slf4j
@@ -14,8 +13,8 @@ import school.faang.user_service.exception.DataValidationException;
 public class CustomAdvice {
     @ExceptionHandler(DataValidationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseDto handleDataValidationException(DataValidationException e) {
+    public ErrorResponse handleDataValidationException(DataValidationException e) {
         log.error("DataValidationException occurred: {}", e.getMessage(), e);
-        return new ResponseDto(e.getMessage());
+        return new ErrorResponse(e.getMessage());
     }
 }

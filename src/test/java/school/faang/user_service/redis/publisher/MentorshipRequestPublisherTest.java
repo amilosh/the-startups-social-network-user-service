@@ -12,8 +12,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestedEventDto;
-import school.faang.user_service.entity.MentorshipRequest;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.mentorship.MentorshipRequest;
+import school.faang.user_service.entity.user.User;
 
 import java.time.LocalDateTime;
 

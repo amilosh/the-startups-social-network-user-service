@@ -1,4 +1,4 @@
-package school.faang.user_service.entity;
+package school.faang.user_service.entity.project;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import school.faang.user_service.entity.user.User;
 
 import java.time.LocalDateTime;
 

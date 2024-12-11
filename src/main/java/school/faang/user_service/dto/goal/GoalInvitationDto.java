@@ -2,7 +2,7 @@ package school.faang.user_service.dto.goal;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
-import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.enumeration.RequestStatus;
 
 @Builder
 public record GoalInvitationDto(

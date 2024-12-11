@@ -3,7 +3,7 @@ package school.faang.user_service.service.goal.filter.invitation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import school.faang.user_service.dto.goal.InvitationFilterDto;
-import school.faang.user_service.entity.RequestStatus;
+import school.faang.user_service.entity.enumeration.RequestStatus;
 import school.faang.user_service.entity.goal.GoalInvitation;
 
 import java.util.stream.Stream;

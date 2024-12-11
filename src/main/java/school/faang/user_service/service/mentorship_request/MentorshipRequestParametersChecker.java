@@ -3,7 +3,7 @@ package school.faang.user_service.service.mentorship_request;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.entity.mentorship.MentorshipRequest;
 import school.faang.user_service.exception.BadRequestException;
 import school.faang.user_service.exception.mentorship_request.LittleTimeAfterLastRequestException;
 import school.faang.user_service.exception.mentorship_request.RequestToHimselfException;

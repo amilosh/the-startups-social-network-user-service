@@ -1,7 +1,7 @@
 package school.faang.user_service.service.promotion.util;
 
 import org.springframework.stereotype.Component;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.event.Event;
 import school.faang.user_service.entity.promotion.EventPromotion;
 import school.faang.user_service.entity.promotion.PromotionTariff;

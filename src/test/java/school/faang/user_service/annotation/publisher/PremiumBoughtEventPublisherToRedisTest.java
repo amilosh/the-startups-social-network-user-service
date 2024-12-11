@@ -8,7 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import school.faang.user_service.aspect.redis.PremiumBoughtEventPublisherToRedis;
 import school.faang.user_service.dto.premium.PremiumBoughtEventDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.premium.Premium;
 
 import java.time.LocalDateTime;

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.faang.user_service.dto.mentorship_request.MentorshipRequestDto;
 import school.faang.user_service.dto.mentorship_request.RejectionMentorshipRequestDto;
 import school.faang.user_service.dto.mentorship_request.RequestFilterDto;
-import school.faang.user_service.entity.MentorshipRequest;
+import school.faang.user_service.entity.mentorship.MentorshipRequest;
 import school.faang.user_service.mapper.mentorship_request.MentorshipRequestMapper;
 import school.faang.user_service.service.mentorship_request.MentorshipRequestService;
 

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import school.faang.user_service.aspect.EventPublisher;
 import school.faang.user_service.config.context.UserContext;
 import school.faang.user_service.dto.user.ProfileViewEventDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.redis.publisher.AbstractEventAggregator;
 import school.faang.user_service.repository.UserRepository;
 

@@ -7,7 +7,7 @@ import org.mapstruct.ReportingPolicy;
 import school.faang.user_service.dto.user.UserDto;
 import school.faang.user_service.dto.user.UserResponseDto;
 import school.faang.user_service.dto.user.UserResponseShortDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.entity.promotion.UserPromotion;
 
 import java.util.List;

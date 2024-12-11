@@ -12,7 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.test.web.servlet.MockMvc;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.redis.event.FollowerEvent;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.service.subscription.SubscriptionService;

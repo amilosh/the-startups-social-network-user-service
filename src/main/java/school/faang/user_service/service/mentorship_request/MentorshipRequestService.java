@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.annotation.event.SendMentorshipRequestReceived;
 import school.faang.user_service.annotation.event.SendMentorshipRequestAcceptedEvent;
 import school.faang.user_service.dto.mentorship_request.RequestFilterDto;
-import school.faang.user_service.entity.MentorshipRequest;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.mentorship.MentorshipRequest;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.BadRequestException;
 import school.faang.user_service.repository.UserRepository;
 import school.faang.user_service.repository.mentorship.MentorshipRequestRepository;
@@ -16,8 +16,8 @@ import school.faang.user_service.repository.mentorship.MentorshipRequestReposito
 import java.util.List;
 import java.util.stream.Stream;
 
-import static school.faang.user_service.entity.RequestStatus.ACCEPTED;
-import static school.faang.user_service.entity.RequestStatus.REJECTED;
+import static school.faang.user_service.entity.enumeration.RequestStatus.ACCEPTED;
+import static school.faang.user_service.entity.enumeration.RequestStatus.REJECTED;
 import static school.faang.user_service.service.mentorship_request.error_messages.MentorshipRequestErrorMessages.REQUEST_NOT_FOUND;
 
 @Slf4j

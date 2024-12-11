@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import school.faang.user_service.constant.ErrorMessages;
 import school.faang.user_service.constant.SubscriptionConst;
 import school.faang.user_service.dto.user.UserExtendedFilterDto;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exception.DataValidationException;
 import school.faang.user_service.redis.publisher.subscribe.PublishSubscribeUserEvent;
 import school.faang.user_service.repository.SubscriptionRepository;

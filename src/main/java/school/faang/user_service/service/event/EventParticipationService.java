@@ -3,10 +3,9 @@ package school.faang.user_service.service.event;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.exceptions.EventRegistrationException;
 import school.faang.user_service.repository.event.EventParticipationRepository;
 

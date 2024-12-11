@@ -1,7 +1,7 @@
 package school.faang.user_service.integration.factory;
 
-import school.faang.user_service.entity.Country;
-import school.faang.user_service.entity.User;
+import school.faang.user_service.entity.country.Country;
+import school.faang.user_service.entity.user.User;
 import school.faang.user_service.integration.CommonFactory;
 
 public class UserFactory extends CommonFactory {
