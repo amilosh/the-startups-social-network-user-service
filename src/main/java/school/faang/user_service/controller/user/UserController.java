@@ -1,7 +1,5 @@
 package school.faang.user_service.controller.user;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,15 +21,13 @@ import school.faang.user_service.service.user.UserService;
 import java.util.List;
 
 @Slf4j
-@Tag(name = "User Management", description = "Operations related to user management")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
-public class UserController {
+public class UserController implements UserControllerApi {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    @Operation(summary = "Register a new user", description = "Registers a new user and returns the created user data.")
     @PostMapping("/register")
     public ResponseEntity<UserDto> registerUser(@Valid @RequestBody UserDto userDto) {
         User user = userMapper.toEntity(userDto);
@@ -40,7 +36,6 @@ public class UserController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @Operation(summary = "Deactivate a user", description = "Deactivates a user by their ID.")
     @PutMapping("/{userId}/deactivate")
     public ResponseEntity<Void> deactivatedUser(@PathVariable Long userId) {
         userService.deactivateUser(userId);
@@ -61,7 +56,7 @@ public class UserController {
     }
 
     @PostMapping()
-    List<UserResponseDto> getUsersByIds(@RequestBody List<Long> ids) {
+    public List<UserResponseDto> getUsersByIds(@RequestBody List<Long> ids) {
         List<User> users = userService.getUsers(ids);
         return userMapper.toDtos(users);
     }
